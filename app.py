@@ -4586,8 +4586,10 @@ def _injury_designations_for_matchup(
     return {"home": _finalize("home"), "away": _finalize("away")}
 
 # --- Opponent allowances and team injury counts (for props explainability) ---
-_OPP_ALLOWED_CACHE: dict[str, dict[str, dict[str, float]]] = {}
-_OPP_ALLOWED_RANKS_CACHE: dict[str, dict[str, dict[str, int]]] = {}
+_OPP_ALLOWED_CACHE: dict[tuple[str, str, int], dict[str, dict[str, float]]] = {}
+_OPP_ALLOWED_RANKS_CACHE: dict[tuple[str, str, int], dict[str, dict[str, int]]] = {}
+_TEAM_OFFENSE_CACHE: dict[tuple[str, str, int], dict[str, float]] = {}
+_TEAM_OFFENSE_RANKS_CACHE: dict[tuple[str, str, int], dict[str, int]] = {}
 _TEAM_INJURY_COUNTS_CACHE: dict[str, dict[str, int]] = {}
 _TEAM_INJURY_IDENTITY_CACHE: dict[str, tuple[dict[str, list[str]], dict[str, float]]] = {}
 
@@ -4694,13 +4696,14 @@ def _compute_team_allowed_stats(date_str: str, days_back: int = 21) -> tuple[dic
     Reads data/processed/boxscores_YYYY-MM-DD.csv files for the last N days and aggregates per game.
     """
     try:
-        if date_str in _OPP_ALLOWED_CACHE and date_str in _OPP_ALLOWED_RANKS_CACHE:
-            return _OPP_ALLOWED_CACHE[date_str], _OPP_ALLOWED_RANKS_CACHE[date_str]
+        cache_key = (str(DATA_PROCESSED_DIR), str(date_str), int(days_back))
+        if cache_key in _OPP_ALLOWED_CACHE and cache_key in _OPP_ALLOWED_RANKS_CACHE:
+            return _OPP_ALLOWED_CACHE[cache_key], _OPP_ALLOWED_RANKS_CACHE[cache_key]
         base = DATA_PROCESSED_DIR
         if not base.exists():
-            _OPP_ALLOWED_CACHE[date_str] = {}
-            _OPP_ALLOWED_RANKS_CACHE[date_str] = {}
-            return _OPP_ALLOWED_CACHE[date_str], _OPP_ALLOWED_RANKS_CACHE[date_str]
+            _OPP_ALLOWED_CACHE[cache_key] = {}
+            _OPP_ALLOWED_RANKS_CACHE[cache_key] = {}
+            return _OPP_ALLOWED_CACHE[cache_key], _OPP_ALLOWED_RANKS_CACHE[cache_key]
         cutoff = pd.to_datetime(date_str, errors="coerce")
         if pd.isna(cutoff):
             from datetime import date as _date
@@ -4805,13 +4808,14 @@ def _compute_team_allowed_stats(date_str: str, days_back: int = 21) -> tuple[dic
                 ranks.setdefault(t, {})[mk] = int(r)
             # Normalize ranks to 1..N where N=len(series)
             # (already in that form via rank(min))
-        _OPP_ALLOWED_CACHE[date_str] = averages
-        _OPP_ALLOWED_RANKS_CACHE[date_str] = ranks
+        _OPP_ALLOWED_CACHE[cache_key] = averages
+        _OPP_ALLOWED_RANKS_CACHE[cache_key] = ranks
         return averages, ranks
     except Exception:
-        _OPP_ALLOWED_CACHE[date_str] = {}
-        _OPP_ALLOWED_RANKS_CACHE[date_str] = {}
-        return _OPP_ALLOWED_CACHE[date_str], _OPP_ALLOWED_RANKS_CACHE[date_str]
+        cache_key = (str(DATA_PROCESSED_DIR), str(date_str), int(days_back))
+        _OPP_ALLOWED_CACHE[cache_key] = {}
+        _OPP_ALLOWED_RANKS_CACHE[cache_key] = {}
+        return _OPP_ALLOWED_CACHE[cache_key], _OPP_ALLOWED_RANKS_CACHE[cache_key]
 
 def _compute_team_offense_stats(date_str: str, days_back: int = 21) -> tuple[dict[str, float], dict[str, int]]:
     """Compute per-team recent offensive points averages and ranks over a window.
@@ -4823,9 +4827,14 @@ def _compute_team_offense_stats(date_str: str, days_back: int = 21) -> tuple[dic
     Reads data/processed/boxscores_YYYY-MM-DD.csv files and aggregates per game.
     """
     try:
+        cache_key = (str(DATA_PROCESSED_DIR), str(date_str), int(days_back))
+        if cache_key in _TEAM_OFFENSE_CACHE and cache_key in _TEAM_OFFENSE_RANKS_CACHE:
+            return _TEAM_OFFENSE_CACHE[cache_key], _TEAM_OFFENSE_RANKS_CACHE[cache_key]
         base = DATA_PROCESSED_DIR
         if not base.exists():
-            return {}, {}
+            _TEAM_OFFENSE_CACHE[cache_key] = {}
+            _TEAM_OFFENSE_RANKS_CACHE[cache_key] = {}
+            return _TEAM_OFFENSE_CACHE[cache_key], _TEAM_OFFENSE_RANKS_CACHE[cache_key]
         cutoff = pd.to_datetime(date_str, errors="coerce")
         if pd.isna(cutoff):
             from datetime import date as _date
@@ -4881,9 +4890,14 @@ def _compute_team_offense_stats(date_str: str, days_back: int = 21) -> tuple[dic
             ord = series.rank(method="min", ascending=True)
             for t, r in ord.items():
                 ranks[t] = int(r)
+        _TEAM_OFFENSE_CACHE[cache_key] = averages
+        _TEAM_OFFENSE_RANKS_CACHE[cache_key] = ranks
         return averages, ranks
     except Exception:
-        return {}, {}
+        cache_key = (str(DATA_PROCESSED_DIR), str(date_str), int(days_back))
+        _TEAM_OFFENSE_CACHE[cache_key] = {}
+        _TEAM_OFFENSE_RANKS_CACHE[cache_key] = {}
+        return _TEAM_OFFENSE_CACHE[cache_key], _TEAM_OFFENSE_RANKS_CACHE[cache_key]
 
 
 def _team_advanced_stats_season_for_date(date_str: str) -> int:
@@ -4991,6 +5005,25 @@ def _load_team_advanced_stats_frame_cached(processed_dir_str: str, date_str: str
 
 def _load_team_advanced_stats_frame(date_str: str) -> pd.DataFrame:
     return _load_team_advanced_stats_frame_cached(str(DATA_PROCESSED_DIR), str(date_str))
+
+
+def _best_bets_team_lookup(mapping: dict[str, Any] | None, *team_values: Any) -> Any:
+    if not isinstance(mapping, dict):
+        return None
+
+    seen: set[str] = set()
+    for raw in team_values:
+        text = str(raw or "").strip()
+        if not text:
+            continue
+        tri = _get_tricode(text)
+        for key in (str(tri or "").strip().upper(), text.upper()):
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            if key in mapping:
+                return mapping.get(key)
+    return None
 
 
 # --- Player minutes priors (for connected sim; avoids placeholder players) ---
@@ -10513,6 +10546,46 @@ def _load_best_bets_game_context(date_str: str) -> dict[str, Any]:
     if not isinstance(df, pd.DataFrame) or df is None or df.empty:
         return {"by_pair": by_pair, "by_team": by_team, "slate_total_median": None}
 
+    recent_offense_avgs, _recent_offense_ranks = _compute_team_offense_stats(date_str)
+    allowed_avgs, _allowed_ranks = _compute_team_allowed_stats(date_str)
+    team_advanced = _load_team_advanced_stats_frame(date_str)
+
+    advanced_by_team: dict[str, dict[str, float | None]] = {}
+    league_advanced: dict[str, float | None] = {"pace": None, "off_rtg": None, "def_rtg": None}
+    if isinstance(team_advanced, pd.DataFrame) and not team_advanced.empty:
+        for _, adv_row in team_advanced.iterrows():
+            team_key = str(adv_row.get("team") or "").strip().upper()
+            if not team_key:
+                continue
+            advanced_by_team[team_key] = {
+                "pace": _safe_float(adv_row.get("pace")),
+                "off_rtg": _safe_float(adv_row.get("off_rtg")),
+                "def_rtg": _safe_float(adv_row.get("def_rtg")),
+            }
+        for col in ("pace", "off_rtg", "def_rtg"):
+            if col not in team_advanced.columns:
+                continue
+            series = pd.to_numeric(team_advanced[col], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+            if not series.empty:
+                league_advanced[col] = float(series.mean())
+
+    recent_allowed_pts: dict[str, float] = {}
+    for team_key, stats in (allowed_avgs or {}).items():
+        pts_allowed = _safe_float((stats or {}).get("pts"))
+        if pts_allowed is None:
+            continue
+        recent_allowed_pts[str(team_key or "").strip().upper()] = float(pts_allowed)
+
+    league_recent_offense = None
+    recent_offense_vals = [float(v) for v in (recent_offense_avgs or {}).values() if v is not None and np.isfinite(float(v))]
+    if recent_offense_vals:
+        league_recent_offense = float(np.mean(recent_offense_vals))
+
+    league_recent_allowed = None
+    recent_allowed_vals = [float(v) for v in recent_allowed_pts.values() if v is not None and np.isfinite(float(v))]
+    if recent_allowed_vals:
+        league_recent_allowed = float(np.mean(recent_allowed_vals))
+
     for _, r in df.iterrows():
         home = str(r.get("home_team") or r.get("home") or "").strip()
         away = str(r.get("visitor_team") or r.get("away_team") or r.get("away") or "").strip()
@@ -10520,6 +10593,18 @@ def _load_best_bets_game_context(date_str: str) -> dict[str, Any]:
             continue
         home_tri = (_get_tricode(home) or home.strip().upper())
         away_tri = (_get_tricode(away) or away.strip().upper())
+        home_adv = _best_bets_team_lookup(advanced_by_team, home_tri, home) or {}
+        away_adv = _best_bets_team_lookup(advanced_by_team, away_tri, away) or {}
+
+        home_pace = _safe_float((home_adv or {}).get("pace"))
+        away_pace = _safe_float((away_adv or {}).get("pace"))
+        game_pace = None
+        try:
+            if home_pace is not None and away_pace is not None:
+                game_pace = float(0.5 * (float(home_pace) + float(away_pace)))
+        except Exception:
+            game_pace = None
+
         total = _safe_float(r.get("totals") if r.get("totals") is not None else r.get("pred_total"))
         if total is not None:
             total_vals.append(float(total))
@@ -10541,6 +10626,22 @@ def _load_best_bets_game_context(date_str: str) -> dict[str, Any]:
             "home_spread": _safe_float(r.get("home_spread")),
             "away_spread": _safe_float(r.get("away_spread")),
             "market_total": _safe_float(r.get("total")),
+            "league_pace": _safe_float(league_advanced.get("pace")),
+            "league_off_rtg": _safe_float(league_advanced.get("off_rtg")),
+            "league_def_rtg": _safe_float(league_advanced.get("def_rtg")),
+            "home_pace": home_pace,
+            "away_pace": away_pace,
+            "game_pace": game_pace,
+            "home_off_rtg": _safe_float((home_adv or {}).get("off_rtg")),
+            "home_def_rtg": _safe_float((home_adv or {}).get("def_rtg")),
+            "away_off_rtg": _safe_float((away_adv or {}).get("off_rtg")),
+            "away_def_rtg": _safe_float((away_adv or {}).get("def_rtg")),
+            "home_recent_offense": _safe_float(_best_bets_team_lookup(recent_offense_avgs, home_tri, home)),
+            "away_recent_offense": _safe_float(_best_bets_team_lookup(recent_offense_avgs, away_tri, away)),
+            "home_recent_allowed_pts": _safe_float(_best_bets_team_lookup(recent_allowed_pts, home_tri, home)),
+            "away_recent_allowed_pts": _safe_float(_best_bets_team_lookup(recent_allowed_pts, away_tri, away)),
+            "league_recent_offense": league_recent_offense,
+            "league_recent_allowed_pts": league_recent_allowed,
         }
         for key in {
             (home.upper(), away.upper()),
@@ -10778,6 +10879,8 @@ def _decorate_game_best_bet_candidate(
 
     own_tri = home_tri if pick_home else away_tri
     opp_tri = away_tri if pick_home else home_tri
+    own_name = home if pick_home else away
+    opp_name = away if pick_home else home
     own_outs = int((injury_snapshot.get("counts") or {}).get(own_tri, 0) or 0)
     opp_outs = int((injury_snapshot.get("counts") or {}).get(opp_tri, 0) or 0)
     own_key_outs = list((injury_snapshot.get("key_outs") or {}).get(own_tri, []) or [])
@@ -10786,17 +10889,117 @@ def _decorate_game_best_bet_candidate(
 
     basketball_reasons: list[str] = []
     basketball_points = 0.0
+
+    def _add_basketball_reason(text: str | None, points: float) -> None:
+        nonlocal basketball_points
+        if not text:
+            return
+        basketball_reasons.append(str(text).strip())
+        basketball_points += float(points)
+
     if market in {"ATS", "ML"}:
+        league_off = _safe_float((ctx or {}).get("league_off_rtg")) if isinstance(ctx, dict) else None
+        league_def = _safe_float((ctx or {}).get("league_def_rtg")) if isinstance(ctx, dict) else None
+        own_off = _safe_float((ctx or {}).get("home_off_rtg" if pick_home else "away_off_rtg")) if isinstance(ctx, dict) else None
+        own_def = _safe_float((ctx or {}).get("home_def_rtg" if pick_home else "away_def_rtg")) if isinstance(ctx, dict) else None
+        opp_off = _safe_float((ctx or {}).get("away_off_rtg" if pick_home else "home_off_rtg")) if isinstance(ctx, dict) else None
+        opp_def = _safe_float((ctx or {}).get("away_def_rtg" if pick_home else "home_def_rtg")) if isinstance(ctx, dict) else None
+        own_recent_offense = _safe_float((ctx or {}).get("home_recent_offense" if pick_home else "away_recent_offense")) if isinstance(ctx, dict) else None
+        opp_recent_offense = _safe_float((ctx or {}).get("away_recent_offense" if pick_home else "home_recent_offense")) if isinstance(ctx, dict) else None
+        own_recent_allowed = _safe_float((ctx or {}).get("home_recent_allowed_pts" if pick_home else "away_recent_allowed_pts")) if isinstance(ctx, dict) else None
+        opp_recent_allowed = _safe_float((ctx or {}).get("away_recent_allowed_pts" if pick_home else "home_recent_allowed_pts")) if isinstance(ctx, dict) else None
+        league_recent_offense = _safe_float((ctx or {}).get("league_recent_offense")) if isinstance(ctx, dict) else None
+        league_recent_allowed = _safe_float((ctx or {}).get("league_recent_allowed_pts")) if isinstance(ctx, dict) else None
+        league_pace = _safe_float((ctx or {}).get("league_pace")) if isinstance(ctx, dict) else None
+        game_pace = _safe_float((ctx or {}).get("game_pace")) if isinstance(ctx, dict) else None
+
+        attack_edge = 0.0
+        defense_softness = 0.0
+        if (own_off is not None) and (league_off is not None):
+            attack_edge = max(0.0, float(own_off) - float(league_off))
+        if (opp_def is not None) and (league_def is not None):
+            defense_softness = max(0.0, float(opp_def) - float(league_def))
+        if attack_edge >= 1.5 and defense_softness >= 1.0:
+            _add_basketball_reason(
+                f"{own_name} has graded {attack_edge:.1f} points per 100 above league-average offense, and {opp_name}'s defense has been {defense_softness:.1f} points softer than average",
+                0.28 + min(0.12, (float(attack_edge) + float(defense_softness)) / 24.0),
+            )
+
+        defense_edge = 0.0
+        opponent_off_gap = 0.0
+        if (own_def is not None) and (league_def is not None):
+            defense_edge = max(0.0, float(league_def) - float(own_def))
+        if (opp_off is not None) and (league_off is not None):
+            opponent_off_gap = max(0.0, float(league_off) - float(opp_off))
+        if defense_edge >= 1.0 and opponent_off_gap >= 1.0:
+            _add_basketball_reason(
+                f"{own_name} can control possessions with a defense {defense_edge:.1f} points per 100 better than league average against a {opp_name} offense {opponent_off_gap:.1f} below average",
+                0.24 + min(0.10, (float(defense_edge) + float(opponent_off_gap)) / 24.0),
+            )
+
+        recent_attack_edge = None
+        recent_softness = None
+        if own_recent_offense is not None and league_recent_offense is not None:
+            recent_attack_edge = float(own_recent_offense) - float(league_recent_offense)
+        if opp_recent_allowed is not None and league_recent_allowed is not None:
+            recent_softness = float(opp_recent_allowed) - float(league_recent_allowed)
+        if (
+            own_recent_offense is not None
+            and opp_recent_allowed is not None
+            and (
+                (recent_attack_edge is not None and recent_attack_edge >= 1.5)
+                or (recent_softness is not None and recent_softness >= 1.5)
+                or (float(own_recent_offense) - float(opp_recent_allowed) >= 2.0)
+            )
+        ):
+            _add_basketball_reason(
+                f"{own_name} has scored {float(own_recent_offense):.1f} points per game over the last 21 days, and {opp_name} has allowed {float(opp_recent_allowed):.1f} over that same stretch",
+                0.22 + min(0.08, max(float(recent_attack_edge or 0.0), 0.0) / 10.0 + max(float(recent_softness or 0.0), 0.0) / 10.0),
+            )
+
+        recent_defense_edge = None
+        recent_opponent_lull = None
+        if own_recent_allowed is not None and league_recent_allowed is not None:
+            recent_defense_edge = float(league_recent_allowed) - float(own_recent_allowed)
+        if opp_recent_offense is not None and league_recent_offense is not None:
+            recent_opponent_lull = float(league_recent_offense) - float(opp_recent_offense)
+        if (
+            own_recent_allowed is not None
+            and opp_recent_offense is not None
+            and (
+                (recent_defense_edge is not None and recent_defense_edge >= 1.5)
+                or (recent_opponent_lull is not None and recent_opponent_lull >= 1.5)
+                or (float(opp_recent_offense) - float(own_recent_allowed) <= 2.0)
+            )
+        ):
+            _add_basketball_reason(
+                f"{own_name} has held opponents to {float(own_recent_allowed):.1f} points per game lately while {opp_name} has scored {float(opp_recent_offense):.1f}",
+                0.20 + min(0.08, max(float(recent_defense_edge or 0.0), 0.0) / 10.0 + max(float(recent_opponent_lull or 0.0), 0.0) / 10.0),
+            )
+
+        if market == "ATS" and pick_line is not None and game_pace is not None and league_pace is not None:
+            pace_gap = float(game_pace) - float(league_pace)
+            if float(pick_line) > 0.0 and pace_gap <= -1.5:
+                _add_basketball_reason(
+                    f"The matchup projects {abs(float(pace_gap)):.1f} possessions slower than league average, which helps an underdog cover in fewer-possession game states",
+                    0.12,
+                )
+            elif float(pick_line) < 0.0 and pace_gap >= 1.5:
+                _add_basketball_reason(
+                    f"The matchup projects {float(pace_gap):.1f} possessions faster than league average, which gives the stronger side more trips to create separation",
+                    0.12,
+                )
+
         outs_diff = opp_outs - own_outs
         if outs_diff >= 1:
-            basketball_reasons.append(f"{opp_tri} is more depleted tonight with {outs_diff} extra rotation outs on the wrong side of this matchup")
-            basketball_points += min(0.45, 0.18 + (0.10 * float(outs_diff)))
+            _add_basketball_reason(
+                f"{opp_name} is more depleted tonight with {outs_diff} extra rotation outs on the wrong side of this matchup",
+                min(0.20, 0.10 + (0.05 * float(outs_diff))),
+            )
         if opp_key_outs:
-            basketball_reasons.append(f"Key absences for {opp_tri} include {', '.join(opp_key_outs[:2])}")
-            basketball_points += 0.12
+            _add_basketball_reason(f"Key absences for {opp_name} include {', '.join(opp_key_outs[:2])}", 0.08)
         if own_outs == 0 and opp_outs >= 1:
-            basketball_reasons.append(f"{side} comes in with the cleaner rotation health profile")
-            basketball_points += 0.12
+            _add_basketball_reason(f"{side} comes in with the cleaner rotation health profile", 0.08)
     else:
         is_over = side.strip().lower().startswith("o")
         if pred_total is not None and slate_total_median is not None:
@@ -27164,13 +27367,17 @@ def api_cache_flush():
             _TEAM_INJURY_COUNTS_CACHE.clear()
             _OPP_ALLOWED_CACHE.clear()
             _OPP_ALLOWED_RANKS_CACHE.clear()
+            _TEAM_OFFENSE_CACHE.clear()
+            _TEAM_OFFENSE_RANKS_CACHE.clear()
             return jsonify({"flushed": "all"})
         else:
             if d:
                 _TEAM_INJURY_IDENTITY_CACHE.pop(d, None)
                 _TEAM_INJURY_COUNTS_CACHE.pop(d, None)
-                _OPP_ALLOWED_CACHE.pop(d, None)
-                _OPP_ALLOWED_RANKS_CACHE.pop(d, None)
+                for cache_obj in (_OPP_ALLOWED_CACHE, _OPP_ALLOWED_RANKS_CACHE, _TEAM_OFFENSE_CACHE, _TEAM_OFFENSE_RANKS_CACHE):
+                    for cache_key in list(cache_obj.keys()):
+                        if isinstance(cache_key, tuple) and len(cache_key) >= 2 and str(cache_key[1]) == str(d):
+                            cache_obj.pop(cache_key, None)
                 return jsonify({"flushed_date": d})
             return jsonify({"note": "no date provided; nothing flushed"}), 400
     except Exception as e:

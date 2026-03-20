@@ -47,6 +47,24 @@ def _write_games_fixture(processed, date_str: str) -> None:
 
     pd.DataFrame(
         [
+            {"gameId": "G1", "teamTricode": "Sample Home", "points": 118, "reboundsTotal": 45, "assists": 30, "threePointersMade": 16},
+            {"gameId": "G1", "teamTricode": "Sample Away", "points": 102, "reboundsTotal": 41, "assists": 22, "threePointersMade": 11},
+            {"gameId": "G2", "teamTricode": "Totals Home", "points": 105, "reboundsTotal": 43, "assists": 24, "threePointersMade": 13},
+            {"gameId": "G2", "teamTricode": "Totals Away", "points": 99, "reboundsTotal": 39, "assists": 20, "threePointersMade": 9},
+        ]
+    ).to_csv(processed / f"boxscores_{date_str}.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {"team": "Sample Home", "pace": 101.5, "off_rtg": 120.2, "def_rtg": 108.6},
+            {"team": "Sample Away", "pace": 98.4, "off_rtg": 109.1, "def_rtg": 116.4},
+            {"team": "Totals Home", "pace": 95.8, "off_rtg": 109.8, "def_rtg": 107.9},
+            {"team": "Totals Away", "pace": 94.9, "off_rtg": 105.2, "def_rtg": 110.3},
+        ]
+    ).to_csv(processed / f"team_advanced_stats_2026_asof_{date_str}.csv", index=False)
+
+    pd.DataFrame(
+        [
             {
                 "date": date_str,
                 "home_team": "Sample Home",
@@ -329,6 +347,9 @@ def test_api_best_bets_parlays_orders_basketball_reasons_first(tmp_path, monkeyp
     assert payload["status"] == "ok"
     assert payload["best_bet"]["basketball_summary"]
     assert payload["best_bet"]["reasons"][0] == payload["best_bet"]["basketball_reasons"][0]
+    first_reason = payload["best_bet"]["basketball_reasons"][0].lower()
+    assert any(token in first_reason for token in ("offense", "offensive", "defense", "points per game"))
+    assert "rotation outs" not in first_reason
     assert payload["best_bets"][0]["recommendation_priority_score"] >= payload["best_bets"][1]["recommendation_priority_score"]
     assert len(payload["parlays"]) == 1
     legs = payload["parlays"][0]["legs"]
