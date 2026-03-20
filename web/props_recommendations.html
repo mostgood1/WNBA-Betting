@@ -186,53 +186,79 @@
         const playsWrap = document.createElement('div'); playsWrap.className='plays';
         // Context pills: dedupe reasons and badges (prefer unified why_explain)
         try{
-          const labels = [];
-          const whyExplain = (it.why_explain||'').trim();
-          const explain = (it.top_play_explain||'').trim();
-          const reasons = Array.isArray(it.top_play_reasons)? it.top_play_reasons: [];
-          if(whyExplain) labels.push(whyExplain);
-          if(explain) labels.push(explain);
-          if(!whyExplain){ (reasons||[]).forEach(s=>{ if(s && String(s).trim()!=='') labels.push(String(s).trim()); }); }
-          // Injury badges: prefer impact if available, else use outs count
-          const injImpact = (it.team_injury_impact!=null && Number.isFinite(Number(it.team_injury_impact)))? Number(it.team_injury_impact): null;
-          const injOuts = (it.team_injuries_out!=null && Number.isFinite(Number(it.team_injuries_out)) && Number(it.team_injuries_out)>0)? Number(it.team_injuries_out): null;
-          if(injImpact!=null) labels.push(`Injury impact: ${injImpact.toFixed(1)}`);
-          else if(injOuts!=null) labels.push(`Team outs: ${injOuts}`);
-          // Opponent rank for the top play's market when available
-          try{
-            let mk = '';
-            if(it.top_play && typeof it.top_play==='object') mk = String(it.top_play.market||'').toLowerCase();
-            if(mk==='threes' || mk==='3pt'){
-              const tr = (it.opp_allowed_threes_rank!=null && Number.isFinite(Number(it.opp_allowed_threes_rank)))? Number(it.opp_allowed_threes_rank): null;
-              if(tr!=null) labels.push(`Opp 3PT rank: ${tr}`);
-              else {
-                const opp = it.opponent_ranks||{}; const rk = opp.threes;
-                if(rk!=null && Number.isFinite(Number(rk))) labels.push(`Opp 3PT rank: ${Number(rk)}`);
+          const dedupeLabels = (labels)=> {
+            const uniq = [];
+            const seen = new Set();
+            (labels||[]).forEach(label => {
+              const text = String(label||'').trim();
+              if(!text) return;
+              const key = text.toLowerCase();
+              if(seen.has(key)) return;
+              seen.add(key);
+              uniq.push(text);
+            });
+            return uniq;
+          };
+          const appendReasonRow = (title, labels)=> {
+            const uniq = dedupeLabels(labels);
+            if(!uniq.length) return;
+            const row = document.createElement('div'); row.className='play';
+            row.innerHTML = `<div>${title}</div><div>${uniq.map(label=> `<span class="pill pill-muted">${label}</span>`).join(' ')}</div>`;
+            playsWrap.appendChild(row);
+          };
+
+          const basketballReasons = Array.isArray(it.basketball_reasons)? it.basketball_reasons: [];
+          const modelReasons = Array.isArray(it.model_reasons)? it.model_reasons: [];
+          const marketReasons = Array.isArray(it.market_reasons)? it.market_reasons: [];
+          const hasReasonBuckets = basketballReasons.length || modelReasons.length || marketReasons.length;
+
+          if(hasReasonBuckets){
+            appendReasonRow('Basketball', basketballReasons);
+            appendReasonRow('Model', modelReasons);
+            appendReasonRow('Market', marketReasons);
+          } else {
+            const labels = [];
+            const whyExplain = (it.why_explain||'').trim();
+            const explain = (it.top_play_explain||'').trim();
+            const reasons = Array.isArray(it.top_play_reasons)? it.top_play_reasons: [];
+            if(whyExplain) labels.push(whyExplain);
+            if(explain) labels.push(explain);
+            if(!whyExplain){ (reasons||[]).forEach(s=>{ if(s && String(s).trim()!=='') labels.push(String(s).trim()); }); }
+            // Injury badges: prefer impact if available, else use outs count
+            const injImpact = (it.team_injury_impact!=null && Number.isFinite(Number(it.team_injury_impact)))? Number(it.team_injury_impact): null;
+            const injOuts = (it.team_injuries_out!=null && Number.isFinite(Number(it.team_injuries_out)) && Number(it.team_injuries_out)>0)? Number(it.team_injuries_out): null;
+            if(injImpact!=null) labels.push(`Injury impact: ${injImpact.toFixed(1)}`);
+            else if(injOuts!=null) labels.push(`Team outs: ${injOuts}`);
+            // Opponent rank for the top play's market when available
+            try{
+              let mk = '';
+              if(it.top_play && typeof it.top_play==='object') mk = String(it.top_play.market||'').toLowerCase();
+              if(mk==='threes' || mk==='3pt'){
+                const tr = (it.opp_allowed_threes_rank!=null && Number.isFinite(Number(it.opp_allowed_threes_rank)))? Number(it.opp_allowed_threes_rank): null;
+                if(tr!=null) labels.push(`Opp 3PT rank: ${tr}`);
+                else {
+                  const opp = it.opponent_ranks||{}; const rk = opp.threes;
+                  if(rk!=null && Number.isFinite(Number(rk))) labels.push(`Opp 3PT rank: ${Number(rk)}`);
+                }
+              } else if(['pts','reb','ast','pra','pa','pr','ra'].includes(mk)){
+                const pr = (it.opp_allowed_pts_rank!=null && Number.isFinite(Number(it.opp_allowed_pts_rank)))? Number(it.opp_allowed_pts_rank): null;
+                if(pr!=null) labels.push(`Opp PTS rank: ${pr}`);
+                else {
+                  const opp = it.opponent_ranks||{}; const key = (mk==='pra'?'pts':mk); const rk = opp[key];
+                  if(rk!=null && Number.isFinite(Number(rk))) labels.push(`Opp ${key.toUpperCase()} rank: ${Number(rk)}`);
+                }
               }
-            } else if(['pts','reb','ast','pra','pa','pr','ra'].includes(mk)){
-              const pr = (it.opp_allowed_pts_rank!=null && Number.isFinite(Number(it.opp_allowed_pts_rank)))? Number(it.opp_allowed_pts_rank): null;
-              if(pr!=null) labels.push(`Opp PTS rank: ${pr}`);
-              else {
-                const opp = it.opponent_ranks||{}; const key = (mk==='pra'?'pts':mk); const rk = opp[key];
-                if(rk!=null && Number.isFinite(Number(rk))) labels.push(`Opp ${key.toUpperCase()} rank: ${Number(rk)}`);
+            }catch(_){ /* ignore */ }
+            // Consensus and best line hints when normalized fields are present
+            try{
+              if(!whyExplain){
+                const consNorm = Number(it.top_play_consensus||0);
+                let consBooks = Math.round(consNorm*4)+1; if(!Number.isFinite(consBooks) || consBooks<2) consBooks = 0;
+                if(consBooks>=2) labels.push(`Consensus ${consBooks} books`);
+                if(Number(it.top_play_line_adv||0)>=1) labels.push('Best line available');
               }
-            }
-          }catch(_){ /* ignore */ }
-          // Consensus and best line hints when normalized fields are present
-          try{
-            if(!whyExplain){
-              const consNorm = Number(it.top_play_consensus||0);
-              let consBooks = Math.round(consNorm*4)+1; if(!Number.isFinite(consBooks) || consBooks<2) consBooks = 0;
-              if(consBooks>=2) labels.push(`Consensus ${consBooks} books`);
-              if(Number(it.top_play_line_adv||0)>=1) labels.push('Best line available');
-            }
-          }catch(_){ /* ignore */ }
-          const uniq = Array.from(new Set(labels.map(s=> s.toLowerCase())));
-          const labelMap = new Map(labels.map(s=> [s.toLowerCase(), s]));
-          if(uniq.length){
-            const ctxRow = document.createElement('div'); ctxRow.className='play';
-            ctxRow.innerHTML = `<div>Context</div><div>${uniq.map(k=> `<span class="pill pill-muted">${labelMap.get(k)}</span>`).join(' ')}</div>`;
-            playsWrap.appendChild(ctxRow);
+            }catch(_){ /* ignore */ }
+            appendReasonRow('Context', labels);
           }
         }catch(_){ /* ignore */ }
         const ladders = it.ladders || [];
@@ -334,8 +360,10 @@
     <div class="nav">
       <a href="/">Cards</a>
       <a href="/recommendations">Recommendations</a>
+        <a href="/best-bets-parlays">Best Bets</a>
       <a href="/props">Props</a>
   <a href="/props/recommendations" class="fw-600">Props Recs</a>
+        <a href="/props/best-bets-parlays">Props Parlays</a>
       <a href="/reconciliation">Reconciliation</a>
       <a href="/odds-coverage">Odds Coverage</a>
       <button onclick="toggleTheme()">Toggle Theme</button>
