@@ -445,6 +445,176 @@ def test_api_props_recommendations_builds_basketball_first_reason_buckets_for_un
     assert any(reason.startswith("EV ") for reason in card["market_reasons"])
 
 
+def test_recommendations_all_games_builds_basketball_first_reason_buckets(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+    date_str = "2026-03-19"
+    _write_games_fixture(processed, date_str)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "_maybe_fetch_remote_processed", lambda _name: None)
+    monkeypatch.setattr(
+        app_module,
+        "_load_best_bets_game_context",
+        lambda _date: {
+            "slate_total_median": 221.0,
+            "by_pair": {
+                ("SAMPLE HOME", "SAMPLE AWAY"): {
+                    "pred_margin": 7.6,
+                    "pred_total": 226.0,
+                    "home_win_prob": 0.73,
+                    "commence_time": f"{date_str}T23:00:00Z",
+                },
+                ("TOTALS HOME", "TOTALS AWAY"): {
+                    "pred_margin": 1.2,
+                    "pred_total": 218.8,
+                    "home_win_prob": 0.58,
+                    "commence_time": f"{date_str}T23:30:00Z",
+                },
+            },
+        },
+    )
+    monkeypatch.setattr(
+        app_module,
+        "_best_bets_load_injury_snapshot",
+        lambda _date: {
+            "counts": {"SAMPLE HOME": 0, "SAMPLE AWAY": 2, "TOTALS HOME": 1, "TOTALS AWAY": 2},
+            "key_outs": {
+                "SAMPLE AWAY": ["Missing Wing", "Backup Guard"],
+                "TOTALS AWAY": ["Reserve Big"],
+            },
+        },
+    )
+    monkeypatch.setattr(app_module, "_compute_team_allowed_stats", lambda _date: ({}, {}))
+    monkeypatch.setattr(app_module, "_compute_team_offense_stats", lambda _date, days_back=None: ({}, {}))
+    monkeypatch.setattr(app_module, "_team_injury_counts", lambda _date: {})
+    monkeypatch.setattr(app_module, "_team_injury_identity", lambda _date: ({}, {}))
+    monkeypatch.setattr(app_module, "_get_slate_team_tricodes", lambda _date: set())
+    monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
+
+    app_module.app.testing = True
+    with app_module.app.test_client() as client:
+        resp = client.get(f"/recommendations?format=json&view=all&date={date_str}&categories=games")
+
+    assert resp.status_code == 200
+    payload = resp.get_json()
+    assert payload["games"]
+
+    ats = next(item for item in payload["games"] if item["market"] == "ATS")
+    assert ats["basketball_summary"]
+    assert ats["basketball_reasons"]
+    assert ats["model_reasons"]
+    assert ats["market_reasons"]
+    assert ats["why_reasons"][0] == ats["basketball_reasons"][0]
+    assert ats["why_explain"]
+    assert any("depleted" in reason.lower() or "health profile" in reason.lower() for reason in ats["basketball_reasons"])
+    assert any("model" in reason.lower() or "sim" in reason.lower() for reason in ats["model_reasons"])
+    assert any("value" in reason.lower() or "price" in reason.lower() for reason in ats["market_reasons"])
+
+
+def test_recommendations_all_props_preserves_bucketed_why_reasons(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+    date_str = "2026-03-19"
+    _write_props_recommendations_route_fixture(processed, date_str)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "_maybe_fetch_remote_processed", lambda _name: None)
+    monkeypatch.setattr(
+        app_module,
+        "_load_best_bets_game_context",
+        lambda _date: {
+            "slate_total_median": 223.0,
+            "by_team": {
+                "BOS": {
+                    "home_team": "BOS",
+                    "away_team": "MIA",
+                    "home_tri": "BOS",
+                    "away_tri": "MIA",
+                    "pred_total": 227.0,
+                    "commence_time": f"{date_str}T23:00:00Z",
+                },
+                "LAL": {
+                    "home_team": "LAL",
+                    "away_team": "PHX",
+                    "home_tri": "LAL",
+                    "away_tri": "PHX",
+                    "pred_total": 219.0,
+                    "commence_time": f"{date_str}T23:45:00Z",
+                },
+            },
+        },
+    )
+    monkeypatch.setattr(
+        app_module,
+        "_load_best_bets_props_prediction_lookup",
+        lambda _date: {
+            (app_module._norm_player_name("Star One"), "BOS"): {
+                "player_name": "Star One",
+                "team": "BOS",
+                "b2b": 0.0,
+                "lag1_pts": 31.0,
+                "roll3_pts": 28.5,
+                "roll5_pts": 27.9,
+                "pred_min": 35.2,
+                "roll5_min": 34.6,
+                "pred_pts": 27.4,
+                "sd_pts": 5.4,
+                "opponent": "MIA",
+            },
+            (app_module._norm_player_name("Glass Cleaner"), "LAL"): {
+                "player_name": "Glass Cleaner",
+                "team": "LAL",
+                "b2b": 1.0,
+                "lag1_reb": 6.0,
+                "roll3_reb": 6.7,
+                "roll5_reb": 6.8,
+                "pred_min": 30.4,
+                "roll5_min": 29.7,
+                "pred_reb": 7.1,
+                "sd_reb": 2.6,
+                "opponent": "PHX",
+            },
+        },
+    )
+    monkeypatch.setattr(
+        app_module,
+        "_best_bets_load_injury_snapshot",
+        lambda _date: {
+            "counts": {"BOS": 3, "LAL": 0},
+            "key_outs": {"BOS": ["Second Unit Wing", "Reserve Guard", "Bench Big"]},
+        },
+    )
+    monkeypatch.setattr(app_module, "_team_injury_counts", lambda _date: {"BOS": 3, "LAL": 0})
+    monkeypatch.setattr(
+        app_module,
+        "_team_injury_identity",
+        lambda _date: ({"BOS": ["Second Unit Wing", "Reserve Guard", "Bench Big"]}, {"BOS": 60.0, "LAL": 0.0}),
+    )
+
+    app_module.app.testing = True
+    with app_module.app.test_client() as client:
+        resp = client.get(f"/recommendations?format=json&view=all&date={date_str}&categories=props")
+
+    assert resp.status_code == 200
+    payload = resp.get_json()
+    assert payload["props"]
+
+    star = next(item for item in payload["props"] if str(item.get("player") or "").upper() == "STAR ONE")
+    assert star["basketball_summary"]
+    assert star["basketball_reasons"]
+    assert star["model_reasons"]
+    assert star["market_reasons"]
+    assert star["top_play_reasons"][0] == star["basketball_reasons"][0]
+    assert star["why_reasons"][0] == star["basketball_reasons"][0]
+    assert star["why_explain"]
+    assert star["score_reasons"]
+    assert star["why_reasons"] != star["score_reasons"]
+    assert any("bench usage" in reason.lower() or "usage uptick" in reason.lower() for reason in star["basketball_reasons"])
+    assert any("model baseline" in reason.lower() or "win probability" in reason.lower() for reason in star["model_reasons"])
+    assert any("value" in reason.lower() or "price" in reason.lower() for reason in star["market_reasons"])
+
+
 def test_best_bets_page_routes_render():
     app_module.app.testing = True
     with app_module.app.test_client() as client:

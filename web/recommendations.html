@@ -309,6 +309,52 @@
       }
     }
 
+    function _dedupeReasonTexts(values){
+      const out = [];
+      const seen = new Set();
+      const arr = Array.isArray(values) ? values : [];
+      arr.forEach((value)=>{
+        const text = String(value||'').trim();
+        if(!text) return;
+        const key = text.toLowerCase();
+        if(seen.has(key)) return;
+        seen.add(key);
+        out.push(text);
+      });
+      return out;
+    }
+
+    function _reasonBuckets(item){
+      return {
+        basketball: _dedupeReasonTexts(item && item.basketball_reasons),
+        model: _dedupeReasonTexts(item && item.model_reasons),
+        market: _dedupeReasonTexts(item && item.market_reasons),
+      };
+    }
+
+    function _renderReasonBuckets(item, options){
+      try{
+        const cfg = options || {};
+        const maxItems = Number.isFinite(Number(cfg.maxItems)) ? Number(cfg.maxItems) : 2;
+        const lineClass = cfg.lineClass || 'muted-small mt-4';
+        const titleClass = cfg.titleClass || 'team-text';
+        const pillClass = cfg.pillClass || 'pill';
+        const buckets = _reasonBuckets(item);
+        const rows = [
+          ['Basketball', buckets.basketball],
+          ['Sim', buckets.model],
+          ['Market', buckets.market],
+        ].map(([label, values])=>{
+          const subset = (values || []).slice(0, maxItems);
+          if(!subset.length) return '';
+          return `<div class="${lineClass}"><span class="${titleClass}">${esc(label)}:</span> ${subset.map((value)=> `<span class="${pillClass}">${esc(value)}</span>`).join(' ')}</div>`;
+        }).filter(Boolean).join('');
+        return rows;
+      }catch(_){
+        return '';
+      }
+    }
+
     function _gameLine(r){
       const mk = String(r.market||'').toUpperCase();
       const side = String(r.side||'');
@@ -375,11 +421,12 @@
             const mean = (p.sim_mean!=null && Number.isFinite(Number(p.sim_mean))) ? Number(p.sim_mean).toFixed(2) : '';
             const sd = (p.sim_sd!=null && Number.isFinite(Number(p.sim_sd))) ? Number(p.sim_sd).toFixed(2) : '';
             const sim = (mean||sd) ? `<div class="muted-tiny">sim μ ${esc(mean||'—')} · σ ${esc(sd||'—')}</div>` : '';
+            const reasons = _renderReasonBuckets(p, { maxItems: 1, lineClass: 'muted-tiny', titleClass: 'team-text', pillClass: 'pill' });
             return `
               <tr>
                 <td class="lh-13">${esc(player)}<div class="muted-tiny">${esc(team)}</div></td>
                 <td>${esc(String(marketLabel(p.market)||''))}</td>
-                <td>${esc(pickLabel(p))}${sim}</td>
+                <td>${esc(pickLabel(p))}${sim}${reasons}</td>
                 <td class="tar">${esc(wp)}</td>
               </tr>
             `;
@@ -423,10 +470,11 @@
             const team = String(p.team||'');
             const matchup = (p.away && p.home) ? `${String(p.away)} @ ${String(p.home)}` : '';
             const wp = fmtPct(p.win_prob);
+            const reasons = _renderReasonBuckets(p, { maxItems: 1, lineClass: 'muted-tiny', titleClass: 'team-text', pillClass: 'pill' });
             return `
               <tr>
                 <td class="lh-13">${esc(player)}<div class="muted-tiny">${esc(team)}${matchup?` · ${esc(matchup)}`:''}</div></td>
-                <td>${esc(pickLabel(p))}</td>
+                <td>${esc(pickLabel(p))}${reasons}</td>
                 <td class="tar">${esc(wp)}</td>
               </tr>
             `;
@@ -561,9 +609,11 @@
         const timeTxt = ft? ` <span class="muted-small">· ${ft}</span>` : '';
 
         const picks = c.picks || {};
-        const ml = picks.ML ? pickLine(picks.ML) : '—';
-        const ats = picks.ATS ? pickLine(picks.ATS) : '—';
-        const tot = picks.TOTAL ? pickLine(picks.TOTAL) : '—';
+        const renderPickBlock = (label, pick)=>{
+          if(!pick) return `<div class="muted-small">${label}: —</div>`;
+          const reasons = _renderReasonBuckets(pick, { maxItems: 2, lineClass: 'muted-small mt-4', titleClass: 'team-text', pillClass: 'pill' });
+          return `<div class="mt-4"><div class="muted-small">${label}: ${pickLine(pick)}</div>${reasons}</div>`;
+        };
 
         const props = c.props || {};
         const cats = Object.keys(props);
@@ -577,7 +627,8 @@
             const pred = (p.pred!=null && Number.isFinite(Number(p.pred))) ? fmtNum(p.pred,1) : '';
             const res = p.result ? `<span class="pill">${String(p.result)}</span>` : '';
             const recon = (act||pred) ? ` <span class="muted-small">pred ${pred||'—'} · act ${act||'—'}</span>` : '';
-            return `<div class="mt-4"><span class="team-text">${String(p.player||'')}</span> <span class="muted-small">(${String(p.team||'')})</span> — ${propLabel(p)}${price?` <span class="pill">${price}</span>`:''}${ev?` <span class="pill">EV ${ev}</span>`:''}${res}${recon}</div>`;
+            const reasons = _renderReasonBuckets(p, { maxItems: 2, lineClass: 'muted-small mt-4', titleClass: 'team-text', pillClass: 'pill' });
+            return `<div class="mt-4"><span class="team-text">${String(p.player||'')}</span> <span class="muted-small">(${String(p.team||'')})</span> — ${propLabel(p)}${price?` <span class="pill">${price}</span>`:''}${ev?` <span class="pill">EV ${ev}</span>`:''}${res}${recon}${reasons}</div>`;
           }).join('');
           const label = String(st||'').toUpperCase();
           return `<div class="mt-4"><div class="title-sm">Top ${label}</div>${items}</div>`;
@@ -650,9 +701,9 @@
           <div class="title-lg">${teamBadge(away)} @ ${teamBadge(home)}${timeTxt}</div>
           ${hcHtml}
           <div class="mt-4"><div class="title-sm">Closeout picks</div>
-            <div class="muted-small">ML: ${ml}</div>
-            <div class="muted-small">ATS: ${ats}</div>
-            <div class="muted-small">Total: ${tot}</div>
+            ${renderPickBlock('ML', picks.ML)}
+            ${renderPickBlock('ATS', picks.ATS)}
+            ${renderPickBlock('Total', picks.TOTAL)}
           </div>
           ${propsHtml}
           ${reconHtml}
@@ -1199,7 +1250,8 @@
         }catch(_){ /* ignore */ }
         // Avoid duplicating reasons: if why_explain present, suppress individual reasons pills
         const reasonsHtml = whyTxt? '' : reasons.map(s=> `<span class="pill">${String(s)}</span>`).join(' ');
-        const contextHtml = `${whyTxt} ${reasonsHtml} ${hi} ${ai} ${rankBadge} ${simBadges}`.trim();
+        const bucketHtml = _renderReasonBuckets(r, { maxItems: 2, lineClass: 'mt-4', titleClass: 'team-text', pillClass: 'pill' });
+        const contextHtml = `${bucketHtml} ${whyTxt} ${reasonsHtml} ${hi} ${ai} ${rankBadge} ${simBadges}`.trim();
         const res = r.result? `<span class="res ${r.result==='Win'?'res-win':(r.result==='Loss'?'res-loss':'res-push')}">${r.result}</span>`: '';
         const pill = (r.tier||r.confidence)? `<span class="pill ${pillClass(r.tier||r.confidence)}">${confidenceDisplay(r.tier||r.confidence)}</span>`:'';
         tr.innerHTML=`<td>${gameHtml}</td><td>${r.market==='ML'?'MONEYLINE':(r.market==='ATS'?'SPREAD':'TOTAL')}</td><td>${sel} ${pill}</td><td class="tar">${oddsHtml}</td><td class="tar">${evDisp}</td><td class="tar">${scoreDisp}</td><td>${contextHtml}</td><td>${res}</td><td>${date}</td>`;
@@ -1295,7 +1347,8 @@
         // Deduplicate labels and render pills
         const uniq = Array.from(new Set(labels.map(s=> s.toLowerCase())));
         const labelMap = new Map(labels.map(s=> [s.toLowerCase(), s]));
-        const whyCol = uniq.map(k=> `<span class="pill">${labelMap.get(k)}</span>`).join(' ');
+        const bucketHtml = _renderReasonBuckets(r, { maxItems: 2, lineClass: 'muted-small', titleClass: 'team-text', pillClass: 'pill' });
+        const whyCol = bucketHtml || uniq.map(k=> `<span class="pill">${labelMap.get(k)}</span>`).join(' ');
         tr.innerHTML=`<td>${r.player||''} ${tierPill}</td><td>${teamHtml}</td><td>${disp||''}</td><td class="tar">${scoreDisp}</td><td>${whyCol}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
       // Apply sort indicators and click handlers
       try{

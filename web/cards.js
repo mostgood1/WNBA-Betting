@@ -2100,6 +2100,27 @@ function canonicalPregamePropStatKey(market) {
   return k;
 }
 
+function uniquePregameReasonTexts(values) {
+  const out = [];
+  const seen = new Set();
+  const arr = Array.isArray(values) ? values : [];
+  arr.forEach((value) => {
+    const text = String(value || '').trim();
+    if (!text) return;
+    const key = text.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(text);
+  });
+  return out;
+}
+
+function renderPregameReasonBucketLine(label, reasons, lineClass = 'subtle prop-callout-line', maxItems = 2) {
+  const parts = uniquePregameReasonTexts(reasons).slice(0, maxItems);
+  if (!parts.length) return '';
+  return `<div class="${lineClass}"><span class="badge">${esc(label)}</span> ${esc(parts.join(' • '))}</div>`;
+}
+
 function buildPregamePropRecommendationEntries(propRecs, homeTri, awayTri) {
   const recs = propRecs && typeof propRecs === 'object' ? propRecs : {};
   const home = Array.isArray(recs.home) ? recs.home : [];
@@ -2135,6 +2156,9 @@ function buildPregamePropRecommendationEntries(propRecs, homeTri, awayTri) {
         best && best.photo,
         ...picks.map((pick) => pick && (pick.player_photo || pick.photo)),
       ].map((value) => String(value || '').trim()).find(Boolean) || '';
+      const basketballReasons = uniquePregameReasonTexts(r && r.basketball_reasons);
+      const modelReasons = uniquePregameReasonTexts(r && r.model_reasons);
+      const marketReasons = uniquePregameReasonTexts(r && r.market_reasons);
       return {
         sideTri,
         player,
@@ -2145,6 +2169,10 @@ function buildPregamePropRecommendationEntries(propRecs, homeTri, awayTri) {
         sideKey: String(best && best.side || '').toUpperCase().trim(),
         playerId,
         playerPhoto,
+        basketballSummary: String(r && r.basketball_summary || '').trim(),
+        basketballReasons,
+        modelReasons,
+        marketReasons,
       };
     })
     .filter(Boolean);
@@ -2166,7 +2194,7 @@ function renderPropRecommendations(propRecs, homeTri, awayTri) {
   const entries = buildPregamePropRecommendationEntries(propRecs, homeTri, awayTri);
 
   const rows = entries
-    .map(({ sideTri, player, picks, best, guidance }) => {
+    .map(({ sideTri, player, picks, best, guidance, basketballSummary, basketballReasons, modelReasons, marketReasons }) => {
       const label = pregamePropPlayLabel(best);
       const book = prettyBookName(best.book);
       const price = n(best.price);
@@ -2191,6 +2219,12 @@ function renderPropRecommendations(propRecs, homeTri, awayTri) {
         ? guidance.tags.slice(0, 4).map((tag) => `<span class="prop-rec-tag">${esc(tag)}</span>`).join('')
         : '';
       const altLines = pregamePropAlternativePicks(picks.slice(1), best, 2).map(renderPregamePropAltPick).filter(Boolean).join(' • ');
+      const basketballLine = renderPregameReasonBucketLine('BASKETBALL', basketballReasons, 'prop-rec-meta', 2);
+      const modelLine = renderPregameReasonBucketLine('SIM', modelReasons, 'prop-rec-meta', 2);
+      const marketLine = renderPregameReasonBucketLine('MARKET', marketReasons, 'prop-rec-meta', 2);
+      const basketballSummaryLine = basketballSummary && !basketballLine
+        ? `<div class="prop-rec-meta"><span class="badge">BASKETBALL</span> ${esc(basketballSummary)}</div>`
+        : '';
 
       return `
         <li class="prop-rec-item">
@@ -2203,6 +2237,9 @@ function renderPropRecommendations(propRecs, homeTri, awayTri) {
           </div>
           <div class="prop-rec-pick">${esc(label)}</div>
           ${metaBits ? `<div class="prop-rec-meta">${esc(metaBits)}</div>` : ''}
+          ${basketballLine || basketballSummaryLine}
+          ${modelLine}
+          ${marketLine}
           ${guidance && guidance.summary ? `<div class="prop-rec-guidance">${esc(guidance.summary)}</div>` : ''}
           ${playToText ? `<div class="prop-rec-playto"><span class="badge">PLAY TO</span><span>${esc(playToText)}</span></div>` : ''}
           ${moveText ? `<div class="prop-rec-move subtle">${esc(moveText)}</div>` : ''}
@@ -2216,7 +2253,7 @@ function renderPropRecommendations(propRecs, homeTri, awayTri) {
 
   return `
     <div class="writeup-content">
-      <div class="subtle">Recommendations are still model-vs-line. Movement is used as execution guidance so you can see whether to bet now, shop, wait, or pass.</div>
+      <div class="subtle">Basketball-first recommendations, then simulation support, then market execution guidance.</div>
       <ul class="prop-rec-list">
         ${rows || '<li class="subtle">No prop recommendations.</li>'}
       </ul>
@@ -2231,7 +2268,7 @@ function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
       <div class="pregame-props-panel pregame-props-panel-empty" data-pregame-props-panel="1" data-game-id="${esc(String(gameId || ''))}" data-active-stat="" data-active-side="">
         <div class="pregame-props-header">
           <div class="market-title">Player pregame props</div>
-          <div class="subtle">No model-vs-line player props cleared the recommendation threshold for this matchup.</div>
+          <div class="subtle">No basketball-first player props cleared the recommendation threshold for this matchup.</div>
         </div>
       </div>
     `;
@@ -2248,7 +2285,7 @@ function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
     <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="side" data-key="${esc(key)}" aria-pressed="false">${esc(key)}</button>
   `).join('');
 
-  const cards = entries.map(({ sideTri, player, picks, best, guidance, statKey, sideKey, playerId, playerPhoto }) => {
+  const cards = entries.map(({ sideTri, player, picks, best, guidance, statKey, sideKey, playerId, playerPhoto, basketballSummary, basketballReasons, modelReasons, marketReasons }) => {
     const label = pregamePropPlayLabel(best);
     const statLabel = marketLabel(statKey || best.market);
     const book = prettyBookName(best.book);
@@ -2279,6 +2316,9 @@ function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
       (line != null) ? `Current line ${fmt(line, 1)}` : '',
       pricingText,
     ].filter(Boolean).join(' · ');
+    const basketballLine = renderPregameReasonBucketLine('BASKETBALL', basketballReasons.length ? basketballReasons : (basketballSummary ? [basketballSummary] : []));
+    const simLine = renderPregameReasonBucketLine('SIM', modelReasons.length ? modelReasons : (modelLogic ? [modelLogic] : []));
+    const marketLine = renderPregameReasonBucketLine('MARKET', marketReasons.length ? marketReasons : (marketLogic ? [marketLogic] : []));
     const matchupText = `${String(awayTri || '').toUpperCase().trim()} @ ${String(homeTri || '').toUpperCase().trim()}`.trim();
     const tags = Array.from(new Set([
       ...((guidance && Array.isArray(guidance.tags)) ? guidance.tags : []),
@@ -2311,8 +2351,9 @@ function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
             </div>
             ${guidance && guidance.summary ? `<div class="prop-callout-line">${esc(guidance.summary)}</div>` : ''}
             ${matchupText ? `<div class="subtle prop-callout-line">${esc(matchupText)}${sideTri ? ` · ${esc(sideTri)}` : ''}</div>` : ''}
-            ${modelLogic ? `<div class="subtle prop-callout-line">${esc(modelLogic)}</div>` : ''}
-            ${marketLogic ? `<div class="subtle prop-callout-line">${esc(marketLogic)}</div>` : ''}
+            ${basketballLine}
+            ${simLine}
+            ${marketLine}
             ${playToText ? `<div class="subtle prop-callout-line">${esc(playToText)}</div>` : ''}
             ${tagHtml}
             ${altLines ? `<div class="subtle prop-callout-line">Other playable lines: ${esc(altLines)}</div>` : ''}
@@ -2326,7 +2367,7 @@ function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
     <div class="pregame-props-panel" data-pregame-props-panel="1" data-game-id="${esc(String(gameId || ''))}" data-active-stat="" data-active-side="">
       <div class="pregame-props-header">
         <div class="market-title">Player pregame props</div>
-        <div class="subtle">Model-vs-line cards with execution guidance. Use the stat and side selectors to narrow the board.</div>
+        <div class="subtle">Basketball-first prop cards with simulation support and execution guidance. Use the stat and side selectors to narrow the board.</div>
       </div>
       <div class="pregame-props-toolbar">
         <div class="pregame-props-toolbar-row">
@@ -2365,8 +2406,8 @@ function renderLiveRecommendedPropCards(propRecs, homeTri, awayTri, gameId, live
     return `
       <div class="pregame-props-panel live-recommended-props-panel pregame-props-panel-empty" data-pregame-props-panel="1" data-game-id="${esc(String(gameId || ''))}" data-active-stat="${esc(activeStat)}" data-active-side="${esc(activeSide)}">
         <div class="pregame-props-header">
-          <div class="market-title">Recommended props (sim vs line)</div>
-          <div class="subtle">No model-vs-line player props cleared the recommendation threshold for this matchup.</div>
+          <div class="market-title">Recommended props</div>
+          <div class="subtle">No basketball-first player props cleared the recommendation threshold for this matchup.</div>
         </div>
       </div>
     `;
@@ -2376,10 +2417,10 @@ function renderLiveRecommendedPropCards(propRecs, homeTri, awayTri, gameId, live
   const statsPresent = statOrder.filter((key) => entries.some((entry) => entry.statKey === key));
   const sidesPresent = ['OVER', 'UNDER'].filter((key) => entries.some((entry) => entry.sideKey === key));
   const summaryText = isFinal
-    ? 'Final view keeps the original pregame recommendation and shows where the final actual finished against that pregame projection.'
+    ? 'Final view keeps the original basketball and simulation case, then shows where the final actual finished against that pregame projection.'
     : isInProgress
-      ? 'Live view keeps the original pregame recommendation and adds the current actual so you can track it against the pregame projection.'
-      : 'These recommended props keep their original pregame model context and add actual tracking after tip.';
+      ? 'Live view keeps the original basketball and simulation case, then adds the current actual so you can track it against the pregame projection.'
+      : 'These recommended props keep their original basketball and simulation case, then add actual tracking after tip.';
 
   const statButtons = statsPresent.map((key) => `
     <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="stat" data-key="${esc(key)}" aria-pressed="${key === activeStat ? 'true' : 'false'}">${esc(marketLabel(key))}</button>
@@ -2388,7 +2429,7 @@ function renderLiveRecommendedPropCards(propRecs, homeTri, awayTri, gameId, live
     <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="side" data-key="${esc(key)}" aria-pressed="${key === activeSide ? 'true' : 'false'}">${esc(key)}</button>
   `).join('');
 
-  const cards = entries.map(({ sideTri, player, picks, best, guidance, statKey, sideKey, playerId, playerPhoto }) => {
+  const cards = entries.map(({ sideTri, player, picks, best, guidance, statKey, sideKey, playerId, playerPhoto, basketballSummary, basketballReasons, modelReasons, marketReasons }) => {
     const statLabel = marketLabel(statKey || best.market);
     const book = prettyBookName(best.book);
     const price = n(best.price);
@@ -2443,6 +2484,9 @@ function renderLiveRecommendedPropCards(propRecs, homeTri, awayTri, gameId, live
       (pwin != null) ? `win ${pct(pwin, 0)}` : '',
       (evPct != null) ? `EV ${fmt(evPct, 1)}%` : '',
     ].filter(Boolean).join(' · ');
+    const basketballLine = renderPregameReasonBucketLine('BASKETBALL', basketballReasons.length ? basketballReasons : (basketballSummary ? [basketballSummary] : []));
+    const simLine = renderPregameReasonBucketLine('SIM', modelReasons.length ? modelReasons : (pregameLogic ? [pregameLogic] : []));
+    const marketLine = renderPregameReasonBucketLine('MARKET', marketReasons, 'subtle prop-callout-line', 2);
 
     return `
       <article class="chip neutral prop-callout pregame-prop-grid-card live-recommended-prop-card" data-stat="${esc(statKey)}" data-side="${esc(sideKey)}">
@@ -2464,8 +2508,10 @@ function renderLiveRecommendedPropCards(propRecs, homeTri, awayTri, gameId, live
               ? `<div class="prop-callout-line live-recommended-prop-line">${esc(liveBits.length ? liveBits.join(' · ') : 'Live actual / projection pending.')}</div>`
               : '<div class="prop-callout-line live-recommended-prop-line">Live actuals and pace projections populate after tip.</div>'}
             ${liveStatusText ? `<div class="subtle prop-callout-line">${esc(liveStatusText)}</div>` : ''}
+            ${basketballLine}
+            ${simLine}
+            ${marketLine}
             ${liveLineBits.length ? `<div class="subtle prop-callout-line">${esc(liveLineBits.join(' · '))}</div>` : ''}
-            ${pregameLogic ? `<div class="subtle prop-callout-line">${esc(pregameLogic)}</div>` : ''}
             ${playToText ? `<div class="subtle prop-callout-line">${esc(playToText)}</div>` : ''}
             ${tagHtml}
             ${altLines ? `<div class="subtle prop-callout-line">Other playable lines: ${esc(altLines)}</div>` : ''}
@@ -2478,7 +2524,7 @@ function renderLiveRecommendedPropCards(propRecs, homeTri, awayTri, gameId, live
   return `
     <div class="pregame-props-panel live-recommended-props-panel" data-pregame-props-panel="1" data-game-id="${esc(String(gameId || ''))}" data-active-stat="${esc(activeStat)}" data-active-side="${esc(activeSide)}">
       <div class="pregame-props-header">
-        <div class="market-title">Recommended props (sim vs line)</div>
+        <div class="market-title">Recommended props</div>
         <div class="subtle">${esc(summaryText)}</div>
       </div>
       <div class="pregame-props-toolbar">

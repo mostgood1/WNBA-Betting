@@ -11145,6 +11145,324 @@ def _decorate_prop_best_bet_candidate(
     }
 
 
+def _recommendation_reason_bucket_payload(source: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(source, dict):
+        return {
+            "basketball_summary": None,
+            "basketball_reasons": [],
+            "sim_reasons": [],
+            "value_reasons": [],
+            "model_reasons": [],
+            "market_reasons": [],
+            "reasons": [],
+        }
+
+    def _strings(values: Any) -> list[str]:
+        if not isinstance(values, list):
+            return []
+        out: list[str] = []
+        for raw in values:
+            text = str(raw or "").strip()
+            if text:
+                out.append(text)
+        return _best_bets_unique_strings(out)
+
+    basketball_reasons = _strings(source.get("basketball_reasons"))
+    sim_reasons = _strings(source.get("sim_reasons"))
+    value_reasons = _strings(source.get("value_reasons"))
+    explicit_model_reasons = _strings(source.get("model_reasons"))
+    explicit_market_reasons = _strings(source.get("market_reasons"))
+
+    if sim_reasons:
+        model_reasons = list(sim_reasons)
+    else:
+        model_reasons = list(explicit_model_reasons)
+        if explicit_market_reasons:
+            market_keys = {reason.lower() for reason in explicit_market_reasons}
+            model_reasons = [reason for reason in model_reasons if reason.lower() not in market_keys]
+        elif value_reasons:
+            value_keys = {reason.lower() for reason in value_reasons}
+            model_reasons = [reason for reason in model_reasons if reason.lower() not in value_keys]
+        model_reasons = _best_bets_unique_strings(model_reasons)
+
+    market_reasons = explicit_market_reasons or list(value_reasons)
+    market_reasons = _best_bets_unique_strings(market_reasons)
+    value_reasons = value_reasons or list(market_reasons)
+    reasons = _best_bets_unique_strings(list(basketball_reasons) + list(model_reasons) + list(market_reasons))
+
+    basketball_summary = str(source.get("basketball_summary") or "").strip() or None
+    if basketball_summary is None and basketball_reasons:
+        basketball_summary = "; ".join(basketball_reasons[:2])
+
+    return {
+        "basketball_summary": basketball_summary,
+        "basketball_reasons": basketball_reasons,
+        "sim_reasons": sim_reasons,
+        "value_reasons": value_reasons,
+        "model_reasons": model_reasons,
+        "market_reasons": market_reasons,
+        "reasons": reasons,
+    }
+
+
+def _extend_recommendation_reason_payload(
+    source: dict[str, Any] | None,
+    *,
+    basketball_reasons: Any = None,
+    model_reasons: Any = None,
+    market_reasons: Any = None,
+) -> dict[str, Any]:
+    payload = _recommendation_reason_bucket_payload(source)
+
+    def _strings(values: Any) -> list[str]:
+        if values is None:
+            return []
+        if isinstance(values, str):
+            text = values.strip()
+            return [text] if text else []
+        if not isinstance(values, (list, tuple, set)):
+            return []
+        out: list[str] = []
+        for raw in values:
+            text = str(raw or "").strip()
+            if text:
+                out.append(text)
+        return _best_bets_unique_strings(out)
+
+    extra_basketball = _strings(basketball_reasons)
+    extra_model = _strings(model_reasons)
+    extra_market = _strings(market_reasons)
+
+    payload["basketball_reasons"] = _best_bets_unique_strings(
+        list(payload.get("basketball_reasons") or []) + extra_basketball
+    )
+    payload["sim_reasons"] = _best_bets_unique_strings(
+        list(payload.get("sim_reasons") or []) + extra_model
+    )
+    payload["model_reasons"] = _best_bets_unique_strings(
+        list(payload.get("model_reasons") or []) + extra_model
+    )
+    payload["value_reasons"] = _best_bets_unique_strings(
+        list(payload.get("value_reasons") or []) + extra_market
+    )
+    payload["market_reasons"] = _best_bets_unique_strings(
+        list(payload.get("market_reasons") or []) + extra_market
+    )
+    payload["reasons"] = _best_bets_unique_strings(
+        list(payload.get("basketball_reasons") or [])
+        + list(payload.get("model_reasons") or [])
+        + list(payload.get("market_reasons") or [])
+    )
+
+    if not payload.get("basketball_summary") and payload.get("basketball_reasons"):
+        payload["basketball_summary"] = "; ".join((payload.get("basketball_reasons") or [])[:2])
+
+    return payload
+
+
+def _merge_recommendation_reason_fields(
+    target: dict[str, Any],
+    source: dict[str, Any] | None,
+    *,
+    top_play_key: str | None = None,
+) -> dict[str, Any]:
+    if not isinstance(target, dict):
+        return target
+
+    payload = _recommendation_reason_bucket_payload(source)
+    for key, value in payload.items():
+        if isinstance(value, list):
+            target[key] = list(value)
+        elif value is not None:
+            target[key] = value
+
+    if top_play_key:
+        target[top_play_key] = list(payload.get("reasons") or [])
+
+    if isinstance(source, dict):
+        for key in (
+            "basketball_priority_score",
+            "sim_support_score",
+            "value_support_score",
+            "recommendation_priority_score",
+            "model_baseline",
+            "model_sd",
+            "p_win",
+            "implied_prob",
+            "prob_edge",
+            "ev",
+            "ev_pct",
+            "edge",
+            "display_pick",
+            "selection",
+            "matchup",
+            "top_play_explain",
+            "start_time_local",
+            "start_dt_local",
+        ):
+            value = source.get(key)
+            if value is not None:
+                target[key] = value
+    return target
+
+
+def _prop_source_support_fields(
+    source_row: dict[str, Any] | None,
+    *,
+    market: str,
+    side: str,
+    line: float | None,
+) -> dict[str, Any]:
+    plays: list[dict[str, Any]] = []
+    if isinstance(source_row, dict):
+        raw_plays = source_row.get("plays")
+        if isinstance(raw_plays, list):
+            plays = [raw for raw in raw_plays if isinstance(raw, dict)]
+        elif isinstance(source_row.get("top_play"), dict):
+            plays = [source_row.get("top_play")]
+
+    market_key = str(market or "").strip().lower()
+    side_key = str(side or "").strip().upper()
+    matching: list[dict[str, Any]] = []
+    for raw in plays:
+        mk = str(raw.get("market") or "").strip().lower()
+        sd = str(raw.get("side") or "").strip().upper()
+        if mk == market_key and sd == side_key:
+            matching.append(raw)
+
+    books = {
+        _canonical_bookmaker_key(raw.get("book"))
+        for raw in matching
+        if _canonical_bookmaker_key(raw.get("book"))
+    }
+    books_count = int(len(books))
+    consensus = 0.0
+    if books_count > 0:
+        consensus = max(0.0, min(1.0, (float(books_count) - 1.0) / 4.0))
+
+    line_adv = 0.0
+    if line is not None:
+        try:
+            lines = [_safe_float(raw.get("line")) for raw in matching]
+            clean_lines = [float(value) for value in lines if value is not None]
+            if clean_lines:
+                if side_key == "OVER" and float(line) <= min(clean_lines) + 1e-6:
+                    line_adv = 1.0
+                elif side_key == "UNDER" and float(line) >= max(clean_lines) - 1e-6:
+                    line_adv = 1.0
+        except Exception:
+            line_adv = 0.0
+
+    return {
+        "top_play_consensus": consensus,
+        "top_play_line_adv": line_adv,
+        "top_play_books_count": books_count,
+    }
+
+
+def _best_bets_ctx_for_matchup(
+    game_context: dict[str, Any] | None,
+    *,
+    home: Any,
+    away: Any,
+) -> dict[str, Any] | None:
+    if not isinstance(game_context, dict):
+        return None
+    by_pair = game_context.get("by_pair") if isinstance(game_context.get("by_pair"), dict) else {}
+    by_team = game_context.get("by_team") if isinstance(game_context.get("by_team"), dict) else {}
+
+    home_name = str(home or "").strip()
+    away_name = str(away or "").strip()
+    home_tri = (_get_tricode(home_name) or home_name.upper()) if home_name else ""
+    away_tri = (_get_tricode(away_name) or away_name.upper()) if away_name else ""
+
+    for key in (
+        (home_name.upper(), away_name.upper()),
+        (home_tri.upper(), away_tri.upper()),
+    ):
+        if key in by_pair and isinstance(by_pair.get(key), dict):
+            return by_pair.get(key)
+
+    for key in (home_name.upper(), away_name.upper(), home_tri.upper(), away_tri.upper()):
+        if key in by_team and isinstance(by_team.get(key), dict):
+            return by_team.get(key)
+    return None
+
+
+def _decorate_game_recommendation_payload(
+    row: dict[str, Any] | None,
+    *,
+    date_str: str,
+    game_context: dict[str, Any] | None,
+    injury_snapshot: dict[str, dict[str, Any]],
+    slate_total_median: float | None,
+) -> dict[str, Any] | None:
+    if not isinstance(row, dict):
+        return None
+    ctx = _best_bets_ctx_for_matchup(game_context, home=row.get("home"), away=row.get("away"))
+    decorated = _decorate_game_best_bet_candidate(
+        dict(row),
+        date_str=date_str,
+        ctx=ctx,
+        injury_snapshot=injury_snapshot,
+        slate_total_median=slate_total_median,
+    )
+    if not isinstance(decorated, dict):
+        return None
+    payload: dict[str, Any] = {}
+    return _merge_recommendation_reason_fields(payload, decorated)
+
+
+def _decorate_prop_recommendation_payload(
+    *,
+    player_name: Any,
+    team_tri: Any,
+    top_play: dict[str, Any] | None,
+    date_str: str,
+    prop_prediction_lookup: dict[tuple[str, str], dict[str, Any]] | None,
+    game_context: dict[str, Any] | None,
+    injury_snapshot: dict[str, dict[str, Any]],
+    slate_total_median: float | None,
+    support_fields: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
+    player = str(player_name or "").strip()
+    team_key = (_get_tricode(team_tri) or str(team_tri or "").strip().upper())
+    if not player or not team_key or not isinstance(top_play, dict):
+        return None
+
+    pred_row = None
+    if isinstance(prop_prediction_lookup, dict):
+        pred_row = prop_prediction_lookup.get((_norm_player_name(player), team_key))
+
+    matchup_ctx = None
+    if isinstance(game_context, dict):
+        by_team = game_context.get("by_team") if isinstance(game_context.get("by_team"), dict) else {}
+        matchup_ctx = by_team.get(team_key) or by_team.get(str(team_tri or "").strip().upper())
+
+    item = {
+        "player": player,
+        "team": team_key,
+        "top_play": dict(top_play),
+    }
+    if isinstance(support_fields, dict):
+        for key, value in support_fields.items():
+            if value is not None:
+                item[key] = value
+
+    decorated = _decorate_prop_best_bet_candidate(
+        item,
+        date_str=date_str,
+        pred_row=pred_row,
+        matchup_ctx=matchup_ctx,
+        injury_snapshot=injury_snapshot,
+        slate_total_median=slate_total_median,
+    )
+    if not isinstance(decorated, dict):
+        return None
+    payload: dict[str, Any] = {}
+    return _merge_recommendation_reason_fields(payload, decorated, top_play_key="top_play_reasons")
+
+
 def _build_games_best_bets_and_parlays(
     date_str: str,
     *,
@@ -12142,6 +12460,29 @@ def api_cards():
     props_recs_by_team = _load_props_recommendations_by_team(d)
     injury_ctx_map = _load_injury_context_map(d)
     roster_map = _roster_players_for_date(d)
+    best_bets_game_context = _load_best_bets_game_context(d)
+    best_bets_prop_prediction_lookup = _load_best_bets_props_prediction_lookup(d)
+    best_bets_injury_snapshot = _best_bets_load_injury_snapshot(d)
+    best_bets_slate_total_median = _safe_float(
+        best_bets_game_context.get("slate_total_median")
+        if isinstance(best_bets_game_context, dict)
+        else None
+    )
+
+    props_recs_source_lookup: dict[tuple[str, str], dict[str, Any]] = {}
+    try:
+        for team_tri, rows in (props_recs_by_team or {}).items():
+            team_key = str(team_tri or "").strip().upper()
+            if not team_key:
+                continue
+            for row in (rows or []):
+                if not isinstance(row, dict):
+                    continue
+                player_key = _norm_player_name(str(row.get("player") or ""))
+                if player_key:
+                    props_recs_source_lookup[(team_key, player_key)] = row
+    except Exception:
+        props_recs_source_lookup = {}
 
     # Optional recon maps (historical dates). These are also fetched by the frontend
     # in results-mode, but we load them here so the API can attach useful summaries
@@ -13196,6 +13537,51 @@ def api_cards():
             min_ev_pct=min_ev_pct,
             excluded_books=excluded_books,
         )
+
+        try:
+            for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
+                rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
+                if not isinstance(rows, list):
+                    continue
+                for row in rows:
+                    if not isinstance(row, dict):
+                        continue
+                    best = row.get("best") if isinstance(row.get("best"), dict) else None
+                    if not isinstance(best, dict):
+                        continue
+                    player_name = str(row.get("player") or best.get("player") or best.get("player_name") or "").strip()
+                    player_key = _norm_player_name(player_name)
+                    source_row = props_recs_source_lookup.get((str(team_tri or "").strip().upper(), player_key))
+                    support_fields = _prop_source_support_fields(
+                        source_row,
+                        market=str(best.get("market") or ""),
+                        side=str(best.get("side") or ""),
+                        line=_safe_float(best.get("line")),
+                    )
+                    reason_payload = _decorate_prop_recommendation_payload(
+                        player_name=player_name,
+                        team_tri=team_tri,
+                        top_play=best,
+                        date_str=d,
+                        prop_prediction_lookup=best_bets_prop_prediction_lookup,
+                        game_context=best_bets_game_context,
+                        injury_snapshot=best_bets_injury_snapshot,
+                        slate_total_median=best_bets_slate_total_median,
+                        support_fields=support_fields,
+                    )
+                    if not isinstance(reason_payload, dict):
+                        continue
+                    row.update(reason_payload)
+                    row["top_play_reasons"] = list(reason_payload.get("top_play_reasons") or reason_payload.get("reasons") or [])
+                    best["reasons"] = list(reason_payload.get("reasons") or [])
+                    for key in ("basketball_summary", "basketball_reasons", "model_reasons", "market_reasons"):
+                        value = reason_payload.get(key)
+                        if isinstance(value, list):
+                            best[key] = list(value)
+                        elif value is not None:
+                            best[key] = value
+        except Exception:
+            pass
 
         try:
             rec_index = _build_boxscore_prop_recommendation_index(prop_recommendations)
@@ -18016,6 +18402,41 @@ def _recommendations_all():
                 except Exception:
                     continue
 
+            try:
+                slate_game_context = _load_best_bets_game_context(slate_date_used)
+                slate_prop_prediction_lookup = _load_best_bets_props_prediction_lookup(slate_date_used)
+                slate_injury_snapshot = _best_bets_load_injury_snapshot(slate_date_used)
+                slate_total_median = _safe_float(
+                    slate_game_context.get("slate_total_median")
+                    if isinstance(slate_game_context, dict)
+                    else None
+                )
+                for candidate in selected:
+                    if not isinstance(candidate, dict):
+                        continue
+                    top_play = {
+                        "market": candidate.get("market"),
+                        "side": candidate.get("side"),
+                        "line": candidate.get("line"),
+                        "price": candidate.get("price"),
+                        "ev": candidate.get("ev"),
+                    }
+                    reason_payload = _decorate_prop_recommendation_payload(
+                        player_name=candidate.get("player"),
+                        team_tri=candidate.get("team"),
+                        top_play=top_play,
+                        date_str=slate_date_used,
+                        prop_prediction_lookup=slate_prop_prediction_lookup,
+                        game_context=slate_game_context,
+                        injury_snapshot=slate_injury_snapshot,
+                        slate_total_median=slate_total_median,
+                    )
+                    if isinstance(reason_payload, dict):
+                        candidate.update(reason_payload)
+                best = selected
+            except Exception:
+                pass
+
             # Materialize per-game and per-market views from selected set
             by_game: dict[str, dict[str, Any]] = {}
             for c in selected:
@@ -18136,6 +18557,84 @@ def _recommendations_all():
                 return pd.read_csv(fp)
             except Exception:
                 return pd.DataFrame()
+        recommendation_support_cache: dict[str, dict[str, Any]] = {}
+
+        def _recommendation_support(date_str: str) -> dict[str, Any]:
+            key = str(date_str or d).strip() or str(d)
+            cached = recommendation_support_cache.get(key)
+            if isinstance(cached, dict):
+                return cached
+
+            game_context: dict[str, Any] | None = None
+            prop_prediction_lookup: dict[tuple[str, str], dict[str, Any]] | None = None
+            injury_snapshot: dict[str, dict[str, Any]] = {"counts": {}, "key_outs": {}, "impact": {}}
+            slate_total_median = None
+            try:
+                game_context = _load_best_bets_game_context(key)
+            except Exception:
+                game_context = None
+            try:
+                prop_prediction_lookup = _load_best_bets_props_prediction_lookup(key)
+            except Exception:
+                prop_prediction_lookup = None
+            try:
+                snap = _best_bets_load_injury_snapshot(key)
+                if isinstance(snap, dict):
+                    injury_snapshot = snap
+            except Exception:
+                pass
+            try:
+                slate_total_median = _safe_float(
+                    game_context.get("slate_total_median")
+                    if isinstance(game_context, dict)
+                    else None
+                )
+            except Exception:
+                slate_total_median = None
+
+            cached = {
+                "game_context": game_context,
+                "prop_prediction_lookup": prop_prediction_lookup,
+                "injury_snapshot": injury_snapshot,
+                "slate_total_median": slate_total_median,
+            }
+            recommendation_support_cache[key] = cached
+            return cached
+
+        def _legacy_game_reason_buckets(values: Any) -> tuple[list[str], list[str]]:
+            basketball: list[str] = []
+            model: list[str] = []
+            if not isinstance(values, list):
+                return basketball, model
+            for raw in values:
+                text = str(raw or "").strip()
+                if not text:
+                    continue
+                if text.lower().startswith("sim "):
+                    model.append(text)
+                else:
+                    basketball.append(text)
+            return _best_bets_unique_strings(basketball), _best_bets_unique_strings(model)
+
+        def _legacy_prop_basketball_reasons(values: Any) -> list[str]:
+            if not isinstance(values, list):
+                return []
+            keep_markers = (
+                "bench usage likely elevated",
+                "usage uptick expected",
+                "fast pace hint",
+                "slow pace hint",
+                "favorable perimeter defense",
+                "perimeter defense stingy",
+            )
+            out: list[str] = []
+            for raw in values:
+                text = str(raw or "").strip()
+                if not text:
+                    continue
+                if any(marker in text.lower() for marker in keep_markers):
+                    out.append(text)
+            return _best_bets_unique_strings(out)
         # Helper: find latest available processed file for a given stem (e.g., 'recommendations')
         # Returns (date_str, Path) or (None, None) if none found.
         def _find_latest_date_file(stem):
@@ -19071,6 +19570,36 @@ def _recommendations_all():
                                 continue
                     except Exception:
                         pass
+                    try:
+                        support = _recommendation_support(_games_date_used)
+                        game_context = support.get("game_context")
+                        injury_snapshot = support.get("injury_snapshot") or {"counts": {}, "key_outs": {}, "impact": {}}
+                        slate_total_median = support.get("slate_total_median")
+                        for r in out.get("games", []):
+                            if not isinstance(r, dict):
+                                continue
+                            legacy_basketball, legacy_model = _legacy_game_reason_buckets(r.get("why_reasons"))
+                            reason_payload = _decorate_game_recommendation_payload(
+                                r,
+                                date_str=_games_date_used,
+                                game_context=game_context,
+                                injury_snapshot=injury_snapshot,
+                                slate_total_median=slate_total_median,
+                            )
+                            if not isinstance(reason_payload, dict):
+                                continue
+                            reason_payload = _extend_recommendation_reason_payload(
+                                reason_payload,
+                                basketball_reasons=legacy_basketball,
+                                model_reasons=legacy_model,
+                            )
+                            _merge_recommendation_reason_fields(r, reason_payload)
+                            ordered_reasons = list(reason_payload.get("reasons") or [])
+                            if ordered_reasons:
+                                r["why_reasons"] = ordered_reasons
+                                r["why_explain"] = "; ".join(ordered_reasons)
+                    except Exception:
+                        pass
                     # Final pass: in compact mode, ensure simulation fields are attached post-enrichment
                     try:
                         if compact:
@@ -19865,6 +20394,51 @@ def _recommendations_all():
                                     pass
                             except Exception:
                                 continue
+                    except Exception:
+                        pass
+                    try:
+                        support = _recommendation_support(_props_date_used)
+                        game_context = support.get("game_context")
+                        prop_prediction_lookup = support.get("prop_prediction_lookup")
+                        injury_snapshot = support.get("injury_snapshot") or {"counts": {}, "key_outs": {}, "impact": {}}
+                        slate_total_median = support.get("slate_total_median")
+                        for r in rows:
+                            if not isinstance(r, dict):
+                                continue
+                            top_play = r.get("top_play") if isinstance(r.get("top_play"), dict) else None
+                            if not isinstance(top_play, dict):
+                                continue
+                            support_fields = {
+                                "top_play_baseline": r.get("top_play_baseline"),
+                                "top_play_consensus": r.get("top_play_consensus"),
+                                "top_play_line_adv": r.get("top_play_line_adv"),
+                                "top_play_books_count": r.get("top_play_books_count"),
+                                "top_play_explain": r.get("top_play_explain"),
+                                "top_play_reasons": r.get("top_play_reasons"),
+                                "score": r.get("score"),
+                            }
+                            reason_payload = _decorate_prop_recommendation_payload(
+                                player_name=r.get("player") or r.get("player_name"),
+                                team_tri=r.get("team"),
+                                top_play=top_play,
+                                date_str=_props_date_used,
+                                prop_prediction_lookup=prop_prediction_lookup,
+                                game_context=game_context,
+                                injury_snapshot=injury_snapshot,
+                                slate_total_median=slate_total_median,
+                                support_fields=support_fields,
+                            )
+                            if not isinstance(reason_payload, dict):
+                                continue
+                            reason_payload = _extend_recommendation_reason_payload(
+                                reason_payload,
+                                basketball_reasons=_legacy_prop_basketball_reasons(r.get("top_play_reasons")),
+                            )
+                            _merge_recommendation_reason_fields(r, reason_payload, top_play_key="top_play_reasons")
+                            ordered_reasons = list(reason_payload.get("reasons") or [])
+                            if ordered_reasons:
+                                r["why_reasons"] = ordered_reasons
+                                r["why_explain"] = "; ".join(ordered_reasons)
                     except Exception:
                         pass
                     out["props"] = rows
@@ -20709,7 +21283,7 @@ def _recommendations_all():
             return 0.0
 
         def _score_props_detail(row):
-            """Return (score, reasons, components) for props so UI explanations match scoring."""
+            """Return (score, score_reasons, components) for props scoring diagnostics."""
             tp = row.get("top_play")
             if not (isinstance(tp, dict) and tp):
                 return 0.0, [], {}
@@ -20989,9 +21563,19 @@ def _recommendations_all():
             _props_new = []
             for r in (out.get("props") or []):
                 s, rs, comps = _score_props_detail(r)
-                rr = {**r, "score": s, "tier": _tier_from_score(s), "why_reasons": rs, "score_components": comps}
-                # Keep why_explain empty so the UI can show multiple pill reasons.
-                rr["why_explain"] = ""
+                rr = {**r, "score": s, "tier": _tier_from_score(s), "score_components": comps}
+                if rs:
+                    rr["score_reasons"] = rs
+                ordered_reasons = list(rr.get("reasons") or rr.get("top_play_reasons") or rr.get("why_reasons") or [])
+                if ordered_reasons:
+                    rr["why_reasons"] = ordered_reasons
+                    rr["why_explain"] = "; ".join(ordered_reasons)
+                elif rs:
+                    rr["why_reasons"] = rs
+                    rr["why_explain"] = "; ".join(rs)
+                else:
+                    rr["why_reasons"] = []
+                    rr["why_explain"] = ""
                 _props_new.append(rr)
             out["props"] = _props_new
             # First basket
@@ -21705,6 +22289,14 @@ def _recommendations_game_cards():
         return jsonify({"error": "missing date"}), 400
 
     proc = DATA_PROCESSED_DIR
+    game_reason_context = _load_best_bets_game_context(d)
+    prop_reason_prediction_lookup = _load_best_bets_props_prediction_lookup(d)
+    reason_injury_snapshot = _best_bets_load_injury_snapshot(d)
+    reason_slate_total_median = _safe_float(
+        game_reason_context.get("slate_total_median")
+        if isinstance(game_reason_context, dict)
+        else None
+    )
 
     def _as_int(v):
         try:
@@ -21855,6 +22447,22 @@ def _recommendations_game_cards():
                 "pred_margin": _as_float(r.get("pred_margin")),
                 "pred_total": _as_float(r.get("pred_total")),
             }
+            try:
+                pick_payload = c["picks"][market]
+                reason_payload = _decorate_game_recommendation_payload(
+                    pick_payload,
+                    date_str=d,
+                    game_context=game_reason_context,
+                    injury_snapshot=reason_injury_snapshot,
+                    slate_total_median=reason_slate_total_median,
+                )
+                if isinstance(reason_payload, dict):
+                    pick_payload.update(reason_payload)
+                if isinstance(pick_payload.get("reasons"), list) and pick_payload.get("reasons"):
+                    pick_payload["why_reasons"] = list(pick_payload.get("reasons") or [])
+                    pick_payload["why_explain"] = "; ".join(pick_payload.get("reasons") or [])
+            except Exception:
+                pass
 
     # Fallback: if recommendations_<date>.csv is missing/empty, still build minimal cards from picks_<date>.csv
     if not cards_by_game and picks_by_game:
@@ -22110,6 +22718,29 @@ def _recommendations_game_cards():
                     "ev": _as_float(r.get("ev")),
                     "commence_time": (str(r.get("commence_time") or "").strip() or None),
                 }
+                try:
+                    top_play = {
+                        "market": stat,
+                        "side": p.get("side"),
+                        "line": p.get("line"),
+                        "price": p.get("price"),
+                        "edge": p.get("edge"),
+                        "ev": p.get("ev"),
+                    }
+                    reason_payload = _decorate_prop_recommendation_payload(
+                        player_name=p.get("player"),
+                        team_tri=p.get("team"),
+                        top_play=top_play,
+                        date_str=d,
+                        prop_prediction_lookup=prop_reason_prediction_lookup,
+                        game_context=game_reason_context,
+                        injury_snapshot=reason_injury_snapshot,
+                        slate_total_median=reason_slate_total_median,
+                    )
+                    if isinstance(reason_payload, dict):
+                        p.update(reason_payload)
+                except Exception:
+                    pass
 
                 # Track a usable start time from props feed
                 if c.get("start_time") is None and p.get("commence_time"):
