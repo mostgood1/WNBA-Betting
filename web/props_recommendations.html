@@ -36,7 +36,8 @@
     @media(max-width:768px){ .grid{ grid-template-columns:1fr; } }
     .card { background:linear-gradient(180deg, var(--card), var(--card2)); border:1px solid var(--border); border-radius:8px; padding:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
     .card-head { display:flex; align-items:center; gap:10px; padding-bottom:8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
-    .avatar { width:48px; height:48px; border-radius:50%; object-fit:cover; background:var(--input-bg); }
+    .avatar { width:48px; height:48px; border-radius:50%; object-fit:cover; background:var(--input-bg); display:inline-flex; align-items:center; justify-content:center; flex:0 0 48px; }
+    .avatar-fallback { border:1px solid var(--border); color:var(--muted); font-size:14px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; }
     .player-info { flex:1; }
     .player-name { font-size:16px; font-weight:600; margin-bottom:2px; }
     .player-team { font-size:13px; color:var(--muted); display:flex; align-items:center; gap:8px; }
@@ -58,6 +59,50 @@
   <script>
     function fmt(x){ if(x==null||isNaN(x)) return ''; return Number(x).toFixed(1); }
     function qs(name){ const u=new URL(window.location); return u.searchParams.get(name); }
+    function playerHeadshotInitials(name){
+      const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+      if(!parts.length) return '?';
+      const initials = parts.slice(0, 2).map(part => part.charAt(0).toUpperCase()).join('');
+      return initials || '?';
+    }
+    function nbaHeadshotUrl(playerId){
+      const value = Number(playerId);
+      return Number.isFinite(value) ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${Math.trunc(value)}.png` : '';
+    }
+    function createPlayerAvatar(item){
+      const explicitPhoto = String((item && item.photo) || '').trim();
+      const inferredPhoto = nbaHeadshotUrl(item && item.player_id);
+      const sources = [];
+      if(explicitPhoto) sources.push(explicitPhoto);
+      if(inferredPhoto && inferredPhoto !== explicitPhoto) sources.push(inferredPhoto);
+
+      if(!sources.length){
+        const fallback = document.createElement('span');
+        fallback.className = 'avatar avatar-fallback';
+        fallback.setAttribute('aria-hidden', 'true');
+        fallback.textContent = playerHeadshotInitials(item && item.player);
+        return fallback;
+      }
+
+      const avatar = document.createElement('img');
+      avatar.className = 'avatar';
+      avatar.alt = (item && item.player) || '';
+      let sourceIndex = 0;
+      avatar.onerror = ()=>{
+        sourceIndex += 1;
+        if(sourceIndex < sources.length){
+          avatar.src = sources[sourceIndex];
+          return;
+        }
+        const fallback = document.createElement('span');
+        fallback.className = 'avatar avatar-fallback';
+        fallback.setAttribute('aria-hidden', 'true');
+        fallback.textContent = playerHeadshotInitials(item && item.player);
+        avatar.replaceWith(fallback);
+      };
+      avatar.src = sources[sourceIndex];
+      return avatar;
+    }
   async function loadData(){
       const date = document.getElementById('datePicker').value || '';
       const market = document.getElementById('market').value || '';
@@ -139,8 +184,7 @@
       items.forEach(it=>{
         const div = document.createElement('div'); div.className='card';
         const head = document.createElement('div'); head.className='card-head';
-        const avatar = document.createElement('img'); avatar.className='avatar'; avatar.alt=it.player||''; avatar.src = it.photo || '/web/assets/player-placeholder.png';
-        avatar.onerror = ()=>{ avatar.src='/web/assets/player-placeholder.png'; };
+        const avatar = createPlayerAvatar(it);
         head.appendChild(avatar);
         const info = document.createElement('div'); info.className='player-info';
         const name = document.createElement('div'); name.className='player-name'; name.textContent = it.player||'';

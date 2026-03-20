@@ -23566,6 +23566,25 @@ def api_props_recommendations():
                 items: list[dict] = []
                 for _, rr in snap_df.iterrows():
                     try:
+                        player_name = rr.get("player")
+                        team_name = rr.get("team")
+                        source_player_id = None
+                        try:
+                            raw_player_id = rr.get("player_id")
+                            source_player_id = int(float(raw_player_id)) if raw_player_id is not None and not pd.isna(raw_player_id) else None
+                        except Exception:
+                            source_player_id = None
+                        resolved_player_id = None
+                        try:
+                            resolved_player_id = _resolve_player_id(player_name, team_name)
+                        except Exception:
+                            resolved_player_id = None
+                        player_id = resolved_player_id if resolved_player_id is not None else source_player_id
+                        photo = _best_player_headshot_url(
+                            photo=rr.get("photo"),
+                            nba_player_id=resolved_player_id,
+                            source_player_id=source_player_id,
+                        )
                         ev = rr.get("ev")
                         try:
                             evf = float(ev) if ev is not None and not pd.isna(ev) else None
@@ -23598,9 +23617,11 @@ def api_props_recommendations():
                         }
                         items.append(
                             {
-                                "player": rr.get("player"),
-                                "team": rr.get("team"),
-                                "team_tricode": (_get_tricode(str(rr.get("team") or "")) or str(rr.get("team") or "").strip().upper() or None),
+                                "player": player_name,
+                                "player_id": player_id,
+                                "photo": photo,
+                                "team": team_name,
+                                "team_tricode": (_get_tricode(str(team_name or "")) or str(team_name or "").strip().upper() or None),
                                 "top_play": top_play,
                                 "score": rr.get("score"),
                                 "score_adj": rr.get("score"),
@@ -23778,7 +23799,27 @@ def api_props_recommendations():
                                     pid = int(pd.to_numeric(grp["player_id"], errors="coerce").dropna().iloc[0])
                                 except Exception:
                                     pid = None
-                            photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
+                            resolved_player_id = None
+                            try:
+                                resolved_player_id = _resolve_player_id(player, tri or team)
+                            except Exception:
+                                resolved_player_id = None
+                            player_id = resolved_player_id if resolved_player_id is not None else pid
+                            photo_value = None
+                            for photo_col in ("photo", "player_photo"):
+                                if photo_col in grp.columns:
+                                    try:
+                                        candidate = str(grp[photo_col].dropna().iloc[0]).strip()
+                                    except Exception:
+                                        candidate = ""
+                                    if candidate:
+                                        photo_value = candidate
+                                        break
+                            photo = _best_player_headshot_url(
+                                photo=photo_value,
+                                nba_player_id=resolved_player_id,
+                                source_player_id=pid,
+                            )
                             team_id = _get_team_id(str(team)) if team is not None else None
                             if team_id:
                                 team_logo = f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
@@ -23787,6 +23828,7 @@ def api_props_recommendations():
 
                             items.append({
                                 "player": player,
+                                "player_id": player_id,
                                 "team": tri,
                                 "team_tricode": tri,
                                 "home_team": home,
@@ -24008,7 +24050,27 @@ def api_props_recommendations():
                             pid = int(pd.to_numeric(grp["player_id"], errors="coerce").dropna().iloc[0])
                         except Exception:
                             pid = None
-                    photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
+                    resolved_player_id = None
+                    try:
+                        resolved_player_id = _resolve_player_id(player, team)
+                    except Exception:
+                        resolved_player_id = None
+                    player_id = resolved_player_id if resolved_player_id is not None else pid
+                    photo_value = None
+                    for photo_col in ("photo", "player_photo"):
+                        if photo_col in grp.columns:
+                            try:
+                                candidate = str(grp[photo_col].dropna().iloc[0]).strip()
+                            except Exception:
+                                candidate = ""
+                            if candidate:
+                                photo_value = candidate
+                                break
+                    photo = _best_player_headshot_url(
+                        photo=photo_value,
+                        nba_player_id=resolved_player_id,
+                        source_player_id=pid,
+                    )
                     team_id = _get_team_id(str(team)) if team is not None else None
                     if team_id:
                         team_logo = f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
@@ -24025,6 +24087,7 @@ def api_props_recommendations():
                         "plays": [],
                         "ladders": [],
                         "model": model,
+                        "player_id": player_id,
                         "photo": photo,
                         "team_logo": team_logo,
                         "_best_ev": None,
@@ -25149,7 +25212,21 @@ def api_props_recommendations():
                         pid = _resolve_player_id(player, team)
                     except Exception:
                         pid = None
-                photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
+                photo_value = None
+                for photo_col in ("photo", "player_photo"):
+                    if photo_col in g2.columns:
+                        try:
+                            candidate = str(g2[photo_col].dropna().iloc[0]).strip()
+                        except Exception:
+                            candidate = ""
+                        if candidate:
+                            photo_value = candidate
+                            break
+                photo = _best_player_headshot_url(
+                    photo=photo_value,
+                    nba_player_id=pid,
+                    source_player_id=pid,
+                )
                 try:
                     team_id = _get_team_id(str(team)) if team is not None else None
                 except Exception:
@@ -25180,6 +25257,7 @@ def api_props_recommendations():
                     pass
                 cards.append({
                     "player": player,
+                    "player_id": pid,
                     "team": team,
                     "team_tricode": (_get_tricode(str(team)) or str(team).strip().upper() if team is not None else None),
                     "opponent": opponent,

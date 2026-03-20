@@ -389,6 +389,7 @@ def test_api_props_recommendations_builds_basketball_first_reason_buckets(tmp_pa
 
     monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
     monkeypatch.setattr(app_module, "_maybe_fetch_remote_processed", lambda _name: None)
+    monkeypatch.setattr(app_module, "_resolve_player_id", lambda player, _team=None: {"STAR ONE": 1628369, "GLASS CLEANER": 203999}.get(str(player or "").upper()))
     monkeypatch.setattr(app_module, "_compute_team_allowed_stats", lambda _date: ({}, {"MIA": {"pts": 25}}))
     monkeypatch.setattr(app_module, "_compute_team_offense_stats", lambda _date: ({}, {"BOS": 22}))
     monkeypatch.setattr(app_module, "_team_injury_counts", lambda _date: {"BOS": 2})
@@ -418,6 +419,8 @@ def test_api_props_recommendations_builds_basketball_first_reason_buckets(tmp_pa
     assert payload["data"]
 
     card = payload["data"][0]
+    assert card["player_id"] == 1628369
+    assert card["photo"] == "https://cdn.nba.com/headshots/nba/latest/1040x760/1628369.png"
     assert card["basketball_summary"]
     assert card["basketball_reasons"]
     assert card["model_reasons"]
