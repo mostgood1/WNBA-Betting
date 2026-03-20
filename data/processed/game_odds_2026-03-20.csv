@@ -1,0 +1,7 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-03-20,2026-03-21T01:10:00Z,Denver Nuggets,Toronto Raptors,-230.2692048516992,230.26920485169913,-7.0,7.0,-105,-115,237.5,-100.0,-100.0,11,11,6,6,oddsapi_consensus
+2026-03-20,2026-03-21T00:10:00Z,Memphis Grizzlies,Boston Celtics,746.5470360293541,-746.5470360293538,15.0,-15.0,-110,-110,229.5,-101.1204272985649,101.12042729856493,11,11,9,7,oddsapi_consensus
+2026-03-20,2026-03-20T23:40:00Z,Brooklyn Nets,New York Knicks,1065.6509049928018,-1065.6509049928031,18.0,-18.0,-110,-110,215.5,100.52781913342025,-100.52781913342027,11,11,8,9,oddsapi_consensus
+2026-03-20,2026-03-21T00:10:00Z,Minnesota Timberwolves,Portland Trail Blazers,-126.49557379693053,126.49557379693053,-2.5,2.5,-110,-110,231.5,100.28906746834713,-100.2890674683471,11,11,9,6,oddsapi_consensus
+2026-03-20,2026-03-21T00:10:00Z,Houston Rockets,Atlanta Hawks,-140.5596790554045,140.55967905540447,-3.5,3.5,-110,-110,228.0,100.8886715624452,-100.88867156244515,11,11,7,6,oddsapi_consensus
+2026-03-20,2026-03-20T23:40:00Z,Detroit Pistons,Golden State Warriors,-193.7112040806639,193.7112040806639,-5.0,5.0,-110,-110,217.5,-100.0,-100.0,11,11,7,5,oddsapi_consensus

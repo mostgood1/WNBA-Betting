@@ -1,0 +1,67 @@
+{
+  "date": "2026-03-20",
+  "team_counts": {
+    "ATL": 1,
+    "BKN": 2,
+    "DEN": 1,
+    "GSW": 1,
+    "HOU": 1,
+    "MEM": 2,
+    "MIN": 1,
+    "TOR": 1
+  },
+  "players": [
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Michael Porter Jr.",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Anthony Edwards",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Scotty Pippen Jr.",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Noah Clowney",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "DaRon Holmes II",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "RayJ Dennis",
+      "team": "ATL",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Chucky Hepburn",
+      "team": "TOR",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
