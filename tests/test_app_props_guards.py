@@ -267,6 +267,87 @@ def test_api_cards_normalizes_snapshot_names_and_backfills_roster_coverage(tmp_p
     assert all("Players with prop lines missing from SmartSim boxscore" not in warning for warning in warnings)
 
 
+def test_api_cards_normalizes_claxton_alias_without_missing_prop_warning(tmp_path, monkeypatch):
+    data_dir = tmp_path / "data"
+    processed = data_dir / "processed"
+    raw = data_dir / "raw"
+    overrides = data_dir / "overrides"
+    processed.mkdir(parents=True)
+    raw.mkdir(parents=True)
+    overrides.mkdir(parents=True)
+
+    atl_bkn = processed / "smart_sim_2026-03-19_ATL_BKN.json"
+    atl_bkn.write_text(
+        json.dumps(
+            {
+                "home": "ATL",
+                "away": "BKN",
+                "score": {},
+                "players": {
+                    "home": [{"player_name": "Trae Young", "player_id": 1, "pts_mean": 28.0}],
+                    "away": [{"player_name": "Nic Claxton", "player_id": 2, "reb_mean": 7.5}],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    pd.DataFrame(
+        [
+            {"TEAM_ABBREVIATION": "ATL", "PLAYER": "Trae Young", "PLAYER_ID": 1},
+            {"TEAM_ABBREVIATION": "BKN", "PLAYER": "Nicolas Claxton", "PLAYER_ID": 2},
+        ]
+    ).to_csv(processed / "rosters_2025-26.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "snapshot_ts": "2026-03-19T16:00:00Z",
+                "event_id": "evt-atl-bkn",
+                "commence_time": "2026-03-19T23:30:00Z",
+                "bookmaker": "fanduel",
+                "bookmaker_title": "FanDuel",
+                "market": "player_rebounds",
+                "outcome_name": "Over",
+                "player_name": "Nicolas Claxton",
+                "point": 6.5,
+                "price": -115,
+                "last_update": "2026-03-19T16:01:00Z",
+                "home_team": "Atlanta Hawks",
+                "away_team": "Brooklyn Nets",
+            }
+        ]
+    ).to_csv(raw / "odds_nba_player_props_2026-03-19.csv", index=False)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "DATA_RAW_DIR", raw)
+    monkeypatch.setattr(app_module, "DATA_OVERRIDES_DIR", overrides)
+    monkeypatch.setattr(app_module, "_load_smart_sim_files_for_authoritative_slate", lambda _date: [atl_bkn])
+    monkeypatch.setattr(
+        app_module,
+        "_load_game_odds_map",
+        lambda _date: {("ATL", "BKN"): {"home_team": "Atlanta Hawks", "visitor_team": "Brooklyn Nets"}},
+    )
+    monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_find_processed_csv", lambda _stem, _date: None)
+    monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_props_recommendations_by_team", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
+
+    with app_module.app.test_request_context("/api/cards?date=2026-03-19"):
+        response = app_module.api_cards()
+
+    payload = response.get_json()
+    warnings = [warning for game in payload["games"] for warning in (game.get("warnings") or [])]
+    away_players = payload["games"][0]["sim"]["players"]["away"]
+    claxton_row = next(row for row in away_players if row.get("player_name") == "Nic Claxton")
+
+    assert all("Players with prop lines missing from SmartSim boxscore" not in warning for warning in warnings)
+    assert claxton_row["prop_lines"]["reb"] == 6.5
+
+
 def test_api_cards_filters_stale_smartsim_matchups_not_in_authoritative_slate(tmp_path, monkeypatch):
     processed = tmp_path / "data" / "processed"
     processed.mkdir(parents=True)

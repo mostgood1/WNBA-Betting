@@ -3417,7 +3417,11 @@ def _norm_player_name(s: str) -> str:
         except Exception:
             pass
         t = " ".join(t.upper().split())
-        return {"HERB JONES": "HERBERT JONES", "MOE WAGNER": "MORITZ WAGNER"}.get(t, t)
+        return {
+            "HERB JONES": "HERBERT JONES",
+            "MOE WAGNER": "MORITZ WAGNER",
+            "NIC CLAXTON": "NICOLAS CLAXTON",
+        }.get(t, t)
 
 def _short_player_key(s: str) -> str:
     try:
@@ -19166,7 +19170,11 @@ def _recommendations_all():
                         except Exception:
                             pass
                         s = " ".join(s.upper().split())
-                        s = {"HERB JONES": "HERBERT JONES", "MOE WAGNER": "MORITZ WAGNER"}.get(s, s)
+                        s = {
+                            "HERB JONES": "HERBERT JONES",
+                            "MOE WAGNER": "MORITZ WAGNER",
+                            "NIC CLAXTON": "NICOLAS CLAXTON",
+                        }.get(s, s)
                         return s.lower()
 
                 # Build stat mapping per player/team

@@ -172,6 +172,34 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Props: alias audit (today)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\audit_prop_player_aliases.py' --date $d"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"label": "Props: alias audit (pick date)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/audit_prop_player_aliases.py",
+				"--date",
+				"${input:auditDate}"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
 			"label": "Schedule: register intraday props refresh (20m)",
 			"type": "shell",
 			"command": "powershell",
@@ -1299,7 +1327,7 @@
 		{
 			"id": "auditDate",
 			"type": "promptString",
-			"description": "Enter date to audit Live Lens (yyyy-MM-dd)",
+			"description": "Enter date to audit (yyyy-MM-dd)",
 			"default": "$(Get-Date -Format 'yyyy-MM-dd')"
 		}
 	]
