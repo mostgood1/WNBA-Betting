@@ -10684,6 +10684,369 @@ def _load_best_bets_props_prediction_lookup(date_str: str) -> dict[tuple[str, st
     return out
 
 
+def _best_bets_prop_reason_label(market: str) -> str:
+    return {
+        "pts": "points",
+        "reb": "rebounds",
+        "ast": "assists",
+        "threes": "threes",
+        "pra": "PRA",
+        "pr": "points + rebounds",
+        "pa": "points + assists",
+        "ra": "rebounds + assists",
+        "stl": "steals",
+        "blk": "blocks",
+        "tov": "turnovers",
+    }.get(str(market or "").strip().lower(), str(market or "").strip().lower())
+
+
+def _best_bets_prop_home_flag(value: Any) -> bool | None:
+    if isinstance(value, (bool, np.bool_)):
+        return bool(value)
+    numeric = _safe_float(value)
+    if numeric is not None:
+        return bool(float(numeric) > 0.0)
+    text = str(value or "").strip().lower()
+    if text in {"1", "true", "yes", "home", "h"}:
+        return True
+    if text in {"0", "false", "no", "away", "road", "a"}:
+        return False
+    return None
+
+
+@lru_cache(maxsize=1)
+def _load_best_bets_player_logs_frame() -> pd.DataFrame:
+    path = DATA_PROCESSED_DIR / "player_logs.csv"
+    if not path.exists():
+        return pd.DataFrame()
+
+    wanted = {
+        "PLAYER_NAME",
+        "TEAM_ABBREVIATION",
+        "GAME_DATE",
+        "MATCHUP",
+        "MIN",
+        "PTS",
+        "REB",
+        "AST",
+        "FG3M",
+        "STL",
+        "BLK",
+        "TOV",
+    }
+    try:
+        df = pd.read_csv(path, usecols=lambda c: str(c).strip().upper() in wanted)
+    except Exception:
+        return pd.DataFrame()
+    if df is None or df.empty:
+        return pd.DataFrame()
+
+    cols = {str(c).strip().upper(): c for c in df.columns}
+    rename_map: dict[str, str] = {}
+    for source, target in (
+        ("PLAYER_NAME", "player_name"),
+        ("TEAM_ABBREVIATION", "team_abbr"),
+        ("GAME_DATE", "game_date"),
+        ("MATCHUP", "matchup"),
+        ("MIN", "min"),
+        ("PTS", "pts"),
+        ("REB", "reb"),
+        ("AST", "ast"),
+        ("FG3M", "threes"),
+        ("STL", "stl"),
+        ("BLK", "blk"),
+        ("TOV", "tov"),
+    ):
+        actual = cols.get(source)
+        if actual:
+            rename_map[actual] = target
+    try:
+        df = df.rename(columns=rename_map).copy()
+    except Exception:
+        return pd.DataFrame()
+    if "player_name" not in df.columns or "team_abbr" not in df.columns:
+        return pd.DataFrame()
+
+    df["player_name"] = df["player_name"].astype(str).str.strip()
+    df["team_abbr"] = df["team_abbr"].astype(str).str.strip().str.upper()
+    df["player_key"] = df["player_name"].map(_norm_player_name)
+    df["game_date"] = pd.to_datetime(df.get("game_date"), errors="coerce")
+
+    def _matchup_context(matchup: Any) -> tuple[str | None, bool | None]:
+        text = str(matchup or "").strip().upper()
+        if " VS. " in text:
+            parts = text.split(" VS. ", 1)
+            return (parts[1].strip() or None, True)
+        if " @ " in text:
+            parts = text.split(" @ ", 1)
+            return (parts[1].strip() or None, False)
+        return (None, None)
+
+    opp_values: list[str | None] = []
+    home_values: list[bool | None] = []
+    for raw in df.get("matchup", pd.Series([None] * len(df))).tolist():
+        opp_tri, is_home = _matchup_context(raw)
+        opp_values.append(opp_tri)
+        home_values.append(is_home)
+    df["opp_tri"] = opp_values
+    df["is_home"] = home_values
+
+    for col in ("min", "pts", "reb", "ast", "threes", "stl", "blk", "tov"):
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+        else:
+            df[col] = np.nan
+
+    try:
+        df = df.sort_values(["player_key", "game_date"], ascending=[True, False]).reset_index(drop=True)
+    except Exception:
+        pass
+    return df
+
+
+def _best_bets_player_log_stat_series(frame: pd.DataFrame, market: str) -> pd.Series:
+    market_key = str(market or "").strip().lower()
+    if frame is None or frame.empty:
+        return pd.Series(dtype=float)
+    if market_key in {"pts", "reb", "ast", "threes", "stl", "blk", "tov"}:
+        return pd.to_numeric(frame.get(market_key), errors="coerce")
+    if market_key == "pra":
+        return (
+            pd.to_numeric(frame.get("pts"), errors="coerce")
+            + pd.to_numeric(frame.get("reb"), errors="coerce")
+            + pd.to_numeric(frame.get("ast"), errors="coerce")
+        )
+    if market_key == "pr":
+        return pd.to_numeric(frame.get("pts"), errors="coerce") + pd.to_numeric(frame.get("reb"), errors="coerce")
+    if market_key == "pa":
+        return pd.to_numeric(frame.get("pts"), errors="coerce") + pd.to_numeric(frame.get("ast"), errors="coerce")
+    if market_key == "ra":
+        return pd.to_numeric(frame.get("reb"), errors="coerce") + pd.to_numeric(frame.get("ast"), errors="coerce")
+    return pd.Series(dtype=float)
+
+
+def _best_bets_prop_history_context(
+    *,
+    date_str: str,
+    player_name: Any,
+    team_tri: Any,
+    opponent: Any,
+    market: str,
+    home_flag: bool | None,
+) -> dict[str, Any]:
+    df = _load_best_bets_player_logs_frame()
+    if df is None or df.empty:
+        return {}
+
+    player_key = _norm_player_name(player_name)
+    team_key = str(team_tri or "").strip().upper()
+    opponent_key = str(opponent or "").strip().upper()
+    if not player_key:
+        return {}
+
+    hist = df[df["player_key"] == player_key].copy()
+    if hist.empty:
+        return {}
+    if team_key:
+        team_hist = hist[hist["team_abbr"] == team_key].copy()
+        if not team_hist.empty:
+            hist = team_hist
+    cutoff = pd.to_datetime(date_str, errors="coerce")
+    if pd.notna(cutoff):
+        hist = hist[hist["game_date"] < cutoff].copy()
+    if hist.empty:
+        return {}
+
+    hist = hist.sort_values("game_date", ascending=False).copy()
+    recent10 = hist.head(10).copy()
+    opp_hist = hist[hist["opp_tri"] == opponent_key].copy() if opponent_key else pd.DataFrame()
+    venue_hist = hist[hist["is_home"] == bool(home_flag)].copy() if home_flag is not None else pd.DataFrame()
+
+    def _avg(frame: pd.DataFrame) -> float | None:
+        if frame is None or frame.empty:
+            return None
+        series = _best_bets_player_log_stat_series(frame, market).dropna()
+        if series.empty:
+            return None
+        try:
+            return float(series.mean())
+        except Exception:
+            return None
+
+    return {
+        "opponent_avg": _avg(opp_hist),
+        "opponent_games": int(len(opp_hist.index)) if not opp_hist.empty else 0,
+        "venue_avg": _avg(venue_hist),
+        "venue_games": int(len(venue_hist.index)) if not venue_hist.empty else 0,
+        "last10_avg": _avg(recent10),
+        "last10_games": int(len(recent10.index)) if not recent10.empty else 0,
+    }
+
+
+@lru_cache(maxsize=16)
+def _load_best_bets_smart_sim_player_lookup(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
+    out: dict[tuple[str, str], dict[str, Any]] = {}
+    for fp in _load_smart_sim_files_for_authoritative_slate(date_str):
+        try:
+            obj = json.loads(fp.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(obj, dict):
+            continue
+        players = obj.get("players") if isinstance(obj.get("players"), dict) else {}
+        home_tri = str(obj.get("home") or "").strip().upper()
+        away_tri = str(obj.get("away") or "").strip().upper()
+        for side, team_key in (("home", home_tri), ("away", away_tri)):
+            if not team_key:
+                continue
+            arr = players.get(side) if isinstance(players, dict) else []
+            if not isinstance(arr, list):
+                continue
+            for raw in arr:
+                if not isinstance(raw, dict):
+                    continue
+                player_name = str(raw.get("player_name") or "").strip()
+                player_key = _norm_player_name(player_name)
+                if not player_key:
+                    continue
+                out[(team_key, player_key)] = {
+                    "player_name": player_name,
+                    "team": team_key,
+                    "min_mean": _safe_float(raw.get("min_mean")),
+                    "pts_mean": _safe_float(raw.get("pts_mean")),
+                    "pra_mean": _safe_float(raw.get("pra_mean")),
+                    "scenarios": raw.get("scenarios") if isinstance(raw.get("scenarios"), dict) else {},
+                }
+    return out
+
+
+def _best_bets_prop_scenario_quantile(scenarios: dict[str, Any] | None, scenario_key: str, market: str, quantile: str = "p50") -> float | None:
+    if not isinstance(scenarios, dict):
+        return None
+    scenario = scenarios.get(scenario_key) if isinstance(scenarios.get(scenario_key), dict) else None
+    if not isinstance(scenario, dict):
+        return None
+
+    def _q(stat_key: str) -> float | None:
+        bucket = scenario.get(f"{stat_key}_q") if isinstance(scenario.get(f"{stat_key}_q"), dict) else None
+        if not isinstance(bucket, dict):
+            return None
+        return _safe_float(bucket.get(quantile))
+
+    market_key = str(market or "").strip().lower()
+    if market_key in {"pts", "reb", "ast", "threes", "pra"}:
+        return _q(market_key)
+    if market_key == "pr":
+        parts = [_q("pts"), _q("reb")]
+    elif market_key == "pa":
+        parts = [_q("pts"), _q("ast")]
+    elif market_key == "ra":
+        parts = [_q("reb"), _q("ast")]
+    else:
+        return None
+    vals = [float(v) for v in parts if v is not None]
+    return float(sum(vals)) if vals else None
+
+
+def _best_bets_prop_sim_context(date_str: str, player_name: Any, team_tri: Any, market: str) -> dict[str, Any]:
+    team_key = str(team_tri or "").strip().upper()
+    player_key = _norm_player_name(player_name)
+    if not team_key or not player_key:
+        return {}
+    entry = _load_best_bets_smart_sim_player_lookup(date_str).get((team_key, player_key))
+    if not isinstance(entry, dict):
+        return {}
+
+    scenarios = entry.get("scenarios") if isinstance(entry.get("scenarios"), dict) else {}
+    close_p50 = _best_bets_prop_scenario_quantile(scenarios, "close", market)
+    medium_p50 = _best_bets_prop_scenario_quantile(scenarios, "medium", market)
+    blowout_p50 = _best_bets_prop_scenario_quantile(scenarios, "blowout", market)
+    close_n = _safe_float(((scenarios.get("close") or {}) if isinstance(scenarios.get("close"), dict) else {}).get("n"))
+    blowout_n = _safe_float(((scenarios.get("blowout") or {}) if isinstance(scenarios.get("blowout"), dict) else {}).get("n"))
+    close_gap = None
+    if close_p50 is not None and blowout_p50 is not None:
+        close_gap = float(close_p50) - float(blowout_p50)
+
+    min_mean = _safe_float(entry.get("min_mean"))
+    pts_mean = _safe_float(entry.get("pts_mean"))
+    pra_mean = _safe_float(entry.get("pra_mean"))
+    is_star = False
+    try:
+        is_star = bool(
+            (min_mean is not None and float(min_mean) >= 32.0)
+            or (pts_mean is not None and float(pts_mean) >= 20.0)
+            or (pra_mean is not None and float(pra_mean) >= 30.0)
+        )
+    except Exception:
+        is_star = False
+
+    return {
+        "close_p50": close_p50,
+        "medium_p50": medium_p50,
+        "blowout_p50": blowout_p50,
+        "close_gap": close_gap,
+        "close_n": int(close_n) if close_n is not None else 0,
+        "blowout_n": int(blowout_n) if blowout_n is not None else 0,
+        "min_mean": min_mean,
+        "pts_mean": pts_mean,
+        "pra_mean": pra_mean,
+        "is_star": is_star,
+    }
+
+
+def _best_bets_settle_prop_pick(*, actual: Any, line: Any, side: Any) -> str | None:
+    actual_val = _safe_float(actual)
+    line_val = _safe_float(line)
+    side_key = str(side or "").strip().upper()
+    if actual_val is None or line_val is None or side_key not in {"OVER", "UNDER"}:
+        return None
+    if abs(float(actual_val) - float(line_val)) < 1e-9:
+        return "PUSH"
+    if side_key == "OVER":
+        return "WIN" if float(actual_val) > float(line_val) else "LOSS"
+    return "WIN" if float(actual_val) < float(line_val) else "LOSS"
+
+
+@lru_cache(maxsize=16)
+def _load_recon_props_lookup(date_str: str) -> tuple[dict[int, dict[str, Any]], dict[tuple[str, str], dict[str, Any]]]:
+    path = DATA_PROCESSED_DIR / f"recon_props_{date_str}.csv"
+    if not path.exists():
+        return {}, {}
+    try:
+        df = pd.read_csv(path)
+    except Exception:
+        return {}, {}
+    if df is None or df.empty:
+        return {}, {}
+
+    by_id: dict[int, dict[str, Any]] = {}
+    by_key: dict[tuple[str, str], dict[str, Any]] = {}
+    for _, r in df.iterrows():
+        row = r.to_dict()
+        record = {
+            "date": row.get("date"),
+            "player_id": _safe_int(row.get("player_id")),
+            "player_name": str(row.get("player_name") or "").strip(),
+            "team_abbr": str(row.get("team_abbr") or "").strip().upper(),
+            "pts": _safe_float(row.get("pts")),
+            "reb": _safe_float(row.get("reb")),
+            "ast": _safe_float(row.get("ast")),
+            "threes": _safe_float(row.get("threes")),
+            "stl": _safe_float(row.get("stl")),
+            "blk": _safe_float(row.get("blk")),
+            "tov": _safe_float(row.get("tov")),
+            "pra": _safe_float(row.get("pra")),
+        }
+        pid = record.get("player_id")
+        if pid:
+            by_id[int(pid)] = record
+        team_key = str(record.get("team_abbr") or "").strip().upper()
+        player_key = _norm_player_name(record.get("player_name"))
+        if team_key and player_key:
+            by_key[(team_key, player_key)] = record
+    return by_id, by_key
+
+
 def _best_bets_prop_market_label(market: str) -> str:
     return {
         "pts": "PTS",
@@ -11149,9 +11512,12 @@ def _decorate_prop_best_bet_candidate(
     sd = _best_bets_prop_sd_value(pred_row, market)
     roll5 = _best_bets_prop_stat_value(pred_row, market, "roll5")
     roll3 = _best_bets_prop_stat_value(pred_row, market, "roll3")
+    roll10 = _best_bets_prop_stat_value(pred_row, market, "roll10")
     lag1 = _best_bets_prop_stat_value(pred_row, market, "lag1")
     pred_min = _safe_float((pred_row or {}).get("pred_min"))
     roll5_min = _safe_float((pred_row or {}).get("roll5_min"))
+    roll10_min = _safe_float((pred_row or {}).get("roll10_min"))
+    home_flag = _best_bets_prop_home_flag((pred_row or {}).get("home"))
     b2b = False
     try:
         b2b = bool(float((pred_row or {}).get("b2b") or 0.0) > 0.0)
@@ -11189,6 +11555,16 @@ def _decorate_prop_best_bet_candidate(
     if not matchup and opponent:
         matchup = f"{opponent} @ {team_tri}"
 
+    history_ctx = _best_bets_prop_history_context(
+        date_str=date_str,
+        player_name=player,
+        team_tri=team_tri,
+        opponent=opponent,
+        market=market,
+        home_flag=home_flag,
+    )
+    sim_ctx = _best_bets_prop_sim_context(date_str, player, team_tri, market)
+
     basketball_reasons: list[str] = []
     basketball_points = 0.0
     usage_markets = {"pts", "ast", "threes", "pra", "pr", "pa", "ra"}
@@ -11196,6 +11572,7 @@ def _decorate_prop_best_bet_candidate(
     rebound_markets = {"reb", "ra", "pr", "pra"}
     minutes_base = pred_min if pred_min is not None else roll5_min
     team_outs = int((injury_snapshot.get("counts") or {}).get(team_tri, 0) or 0)
+    market_label = _best_bets_prop_reason_label(market)
 
     if roll5 is not None and line is not None:
         if is_over and float(roll5) >= float(line) + 0.5:
@@ -11204,6 +11581,13 @@ def _decorate_prop_best_bet_candidate(
         elif (not is_over) and float(roll5) <= float(line) - 0.5:
             basketball_reasons.append(f"Recent form has stayed below this line with a last-five average of {float(roll5):.1f}")
             basketball_points += 0.30
+    if roll10 is not None and line is not None:
+        if is_over and float(roll10) >= float(line) + 0.5:
+            basketball_reasons.append(f"The last-10 sample is still above this number at {float(roll10):.1f}, so the over is not just riding a short heater")
+            basketball_points += 0.18
+        elif (not is_over) and float(roll10) <= float(line) - 0.5:
+            basketball_reasons.append(f"The last-10 sample is holding under this line at {float(roll10):.1f}, which supports the lower-volume case")
+            basketball_points += 0.18
     elif roll3 is not None and line is not None:
         if is_over and float(roll3) >= float(line) + 0.5:
             basketball_reasons.append(f"The short-term trend is up with a last-three average of {float(roll3):.1f}")
@@ -11225,6 +11609,69 @@ def _decorate_prop_best_bet_candidate(
         elif (not is_over) and float(minutes_base) <= 26.0:
             basketball_reasons.append(f"Projected minutes sit in a softer band around {float(minutes_base):.1f}")
             basketball_points += 0.16
+    if pred_min is not None and roll10_min is not None:
+        minute_gap = float(pred_min) - float(roll10_min)
+        if is_over and minute_gap >= 1.5:
+            basketball_reasons.append(f"Projected minutes ({float(pred_min):.1f}) sit above his last-10 workload ({float(roll10_min):.1f}), which strengthens the volume path")
+            basketball_points += 0.12
+        elif (not is_over) and minute_gap <= -1.5:
+            basketball_reasons.append(f"Projected minutes ({float(pred_min):.1f}) are lighter than his last-10 workload ({float(roll10_min):.1f}), which leans under")
+            basketball_points += 0.12
+
+    opponent_avg = _safe_float(history_ctx.get("opponent_avg"))
+    opponent_games = int(history_ctx.get("opponent_games") or 0)
+    if opponent_avg is not None and opponent_games >= 2 and line is not None:
+        if is_over and float(opponent_avg) >= float(line) + 0.5:
+            basketball_reasons.append(f"He has averaged {float(opponent_avg):.1f} {market_label} in {opponent_games} recent games against {opponent or 'this opponent'}")
+            basketball_points += min(0.18, 0.08 + (0.02 * float(min(opponent_games, 5))))
+        elif (not is_over) and float(opponent_avg) <= float(line) - 0.5:
+            basketball_reasons.append(f"He has stayed at {float(opponent_avg):.1f} {market_label} across {opponent_games} recent looks against {opponent or 'this opponent'}")
+            basketball_points += min(0.18, 0.08 + (0.02 * float(min(opponent_games, 5))))
+
+    venue_avg = _safe_float(history_ctx.get("venue_avg"))
+    venue_games = int(history_ctx.get("venue_games") or 0)
+    venue_label = None
+    if home_flag is True:
+        venue_label = "at home"
+    elif home_flag is False:
+        venue_label = "on the road"
+    if venue_label and venue_avg is not None and venue_games >= 5 and line is not None:
+        if is_over and float(venue_avg) >= float(line) + 0.5:
+            basketball_reasons.append(f"{venue_label.capitalize()}, he is averaging {float(venue_avg):.1f} {market_label} over his last {venue_games} games in that split")
+            basketball_points += 0.14
+        elif (not is_over) and float(venue_avg) <= float(line) - 0.5:
+            basketball_reasons.append(f"{venue_label.capitalize()}, he is averaging only {float(venue_avg):.1f} {market_label} over his last {venue_games} games in that split")
+            basketball_points += 0.14
+
+    close_p50 = _safe_float(sim_ctx.get("close_p50"))
+    blowout_p50 = _safe_float(sim_ctx.get("blowout_p50"))
+    close_gap = _safe_float(sim_ctx.get("close_gap"))
+    close_n = int(sim_ctx.get("close_n") or 0)
+    blowout_n = int(sim_ctx.get("blowout_n") or 0)
+    is_star = bool(sim_ctx.get("is_star"))
+    scenario_gap_threshold = 0.75 if is_star else 1.0
+    scenario_ready = bool(
+        market in usage_markets
+        and close_p50 is not None
+        and blowout_p50 is not None
+        and close_gap is not None
+        and blowout_n >= 25
+        and ((close_n >= 10) if is_star else (close_n >= 20))
+    )
+    if scenario_ready:
+        if is_over and float(close_gap) >= float(scenario_gap_threshold):
+            basketball_reasons.append(f"SmartSim keeps his {market_label} median at {float(close_p50):.1f} in close games versus {float(blowout_p50):.1f} in blowouts, so the over benefits if his closing workload stays live")
+            basketball_points += 0.18
+        elif (not is_over) and float(close_gap) >= float(scenario_gap_threshold) and line is not None and float(blowout_p50) <= float(line) - 0.5:
+            basketball_reasons.append(f"The blowout branch trims his {market_label} median to {float(blowout_p50):.1f}, which is the cleaner path for this under")
+            basketball_points += 0.16
+        if is_star and float(close_gap) >= float(scenario_gap_threshold):
+            if is_over:
+                basketball_reasons.append(f"{player} carries a star-level closing role, so tight fourth-quarter scripts keep the ball and late-possession usage in his hands")
+                basketball_points += 0.12
+            elif line is not None and float(blowout_p50) <= float(line) - 0.5:
+                basketball_reasons.append(f"Because {player}'s highest-usage minutes come in competitive finishes, this under improves if the game leans toward the blowout branch")
+                basketball_points += 0.10
     if team_outs >= 2 and market in usage_markets and is_over:
         basketball_reasons.append(f"A thinner {team_tri} rotation can concentrate touches toward {player}")
         basketball_points += 0.18
@@ -11264,6 +11711,9 @@ def _decorate_prop_best_bet_candidate(
     if p_win is not None:
         sim_reasons.append(f"Win probability grades at {float(p_win) * 100.0:.1f}%")
         sim_points += min(0.30, max(0.0, float(p_win) - 0.5) / 0.2)
+    if close_p50 is not None and blowout_p50 is not None and close_gap is not None and abs(float(close_gap)) >= 1.0:
+        sim_reasons.append(f"Scenario split shows a {float(close_p50):.1f} close-game median versus {float(blowout_p50):.1f} in blowouts")
+        sim_points += min(0.18, abs(float(close_gap)) / 6.0)
 
     value_reasons: list[str] = []
     value_points = 0.0
@@ -12692,6 +13142,8 @@ def api_cards():
     # like boxscore reconciliation without requiring extra requests.
     recon_games_map: dict[tuple[str, str], dict[str, Any]] = {}
     recon_quarters_map: dict[tuple[str, str], dict[str, Any]] = {}
+    recon_props_by_id: dict[int, dict[str, Any]] = {}
+    recon_props_by_key: dict[tuple[str, str], dict[str, Any]] = {}
     try:
         rg = DATA_PROCESSED_DIR / f"recon_games_{d}.csv"
         if rg.exists():
@@ -12714,6 +13166,10 @@ def api_cards():
                     recon_quarters_map[(h, a)] = row.to_dict()
     except Exception:
         recon_quarters_map = {}
+    try:
+        recon_props_by_id, recon_props_by_key = _load_recon_props_lookup(d)
+    except Exception:
+        recon_props_by_id, recon_props_by_key = {}, {}
 
     def _boxscore_prop_market_key(market: Any) -> str | None:
         try:
@@ -12782,6 +13238,91 @@ def api_cards():
         if side == "UNDER":
             return (1, -line_key)
         return (2, line_key)
+
+    def _lookup_recon_prop_actuals(team_tri: Any, player_name: Any, player_id: Any) -> dict[str, Any] | None:
+        try:
+            pid = int(float(player_id))
+        except Exception:
+            pid = None
+        if pid is not None and pid in recon_props_by_id:
+            return dict(recon_props_by_id.get(pid) or {})
+        team_key = str(team_tri or "").strip().upper()
+        player_key = _norm_player_name(player_name)
+        if team_key and player_key:
+            row = recon_props_by_key.get((team_key, player_key))
+            if isinstance(row, dict):
+                return dict(row)
+        return None
+
+    def _apply_recon_to_prop_option(option: dict[str, Any], actual_row: dict[str, Any]) -> None:
+        if not isinstance(option, dict) or not isinstance(actual_row, dict):
+            return
+        market_key = _boxscore_prop_market_key(option.get("market")) or _boxscore_prop_market_key(option.get("stat"))
+        if market_key is None:
+            market_key = str(option.get("market") or "").strip().lower() or None
+        actual_val = _safe_float(actual_row.get(str(market_key or "").lower())) if market_key else None
+        if actual_val is None:
+            return
+        option["actual"] = float(actual_val)
+        result = _best_bets_settle_prop_pick(actual=actual_val, line=option.get("line"), side=option.get("side"))
+        if result:
+            option["result"] = result
+
+    def _attach_recon_to_player_prop_row(row: dict[str, Any], team_tri: Any) -> None:
+        if not isinstance(row, dict):
+            return
+        actual_row = _lookup_recon_prop_actuals(team_tri, row.get("player_name"), row.get("player_id"))
+        if not isinstance(actual_row, dict):
+            return
+        actual_props = {
+            key: actual_row.get(key)
+            for key in ("pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra")
+            if actual_row.get(key) is not None
+        }
+        if actual_props:
+            row["actual_props"] = actual_props
+        options_map = row.get("prop_line_options") if isinstance(row.get("prop_line_options"), dict) else {}
+        for options in options_map.values():
+            if not isinstance(options, list):
+                continue
+            for option in options:
+                _apply_recon_to_prop_option(option, actual_row)
+
+    def _attach_recon_to_prop_recommendation(row: dict[str, Any], team_tri: Any) -> None:
+        if not isinstance(row, dict):
+            return
+        actual_row = _lookup_recon_prop_actuals(team_tri, row.get("player"), (row.get("best") or {}).get("player_id") if isinstance(row.get("best"), dict) else None)
+        if not isinstance(actual_row, dict):
+            return
+        actual_props = {
+            key: actual_row.get(key)
+            for key in ("pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra")
+            if actual_row.get(key) is not None
+        }
+        if actual_props:
+            row["actual_props"] = actual_props
+        best = row.get("best") if isinstance(row.get("best"), dict) else None
+        if isinstance(best, dict):
+            market_key = str(best.get("market") or "").strip().lower()
+            actual_val = _safe_float(actual_row.get(market_key))
+            if actual_val is not None:
+                row["actual"] = float(actual_val)
+                best["actual"] = float(actual_val)
+            result = _best_bets_settle_prop_pick(actual=actual_val, line=best.get("line"), side=best.get("side"))
+            if result:
+                row["result"] = result
+                best["result"] = result
+        picks = row.get("picks") if isinstance(row.get("picks"), list) else []
+        for pick in picks:
+            if not isinstance(pick, dict):
+                continue
+            market_key = str(pick.get("market") or "").strip().lower()
+            actual_val = _safe_float(actual_row.get(market_key))
+            if actual_val is not None:
+                pick["actual"] = float(actual_val)
+            result = _best_bets_settle_prop_pick(actual=actual_val, line=pick.get("line"), side=pick.get("side"))
+            if result:
+                pick["result"] = result
 
     def _resolve_boxscore_prop_teams_from_snapshot(player_name: Any, home_team: Any, away_team: Any) -> list[str]:
         player_key = _norm_player_name_for_keys(player_name)
@@ -13546,6 +14087,15 @@ def api_cards():
             "away": _missing_prop_players_for_team(away_tri, players.get("away") if isinstance(players, dict) else []),
         }
 
+        try:
+            for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
+                for player_row in players_out.get(side_key) or []:
+                    _attach_recon_to_player_prop_row(player_row, team_tri)
+                for player_row in missing_prop_players.get(side_key) or []:
+                    _attach_recon_to_player_prop_row(player_row, team_tri)
+        except Exception:
+            pass
+
         def _injury_list_for_team(team_tri: str) -> list[dict[str, Any]]:
             tri = str(team_tri or "").strip().upper()
             if not tri:
@@ -13783,6 +14333,7 @@ def api_cards():
                             best[key] = list(value)
                         elif value is not None:
                             best[key] = value
+                    _attach_recon_to_prop_recommendation(row, team_tri)
         except Exception:
             pass
 

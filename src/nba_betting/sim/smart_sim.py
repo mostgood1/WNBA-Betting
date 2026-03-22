@@ -16,6 +16,77 @@ from ..roster_files import pick_rosters_file
 from ..teams import to_tricode
 
 
+def _normalize_position(value: Any) -> str:
+    text = str(value or "").strip().upper()
+    if not text or text in {"NAN", "NONE"}:
+        return ""
+
+    cleaned = (
+        text.replace("-", " ")
+        .replace("/", " ")
+        .replace(",", " ")
+        .replace(".", " ")
+    )
+    parts = [part.strip() for part in cleaned.split() if str(part).strip()]
+    for part in parts:
+        if part in {"PG", "SG", "G", "GUARD"}:
+            return "G"
+        if part in {"SF", "PF", "F", "FORWARD"}:
+            return "F"
+        if part in {"C", "CENTER"}:
+            return "C"
+
+    if "PG" in text or "SG" in text or text.startswith("G") or "GUARD" in text:
+        return "G"
+    if "SF" in text or "PF" in text or text.startswith("F") or "FORWARD" in text:
+        return "F"
+    if text.endswith("C") or "CENTER" in text:
+        return "C"
+    return ""
+
+
+def _coalesce_team_player_frames(*frames: pd.DataFrame) -> pd.DataFrame:
+    usable = [frame.copy() for frame in frames if isinstance(frame, pd.DataFrame) and not frame.empty]
+    if not usable:
+        return pd.DataFrame()
+
+    comb = pd.concat(usable, ignore_index=True, sort=False)
+    if comb.empty:
+        return pd.DataFrame()
+
+    if "team" in comb.columns:
+        comb["team"] = comb["team"].astype(str).str.upper().str.strip()
+        comb.loc[comb["team"].isin({"", "NAN", "NONE"}), "team"] = np.nan
+    if "opponent" in comb.columns:
+        comb["opponent"] = comb["opponent"].astype(str).str.upper().str.strip()
+        comb.loc[comb["opponent"].isin({"", "NAN", "NONE"}), "opponent"] = np.nan
+    if "player_name" in comb.columns:
+        comb["player_name"] = comb["player_name"].astype(str).str.strip()
+        comb.loc[comb["player_name"].isin({"", "NAN", "NONE"}), "player_name"] = np.nan
+    if "position" in comb.columns:
+        comb["position"] = comb["position"].map(_normalize_position)
+        comb.loc[comb["position"].eq(""), "position"] = np.nan
+    if "player_id" in comb.columns:
+        comb["player_id"] = pd.to_numeric(comb["player_id"], errors="coerce")
+
+    key_cols = [col for col in ["player_name", "team"] if col in comb.columns]
+    if not key_cols:
+        return comb
+
+    comb = comb.dropna(subset=key_cols).copy()
+    if comb.empty:
+        return pd.DataFrame(columns=key_cols)
+
+    out = (
+        comb.groupby(key_cols, sort=False, dropna=False, group_keys=False)
+        .apply(lambda group: group.ffill().iloc[-1])
+        .reset_index(drop=True)
+    )
+    if "position" in out.columns:
+        out["position"] = out["position"].map(_normalize_position)
+    return out
+
+
 @lru_cache(maxsize=64)
 def _load_pregame_expected_minutes(date_str: str) -> pd.DataFrame:
     """Load pregame expected minutes artifact for a slate date.
@@ -679,6 +750,311 @@ def _load_player_logs_processed() -> pd.DataFrame:
         return pd.DataFrame()
 
 
+@lru_cache(maxsize=1)
+def _load_boxscores_history_processed() -> pd.DataFrame:
+    p = paths.data_processed / "boxscores_history.csv"
+    if not p.exists():
+        return pd.DataFrame()
+    try:
+        df = pd.read_csv(p)
+        return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
+
+
+def _matchup_opponent(matchup: Any) -> str:
+    text = str(matchup or "").strip().upper().replace("VS.", "VS")
+    if not text:
+        return ""
+    parts = [part.strip(" .") for part in text.split() if str(part).strip()]
+    if not parts:
+        return ""
+    last = str(parts[-1]).strip().upper()
+    return last if 2 <= len(last) <= 4 else ""
+
+
+def _matchup_home_flag(matchup: Any) -> Optional[bool]:
+    text = str(matchup or "").strip().upper().replace("VS.", "VS")
+    if not text:
+        return None
+    if "@" in text:
+        return False
+    if " VS " in f" {text} ":
+        return True
+    return None
+
+
+@lru_cache(maxsize=64)
+def _season_roster_positions(date_str: str) -> pd.DataFrame:
+    proc = paths.data_processed
+    season = None
+    try:
+        d = pd.to_datetime(str(date_str), errors="coerce")
+        if pd.notna(d):
+            start_year = int(d.year) if int(d.month) >= 7 else int(d.year) - 1
+            season = f"{start_year}-{str(start_year + 1)[-2:]}"
+    except Exception:
+        season = None
+
+    try:
+        roster_path = pick_rosters_file(proc, season=season)
+    except Exception:
+        roster_path = None
+    if roster_path is None or (not roster_path.exists()):
+        return pd.DataFrame()
+
+    try:
+        df = pd.read_csv(roster_path)
+    except Exception:
+        return pd.DataFrame()
+    if df is None or df.empty:
+        return pd.DataFrame()
+
+    cols = {str(c).upper(): c for c in df.columns}
+    name_col = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+    team_col = cols.get("TEAM_ABBREVIATION")
+    pos_col = cols.get("POSITION") or cols.get("START_POSITION")
+    pid_col = cols.get("PLAYER_ID")
+    if not name_col or not team_col or not pos_col:
+        return pd.DataFrame()
+
+    keep_cols = [c for c in [pid_col, name_col, team_col, pos_col] if c]
+    out = df[keep_cols].copy()
+    out[team_col] = out[team_col].astype(str).str.upper().str.strip()
+    out["_pkey"] = out[name_col].map(_norm_player_key)
+    out["position"] = out[pos_col].map(_normalize_position)
+    out = out[out["position"].ne("")].copy()
+    if out.empty:
+        return pd.DataFrame()
+    if pid_col:
+        out["player_id"] = pd.to_numeric(out[pid_col], errors="coerce")
+    else:
+        out["player_id"] = np.nan
+    out = out.rename(columns={team_col: "team"})
+    out = out[["player_id", "_pkey", "team", "position"]].copy()
+    out = out.drop_duplicates(subset=["player_id", "_pkey", "team", "position"], keep="last")
+    return out
+
+
+@lru_cache(maxsize=256)
+def _player_split_rate_context(date_str: str, team_tri: str, lookback_days: int = 120) -> pd.DataFrame:
+    logs = _load_player_logs_processed()
+    if logs is None or logs.empty:
+        return pd.DataFrame()
+
+    end = pd.to_datetime(str(date_str or ""), errors="coerce")
+    if pd.isna(end):
+        return pd.DataFrame()
+
+    team_u = str(team_tri or "").strip().upper()
+    if not team_u:
+        return pd.DataFrame()
+
+    name_col = "PLAYER_NAME" if "PLAYER_NAME" in logs.columns else ("player_name" if "player_name" in logs.columns else None)
+    team_col = "TEAM_ABBREVIATION" if "TEAM_ABBREVIATION" in logs.columns else ("team" if "team" in logs.columns else None)
+    date_col = "GAME_DATE" if "GAME_DATE" in logs.columns else None
+    min_col = "MIN" if "MIN" in logs.columns else ("min" if "min" in logs.columns else None)
+    if not name_col or not team_col or not date_col or not min_col:
+        return pd.DataFrame()
+
+    stat_cols = {
+        "pts": "PTS",
+        "reb": "REB",
+        "ast": "AST",
+        "threes": "FG3M",
+        "stl": "STL",
+        "blk": "BLK",
+        "tov": "TOV",
+    }
+
+    keep_cols = [name_col, team_col, date_col, min_col]
+    if "MATCHUP" in logs.columns:
+        keep_cols.append("MATCHUP")
+    for col in stat_cols.values():
+        if col in logs.columns:
+            keep_cols.append(col)
+
+    ctx = logs[keep_cols].copy()
+    ctx[team_col] = ctx[team_col].astype(str).str.upper().str.strip()
+    ctx = ctx[ctx[team_col] == team_u].copy()
+    if ctx.empty:
+        return pd.DataFrame()
+
+    ctx[date_col] = pd.to_datetime(ctx[date_col], errors="coerce")
+    start = end - pd.Timedelta(days=int(max(14, lookback_days)))
+    ctx = ctx[(ctx[date_col].notna()) & (ctx[date_col] >= start) & (ctx[date_col] < end)].copy()
+    if ctx.empty:
+        return pd.DataFrame()
+
+    ctx["_pkey"] = ctx[name_col].map(_norm_player_key)
+    ctx["_min"] = ctx[min_col].map(_parse_min_to_float)
+    ctx = ctx[np.isfinite(ctx["_min"]) & (ctx["_min"] > 0.0)].copy()
+    if ctx.empty:
+        return pd.DataFrame()
+
+    if "MATCHUP" in ctx.columns:
+        ctx["_opp"] = ctx["MATCHUP"].map(_matchup_opponent)
+        ctx["_home"] = ctx["MATCHUP"].map(_matchup_home_flag)
+    else:
+        ctx["_opp"] = ""
+        ctx["_home"] = None
+
+    for stat, col in stat_cols.items():
+        if col in ctx.columns:
+            vals = pd.to_numeric(ctx[col], errors="coerce").fillna(0.0).astype(float)
+        else:
+            vals = pd.Series([0.0] * len(ctx), index=ctx.index, dtype=float)
+        ctx[f"_{stat}_pm"] = vals / ctx["_min"].where(ctx["_min"] > 0.0, other=np.nan)
+        ctx[f"_{stat}_pm"] = ctx[f"_{stat}_pm"].replace([np.inf, -np.inf], np.nan)
+
+    keep_out = ["_pkey", "_opp", "_home", "_min"] + [f"_{stat}_pm" for stat in stat_cols]
+    return ctx[keep_out].copy()
+
+
+@lru_cache(maxsize=128)
+def _opponent_position_rate_context(date_str: str, lookback_days: int = 120) -> pd.DataFrame:
+    box = _load_boxscores_history_processed()
+    if box is None or box.empty:
+        return pd.DataFrame()
+
+    end = pd.to_datetime(str(date_str or ""), errors="coerce")
+    if pd.isna(end):
+        return pd.DataFrame()
+
+    cols = {str(c).upper(): c for c in box.columns}
+    gid_col = cols.get("GAME_ID") or cols.get("GAMEID")
+    team_col = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM")
+    name_col = cols.get("PLAYER_NAME") or cols.get("PLAYER")
+    date_col = cols.get("DATE") or cols.get("GAME_DATE")
+    min_col = cols.get("MIN")
+    pos_col = cols.get("START_POSITION") or cols.get("POSITION")
+    pid_col = cols.get("PLAYER_ID")
+    if not gid_col or not team_col or not name_col or not date_col or not min_col:
+        return pd.DataFrame()
+
+    stat_cols = {
+        "pts": cols.get("PTS"),
+        "reb": cols.get("REB"),
+        "ast": cols.get("AST"),
+        "threes": cols.get("FG3M"),
+        "stl": cols.get("STL"),
+        "blk": cols.get("BLK"),
+        "tov": cols.get("TOV"),
+    }
+
+    keep_cols = [c for c in [gid_col, team_col, name_col, date_col, min_col, pos_col, pid_col] if c]
+    keep_cols.extend([c for c in stat_cols.values() if c])
+    ctx = box[keep_cols].copy()
+    ctx[date_col] = pd.to_datetime(ctx[date_col], errors="coerce")
+    start = end - pd.Timedelta(days=int(max(21, lookback_days)))
+    ctx = ctx[(ctx[date_col].notna()) & (ctx[date_col] >= start) & (ctx[date_col] < end)].copy()
+    if ctx.empty:
+        return pd.DataFrame()
+
+    ctx[team_col] = ctx[team_col].astype(str).str.upper().str.strip()
+    ctx[gid_col] = pd.to_numeric(ctx[gid_col], errors="coerce")
+    ctx["_pkey"] = ctx[name_col].map(_norm_player_key)
+    ctx["_min"] = ctx[min_col].map(_parse_min_to_float)
+    ctx = ctx[np.isfinite(ctx["_min"]) & (ctx["_min"] > 0.0) & ctx[gid_col].notna()].copy()
+    if ctx.empty:
+        return pd.DataFrame()
+
+    if pos_col:
+        ctx["_pos"] = ctx[pos_col].map(_normalize_position)
+    else:
+        ctx["_pos"] = ""
+
+    roster_pos = _season_roster_positions(date_str)
+    if roster_pos is not None and not roster_pos.empty:
+        pid_lookup: dict[int, str] = {}
+        try:
+            for _, row in roster_pos.dropna(subset=["player_id"]).iterrows():
+                pid_lookup[int(float(row["player_id"]))] = str(row.get("position") or "")
+        except Exception:
+            pid_lookup = {}
+        team_key_lookup = {
+            (str(row.get("team") or "").strip().upper(), str(row.get("_pkey") or "").strip().upper()): str(row.get("position") or "")
+            for _, row in roster_pos.iterrows()
+            if str(row.get("position") or "").strip()
+        }
+
+        missing = ctx["_pos"].eq("")
+        if missing.any() and pid_col and pid_col in ctx.columns and pid_lookup:
+            pid_vals = pd.to_numeric(ctx.loc[missing, pid_col], errors="coerce")
+            mapped = pid_vals.map(lambda value: pid_lookup.get(int(float(value)), "") if pd.notna(value) else "")
+            ctx.loc[missing, "_pos"] = mapped.fillna("")
+
+        missing = ctx["_pos"].eq("")
+        if missing.any() and team_key_lookup:
+            ctx.loc[missing, "_pos"] = [
+                team_key_lookup.get((str(team).strip().upper(), str(pkey).strip().upper()), "")
+                for team, pkey in zip(ctx.loc[missing, team_col], ctx.loc[missing, "_pkey"])
+            ]
+
+    ctx = ctx[ctx["_pos"].isin({"G", "F", "C"})].copy()
+    if ctx.empty:
+        return pd.DataFrame()
+
+    matchup = ctx[[gid_col, team_col]].drop_duplicates().copy()
+    opp_map = matchup.merge(matchup, on=gid_col, suffixes=("_team", "_opp"))
+    opp_map = opp_map[opp_map[f"{team_col}_team"] != opp_map[f"{team_col}_opp"]].copy()
+    opp_map = opp_map.drop_duplicates(subset=[gid_col, f"{team_col}_team"], keep="last")
+    opp_map = opp_map.rename(columns={f"{team_col}_team": team_col, f"{team_col}_opp": "_opp"})[[gid_col, team_col, "_opp"]]
+    ctx = ctx.merge(opp_map, on=[gid_col, team_col], how="left")
+    ctx["_opp"] = ctx["_opp"].astype(str).str.upper().str.strip()
+    ctx = ctx[ctx["_opp"].str.len().between(2, 4)].copy()
+    if ctx.empty:
+        return pd.DataFrame()
+
+    for stat, col in stat_cols.items():
+        if col:
+            vals = pd.to_numeric(ctx[col], errors="coerce").fillna(0.0).astype(float)
+        else:
+            vals = pd.Series([0.0] * len(ctx), index=ctx.index, dtype=float)
+        ctx[f"_{stat}_pm"] = vals / ctx["_min"].where(ctx["_min"] > 0.0, other=np.nan)
+        ctx[f"_{stat}_pm"] = ctx[f"_{stat}_pm"].replace([np.inf, -np.inf], np.nan)
+
+    grouped = ctx.groupby(["_opp", "_pos"], dropna=False)
+    agg_dict: dict[str, Any] = {"_min": "count"}
+    for stat in stat_cols:
+        agg_dict[f"_{stat}_pm"] = "mean"
+    out = grouped.agg(agg_dict).reset_index().rename(columns={"_min": "_n"})
+    return out
+
+
+def _weighted_positive_mean(values: List[tuple[float, float]]) -> float:
+    total_weight = 0.0
+    total_value = 0.0
+    for value, weight in values:
+        try:
+            val = float(value)
+            wt = float(weight)
+        except Exception:
+            continue
+        if (not np.isfinite(val)) or (not np.isfinite(wt)) or wt <= 0.0 or val < 0.0:
+            continue
+        total_weight += wt
+        total_value += val * wt
+    if total_weight <= 0.0:
+        return 0.0
+    return float(total_value / total_weight)
+
+
+def _bounded_split_multiplier(base_rate: float, split_rate: float, sample_size: int, *, min_games: int, max_games: int, lo: float, hi: float) -> float:
+    try:
+        base = float(base_rate)
+        split = float(split_rate)
+        games = int(sample_size)
+    except Exception:
+        return 1.0
+    if (not np.isfinite(base)) or (not np.isfinite(split)) or base <= 0.0 or split < 0.0 or games < int(min_games):
+        return 1.0
+    weight = float(min(max(games - int(min_games) + 1, 0), max(1, int(max_games) - int(min_games) + 1))) / float(max(1, int(max_games) - int(min_games) + 1))
+    ratio = split / max(base, 1e-6)
+    mult = 1.0 + (weight * (ratio - 1.0))
+    return float(np.clip(mult, lo, hi))
+
+
 def _parse_min_to_float(v: Any) -> float:
     try:
         if v is None:
@@ -957,6 +1333,50 @@ def _regularize_rotation_minutes(
         except Exception:
             pass
     return out.astype(float), diag
+
+
+def _rotation_minutes_signal_guardrail(
+    team_df: pd.DataFrame,
+    sim_min: pd.Series,
+    *,
+    date_str: str | None = None,
+    team_tri: str | None = None,
+) -> dict[str, Any]:
+    diag: dict[str, Any] = {"ok": True, "reason": None, "players": []}
+    if team_df is None or team_df.empty:
+        return diag
+
+    try:
+        current = pd.to_numeric(sim_min, errors="coerce").fillna(0.0).astype(float)
+        base = _roll_minutes_unscaled(team_df, date_str=date_str, team_tri=team_tri)
+        if len(base) != len(current):
+            return diag
+        base = _scale_minutes_to_target(base, total_target=240.0)
+        if base.empty:
+            return diag
+
+        starter = _starter_signal(team_df).reindex(base.index).fillna(0.0).astype(float)
+        core = (base >= 24.0) | ((starter >= 0.75) & (base >= 20.0))
+        if int(core.sum()) <= 0:
+            return diag
+
+        severe = core & (current < (base * 0.45))
+        if int(severe.sum()) <= 0:
+            return diag
+
+        names = []
+        if "player_name" in team_df.columns:
+            try:
+                names = team_df.loc[severe, "player_name"].astype(str).str.strip().tolist()
+            except Exception:
+                names = []
+        diag["ok"] = False
+        diag["reason"] = "rotation_minutes_conflict_with_current_signals"
+        diag["players"] = [name for name in names if name]
+        diag["count"] = int(severe.sum())
+        return diag
+    except Exception:
+        return diag
 
 
 @lru_cache(maxsize=512)
@@ -1345,6 +1765,18 @@ def _rotation_sim_minutes_from_history(
     caps = _minutes_caps_from_team_df(tmp, base_minutes=sim_min)
     sim_min = _cap_and_redistribute_minutes(sim_min, total_target=240.0, cap=caps, iters=12)
 
+    signal_guard = _rotation_minutes_signal_guardrail(
+        tmp,
+        sim_min,
+        date_str=str(date_str),
+        team_tri=team_u,
+    )
+    if not bool(signal_guard.get("ok", True)):
+        diag["applied"] = False
+        diag["reason"] = str(signal_guard.get("reason") or "rotation_minutes_conflict_with_current_signals")
+        diag["signal_guard"] = signal_guard
+        return None, None, None, diag
+
     # Lineup pool from historical stints; keep only full 5-man units mapped to our roster.
     lineup_pool: List[List[int]] = []
     lineup_w: List[float] = []
@@ -1593,10 +2025,16 @@ def _team_players_from_espn_boxscore(
                     name = str(athlete.get("displayName") or athlete.get("shortName") or "").strip()
                     if not name:
                         continue
+                    pos_raw = (
+                        ((athlete.get("position") or {}).get("abbreviation"))
+                        or ((athlete.get("position") or {}).get("name"))
+                        or ""
+                    )
                     rows.append({
                         "player_name": name,
                         "team": team_u,
                         "opponent": opp_u,
+                        "position": _normalize_position(pos_raw),
                         "playing_today": True,
                     })
 
@@ -1619,7 +2057,7 @@ def _team_players_from_processed_boxscores(
     """Fallback roster builder using processed NBA boxscores.
 
     This is the most reliable source for historical/completed games and avoids ESPN lookup failures.
-    Returns a minimal DataFrame with [player_name, team, opponent, playing_today].
+    Returns a minimal DataFrame with [player_name, team, opponent, position, playing_today].
     """
     try:
         fp = paths.data_processed / f"boxscores_{str(date_str).strip()}.csv"
@@ -1673,9 +2111,11 @@ def _team_players_from_processed_boxscores(
             return pd.DataFrame()
 
         out = pd.DataFrame({
+            "player_id": pd.to_numeric(tdf.get("PLAYER_ID"), errors="coerce"),
             "player_name": tdf["PLAYER_NAME"],
             "team": team_u,
             "opponent": opp_u,
+            "position": tdf.get("START_POSITION", "").map(_normalize_position) if "START_POSITION" in tdf.columns else "",
             "playing_today": True,
         })
         out = out.dropna(subset=["player_name"]).copy()
@@ -1696,7 +2136,7 @@ def _team_players_from_processed_rosters(
 
     This is a reliable *pregame* fallback when props_predictions is missing a team and
     ESPN boxscore isn't populated yet.
-    Returns a minimal DataFrame with at least [player_id, player_name, team, opponent, playing_today].
+    Returns a minimal DataFrame with at least [player_id, player_name, team, opponent, position, playing_today].
     """
     try:
         team_u = str(team_tri or "").strip().upper()
@@ -1733,10 +2173,11 @@ def _team_players_from_processed_rosters(
         pid_c = cols.get("PLAYER_ID")
         name_c = cols.get("PLAYER") or cols.get("PLAYER_NAME")
         tri_c = cols.get("TEAM_ABBREVIATION")
+        pos_c = cols.get("POSITION") or cols.get("START_POSITION")
         if not (name_c and tri_c):
             return pd.DataFrame()
 
-        tmp = df[[c for c in [pid_c, name_c, tri_c] if c]].copy()
+        tmp = df[[c for c in [pid_c, name_c, tri_c, pos_c] if c]].copy()
         tmp[tri_c] = tmp[tri_c].astype(str).str.upper().str.strip()
         tmp = tmp[tmp[tri_c] == team_u].copy()
         if tmp.empty:
@@ -1748,6 +2189,7 @@ def _team_players_from_processed_rosters(
                 "player_name": tmp[name_c].astype(str).str.strip(),
                 "team": team_u,
                 "opponent": opp_u,
+                "position": (tmp[pos_c].map(_normalize_position) if pos_c else ""),
                 "playing_today": True,
             }
         )
@@ -1757,6 +2199,47 @@ def _team_players_from_processed_rosters(
         return out
     except Exception:
         return pd.DataFrame()
+
+
+def _filter_team_players_against_processed_roster(
+    team_df: pd.DataFrame,
+    *,
+    date_str: str,
+    home_tri: str,
+    away_tri: str,
+    team_tri: str,
+    min_keep: int = 5,
+) -> pd.DataFrame:
+    if team_df is None or team_df.empty:
+        return pd.DataFrame() if team_df is None else team_df
+
+    try:
+        roster = _team_players_from_processed_rosters(
+            date_str=str(date_str),
+            home_tri=str(home_tri),
+            away_tri=str(away_tri),
+            team_tri=str(team_tri),
+        )
+        if roster is None or roster.empty:
+            return team_df
+
+        out = team_df.copy()
+        allowed_names = {
+            _norm_player_key(v)
+            for v in roster.get("player_name", pd.Series(dtype=str)).astype(str).tolist()
+            if str(v).strip()
+        }
+        if not allowed_names:
+            return team_df
+
+        names = out.get("player_name", pd.Series(["" for _ in range(len(out))], index=out.index)).astype(str)
+        keep = names.map(_norm_player_key).isin(allowed_names)
+        kept = out[keep].copy()
+        if len(kept) >= int(max(1, min_keep)):
+            return kept.reset_index(drop=True)
+        return team_df
+    except Exception:
+        return team_df
 
 
 def _roll_minutes_unscaled(team_df: pd.DataFrame, *, date_str: str | None = None, team_tri: str | None = None) -> pd.Series:
@@ -2250,6 +2733,139 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
         if col in out.columns and pred_col in out.columns:
             out[col] = np.where(out[col] > 0.0, out[col], out[pred_col])
 
+    roll10_min = pd.to_numeric(out.get("roll10_min"), errors="coerce").fillna(0.0).astype(float)
+    roll5_min = pd.to_numeric(out.get("roll5_min"), errors="coerce").fillna(0.0).astype(float)
+    split_ctx = _player_split_rate_context(str(date_str or ""), str(team_tri or "")) if date_str else pd.DataFrame()
+    pos_ctx = _opponent_position_rate_context(str(date_str or "")) if date_str else pd.DataFrame()
+    split_by_player: dict[str, pd.DataFrame] = {}
+    if split_ctx is not None and not split_ctx.empty and "_pkey" in split_ctx.columns:
+        for player_key, group in split_ctx.groupby("_pkey"):
+            split_by_player[str(player_key)] = group.copy()
+    pos_lookup: dict[tuple[str, str], dict[str, float]] = {}
+    if pos_ctx is not None and not pos_ctx.empty:
+        for _, row in pos_ctx.iterrows():
+            opp_key = str(row.get("_opp") or "").strip().upper()
+            pos_key = _normalize_position(row.get("_pos"))
+            if opp_key and pos_key:
+                pos_lookup[(opp_key, pos_key)] = {
+                    "n": _safe_float(row.get("_n"), 0.0),
+                    **{stat: _safe_float(row.get(f"_{stat}_pm"), float("nan")) for stat in ("pts", "reb", "ast", "threes", "stl", "blk", "tov")},
+                }
+
+    opp_series = out.get("opponent") if "opponent" in out.columns else pd.Series(["" for _ in range(len(out))], index=out.index, dtype=object)
+    opp_series = opp_series.astype(str).str.upper().str.strip()
+    home_series = _boolish_series(out.get("home") if "home" in out.columns else [False] * len(out), out.index)
+    pos_series = out.get("position") if "position" in out.columns else pd.Series(["" for _ in range(len(out))], index=out.index, dtype=object)
+    pos_series = pos_series.map(_normalize_position)
+
+    stat_roll_cols = {
+        "pts": ("roll5_pts", "roll10_pts"),
+        "reb": ("roll5_reb", "roll10_reb"),
+        "ast": ("roll5_ast", "roll10_ast"),
+        "threes": ("roll5_threes", "roll10_threes"),
+    }
+    stat_bounds = {
+        "pts": (0.84, 1.18),
+        "reb": (0.86, 1.16),
+        "ast": (0.84, 1.18),
+        "threes": (0.80, 1.22),
+        "stl": (0.78, 1.24),
+        "blk": (0.78, 1.24),
+        "tov": (0.82, 1.20),
+    }
+
+    for stat in ("pts", "reb", "ast", "threes", "stl", "blk", "tov"):
+        prior_col = f"_prior_{stat}_pm"
+        pred_col = f"_pred_{stat}_pm"
+        prior_pm = pd.to_numeric(out.get(prior_col), errors="coerce").fillna(0.0).astype(float)
+        pred_pm = pd.to_numeric(out.get(pred_col), errors="coerce").fillna(0.0).astype(float)
+        updated = prior_pm.copy()
+
+        roll_cols = stat_roll_cols.get(stat)
+        if roll_cols is not None:
+            roll5_total = pd.to_numeric(out.get(roll_cols[0]), errors="coerce").astype(float) if roll_cols[0] in out.columns else pd.Series([np.nan] * len(out), index=out.index, dtype=float)
+            roll10_total = pd.to_numeric(out.get(roll_cols[1]), errors="coerce").astype(float) if roll_cols[1] in out.columns else pd.Series([np.nan] * len(out), index=out.index, dtype=float)
+            roll5_pm = (roll5_total / roll5_min.where(roll5_min > 0.0, other=np.nan)).replace([np.inf, -np.inf], np.nan)
+            roll10_pm = (roll10_total / roll10_min.where(roll10_min > 0.0, other=np.nan)).replace([np.inf, -np.inf], np.nan)
+        else:
+            roll5_pm = pd.Series([np.nan] * len(out), index=out.index, dtype=float)
+            roll10_pm = pd.Series([np.nan] * len(out), index=out.index, dtype=float)
+
+        lo, hi = stat_bounds[stat]
+        for idx in out.index:
+            base_rate = float(prior_pm.loc[idx]) if np.isfinite(prior_pm.loc[idx]) else 0.0
+            pred_rate = float(pred_pm.loc[idx]) if np.isfinite(pred_pm.loc[idx]) else 0.0
+            recent_rate = _weighted_positive_mean([
+                (roll10_pm.loc[idx], 0.65),
+                (roll5_pm.loc[idx], 0.35),
+            ])
+            anchor = _weighted_positive_mean([
+                (base_rate, 0.50),
+                (recent_rate, 0.35),
+                (pred_rate, 0.15),
+            ])
+            if anchor <= 0.0:
+                anchor = _weighted_positive_mean([
+                    (recent_rate, 0.75),
+                    (pred_rate, 0.25),
+                ])
+            if anchor <= 0.0:
+                continue
+
+            player_key = str(out.at[idx, "_pkey"] or "").strip().upper()
+            player_logs = split_by_player.get(player_key)
+            mult = 1.0
+            if player_logs is not None and not player_logs.empty:
+                opp_key = str(opp_series.loc[idx] or "").strip().upper()
+                if opp_key:
+                    opp_rows = player_logs[player_logs["_opp"] == opp_key]
+                    if not opp_rows.empty:
+                        opp_rate = pd.to_numeric(opp_rows.get(f"_{stat}_pm"), errors="coerce").dropna()
+                        if not opp_rate.empty:
+                            mult *= _bounded_split_multiplier(
+                                anchor,
+                                float(opp_rate.mean()),
+                                int(len(opp_rows)),
+                                min_games=2,
+                                max_games=5,
+                                lo=lo,
+                                hi=hi,
+                            )
+
+                venue_rows = player_logs[player_logs["_home"] == bool(home_series.loc[idx])]
+                if not venue_rows.empty:
+                    venue_rate = pd.to_numeric(venue_rows.get(f"_{stat}_pm"), errors="coerce").dropna()
+                    if not venue_rate.empty:
+                        mult *= _bounded_split_multiplier(
+                            anchor,
+                            float(venue_rate.mean()),
+                            int(len(venue_rows)),
+                            min_games=5,
+                            max_games=12,
+                            lo=max(0.90, lo),
+                            hi=min(1.12, hi),
+                        )
+
+                pos_key = str(pos_series.loc[idx] or "").strip().upper()
+                pos_row = pos_lookup.get((opp_key, pos_key)) if opp_key and pos_key else None
+                if pos_row is not None:
+                    pos_rate = _safe_float(pos_row.get(stat), float("nan"))
+                    pos_n = int(max(0.0, _safe_float(pos_row.get("n"), 0.0)))
+                    if np.isfinite(pos_rate) and pos_rate >= 0.0 and pos_n > 0:
+                        mult *= _bounded_split_multiplier(
+                            anchor,
+                            float(pos_rate),
+                            int(pos_n),
+                            min_games=12,
+                            max_games=80,
+                            lo=max(lo, 0.90 if stat in {"threes", "stl", "blk"} else 0.92),
+                            hi=min(hi, 1.10 if stat in {"threes", "stl", "blk"} else 1.08),
+                        )
+
+            updated.loc[idx] = float(anchor * np.clip(mult, lo, hi))
+
+        out[prior_col] = updated.astype(float)
+
     # Defensive baseline if we have no point priors at all (e.g., missing props + missing priors).
     try:
         pts_pm = pd.to_numeric(out.get("_prior_pts_pm"), errors="coerce").fillna(0.0).astype(float)
@@ -2642,10 +3258,24 @@ def simulate_smart_game(
             base = team_raw if isinstance(team_raw, pd.DataFrame) else pd.DataFrame()
             if base is None:
                 base = pd.DataFrame()
+            if not base.empty:
+                base = _filter_team_players_against_processed_roster(
+                    base,
+                    date_str=str(date_str),
+                    home_tri=str(home_tri),
+                    away_tri=str(away_tri),
+                    team_tri=str(team_tri),
+                )
             if (not base.empty) and (len(base) >= 8):
                 return _drop_excluded(base, team_tri)
 
             if allow_processed_boxscores:
+                rost = _team_players_from_processed_rosters(
+                    date_str=str(date_str),
+                    home_tri=str(home_tri),
+                    away_tri=str(away_tri),
+                    team_tri=str(team_tri),
+                )
                 from_box = _team_players_from_processed_boxscores(
                     date_str=str(date_str),
                     home_tri=str(home_tri),
@@ -2654,16 +3284,14 @@ def simulate_smart_game(
                     game_id=gid,
                 )
                 if from_box is not None and not from_box.empty:
-                    comb = pd.concat([from_box, base], ignore_index=True, sort=False)
-                    if "team" in comb.columns:
-                        comb["team"] = comb["team"].astype(str).str.upper().str.strip()
-                    if "player_name" in comb.columns:
-                        comb["player_name"] = comb["player_name"].astype(str).str.strip()
-                        comb = comb[comb["player_name"].ne("")].copy()
-                        if "team" in comb.columns:
-                            comb = comb.drop_duplicates(subset=["player_name", "team"], keep="last")
-                        else:
-                            comb = comb.drop_duplicates(subset=["player_name"], keep="last")
+                    comb = _coalesce_team_player_frames(rost, from_box, base)
+                    comb = _filter_team_players_against_processed_roster(
+                        comb,
+                        date_str=str(date_str),
+                        home_tri=str(home_tri),
+                        away_tri=str(away_tri),
+                        team_tri=str(team_tri),
+                    )
                     return _drop_excluded(comb, team_tri)
 
             espn = None
@@ -2685,29 +3313,31 @@ def simulate_smart_game(
                 )
                 if rost is None or rost.empty:
                     return _drop_excluded(base, team_tri)
-                comb = pd.concat([rost, base], ignore_index=True, sort=False)
-                if "team" in comb.columns:
-                    comb["team"] = comb["team"].astype(str).str.upper().str.strip()
-                if "player_name" in comb.columns:
-                    comb["player_name"] = comb["player_name"].astype(str).str.strip()
-                    comb = comb[comb["player_name"].ne("")].copy()
-                    if "team" in comb.columns:
-                        comb = comb.drop_duplicates(subset=["player_name", "team"], keep="last")
-                    else:
-                        comb = comb.drop_duplicates(subset=["player_name"], keep="last")
+                comb = _coalesce_team_player_frames(rost, base)
+                comb = _filter_team_players_against_processed_roster(
+                    comb,
+                    date_str=str(date_str),
+                    home_tri=str(home_tri),
+                    away_tri=str(away_tri),
+                    team_tri=str(team_tri),
+                )
                 return _drop_excluded(comb, team_tri)
 
             # Prefer props rows when present by concatenating ESPN first then props and keeping last.
-            comb = pd.concat([espn, base], ignore_index=True, sort=False)
-            if "team" in comb.columns:
-                comb["team"] = comb["team"].astype(str).str.upper().str.strip()
-            if "player_name" in comb.columns:
-                comb["player_name"] = comb["player_name"].astype(str).str.strip()
-                comb = comb[comb["player_name"].ne("")].copy()
-                if "team" in comb.columns:
-                    comb = comb.drop_duplicates(subset=["player_name", "team"], keep="last")
-                else:
-                    comb = comb.drop_duplicates(subset=["player_name"], keep="last")
+            rost = _team_players_from_processed_rosters(
+                date_str=str(date_str),
+                home_tri=str(home_tri),
+                away_tri=str(away_tri),
+                team_tri=str(team_tri),
+            )
+            comb = _coalesce_team_player_frames(rost, espn, base)
+            comb = _filter_team_players_against_processed_roster(
+                comb,
+                date_str=str(date_str),
+                home_tri=str(home_tri),
+                away_tri=str(away_tri),
+                team_tri=str(team_tri),
+            )
             return _drop_excluded(comb, team_tri)
         except Exception:
             return team_raw if isinstance(team_raw, pd.DataFrame) else pd.DataFrame()

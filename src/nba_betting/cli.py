@@ -4466,6 +4466,8 @@ def props_edges_walkforward_cmd(
 @click.option("--smart-sim-pbp/--no-smart-sim-pbp", default=True, show_default=True, help="Use possession-level SmartSim mode")
 @click.option("--smart-sim-workers", type=int, default=1, show_default=True, help="Parallel workers (per-game) for SmartSim during predict-props")
 @click.option("--smart-sim-overwrite", is_flag=True, default=False, help="Overwrite existing smart_sim_<date>_*.json outputs")
+@click.option("--smart-sim-roster-mode", type=str, default="historical", show_default=True, help="Roster sourcing mode for SmartSim: historical or pregame")
+@click.option("--smart-sim-out-prefix", type=str, default="smart_sim", show_default=True, help="Output filename prefix for SmartSim artifacts consumed by predict-props")
 def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, calibrate: bool, calib_window: int,
                       calibrate_player: bool, player_calib_window: int, player_min_pairs: int, player_shrink_k: int,
                       player_shrink_k_by_stat: str | None, player_min_pairs_by_stat: str | None,
@@ -4474,7 +4476,9 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                       smart_sim_n_sims: int,
                       smart_sim_pbp: bool,
                       smart_sim_workers: int,
-                      smart_sim_overwrite: bool):
+                      smart_sim_overwrite: bool,
+                      smart_sim_roster_mode: str,
+                      smart_sim_out_prefix: str):
     """Predict player props for a slate date using rolling-history models.
 
     Note: This version builds features from history only and returns predictions for all players seen in logs. A later enhancement can filter to the actual slate roster for the date and merge odds.
@@ -5382,6 +5386,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
 
             # Run SmartSim for all games on this date (writes smart_sim_<date>_<HOME>_<AWAY>.json files)
             try:
+                smart_sim_prefix = str(smart_sim_out_prefix or "smart_sim").strip() or "smart_sim"
                 summary = _smart_sim_run_date(
                     date_str=date_str,
                     n_sims=int(smart_sim_n_sims),
@@ -5390,6 +5395,8 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     overwrite=bool(smart_sim_overwrite),
                     pbp=bool(smart_sim_pbp),
                     workers=int(smart_sim_workers),
+                    roster_mode=str(smart_sim_roster_mode or "historical"),
+                    out_prefix=smart_sim_prefix,
                 )
                 console.print({"smart_sim": summary})
             except KeyboardInterrupt:
@@ -5402,7 +5409,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                 summary = None
 
             # Parse SmartSim outputs and merge into preds.
-            sim_files = sorted(paths.data_processed.glob(f"smart_sim_{date_str}_*.json"))
+            sim_files = sorted(paths.data_processed.glob(f"{smart_sim_prefix}_{date_str}_*.json"))
             if sim_files:
                 def _norm_name_key(s: str) -> str:
                     s = (s or "").strip().upper()
@@ -12594,6 +12601,10 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
             "--smart-sim-n-sims",
             "150",
             "--smart-sim-pbp",
+            "--smart-sim-roster-mode",
+            "pregame",
+            "--smart-sim-out-prefix",
+            "smart_sim",
         ]
         pr = subprocess.run(cmd, cwd=paths.root, check=False)
         if pr.returncode != 0:

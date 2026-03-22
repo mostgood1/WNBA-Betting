@@ -2159,6 +2159,8 @@ function buildPregamePropRecommendationEntries(propRecs, homeTri, awayTri) {
       const basketballReasons = uniquePregameReasonTexts(r && r.basketball_reasons);
       const modelReasons = uniquePregameReasonTexts(r && r.model_reasons);
       const marketReasons = uniquePregameReasonTexts(r && r.market_reasons);
+      const actual = n(r && r.actual) ?? n(best && best.actual);
+      const result = String((r && r.result) || (best && best.result) || '').toUpperCase().trim();
       return {
         sideTri,
         player,
@@ -2173,6 +2175,8 @@ function buildPregamePropRecommendationEntries(propRecs, homeTri, awayTri) {
         basketballReasons,
         modelReasons,
         marketReasons,
+        actual,
+        result,
       };
     })
     .filter(Boolean);
@@ -2285,7 +2289,7 @@ function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
     <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="side" data-key="${esc(key)}" aria-pressed="false">${esc(key)}</button>
   `).join('');
 
-  const cards = entries.map(({ sideTri, player, picks, best, guidance, statKey, sideKey, playerId, playerPhoto, basketballSummary, basketballReasons, modelReasons, marketReasons }) => {
+  const cards = entries.map(({ sideTri, player, picks, best, guidance, statKey, sideKey, playerId, playerPhoto, basketballSummary, basketballReasons, modelReasons, marketReasons, actual, result }) => {
     const label = pregamePropPlayLabel(best);
     const statLabel = marketLabel(statKey || best.market);
     const book = prettyBookName(best.book);
@@ -2316,6 +2320,15 @@ function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
       (line != null) ? `Current line ${fmt(line, 1)}` : '',
       pricingText,
     ].filter(Boolean).join(' · ');
+    const settled = result === 'WIN' || result === 'LOSS' || result === 'PUSH';
+    const resultBadgeClass = result === 'WIN' ? 'good' : (result === 'LOSS' ? 'bad' : 'ok');
+    const resultSummary = settled
+      ? [
+          `Final ${actual != null ? fmt(actual, 1) : '—'}`,
+          (line != null) ? `Line ${fmt(line, 1)}` : '',
+          result,
+        ].filter(Boolean).join(' · ')
+      : '';
     const basketballLine = renderPregameReasonBucketLine('BASKETBALL', basketballReasons.length ? basketballReasons : (basketballSummary ? [basketballSummary] : []));
     const simLine = renderPregameReasonBucketLine('SIM', modelReasons.length ? modelReasons : (modelLogic ? [modelLogic] : []));
     const marketLine = renderPregameReasonBucketLine('MARKET', marketReasons.length ? marketReasons : (marketLogic ? [marketLogic] : []));
@@ -2342,6 +2355,7 @@ function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
           <span class="badge">${esc(statLabel)}</span>
           ${sideTri ? `<span class="badge">${esc(sideTri)}</span>` : ''}
           ${evPct != null ? `<span class="badge ${evPct >= 5 ? 'good' : 'ok'}">${esc(`EV ${fmt(evPct, 1)}%`)}</span>` : ''}
+          ${settled ? `<span class="badge ${resultBadgeClass}">${esc(result)}</span>` : ''}
         </div>
         <div class="prop-callout-body">
           ${img}
@@ -2351,6 +2365,7 @@ function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
             </div>
             ${guidance && guidance.summary ? `<div class="prop-callout-line">${esc(guidance.summary)}</div>` : ''}
             ${matchupText ? `<div class="subtle prop-callout-line">${esc(matchupText)}${sideTri ? ` · ${esc(sideTri)}` : ''}</div>` : ''}
+            ${resultSummary ? `<div class="prop-callout-line">${esc(resultSummary)}</div>` : ''}
             ${basketballLine}
             ${simLine}
             ${marketLine}

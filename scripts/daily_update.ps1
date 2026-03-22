@@ -2325,6 +2325,10 @@ try {
 
 $SmartSimOverwrite = $env:DAILY_SMARTSIM_OVERWRITE
 $SkipSmartSim = $env:DAILY_SKIP_SMARTSIM
+$SmartSimRosterMode = $env:DAILY_SMARTSIM_ROSTER_MODE
+if ($null -eq $SmartSimRosterMode -or $SmartSimRosterMode -eq '') { $SmartSimRosterMode = 'pregame' }
+$SmartSimOutPrefix = $env:DAILY_SMARTSIM_OUT_PREFIX
+if ($null -eq $SmartSimOutPrefix -or $SmartSimOutPrefix -eq '') { $SmartSimOutPrefix = 'smart_sim' }
 
 # Default SmartSim parallelism: if not explicitly configured, use a safe CPU-based default.
 # This affects both predict-props SmartSim and the standalone smart-sim-date step.
@@ -2348,7 +2352,9 @@ $ppArgs = @(
   '--use-pure-onnx',
   '--use-smart-sim',
   '--smart-sim-n-sims', $SmartSimNSims,
-  '--smart-sim-pbp'
+  '--smart-sim-pbp',
+  '--smart-sim-roster-mode', $SmartSimRosterMode,
+  '--smart-sim-out-prefix', $SmartSimOutPrefix
 )
 
 # Optional: disable SmartSim entirely for faster iteration
@@ -3265,9 +3271,9 @@ try {
     # avoid re-running the full SmartSim slate (this is the single biggest runtime sink).
     $forceSmart = $env:DAILY_FORCE_SMARTSIM_DATE
     if ($null -eq $forceSmart -or $forceSmart -eq '') { $forceSmart = '0' }
-    $existingSmart = @(Get-ChildItem (Join-Path $RepoRoot ("data/processed/smart_sim_{0}_*.json" -f $Date)) -ErrorAction SilentlyContinue)
+    $existingSmart = @(Get-ChildItem (Join-Path $RepoRoot ("data/processed/{0}_{1}_*.json" -f $SmartSimOutPrefix, $Date)) -ErrorAction SilentlyContinue)
     if (($forceSmart -notmatch '^(1|true|yes)$') -and ($existingSmart.Count -gt 0)) {
-      Write-Log ("Skipping smart-sim-date (found {0} existing smart_sim artifacts; set DAILY_FORCE_SMARTSIM_DATE=1 to rerun)" -f $existingSmart.Count)
+      Write-Log ("Skipping smart-sim-date (found {0} existing {1} artifacts; set DAILY_FORCE_SMARTSIM_DATE=1 to rerun)" -f $existingSmart.Count, $SmartSimOutPrefix)
     } else {
 
     # Generate team advanced stats priors (pace/ratings) as-of today to avoid any future leakage.
@@ -3286,7 +3292,7 @@ try {
     $maxSmart = $env:DAILY_SMARTSIM_MAX_GAMES
     $doOverwrite = $env:DAILY_SMARTSIM_OVERWRITE
     if ($null -eq $doOverwrite -or $doOverwrite -eq '') { $doOverwrite = '0' }
-    $plist = @('-m','nba_betting.cli','smart-sim-date','--date', $Date, '--n-sims', $nSmart)
+    $plist = @('-m','nba_betting.cli','smart-sim-date','--date', $Date, '--n-sims', $nSmart, '--roster-mode', $SmartSimRosterMode, '--out-prefix', $SmartSimOutPrefix)
 
     # Optional: parallelize per-game SmartSim jobs (matches predict-props SmartSim workers behavior)
     try {
@@ -3298,7 +3304,7 @@ try {
 
     if ($doOverwrite -match '^(1|true|yes)$') { $plist += @('--overwrite') }
     if ($null -ne $maxSmart -and $maxSmart -ne '') { $plist += @('--max-games', $maxSmart) }
-    Write-Log ("Running SmartSim slate for {0} (n_sims={1})" -f $Date, $nSmart)
+    Write-Log ("Running SmartSim slate for {0} (n_sims={1}, roster_mode={2}, out_prefix={3})" -f $Date, $nSmart, $SmartSimRosterMode, $SmartSimOutPrefix)
     $rcSmart = Invoke-PyMod -plist $plist
     Write-Log ("smart-sim-date exit code: {0}" -f $rcSmart)
     }
