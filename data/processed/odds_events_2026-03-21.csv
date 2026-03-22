@@ -1,11 +1,3 @@
 event_id,commence_time,home_team,away_team,has_odds
-a1158df1a3a21def58491807df167c6a,2026-03-21T21:10:00Z,Washington Wizards,Oklahoma City Thunder,True
-caa8acf3be841cea790d25a4082d4817,2026-03-21T23:10:00Z,Charlotte Hornets,Memphis Grizzlies,True
-87e5b0e532472d1e7a6815746302dd10,2026-03-21T23:10:00Z,New Orleans Pelicans,Cleveland Cavaliers,True
-041a208c3a53186e8bc0983045ab66f7,2026-03-21T23:11:00Z,Orlando Magic,Los Angeles Lakers,True
-3523e11ab67a699ba097925fb4981746,2026-03-22T00:10:00Z,Atlanta Hawks,Golden State Warriors,True
-1a580864294677520ddb2a2a0fe31268,2026-03-22T00:10:00Z,San Antonio Spurs,Indiana Pacers,True
-3b6c1dd86ba56eddae458728b80c3320,2026-03-22T00:11:00Z,Houston Rockets,Miami Heat,True
-817a30a82900f0db41d5b094f424e33b,2026-03-22T00:45:00Z,Dallas Mavericks,Los Angeles Clippers,True
-b9b4d5f3dfbad29e6a0e3e08fff25a95,2026-03-22T01:40:00Z,Utah Jazz,Philadelphia 76ers,True
-d6b73b8b266617c9d9eeba4a6c9bf5f9,2026-03-22T02:11:00Z,Phoenix Suns,Milwaukee Bucks,True
+b9b4d5f3dfbad29e6a0e3e08fff25a95,2026-03-22T01:41:00Z,Utah Jazz,Philadelphia 76ers,True
+d6b73b8b266617c9d9eeba4a6c9bf5f9,2026-03-22T02:10:00Z,Phoenix Suns,Milwaukee Bucks,True

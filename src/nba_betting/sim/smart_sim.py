@@ -2214,6 +2214,35 @@ def _filter_team_players_against_processed_roster(
         return pd.DataFrame() if team_df is None else team_df
 
     try:
+        def _league_status_allowed_names() -> set[str]:
+            try:
+                fp = paths.data_processed / f"league_status_{str(date_str).strip()}.csv"
+                if not fp.exists():
+                    return set()
+                ldf = pd.read_csv(fp, usecols=lambda c: str(c).strip().lower() in {"player_name", "team", "playing_today"})
+                if ldf is None or ldf.empty:
+                    return set()
+                cols = {str(c).strip().lower(): c for c in ldf.columns}
+                name_c = cols.get("player_name")
+                team_c = cols.get("team")
+                if not (name_c and team_c):
+                    return set()
+                tmp = ldf.copy()
+                tmp[team_c] = tmp[team_c].astype(str).str.upper().str.strip()
+                tmp[name_c] = tmp[name_c].astype(str).str.strip()
+                tmp = tmp[(tmp[team_c] == str(team_tri or "").strip().upper()) & tmp[name_c].ne("")].copy()
+                pt_c = cols.get("playing_today")
+                if pt_c and not tmp.empty:
+                    pt = tmp[pt_c].astype(str).str.strip().str.lower()
+                    tmp = tmp[pt.isin({"1", "true", "t", "yes", "y"})].copy()
+                return {
+                    _norm_player_key(v)
+                    for v in tmp[name_c].astype(str).tolist()
+                    if str(v).strip()
+                }
+            except Exception:
+                return set()
+
         roster = _team_players_from_processed_rosters(
             date_str=str(date_str),
             home_tri=str(home_tri),
@@ -2229,6 +2258,7 @@ def _filter_team_players_against_processed_roster(
             for v in roster.get("player_name", pd.Series(dtype=str)).astype(str).tolist()
             if str(v).strip()
         }
+        allowed_names |= _league_status_allowed_names()
         if not allowed_names:
             return team_df
 

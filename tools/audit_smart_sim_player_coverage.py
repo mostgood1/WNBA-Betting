@@ -3,10 +3,29 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from src.nba_betting.teams import to_tricode
+
+
+def _norm_player_key(name) -> str:
+    text = str(name or "").strip().upper()
+    if not text:
+        return ""
+    for token in (".", ",", "'", "-"):
+        text = text.replace(token, " ")
+    parts = [part for part in text.split() if part]
+    drop = {"JR", "SR", "II", "III", "IV", "V"}
+    parts = [part for part in parts if part not in drop]
+    return " ".join(parts)
 
 
 def _norm_bool_str(x) -> str:
@@ -21,7 +40,12 @@ def _norm_bool_str(x) -> str:
     return s
 
 
-def _load_expected_players(props_path: Path, team_tri: str, opp_tri: str | None) -> set[str]:
+def _load_expected_players(
+    props_path: Path,
+    team_tri: str,
+    opp_tri: str | None,
+    allowed_names: set[str] | None = None,
+) -> set[str]:
     df = pd.read_csv(props_path)
     if df is None or df.empty:
         return set()
@@ -58,7 +82,50 @@ def _load_expected_players(props_path: Path, team_tri: str, opp_tri: str | None)
         except Exception:
             pass
 
+    if allowed_names is not None:
+        allowed = {str(name).strip() for name in allowed_names if str(name).strip()}
+        if allowed:
+            tmp = tmp[tmp["player_name"].isin(allowed)].copy()
+
     return set(tmp["player_name"].astype(str).tolist())
+
+
+def _load_market_players_by_matchup(processed: Path, ds: str) -> dict[tuple[str, str], set[str]]:
+    candidates = [
+        processed.parent / "raw" / f"odds_nba_player_props_{ds}.csv",
+        processed / f"oddsapi_player_props_{ds}.csv",
+    ]
+    snapshot_path = next((path for path in candidates if path.exists()), None)
+    if snapshot_path is None:
+        return {}
+
+    try:
+        odds = pd.read_csv(snapshot_path)
+    except Exception:
+        return {}
+    if odds is None or odds.empty:
+        return {}
+    required = {"home_team", "away_team", "player_name"}
+    if not required.issubset(set(odds.columns)):
+        return {}
+
+    tmp = odds.copy()
+    tmp["home_tri"] = tmp["home_team"].astype(str).map(lambda value: (to_tricode(str(value or "")) or str(value or "").strip().upper()))
+    tmp["away_tri"] = tmp["away_team"].astype(str).map(lambda value: (to_tricode(str(value or "")) or str(value or "").strip().upper()))
+    tmp["player_name"] = tmp["player_name"].astype(str).str.strip()
+    tmp = tmp[
+        tmp["home_tri"].astype(str).str.len().gt(0)
+        & tmp["away_tri"].astype(str).str.len().gt(0)
+        & tmp["player_name"].ne("")
+    ].copy()
+    if tmp.empty:
+        return {}
+
+    market_players: dict[tuple[str, str], set[str]] = {}
+    for row in tmp[["home_tri", "away_tri", "player_name"]].drop_duplicates().itertuples(index=False):
+        key = (str(row.home_tri).upper().strip(), str(row.away_tri).upper().strip())
+        market_players.setdefault(key, set()).add(str(row.player_name).strip())
+    return market_players
 
 
 def _load_smartsim_names(smartsim_path: Path) -> tuple[set[str], set[str]]:
@@ -77,6 +144,19 @@ def _load_smartsim_names(smartsim_path: Path) -> tuple[set[str], set[str]]:
     return _names(home), _names(away)
 
 
+def _load_smartsim_excluded_keys(smartsim_path: Path) -> dict[str, set[str]]:
+    obj = json.loads(smartsim_path.read_text(encoding="utf-8"))
+    excluded = ((obj.get("context") or {}).get("excluded_players") or {})
+    return {
+        str(team).strip().upper(): {
+            key
+            for key in (_norm_player_key(name) for name in (names or []))
+            if key
+        }
+        for team, names in excluded.items()
+    }
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Audit SmartSim JSON player coverage vs props_predictions pool.")
     ap.add_argument("--date", type=str, required=True, help="YYYY-MM-DD")
@@ -91,6 +171,7 @@ def main() -> None:
     props_path = processed / f"props_predictions_{ds}.csv"
     if not props_path.exists():
         raise SystemExit(f"missing {props_path}")
+    market_players_by_matchup = _load_market_players_by_matchup(processed, ds)
 
     files = sorted(processed.glob(f"smart_sim_{ds}_*.json"))
     files = files[: int(args.max_games)]
@@ -107,15 +188,34 @@ def main() -> None:
 
         try:
             home_names, away_names = _load_smartsim_names(fp)
+            excluded_keys = _load_smartsim_excluded_keys(fp)
         except Exception as e:
             findings.append({"file": str(fp), "error": repr(e)})
             continue
 
-        exp_home = _load_expected_players(props_path, team_tri=home_tri, opp_tri=away_tri)
-        exp_away = _load_expected_players(props_path, team_tri=away_tri, opp_tri=home_tri)
+        market_names = market_players_by_matchup.get((home_tri, away_tri))
+        exp_home = _load_expected_players(props_path, team_tri=home_tri, opp_tri=away_tri, allowed_names=market_names)
+        exp_away = _load_expected_players(props_path, team_tri=away_tri, opp_tri=home_tri, allowed_names=market_names)
 
-        miss_home = sorted(list(exp_home - home_names))
-        miss_away = sorted(list(exp_away - away_names))
+        home_name_keys = {_norm_player_key(name) for name in home_names}
+        away_name_keys = {_norm_player_key(name) for name in away_names}
+        home_excluded_keys = excluded_keys.get(home_tri, set())
+        away_excluded_keys = excluded_keys.get(away_tri, set())
+
+        miss_home = sorted(
+            name
+            for name in exp_home
+            if (key := _norm_player_key(name))
+            and key not in home_name_keys
+            and key not in home_excluded_keys
+        )
+        miss_away = sorted(
+            name
+            for name in exp_away
+            if (key := _norm_player_key(name))
+            and key not in away_name_keys
+            and key not in away_excluded_keys
+        )
 
         if miss_home or miss_away:
             findings.append(
