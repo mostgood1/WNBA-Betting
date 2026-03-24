@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,F,,,29:47,4,10,0.4,1,4,0.25,4,4,1.0,0,5,5,5,0,0,3,3,13,-3.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,22:15,0,2,0.0,0,2,0.0,0,0,0.0,1,4,5,6,1,1,4,2,0,-15.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,204001,Kristaps,Porziņģis,K. Porziņģis,kristaps-porziņģis,C,,,10:58,1,5,0.2,1,4,0.25,2,2,1.0,0,3,3,0,0,2,1,1,5,-6.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,1629001,De'Anthony,Melton,D. Melton,deanthony-melton,G,,,22:44,5,14,0.357,2,6,0.333,2,3,0.667,1,3,4,0,0,1,4,0,14,-21.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,30:25,4,10,0.4,2,4,0.5,5,6,0.833,0,6,6,3,1,1,2,1,15,-6.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,24:50,6,8,0.75,1,2,0.5,1,2,0.5,0,3,3,3,1,0,1,2,14,-3.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,22:30,3,6,0.5,0,3,0.0,0,0,0.0,1,3,4,2,0,1,2,0,6,-8.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,1643018,LJ,Cryer,L. Cryer,lj-cryer,,,,16:02,3,6,0.5,3,5,0.6,1,1,1.0,0,0,0,1,1,0,2,1,10,2.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,1630209,Omer,Yurtseven,O. Yurtseven,omer-yurtseven,,,,20:58,3,7,0.429,0,0,0.0,2,6,0.333,6,0,6,2,1,0,3,3,8,2.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,1642954,Will,Richard,W. Richard,will-richard,,,,28:17,4,5,0.8,1,2,0.5,2,2,1.0,0,1,1,0,1,0,2,3,11,-4.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,1642502,Malevy,Leons,M. Leons,malevy-leons,,,,11:14,2,3,0.667,1,1,1.0,0,0,0.0,1,0,1,1,0,0,1,1,5,-8.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022501017
+0022501017,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,1641709,Ausar,Thompson,A. Thompson,ausar-thompson,F,,,24:32,4,10,0.4,0,1,0.0,0,2,0.0,0,3,3,4,7,1,5,2,8,17.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,25:08,6,10,0.6,1,1,1.0,0,0,0.0,1,5,6,5,1,0,1,3,13,29.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,1631105,Jalen,Duren,J. Duren,jalen-duren,C,,,21:26,8,12,0.667,0,0,0.0,7,9,0.778,2,4,6,1,1,0,2,5,23,14.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,G,,,29:04,4,9,0.444,2,6,0.333,1,2,0.5,0,1,1,2,2,0,0,4,11,37.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,1642450,Daniss,Jenkins,D. Jenkins,daniss-jenkins,G,,,38:25,7,12,0.583,1,3,0.333,7,7,1.0,2,5,7,8,1,0,3,1,22,13.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,1630194,Paul,Reed,P. Reed,paul-reed,,,,22:58,6,12,0.5,0,3,0.0,3,6,0.5,3,3,6,3,2,1,0,0,15,6.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,21:08,2,9,0.222,0,3,0.0,1,1,1.0,1,1,2,5,1,1,1,2,5,1.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,1641842,Ronald,Holland II,R. Holland II,ronald-holland-ii,,,,21:30,5,6,0.833,0,1,0.0,1,2,0.5,0,1,1,0,1,1,1,2,11,-26.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,1629750,Javonte,Green,J. Green,javonte-green,,,,20:11,2,3,0.667,1,2,0.5,0,0,0.0,0,3,3,0,0,0,0,0,5,-14.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,1642404,Chaz,Lanier,C. Lanier,chaz-lanier,,,,12:02,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-1.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,1642449,Tolu,Smith,T. Smith,tolu-smith,,,,3:36,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,1,2,-6.0,0022501017
+0022501017,1610612765,Detroit,Pistons,DET,pistons,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022501017
