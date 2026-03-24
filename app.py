@@ -11008,14 +11008,46 @@ def _best_bets_settle_prop_pick(*, actual: Any, line: Any, side: Any) -> str | N
 
 
 @lru_cache(maxsize=16)
-def _load_recon_props_lookup(date_str: str) -> tuple[dict[int, dict[str, Any]], dict[tuple[str, str], dict[str, Any]]]:
-    path = DATA_PROCESSED_DIR / f"recon_props_{date_str}.csv"
-    if not path.exists():
-        return {}, {}
+def _load_recon_props_frame(date_str: str) -> tuple[pd.DataFrame, str | None]:
+    recon_path = DATA_PROCESSED_DIR / f"recon_props_{date_str}.csv"
     try:
-        df = pd.read_csv(path)
+        if recon_path.exists():
+            df = pd.read_csv(recon_path)
+            if isinstance(df, pd.DataFrame) and not df.empty:
+                return df, recon_path.name
     except Exception:
-        return {}, {}
+        pass
+
+    daily_actuals_path = DATA_PROCESSED_DIR / f"props_actuals_{date_str}.csv"
+    try:
+        if daily_actuals_path.exists():
+            df = pd.read_csv(daily_actuals_path)
+            if isinstance(df, pd.DataFrame) and not df.empty:
+                return df, daily_actuals_path.name
+    except Exception:
+        pass
+
+    parquet_path = DATA_PROCESSED_DIR / "props_actuals.parquet"
+    try:
+        if parquet_path.exists():
+            df = pd.read_parquet(parquet_path)
+            if isinstance(df, pd.DataFrame) and not df.empty and "date" in df.columns:
+                tmp = df.copy()
+                tmp["date"] = pd.to_datetime(tmp["date"], errors="coerce").dt.date
+                target_date = pd.to_datetime(date_str, errors="coerce")
+                if not pd.isna(target_date):
+                    tmp = tmp[tmp["date"] == target_date.date()].copy()
+                if not tmp.empty:
+                    return tmp, parquet_path.name
+    except Exception:
+        pass
+
+    return pd.DataFrame(), None
+
+
+@lru_cache(maxsize=16)
+def _load_recon_props_lookup(date_str: str) -> tuple[dict[int, dict[str, Any]], dict[tuple[str, str], dict[str, Any]]]:
+    df, _ = _load_recon_props_frame(date_str)
     if df is None or df.empty:
         return {}, {}
 
@@ -13303,7 +13335,7 @@ def api_cards():
             row["actual_props"] = actual_props
         best = row.get("best") if isinstance(row.get("best"), dict) else None
         if isinstance(best, dict):
-            market_key = str(best.get("market") or "").strip().lower()
+            market_key = _boxscore_prop_market_key(best.get("market")) or str(best.get("market") or "").strip().lower()
             actual_val = _safe_float(actual_row.get(market_key))
             if actual_val is not None:
                 row["actual"] = float(actual_val)
@@ -13316,7 +13348,7 @@ def api_cards():
         for pick in picks:
             if not isinstance(pick, dict):
                 continue
-            market_key = str(pick.get("market") or "").strip().lower()
+            market_key = _boxscore_prop_market_key(pick.get("market")) or str(pick.get("market") or "").strip().lower()
             actual_val = _safe_float(actual_row.get(market_key))
             if actual_val is not None:
                 pick["actual"] = float(actual_val)
@@ -27553,18 +27585,22 @@ def api_props_reconciliation():
     if not d:
         return jsonify({"error": "missing date"}), 400
     try:
-        p = DATA_PROCESSED_DIR / f"recon_props_{d}.csv"
-        if not p.exists():
+        df, source_name = _load_recon_props_frame(d)
+        if df is None or df.empty:
             return jsonify({"date": d, "rows": 0, "data": [], "note": "no recon props for date"})
-        df = pd.read_csv(p)
         team_q = (request.args.get("team") or "").strip()
         player_q = (request.args.get("player") or "").strip().lower()
-        if team_q and "team" in df.columns:
-            df = df[df.get("team").astype(str).str.strip() == team_q]
-        if player_q and "player" in df.columns:
-            df = df[df.get("player").astype(str).str.lower().str.contains(player_q)]
+        team_col = next((c for c in ("team", "team_abbr") if c in df.columns), None)
+        player_col = next((c for c in ("player", "player_name") if c in df.columns), None)
+        if team_q and team_col:
+            df = df[df.get(team_col).astype(str).str.strip() == team_q]
+        if player_q and player_col:
+            df = df[df.get(player_col).astype(str).str.lower().str.contains(player_q)]
         rows = df.fillna("").to_dict(orient="records")
-        return jsonify({"date": d, "rows": len(rows), "data": rows})
+        payload = {"date": d, "rows": len(rows), "data": rows}
+        if source_name:
+            payload["source"] = source_name
+        return jsonify(payload)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
