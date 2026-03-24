@@ -1,0 +1,5 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-03-24,2026-03-24T23:40:00Z,New York Knicks,New Orleans Pelicans,-319.06872863013893,319.068728630139,-8.5,8.5,-110,-110,231.5,-100.67623387893657,100.67623387893664,11,11,6,9,oddsapi_consensus
+2026-03-24,2026-03-25T03:10:00Z,Phoenix Suns,Denver Nuggets,199.19472490300777,-199.1947249030077,5.5,-5.5,-110,-110,233.5,-100.09493070058858,100.09493070058859,10,10,9,9,oddsapi_consensus
+2026-03-24,2026-03-25T00:10:00Z,Cleveland Cavaliers,Orlando Magic,-355.5587495501484,355.5587495501482,-10.5,10.5,-110,-110,230.5,-100.43414083528695,100.43414083528695,11,11,9,8,oddsapi_consensus
+2026-03-24,2026-03-24T23:10:00Z,Charlotte Hornets,Sacramento Kings,-873.8565691413322,873.8565691413324,-17.0,17.0,-115,-105,230.0,-100.0,-100.0,11,11,8,7,oddsapi_consensus
