@@ -3338,6 +3338,8 @@ def _enforce_minimal_ui_allowlist():
             "/api/line-score",
             "/api/evaluate/games",
             "/api/evaluate/props",
+            "/api/props/reconciliation",
+            "/api/player-props-reconciliation",
             # Accuracy (frontend analytics)
             "/api/accuracy-market",
             "/api/accuracy_market",
