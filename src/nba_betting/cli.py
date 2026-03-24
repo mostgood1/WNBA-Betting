@@ -2953,7 +2953,7 @@ def write_rotation_priors_cmd(lookback_days: int, min_games: int):
         info = write_rotation_priors(lookback_days=lookback_days, min_games=min_games)
         console.print(info)
     except Exception as e:
-        console.print(f"Failed to write rotation priors: {e}", style="red")
+        raise click.ClickException(f"Failed to write rotation priors: {e}")
 
 
 @cli.command("update-rotations-espn-history")

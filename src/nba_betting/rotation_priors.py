@@ -14,6 +14,18 @@ from .config import paths
 PERIOD_SECONDS_DEFAULT = 12 * 60
 
 
+def _optional_text(value: Any) -> Optional[str]:
+    if value is None or pd.isna(value):
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _required_text(value: Any) -> str:
+    text = _optional_text(value)
+    return text or ""
+
+
 @dataclass(frozen=True)
 class FirstBenchSubIn:
     game_id: str
@@ -104,16 +116,16 @@ def compute_first_bench_sub_in_for_team_game(
     df = df.sort_values(sort_cols, ascending=True, kind="stable")
     row = df.iloc[0].to_dict()
 
-    game_id = str(row.get("game_id") or "")
+    game_id = _required_text(row.get("game_id"))
     return FirstBenchSubIn(
         game_id=game_id,
         team=team_tricode.upper(),
-        enter_player_id=(str(row.get("enter_player_id") or "").strip() or None),
-        enter_player_name=(str(row.get("enter_player_name") or "").strip() or None),
-        exit_player_id=(str(row.get("exit_player_id") or "").strip() or None),
-        exit_player_name=(str(row.get("exit_player_name") or "").strip() or None),
+        enter_player_id=_optional_text(row.get("enter_player_id")),
+        enter_player_name=_optional_text(row.get("enter_player_name")),
+        exit_player_id=_optional_text(row.get("exit_player_id")),
+        exit_player_name=_optional_text(row.get("exit_player_name")),
         period=int(period),
-        clock=str(row.get("clock") or ""),
+        clock=_required_text(row.get("clock")),
         elapsed_sec=int(row.get("elapsed_sec")) if row.get("elapsed_sec") is not None else None,
     )
 
@@ -137,12 +149,15 @@ def compute_first_bench_sub_in_dataset(
     out_rows: list[dict[str, Any]] = []
 
     for (date, game_id, team), group in df.groupby(["date", "game_id", "team"], dropna=False):
-        gid = str(game_id or "").strip()
+        gid = _required_text(game_id)
         if not gid:
+            continue
+        team_code = _required_text(team)
+        if not team_code:
             continue
         event = compute_first_bench_sub_in_for_team_game(
             group,
-            team_tricode=team,
+            team_tricode=team_code,
             period=period,
             period_seconds=period_seconds,
         )
