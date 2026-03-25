@@ -109,7 +109,11 @@
     return escapeHtml((text.slice(0, 1) || '?').toUpperCase());
   }
 
-  function fallbackHeadshotUrl(playerId) {
+  function fallbackHeadshotUrl(playerId, explicitFallbackUrl) {
+    const explicit = String(explicitFallbackUrl || '').trim();
+    if (explicit) {
+      return explicit;
+    }
     const numericId = Number(playerId);
     if (!Number.isFinite(numericId) || numericId <= 0) {
       return '';
@@ -117,9 +121,9 @@
     return `https://a.espncdn.com/i/headshots/nba/players/full/${Math.round(numericId)}.png`;
   }
 
-  function renderHeadshotMedia(imageUrl, playerName, playerId, imageClass, fallbackClass) {
+  function renderHeadshotMedia(imageUrl, playerName, playerId, explicitFallbackUrl, imageClass, fallbackClass) {
     const resolvedImageUrl = String(imageUrl || '').trim();
-    const fallbackUrl = fallbackHeadshotUrl(playerId);
+    const fallbackUrl = fallbackHeadshotUrl(playerId, explicitFallbackUrl);
     const finalUrl = resolvedImageUrl || fallbackUrl;
     if (!finalUrl) {
       return `<div class="${fallbackClass}">${playerInitial(playerName)}</div>`;
@@ -224,7 +228,7 @@
       <div class="ladder-selected-card">
         <div class="ladder-selected-identity">
           ${selected.teamLogoUrl ? `<img class="ladder-selected-team-logo" src="${escapeHtml(selected.teamLogoUrl)}" alt="team logo" loading="lazy" />` : ''}
-          ${renderHeadshotMedia(selected.headshotUrl, selected.playerName || selected.hitterName || currentValue, selected.playerId || selected.hitterId, 'ladder-selected-headshot', 'ladder-selected-headshot ladder-player-headshot-fallback')}
+          ${renderHeadshotMedia(selected.headshotUrl, selected.playerName || selected.hitterName || currentValue, selected.playerId || selected.hitterId, selected.fallbackHeadshotUrl, 'ladder-selected-headshot', 'ladder-selected-headshot ladder-player-headshot-fallback')}
           <div>
             <div class="ladder-selected-kicker">Selected player</div>
             <div class="ladder-selected-name">${escapeHtml(selected.playerName || selected.hitterName || currentValue)}</div>
@@ -286,7 +290,7 @@
     const teamLogo = row.teamLogoUrl
       ? `<img class="ladder-team-logo ladder-team-logo-primary" src="${escapeHtml(row.teamLogoUrl)}" alt="${escapeHtml(row.team || 'Team')} logo" loading="lazy" />`
       : `<div class="ladder-team-logo ladder-team-logo-primary ladder-team-logo-fallback">${escapeHtml(String((row.team || '?').slice(0, 1) || '?'))}</div>`;
-    const headshot = renderHeadshotMedia(row.headshotUrl, row.playerName || 'Player', row.playerId || row.hitterId, 'ladder-player-headshot', 'ladder-player-headshot ladder-player-headshot-fallback');
+    const headshot = renderHeadshotMedia(row.headshotUrl, row.playerName || 'Player', row.playerId || row.hitterId, row.fallbackHeadshotUrl, 'ladder-player-headshot', 'ladder-player-headshot ladder-player-headshot-fallback');
     const ladderTableRows = ladderRows.map((ladderRow) => `
       <tr>
         <td>${escapeHtml(formatCount(ladderRow.total))}</td>
