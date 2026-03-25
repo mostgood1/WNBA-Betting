@@ -3336,6 +3336,7 @@ def _enforce_minimal_ui_allowlist():
         allowed_api = {
             "/api/status/props-refresh",
             "/api/cards",
+            "/api/cards/props-strip",
             "/api/predictions",
             "/api/schedule",
             "/api/scoreboard",
@@ -10242,6 +10243,51 @@ def _load_props_recommendations_by_team(date_str: str) -> dict[str, list[dict[st
         return out
 
 
+def _load_props_predictions_name_lookup(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
+    out: dict[tuple[str, str], dict[str, Any]] = {}
+    p = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
+    if not p.exists():
+        try:
+            _maybe_fetch_remote_processed(p.name)
+        except Exception:
+            pass
+    try:
+        df = _read_csv_if_exists(p)
+        if df is None or not isinstance(df, pd.DataFrame) or df.empty:
+            return out
+        name_col = "player_name" if "player_name" in df.columns else ("player" if "player" in df.columns else None)
+        team_col = "team" if "team" in df.columns else None
+        if not name_col or not team_col:
+            return out
+        for _, row in df.iterrows():
+            team_tri = str(row.get(team_col) or "").strip().upper()
+            player_name = str(row.get(name_col) or "").strip()
+            player_key = _norm_player_name(player_name)
+            if not team_tri or not player_key:
+                continue
+            out[(team_tri, player_key)] = row.to_dict()
+        return out
+    except Exception:
+        return out
+
+
+def _load_props_recommendations_top_by_game_snapshot(date_str: str) -> dict[str, Any] | None:
+    p = DATA_PROCESSED_DIR / f"props_recommendations_top_by_game_{date_str}.json"
+    if not p.exists():
+        try:
+            _maybe_fetch_remote_processed(p.name)
+        except Exception:
+            pass
+    try:
+        if not p.exists():
+            return None
+        with p.open("r", encoding="utf-8") as f:
+            payload = json.load(f)
+        return payload if isinstance(payload, dict) else None
+    except Exception:
+        return None
+
+
 def _pick_top_players(players: list[dict[str, Any]], stat_key: str, n: int = 6) -> list[dict[str, Any]]:
     def key_fn(pr: dict[str, Any]):
         return _safe_float(pr.get(stat_key)) or float("-inf")
@@ -14477,6 +14523,115 @@ def api_cards():
                 "requested_date": requested_date,
                 "lookahead_applied": bool(d != requested_date),
                 "games": games,
+            }
+        )
+    )
+
+
+@app.route("/api/cards/props-strip")
+def api_cards_props_strip():
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+
+    try:
+        limit = int(float(str(request.args.get("limit") or "12").strip()))
+    except Exception:
+        limit = 12
+    try:
+        per_game_limit = int(float(str(request.args.get("per_game_limit") or "2").strip()))
+    except Exception:
+        per_game_limit = 2
+    limit = max(1, min(24, limit))
+    per_game_limit = max(1, min(4, per_game_limit))
+
+    snapshot = _load_props_recommendations_top_by_game_snapshot(d) or {}
+    top_by_game = snapshot.get("top_by_game") if isinstance(snapshot.get("top_by_game"), list) else []
+    pred_lookup = _load_props_predictions_name_lookup(d)
+
+    items: list[dict[str, Any]] = []
+    for game in top_by_game:
+        if not isinstance(game, dict):
+            continue
+        home_tri = str(game.get("home_tricode") or "").strip().upper()
+        away_tri = str(game.get("away_tricode") or "").strip().upper()
+        game_key = f"{away_tri}@{home_tri}" if home_tri and away_tri else ""
+        picks = game.get("picks") if isinstance(game.get("picks"), list) else []
+        for pick in picks:
+            if not isinstance(pick, dict):
+                continue
+            player_name = str(pick.get("player") or "").strip()
+            team_tri = str(pick.get("team_tricode") or pick.get("team") or "").strip().upper()
+            top_play = pick.get("top_play") if isinstance(pick.get("top_play"), dict) else {}
+            if not player_name or not team_tri or not isinstance(top_play, dict):
+                continue
+            player_pred = pred_lookup.get((team_tri, _norm_player_name(player_name))) or {}
+            opponent_tri = away_tri if team_tri == home_tri else home_tri
+            player_id = player_pred.get("player_id")
+            photo = _best_player_headshot_url(nba_player_id=player_id, source_player_id=player_id)
+            items.append(
+                {
+                    "game_key": game_key,
+                    "home_tri": home_tri,
+                    "away_tri": away_tri,
+                    "team_tri": team_tri,
+                    "opponent_tri": opponent_tri,
+                    "player": player_name,
+                    "player_id": player_id,
+                    "photo": photo,
+                    "market": str(top_play.get("market") or "").strip().lower(),
+                    "side": str(top_play.get("side") or "").strip().upper(),
+                    "line": _safe_float(top_play.get("line")),
+                    "price": _safe_float(top_play.get("price")),
+                    "edge": _safe_float(top_play.get("edge")),
+                    "ev": _safe_float(top_play.get("ev")),
+                    "ev_pct": _safe_float(top_play.get("ev_pct")),
+                    "prob_calib": _safe_float(top_play.get("prob_calib")),
+                    "line_move": _safe_float(top_play.get("line_move")),
+                    "open_line": _safe_float(top_play.get("open_line")),
+                    "open_price": _safe_float(top_play.get("open_price")),
+                    "book": _canonical_bookmaker_key(top_play.get("book")) or None,
+                    "snapshot_ts": top_play.get("snapshot_ts"),
+                    "score": _safe_float(pick.get("score")),
+                    "score_adj": _safe_float(pick.get("score_adj")),
+                    "tier": str(pick.get("tier") or "").strip() or None,
+                    "opponent": str(pick.get("opponent") or "").strip() or None,
+                }
+            )
+
+    items.sort(
+        key=lambda item: (
+            float(item.get("ev_pct") or float("-inf")),
+            float(item.get("edge") or float("-inf")),
+            float(item.get("score_adj") or item.get("score") or float("-inf")),
+        ),
+        reverse=True,
+    )
+
+    selected: list[dict[str, Any]] = []
+    by_game_counts: dict[str, int] = {}
+    for item in items:
+        game_key = str(item.get("game_key") or "")
+        if game_key and by_game_counts.get(game_key, 0) >= per_game_limit:
+            continue
+        selected.append(item)
+        if game_key:
+            by_game_counts[game_key] = int(by_game_counts.get(game_key, 0) + 1)
+        if len(selected) >= limit:
+            break
+
+    return jsonify(
+        _to_jsonable(
+            {
+                "ok": True,
+                "mode": "pregame",
+                "date": d,
+                "title": "Pregame prop movement",
+                "subtitle": "Top same-day prop cards from the daily recommendations export.",
+                "items": selected,
+                "rows": len(selected),
+                "source": "props_recommendations_top_by_game",
+                "snapshot_rows": int(snapshot.get("rows") or 0) if isinstance(snapshot, dict) else 0,
             }
         )
     )

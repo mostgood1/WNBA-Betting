@@ -14,6 +14,7 @@
   const dateBadge = document.getElementById('cardsDateBadge');
   const sourceMeta = document.getElementById('cardsSourceMeta');
   const filtersEl = document.getElementById('cardsFilters');
+  const propsStripEl = document.getElementById('cardsPropsStrip');
   const resultsToggle = document.getElementById('resultsToggle');
   const hideOddsToggle = document.getElementById('hideOdds');
   const note = document.getElementById('note');
@@ -27,6 +28,7 @@
     payload: null,
     pollHandle: null,
     propDetails: new Map(),
+    propsStripPayload: null,
     showResults: false,
   };
 
@@ -297,6 +299,216 @@
         </button>
       `)
       .join('');
+  }
+
+  function setPropsStripLoading() {
+    if (!propsStripEl) {
+      return;
+    }
+    propsStripEl.classList.remove('hidden');
+    propsStripEl.innerHTML = '<div class="cards-empty">Loading player prop strip...</div>';
+  }
+
+  function clearPropsStrip() {
+    if (!propsStripEl) {
+      return;
+    }
+    propsStripEl.innerHTML = '';
+    propsStripEl.classList.add('hidden');
+  }
+
+  function stripStatusText(item) {
+    if (mode === 'live') {
+      return String(item?.status_label || item?.klass || 'Live').trim() || 'Live';
+    }
+    if (Number.isFinite(Number(item?.line_move))) {
+      return `Line move ${fmtSigned(item.line_move, 1)}`;
+    }
+    if (item?.book) {
+      return String(item.book).toUpperCase();
+    }
+    return 'Pregame';
+  }
+
+  function stripSecondaryText(item) {
+    if (mode === 'live') {
+      const lineSource = String(item?.line_source || '').trim();
+      const simValue = Number(item?.sim_mu);
+      const liveLine = Number(item?.line);
+      const pieces = [];
+      if (lineSource) {
+        pieces.push(lineSource === 'oddsapi' ? 'Live OddsAPI' : titleCase(lineSource));
+      }
+      if (Number.isFinite(simValue) && Number.isFinite(liveLine)) {
+        pieces.push(`Sim ${fmtNumber(simValue, 1)} vs ${fmtNumber(liveLine, 1)}`);
+      }
+      return pieces.join(' · ') || 'Live player prop lens';
+    }
+    const pieces = [];
+    if (item?.book) {
+      pieces.push(String(item.book).toUpperCase());
+    }
+    if (Number.isFinite(Number(item?.open_line))) {
+      pieces.push(`Open ${fmtNumber(item.open_line, 1)}`);
+    }
+    return pieces.join(' · ') || 'Daily recommendations export';
+  }
+
+  function stripCardTarget(item) {
+    const away = String(item?.away_tri || '').trim().toUpperCase();
+    const home = String(item?.home_tri || '').trim().toUpperCase();
+    return away && home ? `${away}@${home}` : '';
+  }
+
+  function renderPropsStripItem(item) {
+    const photo = String(item?.photo || item?.player_photo || '').trim();
+    const logo = logoForTri(item?.team_tri);
+    const opponentTri = String(item?.opponent_tri || '').trim().toUpperCase();
+    const market = marketLabel(item?.market);
+    const side = String(item?.side || '').trim().toUpperCase();
+    const line = Number(item?.line);
+    const price = Number(item?.price);
+    const evPct = Number(item?.ev_pct);
+    const winProb = Number(item?.probability ?? item?.prob_calib);
+    const cardTarget = stripCardTarget(item);
+    const actionLabel = mode === 'live'
+      ? String(item?.klass || '').trim().toUpperCase()
+      : String(item?.tier || '').trim().toUpperCase();
+    const actionClass = actionLabel === 'BET'
+      ? 'cards-chip--accent'
+      : (actionLabel === 'WATCH' || actionLabel === 'MEDIUM' ? 'cards-chip--warm' : '');
+    return `
+      <article class="cards-props-strip-card">
+        <div class="cards-props-strip-card__top">
+          <div class="cards-props-strip-card__context">${escapeHtml(String(item?.away_tri || '--'))} @ ${escapeHtml(String(item?.home_tri || '--'))}</div>
+          <div class="cards-props-strip-card__status">${escapeHtml(stripStatusText(item))}</div>
+        </div>
+        <div class="cards-props-strip-card__body">
+          <div class="cards-props-strip-card__identity">
+            <div class="cards-props-strip-card__media">
+              ${photo ? `<img class="cards-props-strip-card__photo" src="${escapeHtml(photo)}" alt="${escapeHtml(String(item?.player || 'Player'))}" />` : `<div class="cards-props-strip-card__photo is-fallback">${escapeHtml(String(item?.team_tri || '?'))}</div>`}
+              ${logo ? `<img class="cards-props-strip-card__logo" src="${escapeHtml(logo)}" alt="${escapeHtml(String(item?.team_tri || ''))} logo" />` : ''}
+            </div>
+            <div class="cards-props-strip-card__copy">
+              <div class="cards-props-strip-card__name">${escapeHtml(String(item?.player || 'Unknown player'))}</div>
+              <div class="cards-props-strip-card__matchup">${escapeHtml(String(item?.team_tri || '--'))}${opponentTri ? ` vs ${escapeHtml(opponentTri)}` : ''}</div>
+            </div>
+          </div>
+          <div class="cards-props-strip-card__play">${escapeHtml(market)} ${escapeHtml(side)} ${Number.isFinite(line) ? fmtNumber(line, 1) : '--'}</div>
+          <div class="cards-props-strip-card__sub">${escapeHtml(stripSecondaryText(item))}</div>
+          <div class="cards-strip-pills">
+            ${actionLabel ? `<span class="cards-chip ${actionClass}">${escapeHtml(actionLabel)}</span>` : ''}
+            ${Number.isFinite(price) ? `<span class="cards-chip">${escapeHtml(fmtAmerican(price))}</span>` : ''}
+            ${Number.isFinite(evPct) ? `<span class="cards-chip cards-chip--accent">EV ${escapeHtml(fmtPercentValue(evPct))}</span>` : ''}
+            ${Number.isFinite(winProb) ? `<span class="cards-chip">${escapeHtml(mode === 'live' ? fmtPercent(winProb, 0) : fmtPercentValue(winProb))}</span>` : ''}
+          </div>
+        </div>
+        ${cardTarget ? `<button class="cards-props-strip-card__jump" type="button" data-jump-card="${escapeHtml(cardTarget)}">Jump to game</button>` : ''}
+      </article>
+    `;
+  }
+
+  function renderPropsStrip() {
+    if (!propsStripEl) {
+      return;
+    }
+    const payload = state.propsStripPayload;
+    const items = safeArray(payload?.items);
+    if (!items.length) {
+      clearPropsStrip();
+      return;
+    }
+    propsStripEl.classList.remove('hidden');
+    propsStripEl.innerHTML = `
+      <div class="cards-props-strip-headline">
+        <div>
+          <h2>${escapeHtml(String(payload?.title || (mode === 'live' ? 'Live player props' : 'Pregame prop movement')))}</h2>
+          <p>${escapeHtml(String(payload?.subtitle || ''))}</p>
+        </div>
+        <div class="cards-strip-pills">
+          <span class="cards-source-meta-pill ${mode === 'live' ? 'is-live' : 'is-soft'}">${escapeHtml(String(payload?.rows || items.length))} cards</span>
+          <span class="cards-source-meta-pill">${escapeHtml(String(payload?.date || state.date || ''))}</span>
+        </div>
+      </div>
+      <div class="cards-props-strip-grid">${items.map(renderPropsStripItem).join('')}</div>
+    `;
+  }
+
+  function transformLiveStripPayload(payload, dateValue) {
+    const items = [];
+    safeArray(payload?.games).forEach((game) => {
+      const status = game?.status || {};
+      const gameItems = safeArray(game?.rows)
+        .filter((row) => row && row.player && row.team_tri)
+        .filter((row) => row.line_source && row.line_source !== 'model')
+        .filter((row) => row.ev_side || row.lean)
+        .sort((left, right) => {
+          const scoreLeft = Number(left?.bettable_score ?? 0);
+          const scoreRight = Number(right?.bettable_score ?? 0);
+          const evLeft = Number(left?.ev ?? 0);
+          const evRight = Number(right?.ev ?? 0);
+          const strengthLeft = Number(left?.strength ?? 0);
+          const strengthRight = Number(right?.strength ?? 0);
+          return (scoreRight - scoreLeft) || (evRight - evLeft) || (strengthRight - strengthLeft);
+        })
+        .slice(0, 2)
+        .map((row) => ({
+          away_tri: game?.away,
+          home_tri: game?.home,
+          team_tri: row?.team_tri,
+          opponent_tri: row?.team_tri === game?.home ? game?.away : game?.home,
+          player: row?.player,
+          player_photo: row?.player_photo,
+          market: row?.stat,
+          side: row?.ev_side || row?.lean,
+          line: row?.line_live ?? row?.line,
+          price: String(row?.ev_side || row?.lean).toUpperCase() === 'UNDER' ? row?.price_under : row?.price_over,
+          ev_pct: Number.isFinite(Number(row?.ev)) ? Number(row.ev) * 100 : null,
+          probability: row?.win_prob,
+          klass: row?.klass,
+          line_source: row?.line_source,
+          status_label: status?.final ? 'Final' : (status?.in_progress ? `Q${status?.period || '-'} ${status?.clock || ''}`.trim() : 'Live'),
+          sim_mu: row?.sim_mu,
+        }));
+      items.push(...gameItems);
+    });
+    items.sort((left, right) => Number(right?.ev_pct ?? 0) - Number(left?.ev_pct ?? 0));
+    return {
+      mode: 'live',
+      date: dateValue,
+      title: 'Live player props',
+      subtitle: 'Best current live player-prop rows from the live lens.',
+      rows: Math.min(items.length, 12),
+      items: items.slice(0, 12),
+    };
+  }
+
+  async function loadPropsStrip(dateValue) {
+    if (!propsStripEl) {
+      return;
+    }
+    setPropsStripLoading();
+    try {
+      if (mode === 'live') {
+        const response = await fetch(`/api/live_player_lens?date=${encodeURIComponent(dateValue)}`, { cache: 'no-store' });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload?.error || 'Failed to load live player props.');
+        }
+        state.propsStripPayload = transformLiveStripPayload(payload, dateValue);
+      } else {
+        const response = await fetch(`/api/cards/props-strip?date=${encodeURIComponent(dateValue)}`, { cache: 'no-store' });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload?.error || 'Failed to load prop strip.');
+        }
+        state.propsStripPayload = payload;
+      }
+      renderPropsStrip();
+    } catch (_error) {
+      state.propsStripPayload = null;
+      clearPropsStrip();
+    }
   }
 
   function updateDateControls() {
@@ -1021,6 +1233,7 @@
         throw new Error(payload?.error || 'Failed to load game cards.');
       }
       state.payload = payload;
+      await loadPropsStrip(payload.date || state.date);
       updateDateControls();
       renderHeaderMeta();
       renderSourceMeta();
@@ -1033,6 +1246,8 @@
       renderBoard();
     } catch (error) {
       state.payload = null;
+      state.propsStripPayload = null;
+      clearPropsStrip();
       if (headerMeta) {
         headerMeta.textContent = 'Failed to load slate.';
       }
