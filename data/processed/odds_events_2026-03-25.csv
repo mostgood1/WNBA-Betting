@@ -1,0 +1,13 @@
+event_id,commence_time,home_team,away_team,has_odds
+8aaad66627fe854cc273103047d880e6,2026-03-25T23:10:00Z,Detroit Pistons,Atlanta Hawks,True
+eaf07668d23364ac54cbcf69f4808ba9,2026-03-25T23:10:00Z,Philadelphia 76ers,Chicago Bulls,True
+3d71d6b6b1bc85b5ec831ae9dba2c93c,2026-03-25T23:10:00Z,Indiana Pacers,Los Angeles Lakers,True
+277fee894c9dc5c623ed6a131bf513c7,2026-03-25T23:40:00Z,Boston Celtics,Oklahoma City Thunder,True
+bb33d3e33ac233af2a20161310f567f2,2026-03-25T23:40:00Z,Cleveland Cavaliers,Miami Heat,True
+bcbad64f54906ae96b4be0ef54b453b4,2026-03-26T00:10:00Z,Memphis Grizzlies,San Antonio Spurs,True
+dcd42c163a10db20aa31d9ee311c07bd,2026-03-26T01:10:00Z,Utah Jazz,Washington Wizards,True
+cf2665074fd82e7b5f2b4393f20afd32,2026-03-26T01:40:00Z,Minnesota Timberwolves,Houston Rockets,True
+f0853d396988ee8ea615897e136d22cb,2026-03-26T02:10:00Z,Golden State Warriors,Brooklyn Nets,True
+63b3c408cf1e55eb8d34aec686038a87,2026-03-26T02:10:00Z,Denver Nuggets,Dallas Mavericks,True
+d17b632d984be98852b4bc409ae1d056,2026-03-26T02:10:00Z,Portland Trail Blazers,Milwaukee Bucks,True
+24a4d71edcffcb5584a61d2aa89c66d8,2026-03-26T02:40:00Z,Los Angeles Clippers,Toronto Raptors,True
