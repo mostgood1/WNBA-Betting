@@ -211,6 +211,7 @@
 
   function renderCard(row, payload) {
     const ladderRows = Array.isArray(row.ladder) ? row.ladder : [];
+    const isMarketFallback = String(row.sourceMode || payload.sourceMode || '').toLowerCase() === 'market';
     const overLineText = row.marketLine == null || row.overLineCount == null
       ? ''
       : `<span class="ladder-pill"><span>Over ${escapeHtml(formatNumber(row.marketLine, 1))}</span><strong>${escapeHtml(formatCount(row.overLineCount))}</strong><span>${escapeHtml(formatPercent(row.overLineProb))}</span></span>`;
@@ -253,42 +254,52 @@
           <span class="ladder-pill"><span>Mean</span><strong>${escapeHtml(formatNumber(row.mean, 2))}</strong></span>
           <span class="ladder-pill"><span>Mode</span><strong>${escapeHtml(row.mode == null ? '-' : formatCount(row.mode))}</strong><span>${escapeHtml(row.modeProb == null ? '-' : formatPercent(row.modeProb))}</span></span>
           <span class="ladder-pill"><span>Sim count</span><strong>${escapeHtml(formatCount(row.simCount))}</strong></span>
+          ${row.side ? `<span class="ladder-pill"><span>Side</span><strong>${escapeHtml(row.side)}</strong></span>` : ''}
           ${row.marketLine == null ? '' : `<span class="ladder-pill"><span>Market line</span><strong>${escapeHtml(formatNumber(row.marketLine, 1))}</strong></span>`}
           ${overLineText}
         </div>
         ${renderMarketLineChips(row)}
-        <div class="ladder-table-wrap">
-          <table class="ladder-table">
-            <thead>
-              <tr>
-                <th>Total</th>
-                <th>&ge; Total</th>
-                <th>Hit %</th>
-                <th>Hit Odds</th>
-                <th>Exact</th>
-                <th>Exact %</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${ladderTableRows}
-            </tbody>
-          </table>
-        </div>
+        ${ladderRows.length ? `
+          <div class="ladder-table-wrap">
+            <table class="ladder-table">
+              <thead>
+                <tr>
+                  <th>Total</th>
+                  <th>&ge; Total</th>
+                  <th>Hit %</th>
+                  <th>Hit Odds</th>
+                  <th>Exact</th>
+                  <th>Exact %</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${ladderTableRows}
+              </tbody>
+            </table>
+          </div>
+        ` : isMarketFallback ? `<div class="ladder-empty">Exact SmartSim hit probabilities are not stored for this date yet. Showing the available ladder market rungs instead.</div>` : ''}
       </article>
     `;
   }
 
   function renderPayload(payload) {
+    const sourceMode = String(payload.sourceMode || 'exact').toLowerCase();
+    const summary = payload.summary || {};
     dateBadgeEl.textContent = payload.date || state.date || '-';
     propBadgeEl.textContent = payload.propLabel || payload.prop || state.prop || '-';
     renderTeamSelector(payload);
     renderPlayerSelector(payload);
     renderSelectedPlayer(payload);
     sortInputEl.value = String(payload.selectedSort || state.sort || 'team');
+    const sortLabel = String((Array.isArray(payload.sortOptions) ? payload.sortOptions : []).find((option) => String(option.value || '') === String(payload.selectedSort || state.sort || 'team'))?.label || (payload.selectedSort || state.sort || 'team'));
     headerMetaEl.textContent = payload.found
-      ? `${payload.summary?.players || 0} players across ${payload.summary?.games || 0} games from stored exact SmartSim player distributions. Sorted by ${String((Array.isArray(payload.sortOptions) ? payload.sortOptions : []).find((option) => String(option.value || '') === String(payload.selectedSort || state.sort || 'team'))?.label || (payload.selectedSort || state.sort || 'team'))}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
+      ? sourceMode === 'market'
+        ? `${summary.players || 0} players across ${summary.games || 0} games from available market ladder rungs. Exact SmartSim distributions are not stored for this date yet. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
+        : sourceMode === 'mixed'
+          ? `${summary.players || 0} players across ${summary.games || 0} games with exact SmartSim ladders where available and market-rung fallback elsewhere. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
+          : `${summary.players || 0} players across ${summary.games || 0} games from stored exact SmartSim player distributions. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
       : 'No player prop ladder data found for this selection.';
-    sourceMetaEl.textContent = `Sim dir: ${payload.sourceDir || '-'} | Market source: ${payload.marketSource || '-'} | Default daily sims: ${payload.defaultSims || '-'} | Shape: ${payload.ladderShape || 'exact'} ladder`;
+    sourceMetaEl.textContent = `Sim dir: ${payload.sourceDir || '-'} | Market source: ${payload.marketSource || '-'} | Default daily sims: ${payload.defaultSims || '-'} | Mode: ${sourceMode} | Shape: ${payload.ladderShape || 'exact'} ladder`;
     prevDateLinkEl.href = pageHref((payload.nav || {}).prevDate || state.date, state.prop, state.team, state.player, state.sort);
     nextDateLinkEl.href = pageHref((payload.nav || {}).nextDate || state.date, state.prop, state.team, state.player, state.sort);
     prevDateLinkEl.style.visibility = (payload.nav || {}).prevDate ? 'visible' : 'hidden';

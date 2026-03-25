@@ -27844,6 +27844,8 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
     game_keys: set[tuple[str, str]] = set()
     note = None
     cards_with_sim_ladders = 0
+    cards_with_market_ladders = 0
+    market_fallback_rows = 0
 
     for card in cards:
         if not isinstance(card, dict):
@@ -27860,8 +27862,11 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
             continue
 
         sim_ladders = card.get("sim_ladders") if isinstance(card.get("sim_ladders"), list) else []
+        market_ladders = card.get("ladders") if isinstance(card.get("ladders"), list) else []
         if sim_ladders:
             cards_with_sim_ladders += 1
+        if market_ladders:
+            cards_with_market_ladders += 1
         active_market = next(
             (
                 ladder
@@ -27870,11 +27875,92 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
             ),
             None,
         )
+        ladder_rows = active_market.get("ladder") if isinstance(active_market, dict) and isinstance(active_market.get("ladder"), list) else []
+        source_mode = "sim"
         if not isinstance(active_market, dict):
-            continue
+            matching_market_ladders = [
+                ladder
+                for ladder in market_ladders
+                if isinstance(ladder, dict) and _normalize_prop_ladder_market(ladder.get("market")) == market_filter
+            ]
+            if not matching_market_ladders:
+                continue
 
-        ladder_rows = active_market.get("ladder") if isinstance(active_market.get("ladder"), list) else []
-        if not ladder_rows:
+            merged_lines: dict[float, dict[str, Any]] = {}
+            best_ladder: dict[str, Any] | None = None
+            best_ev_pct = float("-inf")
+            for ladder in matching_market_ladders:
+                side = str(ladder.get("side") or "").strip().upper()
+                base_obj = ladder.get("base") if isinstance(ladder.get("base"), dict) else {}
+                candidate_rows = []
+                if isinstance(base_obj, dict) and base_obj:
+                    candidate_rows.append(base_obj)
+                entries = ladder.get("entries") if isinstance(ladder.get("entries"), list) else []
+                candidate_rows.extend([entry for entry in entries if isinstance(entry, dict)])
+
+                ladder_best = _coerce_prop_ladder_float(base_obj.get("ev_pct"))
+                if ladder_best is not None and ladder_best > best_ev_pct:
+                    best_ev_pct = ladder_best
+                    best_ladder = ladder
+
+                for entry in candidate_rows:
+                    line_value = _coerce_prop_ladder_float(entry.get("line"))
+                    if line_value is None:
+                        continue
+                    merged = merged_lines.setdefault(
+                        float(line_value),
+                        {
+                            "line": float(line_value),
+                            "label": f"{_prop_ladder_market_label(market_filter)} {float(line_value):.1f}",
+                            "isPrimary": False,
+                        },
+                    )
+                    price_value = _coerce_prop_ladder_float(entry.get("price"))
+                    ev_pct_value = _coerce_prop_ladder_float(entry.get("ev_pct"))
+                    if side == "OVER":
+                        prev_ev = merged.get("_over_ev")
+                        if price_value is not None and (prev_ev is None or (ev_pct_value is not None and ev_pct_value >= prev_ev)):
+                            merged["overOdds"] = price_value
+                            merged["_over_ev"] = ev_pct_value
+                    elif side == "UNDER":
+                        prev_ev = merged.get("_under_ev")
+                        if price_value is not None and (prev_ev is None or (ev_pct_value is not None and ev_pct_value >= prev_ev)):
+                            merged["underOdds"] = price_value
+                            merged["_under_ev"] = ev_pct_value
+
+            if not isinstance(best_ladder, dict):
+                best_ladder = matching_market_ladders[0]
+            base_obj = best_ladder.get("base") if isinstance(best_ladder.get("base"), dict) else {}
+            primary_line = _coerce_prop_ladder_float(base_obj.get("line"))
+            market_lines = []
+            for line_key in sorted(merged_lines):
+                merged = dict(merged_lines[line_key])
+                merged.pop("_over_ev", None)
+                merged.pop("_under_ev", None)
+                merged["isPrimary"] = primary_line is not None and abs(float(line_key) - float(primary_line)) < 0.001
+                market_lines.append(merged)
+
+            active_market = {
+                "opponent": card.get("opponent"),
+                "game_id": None,
+                "marketLine": primary_line,
+                "marketLinesByStat": market_lines,
+                "mean": None,
+                "mode": None,
+                "modeProb": None,
+                "simCount": 0,
+                "minTotal": None,
+                "maxTotal": None,
+                "overLineCount": None,
+                "overLineProb": None,
+                "ladderShape": "market",
+                "sourceFile": None,
+                "side": str(best_ladder.get("side") or "").strip().upper() or None,
+            }
+            ladder_rows = []
+            source_mode = "market"
+            market_fallback_rows += 1
+        elif not ladder_rows:
             continue
 
         team_logo = card.get("team_logo")
@@ -27910,6 +27996,8 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
                 "ladder": ladder_rows,
                 "ladderShape": str(active_market.get("ladderShape") or "exact"),
                 "sourceFile": active_market.get("sourceFile"),
+                "sourceMode": source_mode,
+                "side": str(active_market.get("side") or "").strip().upper() or None,
             }
         )
         team_options[str(team_tricode).upper()] = {
@@ -27930,7 +28018,9 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
         if opponent:
             game_keys.add(tuple(sorted([str(team_tricode), str(opponent)])))
 
-    if not cards_with_sim_ladders and cards:
+    if not cards_with_sim_ladders and cards_with_market_ladders:
+        note = "Stored exact SmartSim player ladders were not found for this date yet; showing current market ladder rungs instead."
+    elif not cards_with_sim_ladders and cards:
         note = "No stored SmartSim player ladders were found for this date yet."
 
     if sort_filter == "prob":
@@ -27970,6 +28060,7 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
             "availableTeams": int(len(team_options)),
             "availablePlayers": int(len(player_options)),
             "simCounts": sorted(sim_counts_seen),
+            "marketFallbackPlayers": int(market_fallback_rows),
         },
         "nav": {
             "prevDate": prev_date,
@@ -27980,6 +28071,13 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
         "defaultSims": sorted(sim_counts_seen)[0] if sim_counts_seen else None,
         "rows": rows,
         "note": note,
+        "sourceMode": (
+            "market"
+            if rows and market_fallback_rows and market_fallback_rows == len(rows)
+            else "mixed"
+            if rows and market_fallback_rows
+            else "exact"
+        ),
     }
 
 
