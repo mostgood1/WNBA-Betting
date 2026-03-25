@@ -28078,6 +28078,7 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
         games = []
 
     market_filter = _normalize_prop_ladder_market(request.args.get("market") or "pts")
+    game_filter = str(request.args.get("game") or "").strip()
     team_filter = (_get_tricode(str(request.args.get("team") or "")) or str(request.args.get("team") or "").strip().upper()) if request.args.get("team") else ""
     player_filter = str(request.args.get("player") or "").strip()
     sort_filter = str(request.args.get("sort") or "team").strip().lower()
@@ -28085,6 +28086,7 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
         sort_filter = "team"
 
     rows: list[dict[str, Any]] = []
+    game_options: dict[str, dict[str, Any]] = {}
     team_options: dict[str, dict[str, Any]] = {}
     player_options: dict[str, dict[str, Any]] = {}
     sim_counts_seen: set[int] = set()
@@ -28099,6 +28101,12 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
             continue
         home_tri = str(game.get("home_tri") or "").strip().upper()
         away_tri = str(game.get("away_tri") or "").strip().upper()
+        game_id = _live_norm_game_id(game.get("game_id") or f"{away_tri}@{home_tri}")
+        matchup_label = f"{away_tri} @ {home_tri}" if home_tri and away_tri else str(game_id or "Game")
+        if game_id:
+            game_options[game_id] = {"value": game_id, "label": matchup_label}
+        if game_filter and game_id != game_filter:
+            continue
         sim = game.get("sim") if isinstance(game.get("sim"), dict) else {}
         sim_players = sim.get("players") if isinstance(sim.get("players"), dict) else {}
         missing_players = sim.get("missing_prop_players") if isinstance(sim.get("missing_prop_players"), dict) else {}
@@ -28155,7 +28163,7 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
 
                 rows.append(
                     {
-                        "gameId": game.get("game_id") or sim.get("game_id"),
+                        "gameId": game_id,
                         "playerId": player_id,
                         "hitterId": player_id,
                         "playerName": player_name,
@@ -28164,7 +28172,7 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
                         "team": team_tri,
                         "teamLogoUrl": team_logo,
                         "opponent": opponent_tri,
-                        "matchup": f"{team_tri} vs {opponent_tri}" if opponent_tri else str(team_tri),
+                        "matchup": matchup_label,
                         "mean": _coerce_prop_ladder_float(active_market.get("mean")),
                         "mode": active_market.get("mode"),
                         "modeProb": _coerce_prop_ladder_float(active_market.get("modeProb")),
@@ -28232,9 +28240,11 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
         "date": date_str,
         "prop": market_filter,
         "propLabel": _prop_ladder_market_label(market_filter),
+        "selectedGame": game_filter,
         "selectedTeam": team_filter or "",
         "selectedPlayer": player_filter,
         "selectedSort": sort_filter,
+        "gameOptions": [game_options[key] for key in sorted(game_options)],
         "teamOptions": [team_options[key] for key in sorted(team_options)],
         "playerOptions": [player_options[key] for key in sorted(player_options)],
         "sortOptions": [
@@ -28291,6 +28301,7 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
         cards = []
 
     market_filter = _normalize_prop_ladder_market(request.args.get("market") or "pts")
+    game_filter = str(request.args.get("game") or "").strip()
     team_filter = (_get_tricode(str(request.args.get("team") or "")) or str(request.args.get("team") or "").strip().upper()) if request.args.get("team") else ""
     player_filter = str(request.args.get("player") or "").strip()
     sort_filter = str(request.args.get("sort") or "team").strip().lower()
@@ -28298,6 +28309,7 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
         sort_filter = "team"
 
     rows: list[dict[str, Any]] = []
+    game_options: dict[str, dict[str, Any]] = {}
     team_options: dict[str, dict[str, Any]] = {}
     player_options: dict[str, dict[str, Any]] = {}
     sim_counts_seen: set[int] = set()
@@ -28319,7 +28331,15 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
         player_name = str(card.get("player") or "").strip()
         team_name = str(card.get("team") or "").strip()
         team_tricode = card.get("team_tricode") or _get_tricode(team_name) or team_name.upper()
+        opponent = card.get("opponent")
+        matchup_label = f"{opponent} @ {team_tricode}" if opponent else str(team_tricode)
+        raw_game_id = card.get("game_id") or f"{opponent}@{team_tricode}" if opponent else team_tricode
+        game_id = _live_norm_game_id(raw_game_id)
+        if game_id:
+            game_options[game_id] = {"value": game_id, "label": matchup_label}
         if not player_name or not team_tricode:
+            continue
+        if game_filter and game_id != game_filter:
             continue
         if team_filter and str(team_tricode or "").upper() != team_filter:
             continue
@@ -28442,8 +28462,8 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
                 source_mode = "estimated"
 
         team_logo = card.get("team_logo")
-        opponent = active_market.get("opponent") or card.get("opponent")
-        game_id = active_market.get("game_id")
+        opponent = active_market.get("opponent") or opponent
+        game_id = _live_norm_game_id(active_market.get("game_id") or game_id)
         market_lines = active_market.get("marketLinesByStat") if isinstance(active_market.get("marketLinesByStat"), list) else []
         over_line_prob = _coerce_prop_ladder_float(active_market.get("overLineProb"))
         mean_value = _coerce_prop_ladder_float(active_market.get("mean"))
@@ -28460,7 +28480,7 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
                 "team": team_tricode,
                 "teamLogoUrl": team_logo,
                 "opponent": opponent,
-                "matchup": f"{team_tricode} vs {opponent}" if opponent else str(team_tricode),
+                "matchup": matchup_label,
                 "mean": mean_value,
                 "mode": active_market.get("mode"),
                 "modeProb": _coerce_prop_ladder_float(active_market.get("modeProb")),
@@ -28529,9 +28549,11 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
         "date": date_str,
         "prop": market_filter,
         "propLabel": _prop_ladder_market_label(market_filter),
+        "selectedGame": game_filter,
         "selectedTeam": team_filter or "",
         "selectedPlayer": player_filter,
         "selectedSort": sort_filter,
+        "gameOptions": [game_options[key] for key in sorted(game_options)],
         "teamOptions": [team_options[key] for key in sorted(team_options)],
         "playerOptions": [player_options[key] for key in sorted(player_options)],
         "sortOptions": [

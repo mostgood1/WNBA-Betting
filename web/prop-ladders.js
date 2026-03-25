@@ -2,6 +2,7 @@
   const formEl = document.getElementById('propLadderForm');
   const dateInputEl = document.getElementById('propLadderDateInput');
   const propInputEl = document.getElementById('propLadderPropInput');
+  const gameInputEl = document.getElementById('propLadderGameInput');
   const teamInputEl = document.getElementById('propLadderTeamInput');
   const playerInputEl = document.getElementById('propLadderPlayerInput');
   const sortInputEl = document.getElementById('propLadderSortInput');
@@ -16,7 +17,7 @@
   const prevDateLinkEl = document.getElementById('propLadderPrevDateLink');
   const nextDateLinkEl = document.getElementById('propLadderNextDateLink');
 
-  if (!formEl || !dateInputEl || !propInputEl || !teamInputEl || !playerInputEl || !sortInputEl || !headerMetaEl || !sourceMetaEl || !summaryEl || !selectedPlayerEl || !gridEl || !noteEl || !dateBadgeEl || !propBadgeEl || !prevDateLinkEl || !nextDateLinkEl) {
+  if (!formEl || !dateInputEl || !propInputEl || !gameInputEl || !teamInputEl || !playerInputEl || !sortInputEl || !headerMetaEl || !sourceMetaEl || !summaryEl || !selectedPlayerEl || !gridEl || !noteEl || !dateBadgeEl || !propBadgeEl || !prevDateLinkEl || !nextDateLinkEl) {
     return;
   }
 
@@ -24,6 +25,7 @@
   const state = {
     date: String(params.get('date') || getLocalDateISO()),
     prop: String(params.get('market') || 'pts'),
+    game: String(params.get('game') || ''),
     team: String(params.get('team') || ''),
     player: String(params.get('player') || ''),
     sort: String(params.get('sort') || 'team'),
@@ -67,24 +69,39 @@
     return number > 0 ? `+${Math.round(number)}` : `${Math.round(number)}`;
   }
 
-  function pageHref(dateValue, propValue, teamValue, playerValue, sortValue) {
+  function pageHref(dateValue, propValue, gameValue, teamValue, playerValue, sortValue) {
     const pageParams = new URLSearchParams();
     if (dateValue) pageParams.set('date', dateValue);
     if (propValue) pageParams.set('market', propValue);
+    if (gameValue) pageParams.set('game', gameValue);
     if (teamValue) pageParams.set('team', teamValue);
     if (playerValue) pageParams.set('player', playerValue);
     if (sortValue) pageParams.set('sort', sortValue);
     return `/prop-ladders?${pageParams.toString()}`;
   }
 
-  function apiHref(dateValue, propValue, teamValue, playerValue, sortValue) {
+  function apiHref(dateValue, propValue, gameValue, teamValue, playerValue, sortValue) {
     const apiParams = new URLSearchParams();
     if (dateValue) apiParams.set('date', dateValue);
     if (propValue) apiParams.set('market', propValue);
+    if (gameValue) apiParams.set('game', gameValue);
     if (teamValue) apiParams.set('team', teamValue);
     if (playerValue) apiParams.set('player', playerValue);
     if (sortValue) apiParams.set('sort', sortValue);
     return `/api/prop-ladders?${apiParams.toString()}`;
+  }
+
+  function renderGameSelector(payload) {
+    const options = Array.isArray(payload.gameOptions) ? payload.gameOptions : [];
+    gameInputEl.innerHTML = [
+      '<option value="">All games</option>',
+      ...options.map((option) => {
+        const value = String(option.value || '');
+        const selected = value === String(payload.selectedGame || state.game || '') ? ' selected' : '';
+        return `<option value="${escapeHtml(value)}"${selected}>${escapeHtml(option.label || value)}</option>`;
+      }),
+    ].join('');
+    gameInputEl.value = String(payload.selectedGame || state.game || '');
   }
 
   function playerInitial(name) {
@@ -201,7 +218,7 @@
       selectedPlayerEl.style.display = 'none';
       return;
     }
-    const clearHref = pageHref(state.date, state.prop, state.team, '', state.sort);
+    const clearHref = pageHref(state.date, state.prop, state.game, state.team, '', state.sort);
     selectedPlayerEl.style.display = 'block';
     selectedPlayerEl.innerHTML = `
       <div class="ladder-selected-card">
@@ -335,23 +352,25 @@
     const summary = payload.summary || {};
     dateBadgeEl.textContent = payload.date || state.date || '-';
     propBadgeEl.textContent = payload.propLabel || payload.prop || state.prop || '-';
+    renderGameSelector(payload);
     renderTeamSelector(payload);
     renderPlayerSelector(payload);
     renderSelectedPlayer(payload);
     sortInputEl.value = String(payload.selectedSort || state.sort || 'team');
+    const gameLabel = String((Array.isArray(payload.gameOptions) ? payload.gameOptions : []).find((option) => String(option.value || '') === String(payload.selectedGame || state.game || ''))?.label || '');
     const sortLabel = String((Array.isArray(payload.sortOptions) ? payload.sortOptions : []).find((option) => String(option.value || '') === String(payload.selectedSort || state.sort || 'team'))?.label || (payload.selectedSort || state.sort || 'team'));
     headerMetaEl.textContent = payload.found
       ? sourceMode === 'estimated'
-        ? `${summary.players || 0} players across ${summary.games || 0} games from reconstructed SmartSim ladders built from same-day player summary moments. Exact rung counts were not embedded for this date. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
+        ? `${summary.players || 0} players across ${summary.games || 0} games from reconstructed SmartSim ladders built from same-day player summary moments. Exact rung counts were not embedded for this date. Sorted by ${sortLabel}.${state.game ? ` Filtered to ${gameLabel || state.game}.` : ''}${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
         : sourceMode === 'market'
-        ? `${summary.players || 0} players across ${summary.games || 0} games from available market ladder rungs. Exact SmartSim distributions are not stored for this date yet. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
+        ? `${summary.players || 0} players across ${summary.games || 0} games from available market ladder rungs. Exact SmartSim distributions are not stored for this date yet. Sorted by ${sortLabel}.${state.game ? ` Filtered to ${gameLabel || state.game}.` : ''}${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
         : sourceMode === 'mixed'
-          ? `${summary.players || 0} players across ${summary.games || 0} games with a mix of exact SmartSim ladders, reconstructed SmartSim ladders, and market fallback rows where needed. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
-          : `${summary.players || 0} players across ${summary.games || 0} games from stored exact SmartSim player distributions. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
+          ? `${summary.players || 0} players across ${summary.games || 0} games with a mix of exact SmartSim ladders, reconstructed SmartSim ladders, and market fallback rows where needed. Sorted by ${sortLabel}.${state.game ? ` Filtered to ${gameLabel || state.game}.` : ''}${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
+          : `${summary.players || 0} players across ${summary.games || 0} games from stored exact SmartSim player distributions. Sorted by ${sortLabel}.${state.game ? ` Filtered to ${gameLabel || state.game}.` : ''}${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
       : 'No player prop ladder data found for this selection.';
     sourceMetaEl.textContent = `Sim dir: ${payload.sourceDir || '-'} | Market source: ${payload.marketSource || '-'} | Default daily sims: ${payload.defaultSims || '-'} | Mode: ${sourceMode} | Shape: ${payload.ladderShape || 'exact'} ladder`;
-    prevDateLinkEl.href = pageHref((payload.nav || {}).prevDate || state.date, state.prop, state.team, state.player, state.sort);
-    nextDateLinkEl.href = pageHref((payload.nav || {}).nextDate || state.date, state.prop, state.team, state.player, state.sort);
+    prevDateLinkEl.href = pageHref((payload.nav || {}).prevDate || state.date, state.prop, state.game, state.team, state.player, state.sort);
+    nextDateLinkEl.href = pageHref((payload.nav || {}).nextDate || state.date, state.prop, state.game, state.team, state.player, state.sort);
     prevDateLinkEl.style.visibility = (payload.nav || {}).prevDate ? 'visible' : 'hidden';
     nextDateLinkEl.style.visibility = (payload.nav || {}).nextDate ? 'visible' : 'hidden';
     renderSummary(payload);
@@ -371,13 +390,14 @@
   async function loadPayload() {
     dateInputEl.value = state.date;
     propInputEl.value = state.prop;
+    gameInputEl.value = state.game;
     teamInputEl.value = state.team;
     playerInputEl.value = state.player;
     sortInputEl.value = state.sort;
     gridEl.innerHTML = '<div class="cards-loading-state">Loading player prop ladders...</div>';
     summaryEl.innerHTML = '<div class="cards-loading-state">Loading ladder summary...</div>';
 
-    const response = await fetch(apiHref(state.date, state.prop, state.team, state.player, state.sort), { cache: 'no-store' });
+    const response = await fetch(apiHref(state.date, state.prop, state.game, state.team, state.player, state.sort), { cache: 'no-store' });
     const payload = await response.json();
     if (!response.ok) {
       throw new Error(payload && payload.error ? payload.error : 'Failed to load player prop ladders.');
@@ -390,10 +410,11 @@
     event.preventDefault();
     state.date = String(dateInputEl.value || getLocalDateISO());
     state.prop = String(propInputEl.value || 'pts');
+    state.game = String(gameInputEl.value || '');
     state.team = String(teamInputEl.value || '');
     state.player = String(playerInputEl.value || '');
     state.sort = String(sortInputEl.value || 'team');
-    window.history.replaceState({}, '', pageHref(state.date, state.prop, state.team, state.player, state.sort));
+    window.history.replaceState({}, '', pageHref(state.date, state.prop, state.game, state.team, state.player, state.sort));
     try {
       await loadPayload();
     } catch (error) {
@@ -407,6 +428,14 @@
   });
 
   teamInputEl.addEventListener('change', () => {
+    if (formEl.requestSubmit) {
+      formEl.requestSubmit();
+      return;
+    }
+    formEl.dispatchEvent(new Event('submit', { cancelable: true }));
+  });
+
+  gameInputEl.addEventListener('change', () => {
     if (formEl.requestSubmit) {
       formEl.requestSubmit();
       return;

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NBA Betting – Prop Ladders</title>
   <link rel="stylesheet" href="/web/styles.css?v=20260324-1" />
-  <link rel="stylesheet" href="/web/cards-parity.css?v=20260325-5" />
+  <link rel="stylesheet" href="/web/cards-parity.css?v=20260325-6" />
 </head>
 <body class="cards-app-shell ladder-body">
   <div class="ladder-shell">
@@ -43,6 +43,10 @@
           <option value="blk">Blocks</option>
           <option value="tov">Turnovers</option>
         </select>
+        <span class="cards-nav-pill is-static cards-form-pill" aria-hidden="true">Game</span>
+        <select id="propLadderGameInput" name="game" aria-label="Player ladder game selector">
+          <option value="">All games</option>
+        </select>
         <span class="cards-nav-pill is-static cards-form-pill" aria-hidden="true">Team</span>
         <select id="propLadderTeamInput" name="team" aria-label="Player ladder team selector">
           <option value="">All teams</option>
@@ -76,6 +80,6 @@
     </main>
   </div>
 
-  <script src="/web/prop-ladders.js?v=20260325-3"></script>
+  <script src="/web/prop-ladders.js?v=20260325-4"></script>
 </body>
 </html>

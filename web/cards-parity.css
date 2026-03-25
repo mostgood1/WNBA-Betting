@@ -1572,8 +1572,8 @@ body.cards-app-shell .toggle-chip input {
 .cards-empty,
 .box-empty,
 .ladder-empty {
-  padding: 16px;
-  border-radius: 18px;
+  padding: 12px 14px;
+  border-radius: 14px;
   background: rgba(14, 31, 44, 0.5);
   border: 1px dashed rgba(136, 170, 175, 0.18);
 }
@@ -1585,20 +1585,20 @@ body.cards-app-shell .toggle-chip input {
 .ladder-shell {
   width: min(1480px, calc(100vw - 32px));
   margin: 0 auto;
-  padding: 24px 0 40px;
+  padding: 18px 0 30px;
 }
 
 .ladder-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 18px;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
 .ladder-title-block {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .ladder-kicker {
@@ -1627,22 +1627,22 @@ body.cards-app-shell .toggle-chip input {
 .ladder-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .ladder-controls {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .ladder-form select,
 .ladder-form button {
-  min-height: 40px;
-  border-radius: 12px;
+  min-height: 36px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(10, 20, 34, 0.84);
   color: #f4f7fb;
-  padding: 0 12px;
+  padding: 0 10px;
   font: inherit;
 }
 
@@ -1652,45 +1652,45 @@ body.cards-app-shell .toggle-chip input {
 
 .ladder-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  margin: 16px 0 18px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 12px 0 14px;
 }
 
 .ladder-selected-player {
   display: none;
-  margin: 0 0 18px;
+  margin: 0 0 14px;
 }
 
 .ladder-selected-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
   border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 18px;
+  border-radius: 16px;
   background: linear-gradient(180deg, rgba(16, 26, 42, 0.96), rgba(10, 18, 31, 0.9));
-  padding: 14px 16px;
+  padding: 12px 14px;
 }
 
 .ladder-selected-identity {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
 }
 
 .ladder-selected-team-logo {
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   object-fit: contain;
   flex: 0 0 auto;
 }
 
 .ladder-selected-headshot {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
   object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.05);
@@ -1698,20 +1698,21 @@ body.cards-app-shell .toggle-chip input {
 }
 
 .ladder-selected-kicker {
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(230, 234, 239, 0.68);
 }
 
 .ladder-selected-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: #f6fbff;
 }
 
 .ladder-selected-meta {
   color: rgba(230, 234, 239, 0.8);
+  font-size: 13px;
 }
 
 .ladder-selected-clear,
@@ -1728,35 +1729,35 @@ body.cards-app-shell .toggle-chip input {
 
 .ladder-stat {
   border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 18px;
+  border-radius: 16px;
   background: linear-gradient(180deg, rgba(16, 26, 42, 0.96), rgba(10, 18, 31, 0.9));
-  padding: 14px 16px;
+  padding: 12px 14px;
 }
 
 .ladder-stat-label {
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(230, 234, 239, 0.68);
 }
 
 .ladder-stat-value {
-  margin-top: 6px;
-  font-size: 24px;
+  margin-top: 4px;
+  font-size: 18px;
   font-weight: 700;
   color: #f6fbff;
 }
 
 .ladder-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 12px;
 }
 
 .ladder-card {
-  padding: 16px;
+  padding: 13px;
   border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 22px;
+  border-radius: 18px;
   background: linear-gradient(180deg, rgba(17, 28, 45, 0.98), rgba(10, 18, 31, 0.94));
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
 }
@@ -1765,14 +1766,14 @@ body.cards-app-shell .toggle-chip input {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .ladder-card-identity {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
 }
 
@@ -1780,13 +1781,13 @@ body.cards-app-shell .toggle-chip input {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex: 0 0 auto;
 }
 
 .ladder-team-logo-primary {
-  width: 58px;
-  height: 58px;
+  width: 50px;
+  height: 50px;
   flex: 0 0 auto;
 }
 
@@ -1801,9 +1802,9 @@ body.cards-app-shell .toggle-chip input {
 }
 
 .ladder-player-headshot {
-  width: 58px;
-  height: 58px;
-  border-radius: 16px;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
   object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.05);
@@ -1812,32 +1813,39 @@ body.cards-app-shell .toggle-chip input {
 
 .ladder-card-title {
   margin: 0;
-  font-size: 21px;
-  line-height: 1.15;
+  font-size: 18px;
+  line-height: 1.1;
 }
 
 .ladder-card-subtitle {
-  margin-top: 6px;
+  margin-top: 3px;
+  font-size: 13px;
   color: rgba(230, 234, 239, 0.8);
+}
+
+.ladder-card-link {
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .ladder-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 14px;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 
 .ladder-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 10px;
+  gap: 5px;
+  padding: 5px 8px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.04);
   color: #f4f7fb;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.1;
 }
 
 .ladder-pill span {
@@ -1845,26 +1853,27 @@ body.cards-app-shell .toggle-chip input {
 }
 
 .ladder-pill strong {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .ladder-market-lines {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: -2px 0 14px;
+  gap: 6px;
+  margin: 0 0 10px;
 }
 
 .ladder-market-line {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  border-radius: 12px;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.03);
   color: #dbe7f3;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.1;
 }
 
 .ladder-market-line.is-active {
@@ -1891,13 +1900,14 @@ body.cards-app-shell .toggle-chip input {
 
 .ladder-table th,
 .ladder-table td {
-  padding: 10px 8px;
+  padding: 8px 6px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   text-align: left;
+  font-size: 12px;
 }
 
 .ladder-table th {
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(230, 234, 239, 0.74);
