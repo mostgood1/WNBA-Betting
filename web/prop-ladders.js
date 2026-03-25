@@ -87,11 +87,57 @@
     return `/api/prop-ladders?${apiParams.toString()}`;
   }
 
+  function playerInitial(name) {
+    const text = String(name || '').trim();
+    return escapeHtml((text.slice(0, 1) || '?').toUpperCase());
+  }
+
+  function fallbackHeadshotUrl(playerId) {
+    const numericId = Number(playerId);
+    if (!Number.isFinite(numericId) || numericId <= 0) {
+      return '';
+    }
+    return `https://a.espncdn.com/i/headshots/nba/players/full/${Math.round(numericId)}.png`;
+  }
+
+  function renderHeadshotMedia(imageUrl, playerName, playerId, imageClass, fallbackClass) {
+    const resolvedImageUrl = String(imageUrl || '').trim();
+    const fallbackUrl = fallbackHeadshotUrl(playerId);
+    const finalUrl = resolvedImageUrl || fallbackUrl;
+    if (!finalUrl) {
+      return `<div class="${fallbackClass}">${playerInitial(playerName)}</div>`;
+    }
+    const fallbackAttr = fallbackUrl && fallbackUrl !== resolvedImageUrl
+      ? ` data-fallback-src="${escapeHtml(fallbackUrl)}"`
+      : '';
+    return `
+      <span class="ladder-headshot-frame">
+        <img class="${imageClass}" src="${escapeHtml(finalUrl)}" alt="${escapeHtml(playerName || 'Player')} headshot" loading="lazy"${fallbackAttr} onerror="if(!this.dataset.fallbackApplied&&this.dataset.fallbackSrc){this.dataset.fallbackApplied='1';this.src=this.dataset.fallbackSrc;return;}this.style.display='none';var fb=this.nextElementSibling;if(fb){fb.style.display='grid';}" />
+        <span class="${fallbackClass}" style="display:none">${playerInitial(playerName)}</span>
+      </span>
+    `;
+  }
+
   function thresholdBookOdds(row, total) {
     const entries = Array.isArray(row.marketLinesByStat) ? row.marketLinesByStat : [];
-    const targetLine = Number(total) - 0.5;
-    const match = entries.find((entry) => Math.abs(Number(entry.line) - targetLine) < 0.26);
-    return match && match.overOdds != null ? formatOdds(match.overOdds) : '--';
+    const targetTotal = Number(total);
+    if (!Number.isFinite(targetTotal) || !entries.length) {
+      return '--';
+    }
+    const targetLines = [targetTotal - 0.5, targetTotal, targetTotal + 0.5];
+    const match = targetLines
+      .map((targetLine) => entries.find((entry) => Math.abs(Number(entry.line) - targetLine) < 0.26))
+      .find(Boolean);
+    if (!match) {
+      return '--';
+    }
+    if (match.overOdds != null) {
+      return `O ${formatOdds(match.overOdds)}`;
+    }
+    if (match.underOdds != null) {
+      return `U ${formatOdds(match.underOdds)}`;
+    }
+    return '--';
   }
 
   function renderMarketLineChips(row) {
@@ -161,7 +207,7 @@
       <div class="ladder-selected-card">
         <div class="ladder-selected-identity">
           ${selected.teamLogoUrl ? `<img class="ladder-selected-team-logo" src="${escapeHtml(selected.teamLogoUrl)}" alt="team logo" loading="lazy" />` : ''}
-          ${selected.headshotUrl ? `<img class="ladder-selected-headshot" src="${escapeHtml(selected.headshotUrl)}" alt="${escapeHtml(selected.playerName || selected.hitterName || currentValue)} headshot" loading="lazy" />` : ''}
+          ${renderHeadshotMedia(selected.headshotUrl, selected.playerName || selected.hitterName || currentValue, selected.playerId || selected.hitterId, 'ladder-selected-headshot', 'ladder-selected-headshot ladder-player-headshot-fallback')}
           <div>
             <div class="ladder-selected-kicker">Selected player</div>
             <div class="ladder-selected-name">${escapeHtml(selected.playerName || selected.hitterName || currentValue)}</div>
@@ -211,7 +257,9 @@
 
   function renderCard(row, payload) {
     const ladderRows = Array.isArray(row.ladder) ? row.ladder : [];
-    const isMarketFallback = String(row.sourceMode || payload.sourceMode || '').toLowerCase() === 'market';
+    const rowSourceMode = String(row.sourceMode || payload.sourceMode || '').toLowerCase();
+    const isMarketFallback = rowSourceMode === 'market';
+    const isEstimated = rowSourceMode === 'estimated' || String(row.ladderShape || '').toLowerCase() === 'estimated';
     const overLineText = row.marketLine == null || row.overLineCount == null
       ? ''
       : `<span class="ladder-pill"><span>Over ${escapeHtml(formatNumber(row.marketLine, 1))}</span><strong>${escapeHtml(formatCount(row.overLineCount))}</strong><span>${escapeHtml(formatPercent(row.overLineProb))}</span></span>`;
@@ -221,9 +269,7 @@
     const teamLogo = row.teamLogoUrl
       ? `<img class="ladder-team-logo ladder-team-logo-primary" src="${escapeHtml(row.teamLogoUrl)}" alt="${escapeHtml(row.team || 'Team')} logo" loading="lazy" />`
       : `<div class="ladder-team-logo ladder-team-logo-primary ladder-team-logo-fallback">${escapeHtml(String((row.team || '?').slice(0, 1) || '?'))}</div>`;
-    const headshot = row.headshotUrl
-      ? `<img class="ladder-player-headshot" src="${escapeHtml(row.headshotUrl)}" alt="${escapeHtml(row.playerName || 'Player')} headshot" loading="lazy" />`
-      : `<div class="ladder-player-headshot ladder-player-headshot-fallback">${escapeHtml(String((row.playerName || '?').slice(0, 1) || '?'))}</div>`;
+    const headshot = renderHeadshotMedia(row.headshotUrl, row.playerName || 'Player', row.playerId || row.hitterId, 'ladder-player-headshot', 'ladder-player-headshot ladder-player-headshot-fallback');
     const ladderTableRows = ladderRows.map((ladderRow) => `
       <tr>
         <td>${escapeHtml(formatCount(ladderRow.total))}</td>
@@ -254,11 +300,13 @@
           <span class="ladder-pill"><span>Mean</span><strong>${escapeHtml(formatNumber(row.mean, 2))}</strong></span>
           <span class="ladder-pill"><span>Mode</span><strong>${escapeHtml(row.mode == null ? '-' : formatCount(row.mode))}</strong><span>${escapeHtml(row.modeProb == null ? '-' : formatPercent(row.modeProb))}</span></span>
           <span class="ladder-pill"><span>Sim count</span><strong>${escapeHtml(formatCount(row.simCount))}</strong></span>
+          ${isEstimated ? '<span class="ladder-pill"><span>Source</span><strong>Estimated SmartSim</strong></span>' : ''}
           ${row.side ? `<span class="ladder-pill"><span>Side</span><strong>${escapeHtml(row.side)}</strong></span>` : ''}
           ${row.marketLine == null ? '' : `<span class="ladder-pill"><span>Market line</span><strong>${escapeHtml(formatNumber(row.marketLine, 1))}</strong></span>`}
           ${overLineText}
         </div>
         ${renderMarketLineChips(row)}
+        ${isEstimated ? '<div class="ladder-empty">Exact ladder counts were not embedded in the SmartSim artifact for this date. This ladder is reconstructed from the same-day SmartSim mean and variance.</div>' : ''}
         ${ladderRows.length ? `
           <div class="ladder-table-wrap">
             <table class="ladder-table">
@@ -293,10 +341,12 @@
     sortInputEl.value = String(payload.selectedSort || state.sort || 'team');
     const sortLabel = String((Array.isArray(payload.sortOptions) ? payload.sortOptions : []).find((option) => String(option.value || '') === String(payload.selectedSort || state.sort || 'team'))?.label || (payload.selectedSort || state.sort || 'team'));
     headerMetaEl.textContent = payload.found
-      ? sourceMode === 'market'
+      ? sourceMode === 'estimated'
+        ? `${summary.players || 0} players across ${summary.games || 0} games from reconstructed SmartSim ladders built from same-day player summary moments. Exact rung counts were not embedded for this date. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
+        : sourceMode === 'market'
         ? `${summary.players || 0} players across ${summary.games || 0} games from available market ladder rungs. Exact SmartSim distributions are not stored for this date yet. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
         : sourceMode === 'mixed'
-          ? `${summary.players || 0} players across ${summary.games || 0} games with exact SmartSim ladders where available and market-rung fallback elsewhere. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
+          ? `${summary.players || 0} players across ${summary.games || 0} games with a mix of exact SmartSim ladders, reconstructed SmartSim ladders, and market fallback rows where needed. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
           : `${summary.players || 0} players across ${summary.games || 0} games from stored exact SmartSim player distributions. Sorted by ${sortLabel}.${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
       : 'No player prop ladder data found for this selection.';
     sourceMetaEl.textContent = `Sim dir: ${payload.sourceDir || '-'} | Market source: ${payload.marketSource || '-'} | Default daily sims: ${payload.defaultSims || '-'} | Mode: ${sourceMode} | Shape: ${payload.ladderShape || 'exact'} ladder`;

@@ -100,7 +100,7 @@ body.cards-app-shell .site-nav__link:hover {
 }
 
 body.cards-app-shell .site-main {
-  padding: 18px 0 40px;
+  padding: 0;
 }
 
 body.cards-app-shell .control-deck,
@@ -193,7 +193,7 @@ body.cards-app-shell .toggle-chip input {
 }
 
 .cards-page-shell {
-  padding-top: 4px;
+  padding-top: 0;
 }
 
 .cards-header,
@@ -228,15 +228,15 @@ body.cards-app-shell .toggle-chip input {
 .cards-title-row h1 {
   margin: 0;
   font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
-  font-size: clamp(36px, 5vw, 58px);
+  font-size: clamp(28px, 4vw, 38px);
   line-height: 0.98;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
 }
 
 .cards-header-meta {
-  margin: 0;
+  margin: 6px 0 0;
   color: var(--cards-text-soft);
-  font-size: 15px;
+  font-size: 13px;
 }
 
 .cards-control-card {
@@ -260,69 +260,93 @@ body.cards-app-shell .toggle-chip input {
   padding: 0;
   border: 0;
   background: transparent;
-  flex: 1 1 760px;
 }
 
 .cards-date-form input,
 .cards-date-form button,
 .cards-nav-pill {
   font: inherit;
+  border: 1px solid rgba(130, 164, 169, 0.18);
 }
 
 .cards-date-form input {
-  min-width: 170px;
-  border-radius: 16px;
-  border: 1px solid rgba(136, 170, 175, 0.18);
-  background: rgba(7, 19, 29, 0.9);
+  width: 158px;
+  min-width: 158px;
+  min-height: 40px;
+  border-radius: 12px;
+  background: rgba(4, 12, 20, 0.8);
   color: var(--cards-text);
-  padding: 11px 14px;
+  padding: 0 14px;
 }
 
 .cards-nav-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 11px 16px;
+  min-height: 40px;
+  padding: 0 14px;
   border-radius: 999px;
-  border: 1px solid rgba(130, 164, 169, 0.18);
-  background: rgba(14, 31, 44, 0.82);
-  color: var(--cards-text);
+  background: rgba(4, 12, 20, 0.72);
+  color: var(--cards-text-soft);
   text-decoration: none;
   white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .cards-nav-pill.is-active {
   color: #08211d;
-  border-color: rgba(158, 243, 212, 0.5);
+  border-color: transparent;
   background: linear-gradient(135deg, var(--cards-accent), var(--cards-warm));
   font-weight: 700;
 }
 
-.cards-nav-pill.is-static {
-  color: var(--cards-text-soft);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.cards-nav-pill:hover,
+.cards-nav-pill:focus-visible {
+  border-color: rgba(154, 243, 222, 0.36);
+  color: var(--cards-text);
+}
+
+.cards-form-pill {
+  pointer-events: none;
 }
 
 .cards-nav-pill--toggle {
   gap: 8px;
   cursor: pointer;
+  padding-inline: 12px;
 }
 
 .cards-nav-pill--toggle input {
   width: 16px;
   height: 16px;
   accent-color: var(--cards-accent);
+  margin: 0;
 }
 
 .cards-source-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+  align-items: center;
   justify-content: flex-end;
-  flex: 0 1 520px;
+  flex: 1 1 320px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cards-text-soft);
+  font-size: 12.5px;
+}
+
+.cards-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: 12px;
 }
 
 .cards-source-meta-pill.is-accent {
@@ -346,8 +370,9 @@ body.cards-app-shell .toggle-chip input {
 .cards-shell {
   display: grid;
   gap: 18px;
-  width: min(100%, 1320px);
+  width: min(1500px, calc(100vw - 24px));
   margin: 0 auto;
+  padding: 28px 0 44px;
   min-width: 0;
 }
 
@@ -492,7 +517,8 @@ body.cards-app-shell .toggle-chip input {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 10px;
+  min-height: 30px;
+  padding: 0 12px;
   border-radius: 999px;
   border: 1px solid rgba(136, 170, 175, 0.16);
   background: rgba(14, 31, 44, 0.74);
@@ -535,8 +561,7 @@ body.cards-app-shell .toggle-chip input {
 }
 
 .cards-filters {
-  margin-top: 14px;
-  margin-bottom: 2px;
+  margin: 0;
 }
 
 .cards-grid {
@@ -1431,11 +1456,14 @@ body.cards-app-shell .toggle-chip input {
 
 .cards-filter-pill {
   border: 1px solid var(--cards-border);
-  background: rgba(8, 18, 30, 0.78);
+  background: rgba(8, 18, 30, 0.82);
   color: var(--cards-text-soft);
   cursor: pointer;
   border-radius: 999px;
-  padding: 8px 12px;
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .cards-filter-pill.is-active {
@@ -1677,8 +1705,7 @@ body.cards-app-shell .toggle-chip input {
 }
 
 .ladder-selected-name {
-  font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
   color: #f6fbff;
 }
@@ -1689,9 +1716,14 @@ body.cards-app-shell .toggle-chip input {
 
 .ladder-selected-clear,
 .ladder-card-link {
-  color: #a7f3c6;
+  color: #9ed0ff;
   text-decoration: none;
-  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ladder-selected-clear:hover,
+.ladder-card-link:hover {
+  text-decoration: underline;
 }
 
 .ladder-stat {
@@ -1780,73 +1812,72 @@ body.cards-app-shell .toggle-chip input {
 
 .ladder-card-title {
   margin: 0;
-  font-size: 24px;
-  line-height: 1.05;
+  font-size: 21px;
+  line-height: 1.15;
 }
 
 .ladder-card-subtitle {
   margin-top: 6px;
-  color: rgba(230, 234, 239, 0.78);
+  color: rgba(230, 234, 239, 0.8);
 }
 
 .ladder-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .ladder-pill {
   display: inline-flex;
-  flex-direction: column;
-  gap: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  background: rgba(12, 20, 34, 0.82);
-  padding: 10px 12px;
-  min-width: 98px;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f4f7fb;
+  font-size: 12px;
 }
 
 .ladder-pill span {
-  color: rgba(230, 234, 239, 0.68);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  color: rgba(230, 234, 239, 0.72);
 }
 
 .ladder-pill strong {
-  color: #f6fbff;
-  font-size: 18px;
+  font-size: 13px;
 }
 
 .ladder-market-lines {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 12px;
+  margin: -2px 0 14px;
 }
 
 .ladder-market-line {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(9, 17, 30, 0.78);
+  padding: 7px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: #dbe7f3;
+  font-size: 12px;
 }
 
 .ladder-market-line.is-active {
-  border-color: rgba(158, 243, 212, 0.42);
-  background: rgba(19, 46, 38, 0.88);
+  border-color: rgba(158, 208, 255, 0.48);
+  background: rgba(158, 208, 255, 0.09);
 }
 
-.ladder-market-line-label,
-.ladder-market-line-odds {
+.ladder-market-line-label {
   color: rgba(230, 234, 239, 0.72);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+}
+
+.ladder-market-line-odds {
+  color: rgba(158, 208, 255, 0.9);
 }
 
 .ladder-table-wrap {
@@ -1874,10 +1905,6 @@ body.cards-app-shell .toggle-chip input {
 
 .ladder-table tr:last-child td {
   border-bottom: none;
-}
-
-.hide-odds [data-odds-only="true"] {
-  display: none !important;
 }
 
 @media (max-width: 1024px) {
@@ -1908,6 +1935,10 @@ body.cards-app-shell .toggle-chip input {
   .cards-date-form,
   .cards-source-meta {
     flex: 1 1 100%;
+  }
+
+  .cards-toolbar {
+    justify-content: flex-start;
   }
 
   .cards-source-meta {
@@ -1944,6 +1975,7 @@ body.cards-app-shell .toggle-chip input {
   .cards-control-card,
   .cards-date-form,
   .cards-source-meta,
+  .cards-toolbar,
   .cards-filters,
   .cards-strip-head,
   .cards-head-left,
@@ -1993,7 +2025,7 @@ body.cards-app-shell .toggle-chip input {
   }
 
   .cards-nav-pill {
-    min-height: 44px;
+    min-height: 40px;
     padding-inline: 12px;
     flex: 1 1 calc(50% - 8px);
     min-width: 0;
@@ -2001,7 +2033,7 @@ body.cards-app-shell .toggle-chip input {
     text-align: center;
   }
 
-  .cards-nav-pill.is-static {
+  .cards-form-pill {
     flex: 1 1 100%;
   }
 
@@ -2126,16 +2158,13 @@ body.cards-app-shell .toggle-chip input {
 
 @media (max-width: 540px) {
   body.cards-app-shell .site-main {
-    padding: 14px 0 28px;
-  }
-
-  body.cards-app-shell .container {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding: 0;
   }
 
   .cards-shell {
+    width: min(100vw - 16px, 1500px);
     gap: 14px;
+    padding: 18px 0 28px;
   }
 
   .cards-control-card,

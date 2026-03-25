@@ -25055,7 +25055,7 @@ def api_props_recommendations():
         except Exception:
             _sim_ladder_lookup = {}
 
-            def _build_card_sim_ladders(player_name: Any, team_name: Any, plays: list[dict[str, Any]], lookup: dict[tuple[str, str], dict[str, Any]]) -> list[dict[str, Any]]:
+            def _build_card_sim_ladders(player_name: Any, team_name: Any, plays: list[dict[str, Any]], market_ladders: list[dict[str, Any]], lookup: dict[tuple[str, str], dict[str, Any]]) -> list[dict[str, Any]]:
                 return []
 
         try:
@@ -26014,7 +26014,7 @@ def api_props_recommendations():
                         best_edge = float(edges.abs().max())
                 except Exception:
                     pass
-                sim_ladders = _build_card_sim_ladders(player, team, plays, _sim_ladder_lookup)
+                sim_ladders = _build_card_sim_ladders(player, team, plays, ladders, _sim_ladder_lookup)
                 cards.append({
                     "player": player,
                     "player_id": pid,
@@ -26088,7 +26088,7 @@ def api_props_recommendations():
                     if "ladders" not in c2:
                         c2["ladders"] = []
                     if "sim_ladders" not in c2:
-                        c2["sim_ladders"] = _build_card_sim_ladders(c2.get("player"), c2.get("team"), c2.get("plays") or [], _sim_ladder_lookup)
+                        c2["sim_ladders"] = _build_card_sim_ladders(c2.get("player"), c2.get("team"), c2.get("plays") or [], c2.get("ladders") or [], _sim_ladder_lookup)
                     cards.append(c2)
         except Exception:
             pass
@@ -27825,7 +27825,467 @@ def _prop_ladder_sort_key(value: object) -> tuple[int, float]:
     return (0, float(num))
 
 
+def _prop_ladder_team_logo_url(team_tri: object) -> str | None:
+    team_key = str(team_tri or "").strip().upper()
+    if not team_key:
+        return None
+    try:
+        team_id = _get_team_id(team_key)
+    except Exception:
+        team_id = None
+    if team_id:
+        return f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
+    return f"/web/assets/logos/{team_key}.svg"
+
+
+def _build_prop_ladder_market_lines_from_options(
+    market_key: str,
+    grouped_options: object,
+    primary_line: object,
+) -> list[dict[str, Any]]:
+    if not isinstance(grouped_options, list):
+        return []
+
+    primary_line_num = _coerce_prop_ladder_float(primary_line)
+    merged_by_line: dict[float, dict[str, Any]] = {}
+    for option in grouped_options:
+        if not isinstance(option, dict):
+            continue
+        line_num = _coerce_prop_ladder_float(option.get("line"))
+        if line_num is None:
+            continue
+        side = str(option.get("side") or "").strip().upper()
+        if side not in {"OVER", "UNDER"}:
+            continue
+        row = merged_by_line.setdefault(
+            float(line_num),
+            {
+                "stat": market_key,
+                "line": float(line_num),
+                "label": f"{_prop_ladder_market_label(market_key)} {float(line_num):.1f}",
+                "overOdds": None,
+                "underOdds": None,
+                "overProb": None,
+                "underProb": None,
+                "overEvPct": None,
+                "underEvPct": None,
+            },
+        )
+        best_price = _coerce_prop_ladder_float(option.get("best_price"))
+        if best_price is None:
+            best_price = _coerce_prop_ladder_float(option.get("price"))
+        ev_pct = _coerce_prop_ladder_float(option.get("recommendation_ev_pct"))
+        if ev_pct is None:
+            ev_pct = _coerce_prop_ladder_float(option.get("ev_pct"))
+        side_prefix = side.lower()
+        prev_ev = _coerce_prop_ladder_float(row.get(f"{side_prefix}EvPct"))
+        prev_odds = _coerce_prop_ladder_float(row.get(f"{side_prefix}Odds"))
+        should_replace = prev_odds is None or (ev_pct is not None and (prev_ev is None or ev_pct >= prev_ev))
+        if should_replace:
+            row[f"{side_prefix}Odds"] = best_price
+            row[f"{side_prefix}EvPct"] = ev_pct
+
+    entries = list(merged_by_line.values())
+
+    def _priority(entry: dict[str, Any]) -> tuple[int, float, float]:
+        line_num = _coerce_prop_ladder_float(entry.get("line"))
+        if primary_line_num is None or line_num is None:
+            return (1, abs(float(line_num or 0.0)), float(line_num or 0.0))
+        return (0, abs(float(line_num) - float(primary_line_num)), float(line_num))
+
+    entries.sort(key=_priority)
+    normalized_entries: list[dict[str, Any]] = []
+    for idx, entry in enumerate(entries[:12]):
+        normalized = dict(entry)
+        normalized["isPrimary"] = idx == 0 if primary_line_num is None else abs(float(normalized.get("line") or 0.0) - float(primary_line_num)) < 0.001
+        normalized_entries.append(normalized)
+    return normalized_entries
+
+
+def _compute_prop_ladder_over_line_stats(
+    ladder_rows: object,
+    market_line: object,
+) -> tuple[int | None, float | None]:
+    if not isinstance(ladder_rows, list):
+        return (None, None)
+    line_num = _coerce_prop_ladder_float(market_line)
+    if line_num is None:
+        return (None, None)
+    threshold_total = int(math.floor(float(line_num)) + 1)
+    for ladder_row in ladder_rows:
+        if not isinstance(ladder_row, dict):
+            continue
+        total_num = _coerce_prop_ladder_float(ladder_row.get("total"))
+        if total_num is None:
+            continue
+        if int(total_num) >= threshold_total:
+            hit_count = ladder_row.get("hitCount")
+            hit_prob = _coerce_prop_ladder_float(ladder_row.get("hitProb"))
+            try:
+                return (int(hit_count) if hit_count is not None else None, hit_prob)
+            except Exception:
+                return (None, hit_prob)
+    return (None, None)
+
+
+def _build_active_prop_ladder_market_from_player_row(
+    player_row: dict[str, Any],
+    market_key: str,
+    opponent: object,
+    market_line: object,
+    market_lines: list[dict[str, Any]],
+    sim_count_hint: object,
+) -> tuple[dict[str, Any] | None, str | None]:
+    market_line_num = _coerce_prop_ladder_float(market_line)
+
+    exact_payload = None
+    raw_prop_ladders = player_row.get("prop_ladders") if isinstance(player_row.get("prop_ladders"), dict) else {}
+    if isinstance(raw_prop_ladders.get(market_key), dict):
+        exact_payload = raw_prop_ladders.get(market_key)
+
+    if isinstance(exact_payload, dict):
+        ladder_rows = exact_payload.get("ladder") if isinstance(exact_payload.get("ladder"), list) else []
+        if ladder_rows:
+            over_line_count, over_line_prob = _compute_prop_ladder_over_line_stats(ladder_rows, market_line_num)
+            return (
+                {
+                    "opponent": opponent,
+                    "game_id": None,
+                    "marketLine": market_line_num,
+                    "marketLinesByStat": market_lines,
+                    "mean": _coerce_prop_ladder_float(exact_payload.get("mean")),
+                    "mode": exact_payload.get("mode"),
+                    "modeProb": _coerce_prop_ladder_float(exact_payload.get("modeProb")),
+                    "simCount": int(exact_payload.get("simCount") or 0) if exact_payload.get("simCount") is not None else 0,
+                    "minTotal": exact_payload.get("minTotal"),
+                    "maxTotal": exact_payload.get("maxTotal"),
+                    "overLineCount": over_line_count,
+                    "overLineProb": over_line_prob,
+                    "ladder": ladder_rows,
+                    "ladderShape": str(exact_payload.get("ladderShape") or "exact"),
+                    "sourceFile": None,
+                    "side": None,
+                },
+                "exact",
+            )
+
+    rebuilt_payload = None
+    raw_distributions = player_row.get("prop_distributions") if isinstance(player_row.get("prop_distributions"), dict) else {}
+    raw_distribution_payload = raw_distributions.get(market_key) if isinstance(raw_distributions.get(market_key), dict) else None
+    if isinstance(raw_distribution_payload, dict):
+        try:
+            from nba_betting.prop_ladders import build_exact_ladder_payload_from_distribution as _build_exact_ladder_payload_from_distribution  # type: ignore
+
+            rebuilt_payload = _build_exact_ladder_payload_from_distribution(
+                raw_distribution_payload.get("distribution"),
+                mean_value=raw_distribution_payload.get("mean"),
+            )
+        except Exception:
+            rebuilt_payload = None
+    if isinstance(rebuilt_payload, dict):
+        ladder_rows = rebuilt_payload.get("ladder") if isinstance(rebuilt_payload.get("ladder"), list) else []
+        if ladder_rows:
+            over_line_count, over_line_prob = _compute_prop_ladder_over_line_stats(ladder_rows, market_line_num)
+            return (
+                {
+                    "opponent": opponent,
+                    "game_id": None,
+                    "marketLine": market_line_num,
+                    "marketLinesByStat": market_lines,
+                    "mean": _coerce_prop_ladder_float(rebuilt_payload.get("mean")),
+                    "mode": rebuilt_payload.get("mode"),
+                    "modeProb": _coerce_prop_ladder_float(rebuilt_payload.get("modeProb")),
+                    "simCount": int(rebuilt_payload.get("simCount") or 0) if rebuilt_payload.get("simCount") is not None else 0,
+                    "minTotal": rebuilt_payload.get("minTotal"),
+                    "maxTotal": rebuilt_payload.get("maxTotal"),
+                    "overLineCount": over_line_count,
+                    "overLineProb": over_line_prob,
+                    "ladder": ladder_rows,
+                    "ladderShape": str(rebuilt_payload.get("ladderShape") or "exact"),
+                    "sourceFile": None,
+                    "side": None,
+                },
+                "exact",
+            )
+
+    estimated_payload = None
+    try:
+        from nba_betting.prop_ladders import build_summary_estimated_ladder_payload as _build_summary_estimated_ladder_payload  # type: ignore
+
+        estimated_payload = _build_summary_estimated_ladder_payload(
+            player_row.get(f"{market_key}_mean"),
+            player_row.get(f"{market_key}_sd"),
+            sim_count=sim_count_hint,
+            quantiles=player_row.get(f"{market_key}_q") if isinstance(player_row.get(f"{market_key}_q"), dict) else None,
+        )
+    except Exception:
+        estimated_payload = None
+    if isinstance(estimated_payload, dict):
+        ladder_rows = estimated_payload.get("ladder") if isinstance(estimated_payload.get("ladder"), list) else []
+        if ladder_rows:
+            over_line_count, over_line_prob = _compute_prop_ladder_over_line_stats(ladder_rows, market_line_num)
+            return (
+                {
+                    "opponent": opponent,
+                    "game_id": None,
+                    "marketLine": market_line_num,
+                    "marketLinesByStat": market_lines,
+                    "mean": _coerce_prop_ladder_float(estimated_payload.get("mean")),
+                    "mode": estimated_payload.get("mode"),
+                    "modeProb": _coerce_prop_ladder_float(estimated_payload.get("modeProb")),
+                    "simCount": int(estimated_payload.get("simCount") or 0) if estimated_payload.get("simCount") is not None else 0,
+                    "minTotal": estimated_payload.get("minTotal"),
+                    "maxTotal": estimated_payload.get("maxTotal"),
+                    "overLineCount": over_line_count,
+                    "overLineProb": over_line_prob,
+                    "ladder": ladder_rows,
+                    "ladderShape": str(estimated_payload.get("ladderShape") or "estimated"),
+                    "sourceFile": None,
+                    "side": None,
+                },
+                "estimated",
+            )
+
+    if market_lines:
+        return (
+            {
+                "opponent": opponent,
+                "game_id": None,
+                "marketLine": market_line_num,
+                "marketLinesByStat": market_lines,
+                "mean": _coerce_prop_ladder_float(player_row.get(f"{market_key}_mean")),
+                "mode": None,
+                "modeProb": None,
+                "simCount": int(sim_count_hint or 0) if sim_count_hint is not None else 0,
+                "minTotal": None,
+                "maxTotal": None,
+                "overLineCount": None,
+                "overLineProb": None,
+                "ladder": [],
+                "ladderShape": "market",
+                "sourceFile": None,
+                "side": None,
+            },
+            "market",
+        )
+
+    return (None, None)
+
+
+def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_str: str) -> dict[str, Any]:
+    games = base_payload.get("games") if isinstance(base_payload, dict) else None
+    if not isinstance(games, list):
+        games = []
+
+    market_filter = _normalize_prop_ladder_market(request.args.get("market") or "pts")
+    team_filter = (_get_tricode(str(request.args.get("team") or "")) or str(request.args.get("team") or "").strip().upper()) if request.args.get("team") else ""
+    player_filter = str(request.args.get("player") or "").strip()
+    sort_filter = str(request.args.get("sort") or "team").strip().lower()
+    if sort_filter not in {"team", "prob", "mean"}:
+        sort_filter = "team"
+
+    rows: list[dict[str, Any]] = []
+    team_options: dict[str, dict[str, Any]] = {}
+    player_options: dict[str, dict[str, Any]] = {}
+    sim_counts_seen: set[int] = set()
+    game_keys: set[tuple[str, str]] = set()
+    note = None
+    exact_rows = 0
+    estimated_rows = 0
+    market_fallback_rows = 0
+
+    for game in games:
+        if not isinstance(game, dict):
+            continue
+        home_tri = str(game.get("home_tri") or "").strip().upper()
+        away_tri = str(game.get("away_tri") or "").strip().upper()
+        sim = game.get("sim") if isinstance(game.get("sim"), dict) else {}
+        sim_players = sim.get("players") if isinstance(sim.get("players"), dict) else {}
+        missing_players = sim.get("missing_prop_players") if isinstance(sim.get("missing_prop_players"), dict) else {}
+        sim_count_hint = sim.get("n_sims")
+
+        for side in ("home", "away"):
+            team_tri = home_tri if side == "home" else away_tri
+            opponent_tri = away_tri if side == "home" else home_tri
+            team_logo = _prop_ladder_team_logo_url(team_tri)
+            combined_rows = []
+            team_rows = sim_players.get(side) if isinstance(sim_players.get(side), list) else []
+            missing_rows = missing_players.get(side) if isinstance(missing_players.get(side), list) else []
+            combined_rows.extend(team_rows)
+            combined_rows.extend(missing_rows)
+
+            for player_row in combined_rows:
+                if not isinstance(player_row, dict):
+                    continue
+                player_name = str(player_row.get("player_name") or "").strip()
+                if not player_name or not team_tri:
+                    continue
+                if team_filter and team_tri != team_filter:
+                    continue
+                if player_filter and player_filter.lower() not in player_name.lower():
+                    continue
+
+                prop_lines = player_row.get("prop_lines") if isinstance(player_row.get("prop_lines"), dict) else {}
+                market_line = _coerce_prop_ladder_float(prop_lines.get(market_filter))
+                prop_line_options = player_row.get("prop_line_options") if isinstance(player_row.get("prop_line_options"), dict) else {}
+                market_lines = _build_prop_ladder_market_lines_from_options(
+                    market_filter,
+                    prop_line_options.get(market_filter),
+                    market_line,
+                )
+                active_market, source_mode = _build_active_prop_ladder_market_from_player_row(
+                    player_row,
+                    market_filter,
+                    opponent_tri,
+                    market_line,
+                    market_lines,
+                    sim_count_hint,
+                )
+                if not isinstance(active_market, dict):
+                    continue
+
+                ladder_rows = active_market.get("ladder") if isinstance(active_market.get("ladder"), list) else []
+                player_id = player_row.get("player_id")
+                headshot_url = _best_player_headshot_url(
+                    photo=player_row.get("photo"),
+                    nba_player_id=player_id,
+                    source_player_id=player_id,
+                )
+                row_sim_count = int(active_market.get("simCount") or 0) if active_market.get("simCount") is not None else 0
+
+                rows.append(
+                    {
+                        "gameId": game.get("game_id") or sim.get("game_id"),
+                        "playerId": player_id,
+                        "hitterId": player_id,
+                        "playerName": player_name,
+                        "hitterName": player_name,
+                        "headshotUrl": headshot_url,
+                        "team": team_tri,
+                        "teamLogoUrl": team_logo,
+                        "opponent": opponent_tri,
+                        "matchup": f"{team_tri} vs {opponent_tri}" if opponent_tri else str(team_tri),
+                        "mean": _coerce_prop_ladder_float(active_market.get("mean")),
+                        "mode": active_market.get("mode"),
+                        "modeProb": _coerce_prop_ladder_float(active_market.get("modeProb")),
+                        "simCount": row_sim_count,
+                        "minTotal": active_market.get("minTotal"),
+                        "maxTotal": active_market.get("maxTotal"),
+                        "marketLine": _coerce_prop_ladder_float(active_market.get("marketLine")),
+                        "marketLinesByStat": active_market.get("marketLinesByStat") if isinstance(active_market.get("marketLinesByStat"), list) else [],
+                        "overLineCount": active_market.get("overLineCount"),
+                        "overLineProb": _coerce_prop_ladder_float(active_market.get("overLineProb")),
+                        "ladder": ladder_rows,
+                        "ladderShape": str(active_market.get("ladderShape") or "exact"),
+                        "sourceFile": active_market.get("sourceFile"),
+                        "sourceMode": source_mode,
+                        "side": str(active_market.get("side") or "").strip().upper() or None,
+                    }
+                )
+
+                if source_mode == "market":
+                    market_fallback_rows += 1
+                elif source_mode == "estimated":
+                    estimated_rows += 1
+                else:
+                    exact_rows += 1
+
+                team_options[team_tri] = {"value": team_tri, "label": team_tri}
+                player_options[player_name] = {
+                    "value": player_name,
+                    "label": f"{player_name} ({team_tri})",
+                    "hitterName": player_name,
+                    "playerName": player_name,
+                    "headshotUrl": headshot_url,
+                    "teamLogoUrl": team_logo,
+                    "team": team_tri,
+                }
+                if row_sim_count > 0:
+                    sim_counts_seen.add(int(row_sim_count))
+                if team_tri and opponent_tri:
+                    game_keys.add(tuple(sorted([team_tri, opponent_tri])))
+
+    if not exact_rows and estimated_rows:
+        note = "Exact SmartSim ladder counts were not embedded for this date; showing reconstructed SmartSim ladders from same-day player means and variance instead."
+    elif not exact_rows and not estimated_rows and market_fallback_rows:
+        note = "Stored SmartSim player ladders were not found for this date yet; showing available market ladder rungs instead."
+    elif not rows and games:
+        note = "No player prop ladders were available for this slate."
+
+    if sort_filter == "prob":
+        rows.sort(key=lambda row: (_coerce_prop_ladder_float(row.get("overLineProb")) or -1.0, str(row.get("playerName") or "")), reverse=True)
+    elif sort_filter == "mean":
+        rows.sort(key=lambda row: (_coerce_prop_ladder_float(row.get("mean")) or -1e9, str(row.get("playerName") or "")), reverse=True)
+    else:
+        rows.sort(key=lambda row: (str(row.get("team") or ""), str(row.get("playerName") or "")))
+
+    try:
+        current_date = pd.to_datetime(date_str).date()
+        prev_date = (current_date - pd.Timedelta(days=1)).isoformat()
+        next_date = (current_date + pd.Timedelta(days=1)).isoformat()
+    except Exception:
+        prev_date = None
+        next_date = None
+
+    return {
+        "found": bool(rows),
+        "date": date_str,
+        "prop": market_filter,
+        "propLabel": _prop_ladder_market_label(market_filter),
+        "selectedTeam": team_filter or "",
+        "selectedPlayer": player_filter,
+        "selectedSort": sort_filter,
+        "teamOptions": [team_options[key] for key in sorted(team_options)],
+        "playerOptions": [player_options[key] for key in sorted(player_options)],
+        "sortOptions": [
+            {"value": "team", "label": "Team"},
+            {"value": "prob", "label": "Over-line hit %"},
+            {"value": "mean", "label": "Mean"},
+        ],
+        "ladderShape": (
+            "estimated"
+            if rows and estimated_rows and estimated_rows == len(rows)
+            else "market"
+            if rows and market_fallback_rows and market_fallback_rows == len(rows)
+            else "mixed"
+            if rows and (estimated_rows or market_fallback_rows) and exact_rows != len(rows)
+            else "exact"
+        ),
+        "summary": {
+            "games": int(len(game_keys)),
+            "players": int(len(rows)),
+            "availableTeams": int(len(team_options)),
+            "availablePlayers": int(len(player_options)),
+            "simCounts": sorted(sim_counts_seen),
+            "exactPlayers": int(exact_rows),
+            "estimatedPlayers": int(estimated_rows),
+            "marketFallbackPlayers": int(market_fallback_rows),
+        },
+        "nav": {
+            "prevDate": prev_date,
+            "nextDate": next_date,
+        },
+        "sourceDir": str(DATA_PROCESSED_DIR),
+        "marketSource": "api/cards smart sim + prop sources",
+        "defaultSims": sorted(sim_counts_seen)[0] if sim_counts_seen else None,
+        "rows": rows,
+        "note": note,
+        "sourceMode": (
+            "estimated"
+            if rows and estimated_rows and estimated_rows == len(rows)
+            else "market"
+            if rows and market_fallback_rows and market_fallback_rows == len(rows)
+            else "mixed"
+            if rows and (market_fallback_rows or estimated_rows) and exact_rows != len(rows)
+            else "exact"
+        ),
+    }
+
+
 def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> dict[str, Any]:
+    if isinstance(base_payload, dict) and isinstance(base_payload.get("games"), list):
+        return _build_prop_ladders_payload_from_games(base_payload, date_str)
+
     cards = base_payload.get("data") if isinstance(base_payload, dict) else None
     if not isinstance(cards, list):
         cards = []
@@ -27844,8 +28304,13 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
     game_keys: set[tuple[str, str]] = set()
     note = None
     cards_with_sim_ladders = 0
+    cards_with_exact_ladders = 0
+    cards_with_estimated_ladders = 0
     cards_with_market_ladders = 0
     market_fallback_rows = 0
+    exact_rows = 0
+    estimated_rows = 0
+    market_rows = 0
 
     for card in cards:
         if not isinstance(card, dict):
@@ -27865,6 +28330,15 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
         market_ladders = card.get("ladders") if isinstance(card.get("ladders"), list) else []
         if sim_ladders:
             cards_with_sim_ladders += 1
+            ladder_shapes = {
+                str(ladder.get("ladderShape") or "exact").strip().lower()
+                for ladder in sim_ladders
+                if isinstance(ladder, dict)
+            }
+            if "estimated" in ladder_shapes or "approx" in ladder_shapes:
+                cards_with_estimated_ladders += 1
+            else:
+                cards_with_exact_ladders += 1
         if market_ladders:
             cards_with_market_ladders += 1
         active_market = next(
@@ -27876,7 +28350,7 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
             None,
         )
         ladder_rows = active_market.get("ladder") if isinstance(active_market, dict) and isinstance(active_market.get("ladder"), list) else []
-        source_mode = "sim"
+        source_mode = "exact"
         if not isinstance(active_market, dict):
             matching_market_ladders = [
                 ladder
@@ -27962,6 +28436,10 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
             market_fallback_rows += 1
         elif not ladder_rows:
             continue
+        else:
+            ladder_shape = str(active_market.get("ladderShape") or "exact").strip().lower()
+            if ladder_shape in {"estimated", "approx"}:
+                source_mode = "estimated"
 
         team_logo = card.get("team_logo")
         opponent = active_market.get("opponent") or card.get("opponent")
@@ -28000,6 +28478,12 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
                 "side": str(active_market.get("side") or "").strip().upper() or None,
             }
         )
+        if source_mode == "market":
+            market_rows += 1
+        elif source_mode == "estimated":
+            estimated_rows += 1
+        else:
+            exact_rows += 1
         team_options[str(team_tricode).upper()] = {
             "value": str(team_tricode).upper(),
             "label": str(team_tricode).upper(),
@@ -28018,7 +28502,9 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
         if opponent:
             game_keys.add(tuple(sorted([str(team_tricode), str(opponent)])))
 
-    if not cards_with_sim_ladders and cards_with_market_ladders:
+    if not cards_with_exact_ladders and cards_with_estimated_ladders:
+        note = "Exact SmartSim ladder counts were not embedded for this date; showing reconstructed SmartSim ladders from same-day player means and variance instead."
+    elif not cards_with_sim_ladders and cards_with_market_ladders:
         note = "Stored exact SmartSim player ladders were not found for this date yet; showing current market ladder rungs instead."
     elif not cards_with_sim_ladders and cards:
         note = "No stored SmartSim player ladders were found for this date yet."
@@ -28053,13 +28539,23 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
             {"value": "prob", "label": "Over-line hit %"},
             {"value": "mean", "label": "Mean"},
         ],
-        "ladderShape": "exact",
+        "ladderShape": (
+            "estimated"
+            if rows and estimated_rows and estimated_rows == len(rows)
+            else "market"
+            if rows and market_rows and market_rows == len(rows)
+            else "mixed"
+            if rows and (estimated_rows or market_rows) and exact_rows != len(rows)
+            else "exact"
+        ),
         "summary": {
             "games": int(len(game_keys)),
             "players": int(len(rows)),
             "availableTeams": int(len(team_options)),
             "availablePlayers": int(len(player_options)),
             "simCounts": sorted(sim_counts_seen),
+            "exactPlayers": int(exact_rows),
+            "estimatedPlayers": int(estimated_rows),
             "marketFallbackPlayers": int(market_fallback_rows),
         },
         "nav": {
@@ -28072,10 +28568,13 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
         "rows": rows,
         "note": note,
         "sourceMode": (
+            "estimated"
+            if rows and estimated_rows and estimated_rows == len(rows)
+            else
             "market"
             if rows and market_fallback_rows and market_fallback_rows == len(rows)
             else "mixed"
-            if rows and market_fallback_rows
+            if rows and (market_fallback_rows or estimated_rows) and exact_rows != len(rows)
             else "exact"
         ),
     }
@@ -28087,7 +28586,7 @@ def api_prop_ladders():
     if not d:
         return jsonify({"error": "missing date"}), 400
     try:
-        base_response = api_props_recommendations()
+        base_response = api_cards()
         if isinstance(base_response, tuple):
             response_obj = base_response[0]
             status_code = int(base_response[1]) if len(base_response) > 1 else 200
@@ -28095,17 +28594,10 @@ def api_prop_ladders():
             response_obj = base_response
             status_code = 200
         payload = response_obj.get_json(silent=True) if hasattr(response_obj, "get_json") else None
-        if status_code == 404:
-            empty_payload = _build_prop_ladders_payload({"data": []}, d)
-            if isinstance(payload, dict):
-                note = str(payload.get("error") or payload.get("note") or "").strip()
-                if note:
-                    empty_payload["note"] = note
-            return jsonify(_to_jsonable(empty_payload))
         if status_code >= 400:
-            return jsonify(payload or {"error": "failed to load props recommendations"}), status_code
+            return jsonify(payload or {"error": "failed to load cards payload"}), status_code
         if not isinstance(payload, dict):
-            return jsonify({"error": "invalid props recommendations payload"}), 500
+            return jsonify({"error": "invalid cards payload"}), 500
         return jsonify(_to_jsonable(_build_prop_ladders_payload(payload, d)))
     except Exception as e:
         return jsonify({"error": str(e)}), 500

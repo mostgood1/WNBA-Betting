@@ -15,8 +15,6 @@
   const sourceMeta = document.getElementById('cardsSourceMeta');
   const filtersEl = document.getElementById('cardsFilters');
   const propsStripEl = document.getElementById('cardsPropsStrip');
-  const resultsToggle = document.getElementById('resultsToggle');
-  const hideOddsToggle = document.getElementById('hideOdds');
   const note = document.getElementById('note');
   const pollIntervalMs = 30000;
 
@@ -24,12 +22,10 @@
     activeTabs: new Map(),
     date: '',
     filter: 'all',
-    hideOdds: false,
     payload: null,
     pollHandle: null,
     propDetails: new Map(),
     propsStripPayload: null,
-    showResults: false,
   };
 
   function getLocalDateISO() {
@@ -813,21 +809,11 @@
   function renderBoxTableRows(players) {
     const sorted = [...safeArray(players)].sort((a, b) => Number(b.min_mean || 0) - Number(a.min_mean || 0));
     return sorted.map((player) => {
-      const actual = player.actual_props || {};
-      const actualBits = state.showResults
-        ? [
-            Number.isFinite(Number(actual.pts)) ? `PTS ${fmtInteger(actual.pts)}` : '',
-            Number.isFinite(Number(actual.reb)) ? `REB ${fmtInteger(actual.reb)}` : '',
-            Number.isFinite(Number(actual.ast)) ? `AST ${fmtInteger(actual.ast)}` : '',
-            Number.isFinite(Number(actual.pra)) ? `PRA ${fmtInteger(actual.pra)}` : '',
-          ].filter(Boolean).join(' · ')
-        : '';
       return `
         <tr>
           <td>
             <div class="box-player-cell">
               <strong>${escapeHtml(player.player_name || 'Player')}</strong>
-              ${actualBits ? `<span class="box-player-actual">Actual ${escapeHtml(actualBits)}</span>` : ''}
             </div>
           </td>
           <td>${fmtNumber(player.min_mean, 1)}</td>
@@ -1209,7 +1195,6 @@
     const games = safeArray(state.payload?.games);
     const filteredGames = games.filter((game) => matchesFilter(game, state.filter));
     root.classList.add('parity-root');
-    root.classList.toggle('hide-odds', state.hideOdds);
     if (!games.length) {
       root.innerHTML = '<div class="cards-empty">No game cards available for this date.</div>';
       return;
@@ -1258,8 +1243,6 @@
 
   function syncFromControls() {
     state.date = datePicker?.value || getLocalDateISO();
-    state.showResults = Boolean(resultsToggle?.checked);
-    state.hideOdds = Boolean(hideOddsToggle?.checked);
   }
 
   function applyAndLoad() {
@@ -1364,14 +1347,6 @@
       datePicker.value = today;
     }
     applyAndLoad();
-  });
-  resultsToggle?.addEventListener('change', () => {
-    syncFromControls();
-    renderBoard();
-  });
-  hideOddsToggle?.addEventListener('change', () => {
-    syncFromControls();
-    renderBoard();
   });
 
   const initialDate = new URLSearchParams(window.location.search).get('date') || getLocalDateISO();

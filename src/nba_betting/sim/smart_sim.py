@@ -3963,15 +3963,38 @@ def simulate_smart_game(
             row["pra_q"] = _quantiles(pra)
             try:
                 prop_ladders: Dict[str, Any] = {}
+                prop_distributions: Dict[str, Any] = {}
                 for stat_name, arr in stat_arrays.items():
                     payload = build_exact_ladder_payload(arr)
                     if payload:
                         prop_ladders[stat_name] = payload
+                        prop_distributions[stat_name] = {
+                            "simCount": payload.get("simCount"),
+                            "mean": payload.get("mean"),
+                            "mode": payload.get("mode"),
+                            "modeProb": payload.get("modeProb"),
+                            "minTotal": payload.get("minTotal"),
+                            "maxTotal": payload.get("maxTotal"),
+                            "distribution": payload.get("distribution") if isinstance(payload.get("distribution"), dict) else {},
+                            "ladderShape": str(payload.get("ladderShape") or "exact"),
+                        }
                 pra_payload = build_exact_ladder_payload(pra)
                 if pra_payload:
                     prop_ladders["pra"] = pra_payload
+                    prop_distributions["pra"] = {
+                        "simCount": pra_payload.get("simCount"),
+                        "mean": pra_payload.get("mean"),
+                        "mode": pra_payload.get("mode"),
+                        "modeProb": pra_payload.get("modeProb"),
+                        "minTotal": pra_payload.get("minTotal"),
+                        "maxTotal": pra_payload.get("maxTotal"),
+                        "distribution": pra_payload.get("distribution") if isinstance(pra_payload.get("distribution"), dict) else {},
+                        "ladderShape": str(pra_payload.get("ladderShape") or "exact"),
+                    }
                 if prop_ladders:
                     row["prop_ladders"] = prop_ladders
+                if prop_distributions:
+                    row["prop_distributions"] = prop_distributions
             except Exception:
                 pass
 

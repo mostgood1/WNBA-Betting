@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NBA Betting – Live</title>
   <link rel="stylesheet" href="/web/styles.css?v=20260324-1" />
-  <link rel="stylesheet" href="/web/cards-parity.css?v=20260325-1" />
+  <link rel="stylesheet" href="/web/cards-parity.css?v=20260325-4" />
 </head>
 <body data-page-mode="live" class="cards-app-shell">
   <div class="site-chrome">
     <main class="site-main">
-      <div class="container">
-        <div class="cards-shell cards-page-shell">
+      <div class="cards-shell cards-page-shell">
           <header class="cards-header">
             <div class="cards-title-block">
               <div class="cards-title-row">
@@ -25,7 +24,7 @@
           <section class="cards-control-card" aria-label="Slate controls">
             <form id="controls" class="cards-date-form" onsubmit="return false;">
               <a class="cards-nav-pill" id="cardsPrevDateLink" href="/live">Prev</a>
-              <span class="cards-nav-pill is-static">Date</span>
+              <span class="cards-nav-pill cards-form-pill" aria-hidden="true">Date</span>
               <input type="date" id="datePicker" aria-label="Select slate date" title="Select slate date" />
               <button type="button" id="applyBtn" class="cards-nav-pill is-active">Load</button>
               <a class="cards-nav-pill" id="cardsNextDateLink" href="/live">Next</a>
@@ -33,29 +32,22 @@
               <a class="cards-nav-pill" href="/prop-ladders">Prop Ladders</a>
               <a class="cards-nav-pill" href="/recommendations">Recommendations</a>
               <button type="button" id="todayBtn" class="cards-nav-pill">Today</button>
-              <label class="toggle-chip cards-nav-pill cards-nav-pill--toggle">
-                <input type="checkbox" id="resultsToggle" />
-                <span>Show results</span>
-              </label>
-              <label class="toggle-chip cards-nav-pill cards-nav-pill--toggle">
-                <input type="checkbox" id="hideOdds" />
-                <span>Hide odds</span>
-              </label>
             </form>
             <div class="cards-source-meta" id="cardsSourceMeta">
               <span class="cards-source-meta-pill">Loading metadata...</span>
             </div>
           </section>
 
-          <section class="cards-filters" id="cardsFilters" aria-label="Slate filters"></section>
+          <section class="cards-toolbar" aria-label="Slate tools">
+            <div class="cards-filters" id="cardsFilters" aria-label="Slate filters"></div>
+          </section>
           <div id="note" class="alert hidden"></div>
           <section id="cardsPropsStrip" class="cards-props-strip-shell hidden" aria-live="polite"></section>
           <div id="cards" class="cards"></div>
-        </div>
       </div>
     </main>
   </div>
 
-  <script src="/web/cards-parity.js?v=20260325-1"></script>
+  <script src="/web/cards-parity.js?v=20260325-3"></script>
 </body>
 </html>
