@@ -4,33 +4,57 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NBA Betting – Pregame</title>
-  <link rel="stylesheet" href="/web/styles.css?v=20260318-2" />
+  <link rel="stylesheet" href="/web/styles.css?v=20260324-1" />
+  <link rel="stylesheet" href="/web/cards-parity.css?v=20260324-2" />
 </head>
-<body data-page-mode="pregame">
-  <header>
-    <div class="container header-inner">
-      <h1>NBA Betting – Pregame</h1>
-      <form id="controls" onsubmit="return false;">
-        <label>Date: <input type="date" id="datePicker" /></label>
-        <button type="button" id="applyBtn" class="btn">Apply</button>
-        <button type="button" id="todayBtn" class="btn">Today</button>
-        <label class="control-label">Show results <input type="checkbox" id="resultsToggle" /></label>
-        <label class="control-label">Hide odds <input type="checkbox" id="hideOdds" /></label>
-        <a class="btn" href="/pregame">Pregame</a>
-        <a class="btn" href="/live">Live</a>
-        <a class="btn" href="/recommendations">Recommendations</a>
-        <a class="btn" id="marketAccuracyBtn" href="/accuracy-market">Market Accuracy</a>
-        <a class="btn" id="liveGameLensAccuracyBtn" href="/live-game-lens-accuracy">Live Game Lens Accuracy</a>
-        <a class="btn" id="livePlayerPropsLensAccuracyBtn" href="/live-player-props-lens-accuracy">Live Player Props Lens Accuracy</a>
-      </form>
-    </div>
-  </header>
-  <main>
-    <div class="container">
-      <div id="note" class="alert hidden"></div>
-      <div id="cards" class="cards"></div>
-    </div>
-  </main>
-  <script src="/web/cards.js?v=20260318-2"></script>
+<body data-page-mode="pregame" class="cards-app-shell">
+  <div class="site-chrome">
+    <main class="site-main">
+      <div class="container">
+        <div class="cards-shell cards-page-shell">
+          <header class="cards-header">
+            <div class="cards-title-block">
+              <div class="cards-title-row">
+                <h1>NBA Game Cards</h1>
+                <span class="cards-nav-pill is-active" id="cardsDateBadge">Loading</span>
+              </div>
+              <p class="cards-header-meta" id="cardsHeaderMeta">Loading slate...</p>
+            </div>
+          </header>
+
+          <section class="cards-control-card" aria-label="Slate controls">
+            <form id="controls" class="cards-date-form" onsubmit="return false;">
+              <a class="cards-nav-pill" id="cardsPrevDateLink" href="/pregame">Prev</a>
+              <span class="cards-nav-pill is-static">Date</span>
+              <input type="date" id="datePicker" aria-label="Select slate date" title="Select slate date" />
+              <button type="button" id="applyBtn" class="cards-nav-pill is-active">Load</button>
+              <a class="cards-nav-pill" id="cardsNextDateLink" href="/pregame">Next</a>
+              <a class="cards-nav-pill" href="/prop-ladders">Prop Ladders</a>
+              <a class="cards-nav-pill" href="/recommendations">Recommendations</a>
+              <a class="cards-nav-pill" href="/live">Live</a>
+              <button type="button" id="todayBtn" class="cards-nav-pill">Today</button>
+              <label class="toggle-chip cards-nav-pill cards-nav-pill--toggle">
+                <input type="checkbox" id="resultsToggle" />
+                <span>Show results</span>
+              </label>
+              <label class="toggle-chip cards-nav-pill cards-nav-pill--toggle">
+                <input type="checkbox" id="hideOdds" />
+                <span>Hide odds</span>
+              </label>
+            </form>
+            <div class="cards-source-meta" id="cardsSourceMeta">
+              <span class="cards-source-meta-pill">Loading metadata...</span>
+            </div>
+          </section>
+
+          <section class="cards-filters" id="cardsFilters" aria-label="Slate filters"></section>
+          <div id="note" class="alert hidden"></div>
+          <div id="cards" class="cards"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/web/cards-parity.js?v=20260324-2"></script>
 </body>
 </html>

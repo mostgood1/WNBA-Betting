@@ -891,6 +891,38 @@ def _export_props_recommendations_cards(date_str: str, out_path: str | None, max
 
     edges_df = pd.read_csv(edges_path) if edges_path.exists() else pd.DataFrame()
     preds_df = pd.read_csv(preds_path) if preds_path.exists() else pd.DataFrame()
+    try:
+        from .prop_ladders import build_card_sim_ladders, load_smart_sim_prop_ladder_lookup
+
+        sim_ladder_lookup = load_smart_sim_prop_ladder_lookup(paths.data_processed, date_str)
+    except Exception:
+        sim_ladder_lookup = {}
+
+        def build_card_sim_ladders(player_name, team_name, plays, lookup):
+            return []
+
+    model_lookup: dict[tuple[str, str], dict[str, float]] = {}
+    if not preds_df.empty:
+        for (player, team), group in preds_df.groupby(["player_name", "team"], dropna=False):
+            model: dict[str, float] = {}
+            for col, key in [
+                ("pred_pts", "pts"),
+                ("pred_reb", "reb"),
+                ("pred_ast", "ast"),
+                ("pred_threes", "threes"),
+                ("pred_stl", "stl"),
+                ("pred_blk", "blk"),
+                ("pred_tov", "tov"),
+                ("pred_pra", "pra"),
+            ]:
+                if col in group.columns:
+                    try:
+                        vals = pd.to_numeric(group[col], errors="coerce").dropna()
+                        if not vals.empty:
+                            model[key] = float(vals.iloc[0])
+                    except Exception:
+                        pass
+            model_lookup[(str(player), str(team).strip().upper())] = model
 
     cards: list[dict[str, Any]] = []
     if edges_df is None or edges_df.empty:
@@ -914,7 +946,8 @@ def _export_props_recommendations_cards(date_str: str, out_path: str | None, max
                                 model[key] = float(vals.iloc[0])
                         except Exception:
                             pass
-                cards.append({"player": player, "team": team, "plays": [], "ladders": [], "model": model})
+                sim_ladders = build_card_sim_ladders(player, team, [], sim_ladder_lookup)
+                cards.append({"player": player, "team": team, "plays": [], "ladders": [], "sim_ladders": sim_ladders, "model": model})
     else:
         def _num(value: Any) -> float | None:
             try:
@@ -972,7 +1005,10 @@ def _export_props_recommendations_cards(date_str: str, out_path: str | None, max
                         "book": row.get("bookmaker"),
                     }
                 )
-            cards.append({"player": player, "team": team, "plays": plays, "ladders": []})
+            sim_ladders = build_card_sim_ladders(player, team, plays, sim_ladder_lookup)
+            model = model_lookup.get((str(player), str(team).strip().upper()), {})
+            if plays or sim_ladders or model:
+                cards.append({"player": player, "team": team, "plays": plays, "ladders": [], "sim_ladders": sim_ladders, "model": model})
 
     output = paths.data_processed / f"props_recommendations_{date_str}.csv" if not out_path else Path(out_path)
     output.parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NBA Betting – Prop Ladders</title>
+  <link rel="stylesheet" href="/web/styles.css?v=20260324-1" />
+  <link rel="stylesheet" href="/web/cards-parity.css?v=20260324-3" />
+</head>
+<body class="cards-app-shell ladder-body">
+  <div class="ladder-shell">
+    <header class="ladder-header">
+      <div class="ladder-title-block">
+        <div class="ladder-kicker">Daily player prop distribution board</div>
+        <div class="ladder-title-row">
+          <h1>Player Prop Ladders</h1>
+          <span class="cards-nav-pill is-active" id="propLadderDateBadge">-</span>
+          <span class="cards-nav-pill" id="propLadderPropBadge">Points</span>
+        </div>
+        <p class="ladder-header-meta" id="propLadderHeaderMeta">Loading player ladder data...</p>
+      </div>
+      <div class="ladder-header-actions">
+        <a class="cards-nav-pill" href="/pregame">Pregame</a>
+        <a class="cards-nav-pill" href="/live">Live</a>
+        <a class="cards-nav-pill is-active" href="/prop-ladders">Prop ladders</a>
+        <a class="cards-nav-pill" href="/recommendations">Recommendations</a>
+      </div>
+    </header>
+
+    <section class="cards-control-card ladder-controls" aria-label="Player prop ladder controls">
+      <form class="cards-date-form ladder-form" id="propLadderForm" method="get" action="/prop-ladders">
+        <a class="cards-nav-pill" id="propLadderPrevDateLink" href="/prop-ladders" rel="prev">Prev</a>
+        <span class="cards-nav-pill is-static cards-form-pill" aria-hidden="true">Date</span>
+        <input id="propLadderDateInput" type="date" name="date" aria-label="Player prop ladder date" />
+        <span class="cards-nav-pill is-static cards-form-pill" aria-hidden="true">Prop</span>
+        <select id="propLadderPropInput" name="market" aria-label="Player prop selector">
+          <option value="pts">Points</option>
+          <option value="reb">Rebounds</option>
+          <option value="ast">Assists</option>
+          <option value="threes">3PM</option>
+          <option value="pra">PRA</option>
+          <option value="stl">Steals</option>
+          <option value="blk">Blocks</option>
+          <option value="tov">Turnovers</option>
+        </select>
+        <span class="cards-nav-pill is-static cards-form-pill" aria-hidden="true">Team</span>
+        <select id="propLadderTeamInput" name="team" aria-label="Player ladder team selector">
+          <option value="">All teams</option>
+        </select>
+        <span class="cards-nav-pill is-static cards-form-pill" aria-hidden="true">Player</span>
+        <select id="propLadderPlayerInput" name="player" aria-label="Player ladder selector">
+          <option value="">All players</option>
+        </select>
+        <span class="cards-nav-pill is-static cards-form-pill" aria-hidden="true">Sort</span>
+        <select id="propLadderSortInput" name="sort" aria-label="Player ladder sort selector">
+          <option value="team">Team</option>
+          <option value="prob">Over-line hit %</option>
+          <option value="mean">Mean</option>
+        </select>
+        <button type="submit">Load</button>
+        <a class="cards-nav-pill" id="propLadderNextDateLink" href="/prop-ladders" rel="next">Next</a>
+      </form>
+      <div class="ladder-source-meta" id="propLadderSourceMeta">Loading sources…</div>
+    </section>
+
+    <div id="propLadderNote" class="alert hidden"></div>
+
+    <section class="ladder-summary" id="propLadderSummary" aria-live="polite">
+      <div class="cards-loading-state">Loading ladder summary...</div>
+    </section>
+
+    <section class="ladder-selected-player" id="propLadderSelectedPlayer" aria-live="polite"></section>
+
+    <main class="ladder-grid" id="propLadderGrid" aria-live="polite">
+      <div class="cards-loading-state">Loading player prop ladders...</div>
+    </main>
+  </div>
+
+  <script src="/web/prop-ladders.js?v=20260324-3"></script>
+</body>
+</html>

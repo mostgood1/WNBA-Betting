@@ -11,6 +11,7 @@ import pandas as pd
 from .events import EventSimConfig, simulate_event_level_boxscore, simulate_pbp_game_boxscore
 from .quarters import GameInputs, QuarterResult, TeamContext, simulate_quarters
 from ..config import paths
+from ..prop_ladders import build_exact_ladder_payload
 from ..player_priors import PlayerPriorsConfig, compute_player_priors, _norm_player_key  # type: ignore
 from ..roster_files import pick_rosters_file
 from ..teams import to_tricode
@@ -3921,8 +3922,10 @@ def simulate_smart_game(
                     row["min_mean"] = float(mm)
             except Exception:
                 pass
+            stat_arrays: Dict[str, np.ndarray] = {}
             for stat in ("pts", "reb", "ast", "threes", "stl", "blk", "tov"):
                 arr = np.asarray(stats.get(stat) or [], dtype=float)
+                stat_arrays[stat] = arr
                 mu = float(np.mean(arr)) if arr.size else float("nan")
                 # Optional: per-player bias correction from recent recon.
                 try:
@@ -3939,7 +3942,11 @@ def simulate_smart_game(
                 row[f"{stat}_sd"] = float(np.std(arr)) if arr.size else float("nan")
                 row[f"{stat}_q"] = _quantiles(arr)
             # Derived props
-            pra = np.asarray(stats.get("pts") or [], dtype=float) + np.asarray(stats.get("reb") or [], dtype=float) + np.asarray(stats.get("ast") or [], dtype=float)
+            pra = (
+                np.asarray(stat_arrays.get("pts", np.asarray([], dtype=float)), dtype=float)
+                + np.asarray(stat_arrays.get("reb", np.asarray([], dtype=float)), dtype=float)
+                + np.asarray(stat_arrays.get("ast", np.asarray([], dtype=float)), dtype=float)
+            )
             pra_mu = float(np.mean(pra)) if pra.size else float("nan")
             try:
                 if pid_key:
@@ -3954,6 +3961,19 @@ def simulate_smart_game(
             row["pra_mean"] = float(pra_mu)
             row["pra_sd"] = float(np.std(pra)) if pra.size else float("nan")
             row["pra_q"] = _quantiles(pra)
+            try:
+                prop_ladders: Dict[str, Any] = {}
+                for stat_name, arr in stat_arrays.items():
+                    payload = build_exact_ladder_payload(arr)
+                    if payload:
+                        prop_ladders[stat_name] = payload
+                pra_payload = build_exact_ladder_payload(pra)
+                if pra_payload:
+                    prop_ladders["pra"] = pra_payload
+                if prop_ladders:
+                    row["prop_ladders"] = prop_ladders
+            except Exception:
+                pass
 
             # Quarter-level summaries (points/rebounds/assists/threes)
             try:

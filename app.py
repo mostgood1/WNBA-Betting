@@ -3297,6 +3297,7 @@ def _enforce_minimal_ui_allowlist():
             "/",
             "/pregame",
             "/live",
+            "/prop-ladders",
             "/recommendations",
             "/props/recommendations",
             "/best-bets-parlays",
@@ -3318,6 +3319,9 @@ def _enforce_minimal_ui_allowlist():
             allowed_web_exact = {
                 "/web/styles.css",
                 "/web/cards.js",
+                "/web/cards-parity.css",
+                "/web/cards-parity.js",
+                "/web/prop-ladders.js",
                 "/web/app.js",
             }
             allowed_web_prefixes = (
@@ -3350,6 +3354,7 @@ def _enforce_minimal_ui_allowlist():
             "/api/games/best-bets-parlays",
             "/api/props/recommendations",
             "/api/props-recommendations",
+            "/api/prop-ladders",
             "/api/props/best-bets-parlays",
             "/api/props-best-bets-parlays",
             "/api/props/movement-callouts",
@@ -5990,6 +5995,11 @@ def route_pregame_cards():
 @app.route("/live")
 def route_live_cards():
     return _serve_cards_page("live.html")
+
+
+@app.route("/prop-ladders")
+def route_prop_ladders():
+    return _serve_cards_page("prop-ladders.html")
 
 
 @app.route("/web/")
@@ -24883,6 +24893,15 @@ def api_props_recommendations():
                         pass
             except Exception:
                 pass
+        try:
+            from nba_betting.prop_ladders import build_card_sim_ladders as _build_card_sim_ladders, load_smart_sim_prop_ladder_lookup as _load_smart_sim_prop_ladder_lookup  # type: ignore
+
+            _sim_ladder_lookup = _load_smart_sim_prop_ladder_lookup(DATA_PROCESSED_DIR, d)
+        except Exception:
+            _sim_ladder_lookup = {}
+
+            def _build_card_sim_ladders(player_name: Any, team_name: Any, plays: list[dict[str, Any]], lookup: dict[tuple[str, str], dict[str, Any]]) -> list[dict[str, Any]]:
+                return []
 
         try:
             team_adv_df = _load_team_advanced_stats_frame(d)
@@ -25840,6 +25859,7 @@ def api_props_recommendations():
                         best_edge = float(edges.abs().max())
                 except Exception:
                     pass
+                sim_ladders = _build_card_sim_ladders(player, team, plays, _sim_ladder_lookup)
                 cards.append({
                     "player": player,
                     "player_id": pid,
@@ -25854,6 +25874,7 @@ def api_props_recommendations():
                     "away_team": away,
                     "plays": plays,
                     "ladders": ladders,
+                    "sim_ladders": sim_ladders,
                     "model": model,
                     "photo": photo,
                     "team_logo": team_logo,
@@ -25911,6 +25932,8 @@ def api_props_recommendations():
                         c2["plays"] = []
                     if "ladders" not in c2:
                         c2["ladders"] = []
+                    if "sim_ladders" not in c2:
+                        c2["sim_ladders"] = _build_card_sim_ladders(c2.get("player"), c2.get("team"), c2.get("plays") or [], _sim_ladder_lookup)
                     cards.append(c2)
         except Exception:
             pass
@@ -27570,6 +27593,267 @@ def api_props_recommendations():
                 pass
 
         return jsonify(_to_jsonable(payload))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+def _normalize_prop_ladder_market(value: object) -> str:
+    raw = str(value or "").strip().lower()
+    aliases = {
+        "points": "pts",
+        "point": "pts",
+        "p": "pts",
+        "rebounds": "reb",
+        "rebound": "reb",
+        "r": "reb",
+        "assists": "ast",
+        "assist": "ast",
+        "a": "ast",
+        "threes": "threes",
+        "3pt": "threes",
+        "3pm": "threes",
+        "3-pt": "threes",
+        "three": "threes",
+        "steals": "stl",
+        "steal": "stl",
+        "blocks": "blk",
+        "block": "blk",
+        "turnovers": "tov",
+        "turnover": "tov",
+        "pra": "pra",
+        "pr": "pr",
+        "pa": "pa",
+        "ra": "ra",
+        "dd": "dd",
+        "td": "td",
+    }
+    return aliases.get(raw, raw)
+
+
+def _prop_ladder_market_label(value: object) -> str:
+    key = _normalize_prop_ladder_market(value)
+    labels = {
+        "pts": "Points",
+        "reb": "Rebounds",
+        "ast": "Assists",
+        "threes": "3PM",
+        "stl": "Steals",
+        "blk": "Blocks",
+        "tov": "Turnovers",
+        "pra": "PRA",
+        "pr": "PR",
+        "pa": "PA",
+        "ra": "RA",
+        "dd": "Double Double",
+        "td": "Triple Double",
+    }
+    return labels.get(key, str(value or "").strip().upper())
+
+
+def _coerce_prop_ladder_float(value: object) -> float | None:
+    try:
+        if value is None or pd.isna(value):
+            return None
+    except Exception:
+        if value is None:
+            return None
+    try:
+        return float(value)
+    except Exception:
+        return None
+
+
+def _prop_ladder_sort_key(value: object) -> tuple[int, float]:
+    num = _coerce_prop_ladder_float(value)
+    if num is None:
+        return (1, 0.0)
+    return (0, float(num))
+
+
+def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> dict[str, Any]:
+    cards = base_payload.get("data") if isinstance(base_payload, dict) else None
+    if not isinstance(cards, list):
+        cards = []
+
+    market_filter = _normalize_prop_ladder_market(request.args.get("market") or "pts")
+    team_filter = (_get_tricode(str(request.args.get("team") or "")) or str(request.args.get("team") or "").strip().upper()) if request.args.get("team") else ""
+    player_filter = str(request.args.get("player") or "").strip()
+    sort_filter = str(request.args.get("sort") or "team").strip().lower()
+    if sort_filter not in {"team", "prob", "mean"}:
+        sort_filter = "team"
+
+    rows: list[dict[str, Any]] = []
+    team_options: dict[str, dict[str, Any]] = {}
+    player_options: dict[str, dict[str, Any]] = {}
+    sim_counts_seen: set[int] = set()
+    game_keys: set[tuple[str, str]] = set()
+    note = None
+    cards_with_sim_ladders = 0
+
+    for card in cards:
+        if not isinstance(card, dict):
+            continue
+
+        player_name = str(card.get("player") or "").strip()
+        team_name = str(card.get("team") or "").strip()
+        team_tricode = card.get("team_tricode") or _get_tricode(team_name) or team_name.upper()
+        if not player_name or not team_tricode:
+            continue
+        if team_filter and str(team_tricode or "").upper() != team_filter:
+            continue
+        if player_filter and player_filter.lower() not in player_name.lower():
+            continue
+
+        sim_ladders = card.get("sim_ladders") if isinstance(card.get("sim_ladders"), list) else []
+        if sim_ladders:
+            cards_with_sim_ladders += 1
+        active_market = next(
+            (
+                ladder
+                for ladder in sim_ladders
+                if isinstance(ladder, dict) and _normalize_prop_ladder_market(ladder.get("market")) == market_filter
+            ),
+            None,
+        )
+        if not isinstance(active_market, dict):
+            continue
+
+        ladder_rows = active_market.get("ladder") if isinstance(active_market.get("ladder"), list) else []
+        if not ladder_rows:
+            continue
+
+        team_logo = card.get("team_logo")
+        opponent = active_market.get("opponent") or card.get("opponent")
+        game_id = active_market.get("game_id")
+        market_lines = active_market.get("marketLinesByStat") if isinstance(active_market.get("marketLinesByStat"), list) else []
+        over_line_prob = _coerce_prop_ladder_float(active_market.get("overLineProb"))
+        mean_value = _coerce_prop_ladder_float(active_market.get("mean"))
+        sim_count = int(active_market.get("simCount") or 0) if active_market.get("simCount") is not None else 0
+
+        rows.append(
+            {
+                "gameId": game_id,
+                "playerId": card.get("player_id") or active_market.get("player_id"),
+                "hitterId": card.get("player_id") or active_market.get("player_id"),
+                "playerName": player_name,
+                "hitterName": player_name,
+                "headshotUrl": card.get("photo"),
+                "team": team_tricode,
+                "teamLogoUrl": team_logo,
+                "opponent": opponent,
+                "matchup": f"{team_tricode} vs {opponent}" if opponent else str(team_tricode),
+                "mean": mean_value,
+                "mode": active_market.get("mode"),
+                "modeProb": _coerce_prop_ladder_float(active_market.get("modeProb")),
+                "simCount": sim_count,
+                "minTotal": active_market.get("minTotal"),
+                "maxTotal": active_market.get("maxTotal"),
+                "marketLine": _coerce_prop_ladder_float(active_market.get("marketLine")),
+                "marketLinesByStat": market_lines,
+                "overLineCount": active_market.get("overLineCount"),
+                "overLineProb": over_line_prob,
+                "ladder": ladder_rows,
+                "ladderShape": str(active_market.get("ladderShape") or "exact"),
+                "sourceFile": active_market.get("sourceFile"),
+            }
+        )
+        team_options[str(team_tricode).upper()] = {
+            "value": str(team_tricode).upper(),
+            "label": str(team_tricode).upper(),
+        }
+        player_options[player_name] = {
+            "value": player_name,
+            "label": f"{player_name} ({team_tricode})",
+            "hitterName": player_name,
+            "playerName": player_name,
+            "headshotUrl": card.get("photo"),
+            "teamLogoUrl": team_logo,
+            "team": team_tricode,
+        }
+        if sim_count > 0:
+            sim_counts_seen.add(int(sim_count))
+        if opponent:
+            game_keys.add(tuple(sorted([str(team_tricode), str(opponent)])))
+
+    if not cards_with_sim_ladders and cards:
+        note = "No stored SmartSim player ladders were found for this date yet."
+
+    if sort_filter == "prob":
+        rows.sort(key=lambda row: (_coerce_prop_ladder_float(row.get("overLineProb")) or -1.0, str(row.get("playerName") or "")), reverse=True)
+    elif sort_filter == "mean":
+        rows.sort(key=lambda row: (_coerce_prop_ladder_float(row.get("mean")) or -1e9, str(row.get("playerName") or "")), reverse=True)
+    else:
+        rows.sort(key=lambda row: (str(row.get("team") or ""), str(row.get("playerName") or "")))
+
+    try:
+        current_date = pd.to_datetime(date_str).date()
+        prev_date = (current_date - pd.Timedelta(days=1)).isoformat()
+        next_date = (current_date + pd.Timedelta(days=1)).isoformat()
+    except Exception:
+        prev_date = None
+        next_date = None
+
+    return {
+        "found": bool(rows),
+        "date": date_str,
+        "prop": market_filter,
+        "propLabel": _prop_ladder_market_label(market_filter),
+        "selectedTeam": team_filter or "",
+        "selectedPlayer": player_filter,
+        "selectedSort": sort_filter,
+        "teamOptions": [team_options[key] for key in sorted(team_options)],
+        "playerOptions": [player_options[key] for key in sorted(player_options)],
+        "sortOptions": [
+            {"value": "team", "label": "Team"},
+            {"value": "prob", "label": "Over-line hit %"},
+            {"value": "mean", "label": "Mean"},
+        ],
+        "ladderShape": "exact",
+        "summary": {
+            "games": int(len(game_keys)),
+            "players": int(len(rows)),
+            "availableTeams": int(len(team_options)),
+            "availablePlayers": int(len(player_options)),
+            "simCounts": sorted(sim_counts_seen),
+        },
+        "nav": {
+            "prevDate": prev_date,
+            "nextDate": next_date,
+        },
+        "sourceDir": str(DATA_PROCESSED_DIR),
+        "marketSource": str(base_payload.get("source") or "props recommendations + smart sim"),
+        "defaultSims": sorted(sim_counts_seen)[0] if sim_counts_seen else None,
+        "rows": rows,
+        "note": note,
+    }
+
+
+@app.route("/api/prop-ladders")
+def api_prop_ladders():
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+    try:
+        base_response = api_props_recommendations()
+        if isinstance(base_response, tuple):
+            response_obj = base_response[0]
+            status_code = int(base_response[1]) if len(base_response) > 1 else 200
+        else:
+            response_obj = base_response
+            status_code = 200
+        payload = response_obj.get_json(silent=True) if hasattr(response_obj, "get_json") else None
+        if status_code == 404:
+            empty_payload = _build_prop_ladders_payload({"data": []}, d)
+            if isinstance(payload, dict):
+                note = str(payload.get("error") or payload.get("note") or "").strip()
+                if note:
+                    empty_payload["note"] = note
+            return jsonify(_to_jsonable(empty_payload))
+        if status_code >= 400:
+            return jsonify(payload or {"error": "failed to load props recommendations"}), status_code
+        if not isinstance(payload, dict):
+            return jsonify({"error": "invalid props recommendations payload"}), 500
+        return jsonify(_to_jsonable(_build_prop_ladders_payload(payload, d)))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
