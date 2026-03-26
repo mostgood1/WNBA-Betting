@@ -1,0 +1,58 @@
+date,team_tri,player_id,player_name,starter_prob,exp_min_mean,exp_min_source,exp_asof_ts
+,CHA,1641706,Brandon Miller,1.0,30.943921714690102,rotations_espn_history,2026-03-26T16:00:00Z
+,CHA,1628970,Miles Bridges,1.0,30.46125177421291,rotations_espn_history,2026-03-26T16:00:00Z
+,CHA,1631217,Moussa Diabaté,1.0,29.690467417132865,rotations_espn_history,2026-03-26T16:00:00Z
+,CHA,1630163,LaMelo Ball,1.0,27.9101828993001,rotations_espn_history,2026-03-26T16:00:00Z
+,CHA,1629684,Grant Williams,0.11930933471190204,19.071380955393945,rotations_espn_history,2026-03-26T16:00:00Z
+,CHA,1630182,Josh Green,0.0,17.54946201596697,rotations_espn_history,2026-03-26T16:00:00Z
+,CHA,1641809,Drew Peterson,,9.8,baseline:roll5_min,2026-03-26T16:00:00Z
+,CHA,1626192,Pat Connaughton,0.0,8.135789671353162,rotations_espn_history,2026-03-26T16:00:00Z
+,CHA,1630544,Tre Mann,0.0,6.9665874247841675,rotations_espn_history,2026-03-26T16:00:00Z
+,CHA,1630214,Xavier Tillman,0.0,2.8513197334026383,rotations_espn_history,2026-03-26T16:00:00Z
+,DET,1642450,Daniss Jenkins,0.7694933990413142,35.838337034815616,rotations_espn_history,2026-03-26T16:00:00Z
+,DET,1631105,Jalen Duren,1.0,31.422729904891263,rotations_espn_history,2026-03-26T16:00:00Z
+,DET,202699,Tobias Harris,1.0,31.122145320584814,rotations_espn_history,2026-03-26T16:00:00Z
+,DET,1629130,Duncan Robinson,1.0,28.395581249652786,rotations_espn_history,2026-03-26T16:00:00Z
+,DET,1631204,Marcus Sasser,0.5411205550130297,19.625519746731836,rotations_espn_history,2026-03-26T16:00:00Z
+,DET,1641842,Ronald Holland II,0.0,17.820472427660164,rotations_espn_history,2026-03-26T16:00:00Z
+,DET,1628989,Kevin Huerter,0.0,17.789585624680722,rotations_espn_history,2026-03-26T16:00:00Z
+,DET,1630194,Paul Reed,0.03835476457231422,16.984065340178557,rotations_espn_history,2026-03-26T16:00:00Z
+,DET,1629750,Javonte Green,0.0,16.67293923394194,rotations_espn_history,2026-03-26T16:00:00Z
+,DET,1641732,Colby Jones,,7.0,baseline:roll5_min,2026-03-26T16:00:00Z
+,NOP,1630529,Herbert Jones,0.0,24.561551770294734,rotations_espn_history,2026-03-26T16:00:00Z
+,NOP,1630530,Trey Murphy III,0.0,23.273809269142454,rotations_espn_history,2026-03-26T16:00:00Z
+,NOP,1629627,Zion Williamson,0.0,19.50862343262457,rotations_espn_history,2026-03-26T16:00:00Z
+,NOP,1642274,Yves Missi,0.0,19.44584100966963,rotations_espn_history,2026-03-26T16:00:00Z
+,NOP,1631255,Karlo Matković,0.0,18.456597900826615,rotations_espn_history,2026-03-26T16:00:00Z
+,NOP,1629673,Jordan Poole,0.0,17.345227555754214,rotations_espn_history,2026-03-26T16:00:00Z
+,NOP,1626172,Kevon Looney,0.0,13.899999999999999,rotations_espn_history,2026-03-26T16:00:00Z
+,NOP,201599,DeAndre Jordan,0.0,6.816666666666666,rotations_espn_history,2026-03-26T16:00:00Z
+,NOP,1641722,Jordan Hawkins,0.0,1.841128275387768,rotations_espn_history,2026-03-26T16:00:00Z
+,NYK,1628384,OG Anunoby,0.0,29.72993878130784,rotations_espn_history,2026-03-26T16:00:00Z
+,NYK,1628973,Jalen Brunson,0.0,25.823951503687226,rotations_espn_history,2026-03-26T16:00:00Z
+,NYK,1626157,Karl-Anthony Towns,0.0,23.449843614348183,rotations_espn_history,2026-03-26T16:00:00Z
+,NYK,1629011,Mitchell Robinson,0.0,22.012899328091013,rotations_espn_history,2026-03-26T16:00:00Z
+,NYK,1628404,Josh Hart,0.0,20.99668939327799,rotations_espn_history,2026-03-26T16:00:00Z
+,NYK,203903,Jordan Clarkson,0.0,18.77379239778489,rotations_espn_history,2026-03-26T16:00:00Z
+,NYK,1630631,Jose Alvarado,0.0,14.11376600648583,rotations_espn_history,2026-03-26T16:00:00Z
+,NYK,1630574,Ariel Hukporti,0.0,10.215457358521432,rotations_espn_history,2026-03-26T16:00:00Z
+,NYK,1642359,Pacôme Dadiet,0.0,5.291335226543612,rotations_espn_history,2026-03-26T16:00:00Z
+,NYK,1642278,Tyler Kolek,0.0,5.063152449419878,rotations_espn_history,2026-03-26T16:00:00Z
+,NYK,1631110,Jeremy Sochan,0.0,1.6333333333333333,rotations_espn_history,2026-03-26T16:00:00Z
+,ORL,1631094,Paolo Banchero,1.0,34.786316172561186,rotations_espn_history,2026-03-26T16:00:00Z
+,ORL,1630217,Desmond Bane,1.0,32.77255754607678,rotations_espn_history,2026-03-26T16:00:00Z
+,ORL,1628976,Wendell Carter Jr.,1.0,26.917328468259775,rotations_espn_history,2026-03-26T16:00:00Z
+,ORL,1641783,Tristan da Silva,0.3955781614186185,25.707338890290696,rotations_espn_history,2026-03-26T16:00:00Z
+,ORL,1628975,Jevon Carter,0.0,17.764998753137288,rotations_espn_history,2026-03-26T16:00:00Z
+,ORL,1641724,Jett Howard,0.0,17.45254037216068,rotations_espn_history,2026-03-26T16:00:00Z
+,ORL,1629021,Moritz Wagner,0.0,14.91758492136083,rotations_espn_history,2026-03-26T16:00:00Z
+,ORL,1631288,Jamal Cain,0.0,9.976276268073653,rotations_espn_history,2026-03-26T16:00:00Z
+,ORL,1631115,Orlando Robinson,,6.25,baseline:roll5_min,2026-03-26T16:00:00Z
+,ORL,1629048,Goga Bitadze,0.0,5.103585034566933,rotations_espn_history,2026-03-26T16:00:00Z
+,SAC,201942,DeMar DeRozan,1.0,27.329816606695612,rotations_espn_history,2026-03-26T16:00:00Z
+,SAC,1631342,Daeqwon Plowden,0.12220207926665055,25.95420670431931,rotations_espn_history,2026-03-26T16:00:00Z
+,SAC,1642269,Devin Carter,0.18060385068256563,22.9833879393064,rotations_espn_history,2026-03-26T16:00:00Z
+,SAC,1628370,Malik Monk,0.0,19.88537450869519,rotations_espn_history,2026-03-26T16:00:00Z
+,SAC,203926,Doug McDermott,0.0,10.967380504400305,rotations_espn_history,2026-03-26T16:00:00Z
+,SAC,1631116,Patrick Baldwin Jr.,,10.4,baseline:roll5_min,2026-03-26T16:00:00Z
+,SAC,203967,Dario Saric,,8.0,baseline:roll5_min,2026-03-26T16:00:00Z

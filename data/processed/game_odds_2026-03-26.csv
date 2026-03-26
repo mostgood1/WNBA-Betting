@@ -1,0 +1,4 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-03-26,2026-03-26T23:10:00Z,Detroit Pistons,New Orleans Pelicans,-167.2808088963464,167.28080889634631,-4.0,4.0,-110,-110,226.5,-100.43271159758683,100.43271159758682,11,11,8,10,oddsapi_consensus
+2026-03-26,2026-03-26T23:10:00Z,Orlando Magic,Sacramento Kings,-805.1082494293362,805.1082494293371,-15.5,15.5,-110,-110,230.5,-100.05108382189073,100.05108382189073,11,11,10,9,oddsapi_consensus
+2026-03-26,2026-03-26T23:10:00Z,Charlotte Hornets,New York Knicks,-121.63902264664965,121.63902264664965,-2.0,2.0,-115,-105,224.5,100.38560906952534,-100.38560906952534,11,11,9,9,oddsapi_consensus

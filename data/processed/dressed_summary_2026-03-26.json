@@ -1,0 +1,36 @@
+{
+  "date": "2026-03-26",
+  "rows_league_status": 571,
+  "rows_slate": 109,
+  "rows_expected_dressed": 88,
+  "min_dressed_per_team": 8,
+  "min_total_roster_per_team": 10,
+  "team_counts": {
+    "CHA": {
+      "roster_rows": 17,
+      "expected_dressed_rows": 17
+    },
+    "DET": {
+      "roster_rows": 19,
+      "expected_dressed_rows": 16
+    },
+    "NOP": {
+      "roster_rows": 16,
+      "expected_dressed_rows": 14
+    },
+    "NYK": {
+      "roster_rows": 20,
+      "expected_dressed_rows": 16
+    },
+    "ORL": {
+      "roster_rows": 17,
+      "expected_dressed_rows": 13
+    },
+    "SAC": {
+      "roster_rows": 20,
+      "expected_dressed_rows": 12
+    }
+  },
+  "issues": [],
+  "ok": true
+}

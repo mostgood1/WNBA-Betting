@@ -1,0 +1,30 @@
+{
+  "date": "2026-03-26",
+  "window_days": 30,
+  "global": {
+    "K": 8.0,
+    "min_pairs": 6
+  },
+  "by_stat": {
+    "pts": {
+      "K": 6.0,
+      "min_pairs": 6
+    },
+    "reb": {
+      "K": 10.0,
+      "min_pairs": 12
+    },
+    "ast": {
+      "K": 8.0,
+      "min_pairs": 10
+    },
+    "threes": {
+      "K": 8.0,
+      "min_pairs": 6
+    },
+    "pra": {
+      "K": 6.0,
+      "min_pairs": 6
+    }
+  }
+}

@@ -1,0 +1,495 @@
+date,team,team_tri,player,status,injury
+2026-02-24,ATL,ATL,Jonathan Kuminga,OUT,Out
+2026-02-24,NOP,NOP,Micah Peavy,OUT,Out
+2026-02-25,NOP,NOP,Micah Peavy,OUT,Out
+2026-02-26,OKC,OKC,Ajay Mitchell,OUT,Out
+2026-02-26,OKC,OKC,Shai Gilgeous-Alexander,OUT,Out
+2026-02-26,PHI,PHI,Cole Anthony,OUT,Out
+2026-02-26,MIL,MIL,Taurean Prince,OUT,Out
+2026-02-26,MIA,MIA,Nikola Jovic,OUT,Out
+2026-02-26,PHX,PHX,Jordan Goodwin,OUT,Out
+2026-02-26,PHX,PHX,Devin Booker,OUT,Out
+2026-02-26,TOR,TOR,Vince Williams Jr.,OUT,Out
+2026-02-26,SAS,SAS,Mason Plumlee,OUT,Out
+2026-02-26,POR,POR,Deni Avdija,OUT,Out
+2026-02-26,DEN,DEN,Jalen Pickett,OUT,Out
+2026-02-26,DAL,DAL,Cooper Flagg,OUT,Out
+2026-02-26,DAL,DAL,P.J. Washington,OUT,Out
+2026-02-26,CLE,CLE,Max Strus,OUT,Out
+2026-02-26,CLE,CLE,Donovan Mitchell,OUT,Out
+2026-02-26,DEN,DEN,Aaron Gordon,OUT,Out
+2026-02-26,CLE,CLE,James Harden,OUT,Out
+2026-02-26,CHA,CHA,Liam McNeeley,OUT,Out
+2026-02-26,BOS,BOS,Jayson Tatum,OUT,Out
+2026-02-26,CLE,CLE,Evan Mobley,OUT,Out
+2026-02-26,DAL,DAL,Tamar Bates,OUT,Out
+2026-02-26,LAC,LAC,Darius Garland,OUT,Out
+2026-02-26,IND,IND,Aaron Nesmith,OUT,Out
+2026-02-26,MIN,MIN,Kyle Anderson,OUT,Out
+2026-02-26,GSW,GSW,Stephen Curry,OUT,Out
+2026-02-26,GSW,GSW,Seth Curry,OUT,Out
+2026-02-26,GSW,GSW,L.J. Cryer,OUT,Out
+2026-02-26,GSW,GSW,Jimmy Butler III,OUT,Out
+2026-02-26,GSW,GSW,Kristaps Porzingis,OUT,Out
+2026-02-26,HOU,HOU,Jae'Sean Tate,OUT,Out
+2026-02-26,IND,IND,Obi Toppin,OUT,Out
+2026-02-27,WAS,WAS,D'Angelo Contusion Russell,OUT,Not With Team
+2026-02-27,NYK,NYK,Dillon Assignment Jones,OUT,G League - Two-
+2026-02-27,BOS,BOS,Max Shulga,OUT,G League - Two- Way
+2026-02-27,MIL,MIL,Taurean Strain Prince,OUT,Injury/Illness - Neck;
+2026-02-27,CLE,CLE,"Dennis Available Injury/Illness - Right Ankle; Sprain Strus, Max Strain Schroder",OUT,Injury/Illness - Left Foot; Surgery - Jones
+2026-02-27,BKN,BKN,Tyson Etienne,OUT,G League - Two-
+2026-02-27,MEM,MEM,Kyle Management Anderson,OUT,Not With Team
+2026-02-27,DEN,DEN,Peyton Watson,OUT,Injury/Illness - Right Hamstring; Strain
+2026-02-27,DEN,DEN,Curtis Strain Jones,OUT,G League - Two-
+2026-02-27,DAL,DAL,P.J. Rest Washington,OUT,Injury/Illness - Left Ankle; Sprain
+2026-02-27,DAL,DAL,Ryan Soreness Nembhard,OUT,G League - Two-
+2026-02-27,DAL,DAL,"Miles Available G League - Two- Way Lively II, Dereck Surgery Kelly",OUT,Injury/Illness - Right Foot;
+2026-02-27,DAL,DAL,"Moussa Available G League - Two- Way Flagg, Cooper Sprain Cisse",OUT,Injury/Illness - Left Midfoot;
+2026-02-27,MEM,MEM,Ty Jerome,DOUBTFUL,Injury/Illness - Left Thigh;
+2026-02-28,LAL,LAL,Adou Assignment Thiero,OUT,G League - On Assignment
+2026-02-28,LAL,LAL,Bronny - James,OUT,G League - On
+2026-02-28,WAS,WAS,Cam Impingement Whitmore,OUT,Injury/Illness - Right Shoulder; Deep Vein
+2026-02-28,LAL,LAL,Rui Hachimura,DOUBTFUL,Injury/Illness - Illness;
+2026-02-28,NOP,NOP,Dejounte Contusion Murray,OUT,Return to Competition Reconditioning
+2026-02-28,WAS,WAS,Anthony Way Davis,OUT,Injury/Illness - Left Finger;
+2026-02-28,POR,POR,Damian . Lillard,OUT,Injury/Illness - Left Achilles Tendon;
+2026-02-28,TOR,TOR,Jonathan Way Mogbo,OUT,G League - On Assignment
+2026-02-28,TOR,TOR,A.J. Way Lawson,OUT,G League - Two-
+2026-02-28,MIA,MIA,"Pelle Available Injury/Illness - Left 3rd Mallet; Finger Mitchell, Davion Available Injury/Illness - Head; Illness Powell, Norman Management Larsson",OUT,Injury/Illness - Right Groin;
+2026-02-28,MIA,MIA,"Keshad Available Injury/Illness - Left Knee; Soreness Jovic, Nikola Ribs Johnson",OUT,Injury/Illness - Lower Back;
+2026-03-01,OKC,OKC,Thomas sprain Sorber,OUT,Injury/Illness - Right ACL; Surgical
+2026-03-01,OKC,OKC,Ajay Strain Mitchell,OUT,Injury/Illness - Abdominal; Strain/ Left Ankle
+2026-03-01,ATL,ATL,Asa Irritation Newell,DOUBTFUL,G League - On Assignment
+2026-03-01,ATL,ATL,RayJ Sprain Dennis,DOUBTFUL,G League - Two-
+2026-03-01,LAC,LAC,Darius Soreness Garland,OUT,Injury/Illness - Left Toe;
+2026-03-01,BOS,BOS,Jayson Way Tatum,OUT,Injury/Illness - Right Achilles;
+2026-03-01,PHI,PHI,"Justin Available G League - On Assignment Embiid, Joel Tear Edwards",OUT,Injury/Illness - Right Oblique;
+2026-03-01,DAL,DAL,P.J. Soreness Washington,DOUBTFUL,Injury/Illness - Left Ankle; Sprain
+2026-03-01,DAL,DAL,Miles Kelly,DOUBTFUL,G League - Two- Way
+2026-03-01,CLE,CLE,Riley Fracture Minix,OUT,G League - Two-
+2026-03-01,MIL,MIL,Taurean Illness Prince,OUT,Injury/Illness - Neck;
+2026-03-01,MEM,MEM,Taj Gibson,OUT,Return to Competition
+2026-03-01,DEN,DEN,Aaron Surgery Gordon,OUT,Injury/Illness - Right Hamstring;
+2026-03-01,MIN,MIN,Rocco Spasms Zikarsky,OUT,G League - Two- Way
+2026-03-01,MIN,MIN,Jules Bernard,OUT,Not With Team
+2026-03-01,DEN,DEN,Tamar Bates,OUT,Injury/Illness - Left Foot;
+2026-03-02,UTA,UTA,Kevin recovery Love,OUT,
+2026-03-02,UTA,UTA,Lauri Rest Markkanen,OUT,Injury/Illness - Right Hip;
+2026-03-02,GSW,GSW,LJ Surgery Cryer,OUT,G League - Two-
+2026-03-02,GSW,GSW,Seth Way Curry,OUT,Injury/Illness - Left Sciatic Nerve;
+2026-03-02,WAS,WAS,Anthony Sprain Davis,OUT,Injury/Illness - Left Finger;
+2026-03-02,WAS,WAS,Cam Contusion Whitmore,OUT,Injury/Illness - Right Shoulder; Deep Vein
+2026-03-03,OKC,OKC,Shai Gilgeous- Alexander,OUT,Injury/Illness - Abdominal; Strain;
+2026-03-03,OKC,OKC,Isaiah Management Hartenstein,OUT,Injury/Illness - Right Soleus;
+2026-03-03,OKC,OKC,Ajay Management Mitchell,OUT,Injury/Illness - Abdominal; Strain/ Left Ankle
+2026-03-03,MEM,MEM,Zach Sprain Edey,OUT,Injury/Illness - Left Ankle; Stress
+2026-03-03,MIN,MIN,Enrique Freeman,OUT,G League - Two-
+2026-03-03,MEM,MEM,Ja Contusion Morant,OUT,Injury/Illness - Left Elbow; UCL Sprain
+2026-03-03,MEM,MEM,Taj Reaction Gibson,OUT,Return to Competition
+2026-03-03,SAC,SAC,Domantas Sabonis,OUT,Injury/Illness - Left Knee; Meniscus
+2026-03-03,PHI,PHI,Dalen Brace Terry,DOUBTFUL,G League - Two- Way
+2026-03-03,PHI,PHI,Tyrese Suspension Martin,DOUBTFUL,G League - Two- Way
+2026-03-03,PHI,PHI,Johni Way Broome,OUT,Injury/Illness - Right Knee; Surgery
+2026-03-03,PHI,PHI,MarJon Beauchamp,DOUBTFUL,G League - Two-
+2026-03-03,SAS,SAS,Harrison Ingram,OUT,G League - Two- Way
+2026-03-03,CHA,CHA,Coby Way White,OUT,Injury/Illness - Left Calf;
+2026-03-03,CLE,CLE,Darius Brown,OUT,G League - Two-
+2026-03-03,MIA,MIA,Norman Contusion Powell,OUT,Injury/Illness - Right Groin;
+2026-03-03,BKN,BKN,Chaney Johnson,OUT,G League - Two-
+2026-03-03,BKN,BKN,Egor Sprain Demin,OUT,Injury/Illness - Left Plantar Fascia;
+2026-03-03,CLE,CLE,Max Strain Strus,OUT,Injury/Illness - Left Foot; Surgery - Jones
+2026-03-03,CLE,CLE,Donovan Way Mitchell,OUT,Injury/Illness - Right Groin;
+2026-03-03,ORL,ORL,Alex Way Morales,OUT,G League - Two-
+2026-03-03,ORL,ORL,Colin Contusion Castleton,OUT,G League - Two-
+2026-03-04,MIL,MIL,Taurean Way Prince,OUT,Injury/Illness - Neck;
+2026-03-04,IND,IND,Ivica Fracture Zubac,OUT,Injury/Illness - Left Ankle; Sprain
+2026-03-04,LAC,LAC,John Fracture Collins,OUT,Injury/Illness - Neck; Strain
+2026-03-04,BOS,BOS,Jayson Tatum,OUT,Injury/Illness - Right Achilles; Repair
+2026-03-04,POR,POR,Shaedon . Sharpe,OUT,Injury/Illness - Left Fibula; Stress
+2026-03-05,MIN,MIN,Rocco Way Zikarsky,OUT,G League - Two- Way
+2026-03-05,MIN,MIN,Zyon Reasons Pullin,OUT,G League - Two-
+2026-03-05,MIN,MIN,Joe Way Ingles,OUT,Personal
+2026-03-05,MIN,MIN,Enrique Maintenance Freeman,OUT,G League - Two-
+2026-03-05,TOR,TOR,A.J. Sprain Lawson,OUT,G League - Two-
+2026-03-05,CHI,CHI,Anfernee Syndrome Simons,OUT,Injury/Illness - Left Ulnar Styloid;
+2026-03-05,NOP,NOP,Josh Reconditioning Oduro,OUT,G League - Two-
+2026-03-05,NOP,NOP,Dejounte Spasm Murray,OUT,Return to Competition
+2026-03-05,DEN,DEN,Peyton Strain Watson,OUT,Injury/Illness - Right Hamstring; Strain
+2026-03-05,WAS,WAS,Tristan Strain Vukcevic,OUT,Injury/Illness - Left Thigh;
+2026-03-05,WAS,WAS,D'Angelo Illness Russell,OUT,Not With Team
+2026-03-05,WAS,WAS,Kyshawn George,OUT,Injury/Illness - Left Elbow;
+2026-03-05,ORL,ORL,Franz Soreness Wagner,OUT,Injury/Illness - Left High Ankle; Sprain injury management
+2026-03-05,DAL,DAL,John Contusion Poulakidas,DOUBTFUL,G League - Two-
+2026-03-05,DAL,DAL,Kyrie Sprain Irving,OUT,Injury/Illness - Left Knee; Surgery
+2026-03-05,GSW,GSW,Moses Syndrome Moody,OUT,Injury/Illness - Right Wrist; Sprain
+2026-03-05,GSW,GSW,Stephen Irritation Curry,OUT,Injury/Illness - Right Patellofemoral; Pain
+2026-03-05,MIA,MIA,"Trevor Available G League - Two- Way Larsson, Pelle Available Injury/Illness - Left 3rd Mallet; Finger Mitchell, Davion Available Injury/Illness - Left Shoulder; Contusion Powell, Norman Keels",OUT,Injury/Illness - Right Groin;
+2026-03-05,MIA,MIA,Keshad Way Johnson,OUT,G League - On
+2026-03-05,MIA,MIA,Vladislav Strain Goldin,OUT,G League - Two-
+2026-03-06,SAS,SAS,Harrison Soreness Ingram,OUT,G League - Two- Way
+2026-03-06,SAS,SAS,Mason Plumlee,OUT,Return to Competition Reconditioning
+2026-03-06,LAC,LAC,Yanic Konan Management Niederhauser,OUT,Injury/Illness - Right Lisfranc Ligament; Tear
+2026-03-06,LAC,LAC,John Illness Collins,OUT,Injury/Illness - Neck;
+2026-03-06,DEN,DEN,KJ Strain Simpson,OUT,G League - Two-
+2026-03-06,DEN,DEN,Curtis Inflammation Jones,OUT,G League - Two-
+2026-03-06,LAC,LAC,Darius Strain Garland,OUT,Injury/Illness - Left Toe;
+2026-03-06,ORL,ORL,Franz Wagner,OUT,Injury/Illness - Left High Ankle; Sprain injury management
+2026-03-06,LAL,LAL,Deandre Ayton,OUT,Injury/Illness - Left Knee;
+2026-03-06,NYK,NYK,Dillon Contusion Jones,OUT,G League - Two-
+2026-03-06,PHX,PHX,Mark Soreness Williams,OUT,Injury/Illness - Left Foot Third Metatarsal; Stress Reaction
+2026-03-06,MIA,MIA,Jahmir Tendinitis Young,OUT,G League - Two- Way
+2026-03-06,MIA,MIA,Andrew Soreness Wiggins,DOUBTFUL,Injury/Illness - Bilateral Patellar;
+2026-03-06,MIA,MIA,"Davion Available Injury/Illness - Left Shoulder; Contusion Powell, Norman Mitchell",OUT,Injury/Illness - Right Groin;
+2026-03-06,HOU,HOU,Jae'Sean Sprain Tate,OUT,Injury/Illness - Right Knee;
+2026-03-06,POR,POR,Hansen Reaction Yang,OUT,G League - On Assignment
+2026-03-07,MEM,MEM,Ja Reconditioning Morant,OUT,Injury/Illness - Left Elbow; UCL Sprain
+2026-03-07,MIL,MIL,Taurean Swelling Prince,OUT,Injury/Illness - Neck;
+2026-03-07,UTA,UTA,Vince Williams Jr.,OUT,Injury/Illness - Left Knee;
+2026-03-07,UTA,UTA,Jaren Jackson Jr.,OUT,Injury/Illness - Left Knee;
+2026-03-07,UTA,UTA,Lauri recovery Markkanen,OUT,Injury/Illness - Right Hip;
+2026-03-07,UTA,UTA,Walker recovery Kessler,OUT,Injury/Illness - Left Shoulder;
+2026-03-07,UTA,UTA,Jusuf Impingement Nurkic,OUT,Injury/Illness - Nose;
+2026-03-07,GSW,GSW,Jimmy Butler III,OUT,Injury/Illness - Right ACL;
+2026-03-07,OKC,OKC,Isaiah Contusion Hartenstein,OUT,Injury/Illness - Left Calf;
+2026-03-07,GSW,GSW,Stephen Curry,OUT,Injury/Illness - Right Patellofemoral; Pain
+2026-03-07,GSW,GSW,Moses Management Moody,OUT,Injury/Illness - Right Wrist; Sprain
+2026-03-07,OKC,OKC,Alex Strain Caruso,OUT,Injury/Illness - Left Hip;
+2026-03-07,OKC,OKC,Ajay Contusion Mitchell,OUT,Injury/Illness - Abdominal; Strain/ Left Ankle
+2026-03-07,OKC,OKC,Thomas Sprain Sorber,OUT,Injury/Illness - Right ACL; Surgical
+2026-03-07,MEM,MEM,Zach Edey,OUT,Injury/Illness - Left Ankle; Surgery
+2026-03-07,OKC,OKC,Jalen Recovery Williams,OUT,Injury/Illness - Right Hamstring; Strain
+2026-03-07,UTA,UTA,Isaiah Collier,OUT,Personal Reasons
+2026-03-07,ORL,ORL,Alex Soreness Morales,OUT,G League - Two-
+2026-03-07,MIN,MIN,Zyon Way Pullin,OUT,G League - Two-
+2026-03-07,BKN,BKN,Tyson Management Etienne,OUT,G League - Two-
+2026-03-07,BKN,BKN,Chaney Way Johnson,OUT,G League - Two-
+2026-03-07,BKN,BKN,E.J. Way Liddell,OUT,G League - Two-
+2026-03-07,BKN,BKN,Drake Way Powell,OUT,G League - On Assignment
+2026-03-07,ATL,ATL,Asa Inflammation Newell,DOUBTFUL,G League - On Assignment
+2026-03-07,PHI,PHI,VJ Recovery Edgecombe,DOUBTFUL,Injury/Illness - Lumbar;
+2026-03-07,PHI,PHI,Joel Contusion Embiid,OUT,Injury/Illness - Right Oblique;
+2026-03-08,CHI,CHI,Anfernee Simons,OUT,Injury/Illness - Left Ulnar Styloid;
+2026-03-08,ORL,ORL,Franz Spasms Wagner,OUT,Injury/Illness - Left High Ankle; Sprain injury management
+2026-03-08,ORL,ORL,Alex Strain Morales,OUT,G League - Two-
+2026-03-08,PHX,PHX,Dillon Brooks,OUT,Injury/Illness - Left Hand;
+2026-03-08,POR,POR,Shaedon Illness Sharpe,OUT,Injury/Illness - Left Fibula; Stress
+2026-03-08,MIA,MIA,"Davion Available Injury/Illness - Left Shoulder; Contusion Powell, Norman management Mitchell",OUT,Injury/Illness - Right Groin;
+2026-03-08,TOR,TOR,Jonathan Mogbo,OUT,G League - On Assignment
+2026-03-08,TOR,TOR,A.J. Illness Lawson,OUT,G League - Two-
+2026-03-08,DAL,DAL,Tyler Tightness Smith,DOUBTFUL,G League - Two- Way
+2026-03-08,DAL,DAL,Kyrie Management Irving,OUT,Injury/Illness - Left Knee; Surgery
+2026-03-08,DAL,DAL,Moussa Sprain Cisse,DOUBTFUL,G League - Two-
+2026-03-08,LAL,LAL,"Maxi Available Injury/Illness - Lumbar Back; Strain Thiero, Adou Arthritis Kleber",OUT,G League - On Assignment
+2026-03-08,LAL,LAL,LeBron Assignment James,OUT,Injury/Illness - Left Elbow Contusion &; Left Foot
+2026-03-08,LAL,LAL,Bronny James,OUT,G League - On
+2026-03-08,CLE,CLE,Max Way Strus,OUT,Injury/Illness - Left Foot; Surgery - Jones
+2026-03-08,CLE,CLE,"Keon Available Injury/Illness - Left Index Finger; Fracture Harden, James Available Injury/Illness - Right Thumb; Fracture Minix, Riley Available G League - Two- Way Mitchell, Donovan Available Injury/Illness - Right Groin; Strain Proctor, Tyrese Tendonitis Ellis",OUT,Injury/Illness - Right Quadricep;
+2026-03-08,DET,DET,Caris Way LeVert,OUT,Injury/Illness - Left Wrist; Sprain
+2026-03-08,DET,DET,Isaac Contusion Jones,OUT,G League - Two-
+2026-03-08,NOP,NOP,Josh Way Oduro,OUT,G League - Two- Way
+2026-03-08,WAS,WAS,Jamir Contusion Watkins,OUT,Injury/Illness - Left Ankle; ; Foot;
+2026-03-08,WAS,WAS,Tristan Vukcevic,OUT,Injury/Illness - Left Thigh;
+2026-03-08,WAS,WAS,D'Angelo Russell,OUT,Not With Team
+2026-03-08,MIA,MIA,Andrew Wiggins,OUT,Injury/Illness - Left Big Toe;
+2026-03-08,MIA,MIA,Jahmir Inflammation Young,OUT,G League - Two- Way
+2026-03-10,POR,POR,Shaedon Way Sharpe,OUT,Injury/Illness - Left Fibula; Stress
+2026-03-10,CHA,CHA,Antonio Sprain Reeves,OUT,G League - Two-
+2026-03-10,CHA,CHA,Coby Strain White,OUT,Injury/Illness - Left Calf;
+2026-03-10,HOU,HOU,Fred Sprain VanVleet,OUT,Injury/Illness - Right Knee; ACL Repair
+2026-03-10,HOU,HOU,Jae'Sean Way Tate,OUT,Injury/Illness - Right Knee;
+2026-03-10,CHI,CHI,Lachlan Way Olbrich,OUT,G League - Two-
+2026-03-10,POR,POR,Damian Way Lillard,OUT,Injury/Illness - Left Achilles Tendon;
+2026-03-10,IND,IND,Ivica soreness Zubac,OUT,Injury/Illness - Left Ankle; Sprain
+2026-03-10,MIN,MIN,Zyon Pullin,OUT,G League - Two- Way
+2026-03-10,MIN,MIN,Enrique Assignment Freeman,OUT,G League - Two- Way
+2026-03-10,MIN,MIN,Joan Soreness Beringer,OUT,G League - On
+2026-03-10,SAC,SAC,De'Andre Sprain Hunter,OUT,Injury/Illness - Left Eye; Retinal
+2026-03-10,IND,IND,T.J. Torn McConnell,OUT,Injury/Illness - Right Hamstring;
+2026-03-10,WAS,WAS,Cam Sprain Whitmore,OUT,Injury/Illness - Right Shoulder; Deep Vein Thrombosis
+2026-03-10,WAS,WAS,Jamir Watkins,OUT,Injury/Illness - Left Ankle; ; Foot;
+2026-03-10,DET,DET,Caris Assignment LeVert,OUT,Injury/Illness - Left Wrist; Sprain
+2026-03-10,TOR,TOR,A.J. Dislocation Lawson,OUT,G League - Two- Way
+2026-03-10,ATL,ATL,Asa Bruise Newell,DOUBTFUL,G League - On Assignment
+2026-03-10,MIA,MIA,Keshad Strain Johnson,OUT,G League - On
+2026-03-10,MIA,MIA,"Davion Available Injury/Illness - Left Shoulder; Contusion Powell, Norman Management Mitchell",OUT,Injury/Illness - Right Groin;
+2026-03-10,MIA,MIA,Nikola Assignment Jovic,OUT,Injury/Illness - Low Back;
+2026-03-10,MIL,MIL,Cormac Surgery Ryan,OUT,G League - Two- Way
+2026-03-10,PHX,PHX,Mark Strain Williams,OUT,Injury/Illness - Left Foot Third Metatarsal; Stress Reaction
+2026-03-10,BOS,BOS,"Baylor Available Injury/Illness - Left Thumb; Fracture Tonje, John Scheierman",OUT,G League - Two-
+2026-03-10,MIA,MIA,Andrew Strain Wiggins,OUT,Injury/Illness - Left Big Toe;
+2026-03-12,BOS,BOS,John Management Tonje,OUT,G League - Two-
+2026-03-12,DEN,DEN,KJ Sprain Simpson,OUT,G League - Two-
+2026-03-12,SAS,SAS,Emanuel Way Miller,OUT,G League - Two- Way
+2026-03-12,BOS,BOS,"Payton Available Injury/Illness - Neck; Spasm Scheierman, Baylor Available Injury/Illness - Left Thumb; Fracture Tatum, Jayson Pritchard",OUT,Injury/Illness - Right Achilles;
+2026-03-12,SAS,SAS,David Jones Garcia,OUT,G League - Two-
+2026-03-12,DEN,DEN,Curtis Jones,OUT,G League - Two-
+2026-03-12,MEM,MEM,Brandon Recovery Clarke,OUT,Injury/Illness - Right Calf; Strain
+2026-03-12,MEM,MEM,Scotty Pippen Jr.,OUT,Injury/Illness - Right Great Toe;
+2026-03-12,MEM,MEM,Ja Management Morant,OUT,Injury/Illness - Left Elbow; UCL Sprain
+2026-03-12,MEM,MEM,Ty Reconditioning Jerome,DOUBTFUL,Injury/Illness - Right Calf;
+2026-03-12,MEM,MEM,Taj Recovery Gibson,DOUBTFUL,Return to Competition
+2026-03-12,MEM,MEM,Zach Management Edey,OUT,Injury/Illness - Left Ankle; Surgery
+2026-03-12,MEM,MEM,Cedric Sprain Coward,DOUBTFUL,Injury/Illness - Right Knee;
+2026-03-12,MEM,MEM,Walter Clayton Jr.,DOUBTFUL,Injury/Illness - Right Ankle;
+2026-03-12,MEM,MEM,Kentavious Caldwell- Pope,OUT,Injury/Illness - Right 5th Finger; Surgery
+2026-03-12,MEM,MEM,Santi Aldama,OUT,Injury/Illness - Right Knee;
+2026-03-12,BOS,BOS,Nikola Way Vucevic,OUT,Injury/Illness - Right Ring Finger;
+2026-03-12,NYK,NYK,Dillon Soreness Jones,OUT,G League - Two-
+2026-03-12,OKC,OKC,Isaiah Hartenstein,OUT,Injury/Illness - Left Calf;
+2026-03-12,DAL,DAL,Klay Way Thompson,DOUBTFUL,Rest
+2026-03-12,TOR,TOR,Chucky Illness Hepburn,OUT,G League - Two- Way
+2026-03-12,LAL,LAL,Marcus Strain Smart,OUT,Injury/Illness - Right Hip; Contusion
+2026-03-12,LAL,LAL,Maxi Arthritis Kleber,OUT,Injury/Illness - Lumbar Back;
+2026-03-12,LAL,LAL,Jaxson Hayes,OUT,Injury/Illness - Back;
+2026-03-12,CHI,CHI,Guerschon Yabusele,DOUBTFUL,Injury/Illness - Left Foot; Soreness
+2026-03-12,CHI,CHI,Patrick Management Williams,DOUBTFUL,Injury/Illness - Left Ankle; Sprain
+2026-03-12,CHI,CHI,Jaden Sprain Ivey,OUT,Injury/Illness - Left Patellofemoral; Pain
+2026-03-12,CHI,CHI,Noa Surgey Essengue,OUT,Injury/Illness - Left Shoulder;
+2026-03-12,CHI,CHI,Zach Sprain Collins,OUT,Injury/Illness - Right 1st Toe;
+2026-03-12,OKC,OKC,Thomas Contusion Sorber,OUT,Injury/Illness - Right ACL; Surgical
+2026-03-12,OKC,OKC,Branden Carlson,OUT,Injury/Illness - Low Back; Strain
+2026-03-12,DAL,DAL,Tyler Smith,DOUBTFUL,G League - Two-
+2026-03-12,SAS,SAS,Harrison Impingement Ingram,OUT,G League - Two- Way
+2026-03-12,IND,IND,Pascal Way Siakam,OUT,Injury/Illness - Right Knee;
+2026-03-12,PHX,PHX,Dillon Management Brooks,OUT,Injury/Illness - Left Hand; Fracture
+2026-03-12,DET,DET,Ausar Way Thompson,OUT,Injury/Illness - Right Ankle; Sprain
+2026-03-12,DET,DET,Tolu Way Smith,OUT,G League - Two-
+2026-03-12,DET,DET,"Chaz Available - LeVert, Caris Decision Lanier",OUT,Injury/Illness - Left Wrist; Sprain
+2026-03-12,PHI,PHI,Tyrese Suspension Maxey,OUT,Injury/Illness - Right Finger; Tendon Strain
+2026-03-12,PHI,PHI,Johni Soreness Broome,OUT,Injury/Illness - Right Knee; Surgery
+2026-03-12,PHI,PHI,Adem Bona,OUT,Injury/Illness - Back;
+2026-03-12,DAL,DAL,John Surgery Poulakidas,DOUBTFUL,G League - Two- Way
+2026-03-12,PHI,PHI,Joel Spasms Embiid,OUT,Injury/Illness - Right Oblique;
+2026-03-12,WAS,WAS,Anthony Davis,OUT,Injury/Illness - Left Finger;
+2026-03-12,DAL,DAL,Kyrie Way Irving,OUT,Injury/Illness - Left Knee; Surgery
+2026-03-12,MIA,MIA,"Kel'el Available Injury/Illness - Right Shoulder; Strain Wiggins, Andrew Ware",OUT,Injury/Illness - Left Big Toe;
+2026-03-12,MIA,MIA,Terry Strain Rozier,OUT,Not With Team
+2026-03-12,MIA,MIA,"Pelle Available Injury/Illness - Left Hip; Tightness Powell, Norman Management Larsson",OUT,Injury/Illness - Right Groin;
+2026-03-12,MIA,MIA,Nikola Soreness Jovic,OUT,Injury/Illness - Low Back;
+2026-03-12,MIL,MIL,Cormac Contusion Ryan,OUT,G League - Two-
+2026-03-12,MIA,MIA,Jahmir Sesamoiditis Young,OUT,G League - Two- Way
+2026-03-12,ATL,ATL,"RayJ Available G League - Two- Way Gilbert, Keshon Sprain Dennis",OUT,G League - Two-
+2026-03-12,ORL,ORL,Franz Strain Wagner,OUT,Injury/Illness - Left High Ankle; Sprain injury management
+2026-03-12,BKN,BKN,Egor Demin,OUT,Injury/Illness - Left Plantar Fascia;
+2026-03-12,WAS,WAS,Cam Whitmore,OUT,Injury/Illness - Right Shoulder; Deep Vein Thrombosis
+2026-03-12,BKN,BKN,Day'Ron Sprain Sharpe,OUT,Injury/Illness - Left Thumb;
+2026-03-12,BKN,BKN,Nolan Sprain Traore,OUT,
+2026-03-12,BKN,BKN,Ziaire Rest Williams,OUT,Injury/Illness - N/a; Illness
+2026-03-12,BKN,BKN,Michael Porter Jr.,OUT,Injury/Illness - Right Ankle;
+2026-03-17,PHI,PHI,Tyrese Maxey,OUT,Injury/Illness - Right Finger; Tendon Strain
+2026-03-17,PHI,PHI,Paul Strain George,OUT,League Suspension
+2026-03-17,PHX,PHX,Mark Management Williams,OUT,Injury/Illness - Left Foot Third Metatarsal; Stress Reaction
+2026-03-17,PHI,PHI,Joel Recovery Embiid,OUT,Injury/Illness - Right Oblique;
+2026-03-17,PHI,PHI,Johni Broome,OUT,Injury/Illness - Right Knee; Surgery
+2026-03-17,MIN,MIN,Zyon Assignment Pullin,OUT,G League - Two-
+2026-03-17,MIN,MIN,Julian Way Phillips,OUT,G League - On
+2026-03-17,MIN,MIN,Enrique Soreness Freeman,OUT,G League - Two-
+2026-03-17,MIN,MIN,Anthony Assignment Edwards,OUT,Injury/Illness - Right Knee;
+2026-03-17,MIN,MIN,Joan Beringer,OUT,G League - On
+2026-03-17,PHX,PHX,Dillon Soreness Brooks,OUT,Injury/Illness - Left Hand;
+2026-03-17,PHX,PHX,Grayson Allen,DOUBTFUL,Injury/Illness - Left Knee;
+2026-03-17,MIL,MIL,Alex Antetokounmpo,OUT,G League - Two-
+2026-03-17,PHI,PHI,Kelly Oubre Jr.,OUT,Injury/Illness - Left Elbow;
+2026-03-17,CLE,CLE,Tyrese Strain Proctor,OUT,Injury/Illness - Right Quadricep;
+2026-03-17,PHI,PHI,"Dalen Available Injury/Illness - Left Shoulder; Impingement Walker, Jabari Sprain Terry",OUT,Injury/Illness - N/a; Illness
+2026-03-17,TOR,TOR,A.J. Assignment Lawson,OUT,G League - Two-
+2026-03-17,DEN,DEN,Curtis Assignment Jones,OUT,G League - Two-
+2026-03-17,CHI,CHI,Anfernee Contusion Simons,OUT,Injury/Illness - Left Ulnar Styloid; Fracture
+2026-03-17,CHI,CHI,Mac Syndrome McClung,OUT,G League - Two-
+2026-03-17,CHI,CHI,Noa Surgery Essengue,OUT,Injury/Illness - Left Shoulder;
+2026-03-17,TOR,TOR,Collin Murray- Boyles,DOUBTFUL,Injury/Illness - Left Thumb; Sprain
+2026-03-17,TOR,TOR,Alijah Way Martin,OUT,G League - Two- Way
+2026-03-17,TOR,TOR,Trayce Jackson- Davis,OUT,G League - On
+2026-03-17,SAC,SAC,Keegan Sprain Murray,OUT,Injury/Illness - Left Ankle;
+2026-03-17,SAC,SAC,De'Andre Tear Hunter,OUT,Injury/Illness - Left Eye; Retinal
+2026-03-17,SAC,SAC,Drew Contusion Eubanks,OUT,Injury/Illness - Left Thumb; UCL
+2026-03-17,DEN,DEN,Peyton Way Watson,OUT,Injury/Illness - Right Hamstring; Strain
+2026-03-17,DEN,DEN,KJ Way Simpson,OUT,G League - Two-
+2026-03-17,DEN,DEN,DaRon Holmes II,OUT,G League - On
+2026-03-17,OKC,OKC,Brooks Barnhizer,OUT,G League - Two-
+2026-03-17,CHA,CHA,Antonio Assignment Reeves,OUT,G League - Two-
+2026-03-17,MIA,MIA,"Dru Available Injury/Illness - Right Hip; Contusion Ware, Kel'el Available Injury/Illness - Right Shoulder; Strain Wiggins, Andrew Smith",OUT,Injury/Illness - Left Big Toe; Sesamoiditis
+2026-03-17,MIA,MIA,"Pelle Available Injury/Illness - Left Elbow; Contusion Rozier, Terry Management Larsson",OUT,Not With Team
+2026-03-17,MIA,MIA,Bam Adebayo,DOUBTFUL,Injury/Illness - Right Calf;
+2026-03-17,WAS,WAS,Trae Thrombosis Young,OUT,Injury/Illness - Right Quad; Contusion
+2026-03-17,OKC,OKC,Branden Way Carlson,OUT,Injury/Illness - Low Back;
+2026-03-17,WAS,WAS,Cam Capsulitis Whitmore,OUT,Injury/Illness - Right Shoulder; Deep Vein
+2026-03-17,WAS,WAS,Kyshawn Sprain George,OUT,Injury/Illness - Left Elbow;
+2026-03-17,WAS,WAS,Anthony Bursitis Davis,OUT,Injury/Illness - Left Finger;
+2026-03-17,WAS,WAS,Bilal Sprain Coulibaly,OUT,Injury/Illness - Right Retrocalcaneal;
+2026-03-17,WAS,WAS,Leaky Black,OUT,Injury/Illness - Left Ankle;
+2026-03-17,DET,DET,Isaiah Way Stewart,OUT,Injury/Illness - Left Calf; Strain
+2026-03-17,DET,DET,Chaz Assignment Lanier,OUT,G League - On Assignment
+2026-03-17,DET,DET,Bobi Way Klintman,OUT,G League - On
+2026-03-17,WAS,WAS,D'Angelo Sprain Russell,OUT,Not With Team
+2026-03-17,OKC,OKC,Thomas Strain Sorber,OUT,Injury/Illness - Right ACL; Surgical
+2026-03-17,WAS,WAS,Alex Sarr,OUT,Injury/Illness - Left Big Toe;
+2026-03-17,OKC,OKC,Jalen Assignment Williams,OUT,Injury/Illness - Right Hamstring; Strain
+2026-03-17,OKC,OKC,Nikola Recovery Topic,OUT,G League - On
+2026-03-17,IND,IND,Pascal Sprain Siakam,DOUBTFUL,Injury/Illness - Right Knee;
+2026-03-17,ORL,ORL,Alex Sprain Morales,OUT,G League - Two-
+2026-03-17,ORL,ORL,Franz Way Wagner,OUT,Injury/Illness - Left High Ankle; Sprain
+2026-03-22,MIN,MIN,Naz Reid,OUT,Out
+2026-03-22,OKC,OKC,Jalen Williams,OUT,Out
+2026-03-22,OKC,OKC,Branden Carlson,OUT,Out
+2026-03-22,WAS,WAS,Leaky Black,OUT,Out
+2026-03-22,TOR,TOR,Collin Murray-Boyles,OUT,Out
+2026-03-22,MIA,MIA,Andrew Wiggins,OUT,Out
+2026-03-22,BKN,BKN,Nic Claxton,OUT,Out
+2026-03-22,LAL,LAL,Maxi Kleber,OUT,Out
+2026-03-24,POR,POR,Vit Krejci,OUT,Out
+2026-03-24,PHI,PHI,Tyrese Maxey,OUT,Out
+2026-03-24,PHI,PHI,Johni Broome,OUT,Out
+2026-03-24,PHX,PHX,Amir Coffey,OUT,Out
+2026-03-24,PHX,PHX,Haywood Highsmith,OUT,Out
+2026-03-24,PHX,PHX,Grayson Allen,OUT,Out
+2026-03-24,PHX,PHX,Royce O'Neale,OUT,Out
+2026-03-24,PHX,PHX,Mark Williams,OUT,Out
+2026-03-24,PHI,PHI,Kelly Oubre Jr.,OUT,Out
+2026-03-24,PHX,PHX,Dillon Brooks,OUT,Out
+2026-03-24,PHI,PHI,Joel Embiid,OUT,Out
+2026-03-24,ORL,ORL,Anthony Black,OUT,Out
+2026-03-24,ORL,ORL,Franz Wagner,OUT,Out
+2026-03-24,OKC,OKC,Thomas Sorber,OUT,Out
+2026-03-24,NYK,NYK,Miles McBride,OUT,Out
+2026-03-24,NYK,NYK,Landry Shamet,OUT,Out
+2026-03-24,NOP,NOP,Bryce McGowens,OUT,Out
+2026-03-24,MIN,MIN,Anthony Edwards,OUT,Out
+2026-03-24,MIL,MIL,Giannis Antetokounmpo,OUT,Out
+2026-03-24,MIL,MIL,Kevin Porter Jr.,OUT,Out
+2026-03-24,POR,POR,Shaedon Sharpe,OUT,Out
+2026-03-24,POR,POR,Damian Lillard,OUT,Out
+2026-03-24,WAS,WAS,Cam Whitmore,OUT,Out
+2026-03-24,MIA,MIA,Terry Rozier,OUT,Out
+2026-03-24,WAS,WAS,D'Angelo Russell,OUT,Out
+2026-03-24,WAS,WAS,Kyshawn George,OUT,Out
+2026-03-24,WAS,WAS,Anthony Davis,OUT,Out
+2026-03-24,WAS,WAS,Trae Young,OUT,Out
+2026-03-24,UTA,UTA,Walker Kessler,OUT,Out
+2026-03-24,UTA,UTA,Jaren Jackson Jr.,OUT,Out
+2026-03-24,UTA,UTA,Jusuf Nurkic,OUT,Out
+2026-03-24,UTA,UTA,Keyonte George,OUT,Out
+2026-03-24,UTA,UTA,Lauri Markkanen,OUT,Out
+2026-03-24,SAC,SAC,Killian Hayes,OUT,Out
+2026-03-24,UTA,UTA,Isaiah Collier,OUT,Out
+2026-03-24,TOR,TOR,Chucky Hepburn,OUT,Out
+2026-03-24,SAS,SAS,David Jones Garcia,OUT,Out
+2026-03-24,SAC,SAC,Zach LaVine,OUT,Out
+2026-03-24,SAC,SAC,Domantas Sabonis,OUT,Out
+2026-03-24,SAC,SAC,De'Andre Hunter,OUT,Out
+2026-03-24,SAC,SAC,Keegan Murray,OUT,Out
+2026-03-24,SAC,SAC,Drew Eubanks,OUT,Out
+2026-03-24,SAC,SAC,Russell Westbrook,OUT,Out
+2026-03-24,SAC,SAC,Nique Clifford,OUT,Out
+2026-03-24,ORL,ORL,Jonathan Isaac,OUT,Out
+2026-03-24,MEM,MEM,Zach Edey,OUT,Out
+2026-03-24,DAL,DAL,Dereck Lively II,OUT,Out
+2026-03-24,DAL,DAL,Kyrie Irving,OUT,Out
+2026-03-24,DAL,DAL,Brandon Williams,OUT,Out
+2026-03-24,DAL,DAL,Caleb Martin,OUT,Out
+2026-03-24,CLE,CLE,Craig Porter Jr.,OUT,Out
+2026-03-24,CLE,CLE,Jarrett Allen,OUT,Out
+2026-03-24,CLE,CLE,Jaylon Tyson,OUT,Out
+2026-03-24,CLE,CLE,Tyrese Proctor,OUT,Out
+2026-03-24,CHI,CHI,Noa Essengue,OUT,Out
+2026-03-24,CHI,CHI,Zach Collins,OUT,Out
+2026-03-24,CHI,CHI,Anfernee Simons,OUT,Out
+2026-03-24,DEN,DEN,Peyton Watson,OUT,Out
+2026-03-24,CHI,CHI,Isaac Okoro,OUT,Out
+2026-03-24,BKN,BKN,Egor Demin,OUT,Out
+2026-03-24,BKN,BKN,Michael Porter Jr.,OUT,Out
+2026-03-24,BKN,BKN,Noah Clowney,OUT,Out
+2026-03-24,BOS,BOS,Nikola Vucevic,OUT,Out
+2026-03-24,MEM,MEM,Kentavious Caldwell-Pope,OUT,Out
+2026-03-24,CHI,CHI,Jaden Ivey,OUT,Out
+2026-03-24,BKN,BKN,Day'Ron Sharpe,OUT,Out
+2026-03-24,DET,DET,Cade Cunningham,OUT,Out
+2026-03-24,MEM,MEM,Scotty Pippen Jr.,OUT,Out
+2026-03-24,DET,DET,Wendell Moore Jr.,OUT,Out
+2026-03-24,MEM,MEM,Santi Aldama,OUT,Out
+2026-03-24,MEM,MEM,Brandon Clarke,OUT,Out
+2026-03-24,MEM,MEM,Cedric Coward,OUT,Out
+2026-03-24,MEM,MEM,Jahmai Mashack,OUT,Out
+2026-03-24,LAC,LAC,Bradley Beal,OUT,Out
+2026-03-24,LAC,LAC,Yanic Konan Niederhauser,OUT,Out
+2026-03-24,MEM,MEM,Ja Morant,OUT,Out
+2026-03-24,LAC,LAC,Bennedict Mathurin,OUT,Out
+2026-03-24,DET,DET,Isaiah Stewart,OUT,Out
+2026-03-24,GSW,GSW,Moses Moody,OUT,Out
+2026-03-24,GSW,GSW,Al Horford,OUT,Out
+2026-03-24,GSW,GSW,Seth Curry,OUT,Out
+2026-03-24,GSW,GSW,Stephen Curry,OUT,Out
+2026-03-24,HOU,HOU,Steven Adams,OUT,Out
+2026-03-24,HOU,HOU,Fred VanVleet,OUT,Out
+2026-03-24,IND,IND,Ivica Zubac,OUT,Out
+2026-03-24,IND,IND,Johnny Furphy,OUT,Out
+2026-03-24,IND,IND,Tyrese Haliburton,OUT,Out
+2026-03-24,GSW,GSW,Jimmy Butler III,OUT,Out
+2026-03-26,CLE,CLE,Craig Porter Jr.,OUT,Injury/Illness - Left Groin;
+2026-03-26,CLE,CLE,Olivier Strain Sarr,OUT,G League - Two-
+2026-03-26,CLE,CLE,Riley Way Minix,OUT,G League - Two- Way
+2026-03-26,CLE,CLE,Tristan Tendonitis Enaruna,OUT,G League - Two-
+2026-03-26,MIA,MIA,"Andrew Available Injury/Illness - Left Big Toe; Sesamoiditis Young, Jahmir Wiggins",OUT,G League - Two- Way
+2026-03-26,MIA,MIA,Terry Way Rozier,OUT,Not With Team
+2026-03-26,MIA,MIA,Trevor Management Keels,OUT,G League - Two-
+2026-03-26,MIA,MIA,Vladislav Goldin,OUT,G League - Two- Way
+2026-03-26,BOS,BOS,Nikola Sprain Vucevic,OUT,Injury/Illness - Right Ring Finger;
+2026-03-26,ATL,ATL,Asa Way Newell,DOUBTFUL,G League - On Assignment
+2026-03-26,ATL,ATL,Keshon Way Gilbert,DOUBTFUL,G League - Two-
+2026-03-26,ATL,ATL,RayJ Dennis,DOUBTFUL,G League - Two-
+2026-03-26,CLE,CLE,Jaylon Way Tyson,OUT,Injury/Illness - Left Great Toe; Bone
+2026-03-26,IND,IND,Ivica Soreness Zubac,OUT,Injury/Illness - Rib; Fracture
+2026-03-26,CLE,CLE,Dean Bruise Wade,OUT,Injury/Illness - Right Ankle; Sprain
+2026-03-26,HOU,HOU,Fred Way VanVleet,OUT,Injury/Illness - Right Knee; ACL Repair
+2026-03-26,DAL,DAL,Caleb Surgery Martin,OUT,Injury/Illness - Right Plantar Fascia;
+2026-03-26,DAL,DAL,Dereck Lively II,OUT,Injury/Illness - Right Foot;
+2026-03-26,DAL,DAL,Kyrie Irving,OUT,Injury/Illness - Left Knee; Surgery
+2026-03-26,DAL,DAL,Daniel Way Gafford,OUT,Injury/Illness - Right Shoulder; Sprain
+2026-03-26,DAL,DAL,Moussa Cisse,DOUBTFUL,G League - Two-
+2026-03-26,TOR,TOR,"A.J. Available G League - Two- Way Martin, Alijah Available G League - Two- Way Quickley, Immanuel Way Lawson",OUT,Injury/Illness - Right Foot; Plantar Fasciitis
+2026-03-26,TOR,TOR,Chucky Hepburn,OUT,G League - Two-
+2026-03-26,HOU,HOU,Tristen Surgery Newton,OUT,G League - Two-
+2026-03-26,HOU,HOU,Steven Adams,OUT,Injury/Illness - Left Ankle;
+2026-03-26,CHI,CHI,Jalen Fracture Smith,OUT,Injury/Illness - Right Calf;
+2026-03-26,CHI,CHI,Anfernee Sprain Simons,DOUBTFUL,Injury/Illness - Left Ulnar Styloid;
+2026-03-26,CHI,CHI,Mac Way McClung,OUT,G League - Two-
+2026-03-26,CHI,CHI,Yuki Syndrome Kawamura,OUT,G League - Two-
+2026-03-26,CHI,CHI,Jaden Surgery Ivey,OUT,Injury/Illness - Left Patellofemoral; Pain
+2026-03-26,CHI,CHI,Noa Tendonitis Essengue,OUT,Injury/Illness - Left Shoulder;
+2026-03-26,CHI,CHI,Zach Collins,OUT,Injury/Illness - Right 1st Toe;
+2026-03-26,IND,IND,Jalen Soreness Slawson,DOUBTFUL,G League - Two-
+2026-03-26,DET,DET,Isaiah Stewart,OUT,Injury/Illness - Left Calf;
+2026-03-26,IND,IND,Tyrese Tear Haliburton,OUT,Injury/Illness - Right Achilles Tendon;
+2026-03-26,NYK,NYK,Kevin McCullar Jr.,OUT,G League - Two-
+2026-03-26,NYK,NYK,Miles Way McBride,OUT,Injury/Illness - Pelvic; Core Muscle Surgery
+2026-03-26,NYK,NYK,Dillon Way Jones,OUT,G League - Two-
+2026-03-26,NYK,NYK,Trey Jemison III,OUT,G League - Two-
+2026-03-26,DET,DET,Wendell Moore Jr.,OUT,G League - Two-
+2026-03-26,DET,DET,Caris Soreness LeVert,OUT,Injury/Illness - Right Knee; Soreness
+2026-03-26,DET,DET,Cade Cunningham,OUT,Injury/Illness - Left Lung;
+2026-03-26,NOP,NOP,Josh Management Oduro,OUT,G League - Two- Way
+2026-03-26,NOP,NOP,Bryce Way McGowens,OUT,Injury/Illness - Right Small Toe; Fracture
+2026-03-26,NOP,NOP,Hunter Way Dickinson,OUT,G League - Two-
+2026-03-26,NOP,NOP,Trey Alexander,OUT,G League - Two-
+2026-03-26,DAL,DAL,John Strain Poulakidas,DOUBTFUL,G League - Two-
+2026-03-26,NYK,NYK,Landry Way Shamet,OUT,Injury/Illness - Right Knee; Tibial Plateau Contusion
+2026-03-26,CHA,CHA,PJ Way Hall,OUT,G League - Two-
+2026-03-26,IND,IND,Johnny Furphy,OUT,Injury/Illness - Right ACL;
+2026-03-26,LAC,LAC,Yanic Konan Soreness Niederhauser,OUT,Injury/Illness - Right Lisfranc Ligament; Tear
+2026-03-26,LAC,LAC,Bradley Beal,OUT,Injury/Illness - Left Hip;
+2026-03-26,ORL,ORL,"Jalen Available Injury/Illness - N/A; Illness Wagner, Franz Sprain Suggs",OUT,Injury/Illness - Left High Ankle; Sprain
+2026-03-26,ORL,ORL,Jonathan Way Isaac,OUT,Injury/Illness - Left Knee;
+2026-03-26,ORL,ORL,Colin Strain Castleton,OUT,G League - Two-
+2026-03-26,ORL,ORL,Anthony Black,OUT,Injury/Illness - Left Lateral Abdominal;
+2026-03-26,SAC,SAC,Russell Way Westbrook,OUT,Injury/Illness - Right Toe; Joint Irritation
+2026-03-26,SAC,SAC,Isaiah Repair Stevens,OUT,G League - Two-
+2026-03-26,SAC,SAC,Domantas Sprain Sabonis,OUT,Injury/Illness - Left Knee; Meniscus
+2026-03-26,SAC,SAC,Keegan Repair Murray,OUT,Injury/Illness - Left Ankle;
+2026-03-26,SAC,SAC,Zach Repair LaVine,OUT,Injury/Illness - Right 5th Finger; Tendon
+2026-03-26,SAC,SAC,De'Andre Inflammation Hunter,OUT,Injury/Illness - Left Eye; Retinal
+2026-03-26,SAC,SAC,Drew Sprain Eubanks,OUT,Injury/Illness - Left Thumb; UCL
+2026-03-26,SAC,SAC,"Precious Available Injury/Illness - Lower Back; Soreness Clifford, Nique Achiuwa",OUT,Injury/Illness - Left Midfoot;
+2026-03-26,CHA,CHA,Tidjane Way Salaun,OUT,Injury/Illness - Left Calf; Strain
+2026-03-26,CHA,CHA,Antonio Illness Reeves,OUT,G League - Two-
+2026-03-26,CHA,CHA,Tosan Illness Evbuomwan,OUT,G League - Two-
