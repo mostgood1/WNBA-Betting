@@ -20,12 +20,16 @@
 
   const state = {
     activeTabs: new Map(),
+    boardInitialized: false,
     date: '',
     filter: 'all',
+    liveGameLens: new Map(),
+    liveStates: new Map(),
     payload: null,
     pollHandle: null,
     propDetails: new Map(),
     propsStripPayload: null,
+    propsStripSort: mode === 'live' ? 'best' : 'default',
   };
 
   function getLocalDateISO() {
@@ -142,10 +146,626 @@
     return String(game?.sim?.game_id || `${game?.away_tri || 'AWAY'}@${game?.home_tri || 'HOME'}`);
   }
 
+  function matchupKey(awayTri, homeTri) {
+    const away = String(awayTri || '').trim().toUpperCase();
+    const home = String(homeTri || '').trim().toUpperCase();
+    return away && home ? `${away}@${home}` : '';
+  }
+
+  function gameMatchupKey(game) {
+    return matchupKey(game?.away_tri, game?.home_tri);
+  }
+
+  function clampNumber(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function parseClockToMinutes(clockText) {
+    const value = String(clockText || '').trim();
+    if (!value) {
+      return null;
+    }
+    const match = value.match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) {
+      return null;
+    }
+    const minutes = Number(match[1]);
+    const seconds = Number(match[2]);
+    if (!Number.isFinite(minutes) || !Number.isFinite(seconds)) {
+      return null;
+    }
+    return minutes + (seconds / 60);
+  }
+
+  function liveElapsedMinutes(status) {
+    if (!status) {
+      return null;
+    }
+    if (status.final) {
+      return 48;
+    }
+    if (!status.in_progress) {
+      return 0;
+    }
+    const period = Number(status.period);
+    const clockMinutes = parseClockToMinutes(status.clock);
+    if (!Number.isFinite(period)) {
+      return null;
+    }
+    if (period <= 4) {
+      const remaining = Number.isFinite(clockMinutes) ? clampNumber(clockMinutes, 0, 12) : 0;
+      return clampNumber(((period - 1) * 12) + (12 - remaining), 0, 48);
+    }
+    const overtimePeriod = period - 5;
+    const remaining = Number.isFinite(clockMinutes) ? clampNumber(clockMinutes, 0, 5) : 0;
+    return 48 + (overtimePeriod * 5) + (5 - remaining);
+  }
+
+  function impliedProbFromAmerican(value) {
+    const odds = Number(value);
+    if (!Number.isFinite(odds) || odds === 0) {
+      return null;
+    }
+    if (odds > 0) {
+      return 100 / (odds + 100);
+    }
+    return Math.abs(odds) / (Math.abs(odds) + 100);
+  }
+
+  function classifyLens(absEdge, watchThreshold, betThreshold) {
+    const edge = Number(absEdge);
+    if (!Number.isFinite(edge)) {
+      return 'NONE';
+    }
+    if (edge >= Number(betThreshold)) {
+      return 'BET';
+    }
+    if (edge >= Number(watchThreshold)) {
+      return 'WATCH';
+    }
+    return 'NONE';
+  }
+
+  function liveLensThresholds(tuning) {
+    const markets = tuning?.markets || {};
+    function marketThreshold(key, watchDefault, betDefault) {
+      const value = markets?.[key] || {};
+      const watch = Number(value.watch);
+      const bet = Number(value.bet);
+      return {
+        watch: Number.isFinite(watch) ? watch : watchDefault,
+        bet: Number.isFinite(bet) ? bet : betDefault,
+      };
+    }
+    return {
+      total: marketThreshold('total', 3.0, 6.0),
+      half_total: marketThreshold('half_total', 3.0, 6.0),
+      quarter_total: marketThreshold('quarter_total', 2.0, 4.0),
+      ats: marketThreshold('ats', 2.0, 4.0),
+      ml: marketThreshold('ml', 0.03, 0.06),
+      adjustments: tuning?.adjustments || {},
+      recentWindow: tuning?.recent_window || {},
+    };
+  }
+
+  function simPeriodMean(game, periodKey) {
+    const periods = game?.sim?.periods || {};
+    const direct = Number(periods?.[periodKey]?.total_mean);
+    if (Number.isFinite(direct)) {
+      return direct;
+    }
+    if (periodKey === 'h1') {
+      const q1 = Number(periods?.q1?.total_mean);
+      const q2 = Number(periods?.q2?.total_mean);
+      if (Number.isFinite(q1) && Number.isFinite(q2)) {
+        return q1 + q2;
+      }
+    }
+    return null;
+  }
+
+  function livePeriodTotalFromLinescore(liveState, quarterNumber) {
+    const periods = safeArray(liveState?.periods);
+    const match = periods.find((entry) => Number(entry?.period) === Number(quarterNumber));
+    if (!match) {
+      return null;
+    }
+    const home = Number(match?.home);
+    const away = Number(match?.away);
+    return Number.isFinite(home) && Number.isFinite(away) ? home + away : null;
+  }
+
+  function halfTotalSoFar(liveState, pbpStats) {
+    const currentPeriod = Number(liveState?.period);
+    if (!Number.isFinite(currentPeriod) || currentPeriod > 2) {
+      return null;
+    }
+    const q1 = livePeriodTotalFromLinescore(liveState, 1);
+    const q2Linescore = livePeriodTotalFromLinescore(liveState, 2);
+    const currentQuarter = Number(pbpStats?.pbp_quarters?.current?.q_total);
+    if (currentPeriod === 1) {
+      return Number(currentQuarter);
+    }
+    if (currentPeriod === 2) {
+      const secondQuarter = Number.isFinite(currentQuarter) ? currentQuarter : q2Linescore;
+      return Number.isFinite(q1) && Number.isFinite(secondQuarter) ? q1 + secondQuarter : null;
+    }
+    return null;
+  }
+
+  function signalPriority(signal) {
+    if (!signal) {
+      return 0;
+    }
+    if (signal.klass === 'BET') {
+      return 2;
+    }
+    if (signal.klass === 'WATCH') {
+      return 1;
+    }
+    return 0;
+  }
+
+  function signalScore(absEdge, betThreshold) {
+    const edge = Number(absEdge);
+    const threshold = Number(betThreshold);
+    if (!Number.isFinite(edge) || !Number.isFinite(threshold) || threshold <= 0) {
+      return 0;
+    }
+    return edge / threshold;
+  }
+
+  function completedMarginBeforePeriod(liveState, beforePeriod) {
+    const periods = safeArray(liveState?.periods);
+    return periods
+      .filter((entry) => Number(entry?.period) < Number(beforePeriod))
+      .reduce((sum, entry) => {
+        const home = Number(entry?.home);
+        const away = Number(entry?.away);
+        return Number.isFinite(home) && Number.isFinite(away) ? sum + (home - away) : sum;
+      }, 0);
+  }
+
+  function currentQuarterMargin(liveState, currentMargin, quarterKey) {
+    if (!Number.isFinite(currentMargin)) {
+      return null;
+    }
+    const quarterNumber = Number(String(quarterKey || '').replace('q', ''));
+    if (!Number.isFinite(quarterNumber)) {
+      return null;
+    }
+    return currentMargin - completedMarginBeforePeriod(liveState, quarterNumber);
+  }
+
+  function simPeriodMargin(game, periodKey) {
+    const periods = game?.sim?.periods || {};
+    const direct = Number(periods?.[periodKey]?.margin_mean);
+    if (Number.isFinite(direct)) {
+      return direct;
+    }
+    if (periodKey === 'h1') {
+      const q1 = Number(periods?.q1?.margin_mean);
+      const q2 = Number(periods?.q2?.margin_mean);
+      if (Number.isFinite(q1) && Number.isFinite(q2)) {
+        return q1 + q2;
+      }
+    }
+    return null;
+  }
+
+  function derivedPeriodMlThresholds(scopeKey) {
+    if (scopeKey === 'h1') {
+      return { watch: 0.08, bet: 0.14 };
+    }
+    return { watch: 0.1, bet: 0.18 };
+  }
+
+  function periodMlScale(minutesRemaining) {
+    const remaining = clampNumber(Number(minutesRemaining) || 0, 0, 24);
+    return 1.75 + (0.18 * remaining);
+  }
+
+  function projectedWinProbFromMargin(margin, minutesRemaining) {
+    const marginValue = Number(margin);
+    if (!Number.isFinite(marginValue)) {
+      return null;
+    }
+    const scale = periodMlScale(minutesRemaining);
+    return 1 / (1 + Math.exp(-(marginValue / scale)));
+  }
+
+  function getLiveState(game) {
+    return state.liveStates.get(gameMatchupKey(game)) || null;
+  }
+
+  function getLiveLens(game) {
+    return state.liveGameLens.get(gameMatchupKey(game)) || null;
+  }
+
+  function computeLiveGameLens(game, liveState, liveLines, pbpStats, tuning) {
+    if (!liveState) {
+      return null;
+    }
+
+    const score = game?.sim?.score || {};
+    const betting = game?.betting || {};
+    const thresholds = liveLensThresholds(tuning);
+    const homePts = Number(liveState.home_pts);
+    const awayPts = Number(liveState.away_pts);
+    const currentTotal = Number.isFinite(homePts) && Number.isFinite(awayPts) ? homePts + awayPts : null;
+    const currentMargin = Number.isFinite(homePts) && Number.isFinite(awayPts) ? homePts - awayPts : null;
+    const elapsedMinutesRaw = liveElapsedMinutes(liveState);
+    const elapsedMinutes = Number.isFinite(elapsedMinutesRaw) ? elapsedMinutesRaw : null;
+    const remainingMinutes = Number.isFinite(elapsedMinutes) ? Math.max(0, 48 - Math.min(48, elapsedMinutes)) : null;
+    const pregameTotal = Number(score.total_mean);
+    const pregameMargin = Number(score.margin_mean);
+    const pregameHomeWin = Number(betting.p_home_win);
+    const lineTotal = Number(liveLines?.lines?.total);
+    const homeSpread = Number(liveLines?.lines?.home_spread);
+    const homeMl = Number(liveLines?.lines?.home_ml);
+    const awayMl = Number(liveLines?.lines?.away_ml);
+    const totalGate = Number(thresholds.adjustments?.game_total?.min_elapsed_min);
+    const recentWindow = pbpStats?.pbp_recent || {};
+    const currentPeriod = Number(liveState?.period);
+    const periodTotals = liveLines?.lines?.period_totals || {};
+    const currentQuarterKey = Number.isFinite(currentPeriod) && currentPeriod >= 1 && currentPeriod <= 4
+      ? `q${Math.floor(currentPeriod)}`
+      : null;
+
+    function buildSignal(key, label, klass, side, edge, line, projection, extraDetail) {
+      const sideLabel = side ? `${side} ` : '';
+      const edgeValue = Number(edge);
+      const projectionValue = Number(projection);
+      const lineValue = Number(line);
+      const parts = [];
+      if (Number.isFinite(projectionValue) && Number.isFinite(lineValue)) {
+        parts.push(`Proj ${fmtNumber(projectionValue, 1)} vs ${fmtNumber(lineValue, 1)}`);
+      }
+      if (extraDetail) {
+        parts.push(extraDetail);
+      }
+      return {
+        key,
+        label,
+        klass,
+        side,
+        edge: Number.isFinite(edgeValue) ? edgeValue : null,
+        line: Number.isFinite(lineValue) ? lineValue : null,
+        projection: Number.isFinite(projectionValue) ? projectionValue : null,
+        score: 0,
+        detail: parts.join(' · '),
+        compactLabel: klass === 'NONE' ? `${label} —` : `${label} ${klass} ${sideLabel}${key === 'ml' ? fmtSigned(edgeValue * 100, 1) + 'pp' : fmtSigned(edgeValue, 1)}`.trim(),
+      };
+    }
+
+    let totalSignal = null;
+    if (liveState.in_progress && Number.isFinite(currentTotal) && Number.isFinite(elapsedMinutes) && Number.isFinite(lineTotal)) {
+      const elapsedForRate = Math.max(elapsedMinutes, 1);
+      const liveRate = currentTotal / elapsedForRate;
+      const paceRaw = currentTotal + (liveRate * Math.max(0, remainingMinutes || 0));
+      const blendWeight = clampNumber(elapsedForRate / 48, 0.12, 1);
+      let projection = Number.isFinite(pregameTotal)
+        ? ((1 - blendWeight) * pregameTotal) + (blendWeight * paceRaw)
+        : paceRaw;
+
+      const recentPoints = Number(recentWindow.points_total);
+      const recentWindowSec = Number(recentWindow.window_sec);
+      if (Number.isFinite(recentPoints) && Number.isFinite(recentWindowSec) && recentWindowSec > 0 && Number.isFinite(remainingMinutes) && elapsedForRate >= 6) {
+        const recentRate = recentPoints / (recentWindowSec / 60);
+        const gameRate = currentTotal / elapsedForRate;
+        const paceCap = Number(thresholds.recentWindow?.pace_cap_points);
+        const maxRecentAdj = Number.isFinite(paceCap) ? paceCap : 3;
+        const recentAdj = clampNumber((recentRate - gameRate) * Math.min(remainingMinutes, 12) * 0.2, -maxRecentAdj, maxRecentAdj);
+        projection += recentAdj;
+      }
+
+      const edge = projection - lineTotal;
+      const side = edge > 1 ? 'Over' : (edge < -1 ? 'Under' : 'No edge');
+      const klass = Number.isFinite(totalGate) && elapsedForRate < totalGate
+        ? 'WAIT'
+        : classifyLens(Math.abs(edge), thresholds.total.watch, thresholds.total.bet);
+      totalSignal = buildSignal('total', 'G', klass, side, edge, lineTotal, projection, `Total ${fmtInteger(currentTotal)}`);
+      totalSignal.score = signalScore(Math.abs(edge), thresholds.total.bet);
+    }
+
+    let halfSignal = null;
+    if (liveState.in_progress && Number.isFinite(currentPeriod) && currentPeriod <= 2) {
+      const halfLine = Number(periodTotals?.h1);
+      const halfActual = halfTotalSoFar(liveState, pbpStats);
+      const halfSim = simPeriodMean(game, 'h1');
+      const halfMinutesElapsed = Number.isFinite(elapsedMinutes) ? elapsedMinutes : null;
+      const halfMinutesRemaining = Number.isFinite(halfMinutesElapsed) ? Math.max(0, 24 - Math.min(24, halfMinutesElapsed)) : null;
+      if (Number.isFinite(halfLine) && Number.isFinite(halfActual) && Number.isFinite(halfMinutesElapsed)) {
+        const elapsedForRate = Math.max(halfMinutesElapsed, 1);
+        const liveRate = halfActual / elapsedForRate;
+        const paceRaw = halfActual + (liveRate * Math.max(0, halfMinutesRemaining || 0));
+        const blendWeight = clampNumber(elapsedForRate / 24, 0.15, 1);
+        const projection = Number.isFinite(halfSim)
+          ? ((1 - blendWeight) * halfSim) + (blendWeight * paceRaw)
+          : paceRaw;
+        const edge = projection - halfLine;
+        const side = edge > 1 ? 'Over' : (edge < -1 ? 'Under' : 'No edge');
+        const klass = classifyLens(Math.abs(edge), thresholds.half_total.watch, thresholds.half_total.bet);
+        halfSignal = buildSignal('half_total', '1H', klass, side, edge, halfLine, projection, `Total ${fmtInteger(halfActual)}`);
+        halfSignal.score = signalScore(Math.abs(edge), thresholds.half_total.bet);
+      }
+    }
+
+    let quarterSignal = null;
+    if (liveState.in_progress && currentQuarterKey) {
+      const quarterLine = Number(periodTotals?.[currentQuarterKey]);
+      const quarterActual = Number(pbpStats?.pbp_quarters?.current?.q_total);
+      const quarterSim = simPeriodMean(game, currentQuarterKey);
+      const quarterMinutesElapsed = Number.isFinite(currentPeriod) && Number.isFinite(elapsedMinutes)
+        ? Math.max(0, elapsedMinutes - ((Math.floor(currentPeriod) - 1) * 12))
+        : null;
+      const quarterMinutesRemaining = Number.isFinite(quarterMinutesElapsed) ? Math.max(0, 12 - Math.min(12, quarterMinutesElapsed)) : null;
+      if (Number.isFinite(quarterLine) && Number.isFinite(quarterActual) && Number.isFinite(quarterMinutesElapsed)) {
+        const elapsedForRate = Math.max(quarterMinutesElapsed, 1);
+        const liveRate = quarterActual / elapsedForRate;
+        const paceRaw = quarterActual + (liveRate * Math.max(0, quarterMinutesRemaining || 0));
+        const blendWeight = clampNumber(elapsedForRate / 12, 0.18, 1);
+        const projection = Number.isFinite(quarterSim)
+          ? ((1 - blendWeight) * quarterSim) + (blendWeight * paceRaw)
+          : paceRaw;
+        const edge = projection - quarterLine;
+        const side = edge > 1 ? 'Over' : (edge < -1 ? 'Under' : 'No edge');
+        const klass = classifyLens(Math.abs(edge), thresholds.quarter_total.watch, thresholds.quarter_total.bet);
+        quarterSignal = buildSignal('quarter_total', String(currentQuarterKey).toUpperCase(), klass, side, edge, quarterLine, projection, `Total ${fmtInteger(quarterActual)}`);
+        quarterSignal.score = signalScore(Math.abs(edge), thresholds.quarter_total.bet);
+      }
+    }
+
+    let halfAtsSignal = null;
+    let halfMlSignal = null;
+    if (liveState.in_progress && Number.isFinite(currentPeriod) && currentPeriod <= 2) {
+      const halfSpread = Number(liveLines?.lines?.period_spreads?.h1);
+      const actualHalfMargin = Number.isFinite(currentMargin) ? currentMargin : null;
+      const simHalfMargin = simPeriodMargin(game, 'h1');
+      const halfMinutesElapsed = Number.isFinite(elapsedMinutes) ? elapsedMinutes : null;
+      if (Number.isFinite(actualHalfMargin) && Number.isFinite(halfMinutesElapsed)) {
+        const blendWeight = clampNumber(halfMinutesElapsed / 24, 0.18, 1);
+        const projectedHalfMargin = Number.isFinite(simHalfMargin)
+          ? ((1 - blendWeight) * simHalfMargin) + (blendWeight * actualHalfMargin)
+          : actualHalfMargin;
+
+        if (Number.isFinite(halfSpread)) {
+          const homeEdge = projectedHalfMargin + halfSpread;
+          const awayEdge = -projectedHalfMargin - halfSpread;
+          const pickHome = Math.abs(homeEdge) >= Math.abs(awayEdge);
+          const edge = pickHome ? homeEdge : awayEdge;
+          const side = pickHome ? game?.home_tri : game?.away_tri;
+          const line = pickHome ? halfSpread : -halfSpread;
+          const projection = pickHome ? projectedHalfMargin : -projectedHalfMargin;
+          const klass = classifyLens(Math.abs(edge), thresholds.ats.watch, thresholds.ats.bet);
+          halfAtsSignal = buildSignal('half_ats', '1H ATS', klass, side, edge, line, projection, `Margin ${fmtSigned(projectedHalfMargin, 1)}`);
+          halfAtsSignal.score = signalScore(Math.abs(edge), thresholds.ats.bet);
+        }
+
+        const halfMlThresholds = derivedPeriodMlThresholds('h1');
+        const halfMinutesRemaining = Math.max(0, 24 - halfMinutesElapsed);
+        const pHomeHalf = projectedWinProbFromMargin(projectedHalfMargin, halfMinutesRemaining);
+        if (Number.isFinite(pHomeHalf)) {
+          const homeEdge = pHomeHalf - 0.5;
+          const awayEdge = (1 - pHomeHalf) - 0.5;
+          const pickHome = Math.abs(homeEdge) >= Math.abs(awayEdge);
+          const edge = pickHome ? homeEdge : awayEdge;
+          const side = pickHome ? game?.home_tri : game?.away_tri;
+          const projection = pickHome ? pHomeHalf : (1 - pHomeHalf);
+          const klass = classifyLens(Math.abs(edge), halfMlThresholds.watch, halfMlThresholds.bet);
+          halfMlSignal = buildSignal('half_ml', '1H ML', klass, side, edge, 0.5, projection, `Model ${fmtPercent(projection, 0)}`);
+          halfMlSignal.score = signalScore(Math.abs(edge), halfMlThresholds.bet);
+        }
+      }
+    }
+
+    let quarterAtsSignal = null;
+    let quarterMlSignal = null;
+    if (liveState.in_progress && currentQuarterKey) {
+      const quarterSpread = Number(liveLines?.lines?.period_spreads?.[currentQuarterKey]);
+      const actualQuarterMargin = currentQuarterMargin(liveState, currentMargin, currentQuarterKey);
+      const simQuarterMargin = simPeriodMargin(game, currentQuarterKey);
+      const quarterMinutesElapsed = Number.isFinite(currentPeriod) && Number.isFinite(elapsedMinutes)
+        ? Math.max(0, elapsedMinutes - ((Math.floor(currentPeriod) - 1) * 12))
+        : null;
+      if (Number.isFinite(actualQuarterMargin) && Number.isFinite(quarterMinutesElapsed)) {
+        const blendWeight = clampNumber(quarterMinutesElapsed / 12, 0.22, 1);
+        const projectedQuarterMargin = Number.isFinite(simQuarterMargin)
+          ? ((1 - blendWeight) * simQuarterMargin) + (blendWeight * actualQuarterMargin)
+          : actualQuarterMargin;
+
+        if (Number.isFinite(quarterSpread)) {
+          const homeEdge = projectedQuarterMargin + quarterSpread;
+          const awayEdge = -projectedQuarterMargin - quarterSpread;
+          const pickHome = Math.abs(homeEdge) >= Math.abs(awayEdge);
+          const edge = pickHome ? homeEdge : awayEdge;
+          const side = pickHome ? game?.home_tri : game?.away_tri;
+          const line = pickHome ? quarterSpread : -quarterSpread;
+          const projection = pickHome ? projectedQuarterMargin : -projectedQuarterMargin;
+          const klass = classifyLens(Math.abs(edge), thresholds.ats.watch, thresholds.ats.bet);
+          quarterAtsSignal = buildSignal('quarter_ats', `${String(currentQuarterKey).toUpperCase()} ATS`, klass, side, edge, line, projection, `Margin ${fmtSigned(projectedQuarterMargin, 1)}`);
+          quarterAtsSignal.score = signalScore(Math.abs(edge), thresholds.ats.bet);
+        }
+
+        const quarterMlThresholds = derivedPeriodMlThresholds(currentQuarterKey);
+        const quarterMinutesRemaining = Math.max(0, 12 - quarterMinutesElapsed);
+        const pHomeQuarter = projectedWinProbFromMargin(projectedQuarterMargin, quarterMinutesRemaining);
+        if (Number.isFinite(pHomeQuarter)) {
+          const homeEdge = pHomeQuarter - 0.5;
+          const awayEdge = (1 - pHomeQuarter) - 0.5;
+          const pickHome = Math.abs(homeEdge) >= Math.abs(awayEdge);
+          const edge = pickHome ? homeEdge : awayEdge;
+          const side = pickHome ? game?.home_tri : game?.away_tri;
+          const projection = pickHome ? pHomeQuarter : (1 - pHomeQuarter);
+          const klass = classifyLens(Math.abs(edge), quarterMlThresholds.watch, quarterMlThresholds.bet);
+          quarterMlSignal = buildSignal('quarter_ml', `${String(currentQuarterKey).toUpperCase()} ML`, klass, side, edge, 0.5, projection, `Model ${fmtPercent(projection, 0)}`);
+          quarterMlSignal.score = signalScore(Math.abs(edge), quarterMlThresholds.bet);
+        }
+      }
+    }
+
+    let atsSignal = null;
+    if (liveState.in_progress && Number.isFinite(currentMargin) && Number.isFinite(homeSpread) && Number.isFinite(elapsedMinutes)) {
+      const blendWeight = clampNumber(Math.max(elapsedMinutes, 0) / 48, 0, 1);
+      const projectedMargin = Number.isFinite(pregameMargin)
+        ? ((1 - blendWeight) * pregameMargin) + (blendWeight * currentMargin)
+        : currentMargin;
+      const homeEdge = projectedMargin + homeSpread;
+      const awayEdge = -projectedMargin - homeSpread;
+      const pickHome = Math.abs(homeEdge) >= Math.abs(awayEdge);
+      const edge = pickHome ? homeEdge : awayEdge;
+      const side = pickHome ? game?.home_tri : game?.away_tri;
+      const projection = pickHome ? projectedMargin : -projectedMargin;
+      const line = pickHome ? homeSpread : -homeSpread;
+      const klass = classifyLens(Math.abs(edge), thresholds.ats.watch, thresholds.ats.bet);
+      atsSignal = buildSignal('ats', 'ATS', klass, side, edge, line, projection, `Margin ${fmtSigned(projectedMargin, 1)}`);
+      atsSignal.score = signalScore(Math.abs(edge), thresholds.ats.bet);
+    }
+
+    let mlSignal = null;
+    if (liveState.in_progress && Number.isFinite(currentMargin) && Number.isFinite(elapsedMinutes) && Number.isFinite(homeMl) && Number.isFinite(awayMl)) {
+      const minLeft = Number.isFinite(remainingMinutes) ? remainingMinutes : 48;
+      const scale = 6 + (0.35 * minLeft);
+      const scoreProb = 1 / (1 + Math.exp(-(currentMargin / scale)));
+      const blendWeight = clampNumber(Math.max(elapsedMinutes, 0) / 48, 0, 1);
+      const pHomeModel = Number.isFinite(pregameHomeWin)
+        ? ((1 - blendWeight) * pregameHomeWin) + (blendWeight * scoreProb)
+        : scoreProb;
+      const pHomeImplied = impliedProbFromAmerican(homeMl);
+      const pAwayImplied = impliedProbFromAmerican(awayMl);
+      if (Number.isFinite(pHomeImplied) && Number.isFinite(pAwayImplied)) {
+        const homeEdge = pHomeModel - pHomeImplied;
+        const awayEdge = (1 - pHomeModel) - pAwayImplied;
+        const pickHome = Math.abs(homeEdge) >= Math.abs(awayEdge);
+        const edge = pickHome ? homeEdge : awayEdge;
+        const side = pickHome ? game?.home_tri : game?.away_tri;
+        const line = pickHome ? homeMl : awayMl;
+        const projection = pickHome ? pHomeModel : (1 - pHomeModel);
+        const klass = classifyLens(Math.abs(edge), thresholds.ml.watch, thresholds.ml.bet);
+        mlSignal = buildSignal('ml', 'ML', klass, side, edge, line, projection, `Model ${fmtPercent(projection, 0)}`);
+        mlSignal.score = signalScore(Math.abs(edge), thresholds.ml.bet);
+      }
+    }
+
+    const signals = [quarterSignal, halfSignal, totalSignal, quarterAtsSignal, halfAtsSignal, atsSignal, quarterMlSignal, halfMlSignal, mlSignal].filter(Boolean);
+    const topSignals = signals
+      .filter((signal) => signal.klass === 'BET' || signal.klass === 'WATCH')
+      .sort((left, right) => (signalPriority(right) - signalPriority(left)) || ((Number(right.score) || 0) - (Number(left.score) || 0)) || (Math.abs(Number(right.edge) || 0) - Math.abs(Number(left.edge) || 0)));
+
+    const overallClass = topSignals[0]?.klass || 'NONE';
+    const scoreLabel = Number.isFinite(awayPts) && Number.isFinite(homePts)
+      ? `${game?.away_tri || 'AWY'} ${fmtInteger(awayPts)} - ${fmtInteger(homePts)} ${game?.home_tri || 'HME'}`
+      : `${game?.away_tri || 'AWY'} at ${game?.home_tri || 'HME'}`;
+    const statusLabel = liveState.final
+      ? 'Final'
+      : (liveState.in_progress ? String(liveState.status || `Q${liveState.period || ''} ${liveState.clock || ''}`).trim() : String(liveState.status || 'Pregame'));
+
+    return {
+      statusLabel,
+      scoreLabel,
+      currentTotal,
+      currentMargin,
+      elapsedMinutes,
+      signals: {
+        quarter_total: quarterSignal,
+        half_total: halfSignal,
+        total: totalSignal,
+        quarter_ats: quarterAtsSignal,
+        half_ats: halfAtsSignal,
+        ats: atsSignal,
+        quarter_ml: quarterMlSignal,
+        half_ml: halfMlSignal,
+        ml: mlSignal,
+      },
+      topSignals,
+      overallClass,
+    };
+  }
+
+  async function loadLiveGameLens(dateValue, games) {
+    state.liveGameLens = new Map();
+    state.liveStates = new Map();
+    if (mode !== 'live') {
+      return;
+    }
+    try {
+      const liveStateResponse = await fetch(`/api/live_state?date=${encodeURIComponent(dateValue)}`, { cache: 'no-store' });
+      const liveStatePayload = await liveStateResponse.json();
+      if (!liveStateResponse.ok) {
+        throw new Error(liveStatePayload?.error || 'Failed to load live state.');
+      }
+
+      const payloadGames = safeArray(games);
+      const liveStateMap = new Map();
+      safeArray(liveStatePayload?.games).forEach((item) => {
+        const key = matchupKey(item?.away, item?.home);
+        if (key) {
+          liveStateMap.set(key, item);
+          state.liveStates.set(key, item);
+        }
+      });
+
+      const matchedStates = payloadGames
+        .map((game) => ({ game, liveState: liveStateMap.get(gameMatchupKey(game)) || null }))
+        .filter((entry) => entry.liveState);
+      const eventIds = matchedStates
+        .map((entry) => String(entry.liveState?.event_id || '').trim())
+        .filter(Boolean);
+
+      let liveLinesMap = new Map();
+      let pbpMap = new Map();
+      let tuning = null;
+
+      if (eventIds.length) {
+        const [linesResponse, pbpResponse, tuningResponse] = await Promise.all([
+          fetch(`/api/live_lines?date=${encodeURIComponent(dateValue)}&event_ids=${encodeURIComponent(eventIds.join(','))}&include_period_totals=1`, { cache: 'no-store' }),
+          fetch(`/api/live_pbp_stats?date=${encodeURIComponent(dateValue)}&event_ids=${encodeURIComponent(eventIds.join(','))}`, { cache: 'no-store' }),
+          fetch('/api/live_lens_tuning?ttl=300', { cache: 'no-store' }),
+        ]);
+        const linesPayload = await linesResponse.json();
+        const pbpPayload = await pbpResponse.json();
+        tuning = tuningResponse.ok ? await tuningResponse.json() : null;
+
+        safeArray(linesPayload?.games).forEach((item) => {
+          const eventId = String(item?.event_id || '').trim();
+          if (eventId) {
+            liveLinesMap.set(eventId, item);
+          }
+        });
+        safeArray(pbpPayload?.games).forEach((item) => {
+          const eventId = String(item?.event_id || '').trim();
+          if (eventId) {
+            pbpMap.set(eventId, item);
+          }
+        });
+      }
+
+      matchedStates.forEach(({ game, liveState }) => {
+        const eventId = String(liveState?.event_id || '').trim();
+        const liveLines = eventId ? liveLinesMap.get(eventId) : null;
+        const pbpStats = eventId ? pbpMap.get(eventId) : null;
+        const lens = computeLiveGameLens(game, liveState, liveLines, pbpStats, tuning);
+        const key = gameMatchupKey(game);
+        if (key && lens) {
+          state.liveGameLens.set(key, lens);
+        }
+      });
+    } catch (_error) {
+      state.liveGameLens = new Map();
+    }
+  }
+
   function statusClass(game) {
     const warnings = Array.isArray(game?.warnings) ? game.warnings : [];
     if (mode === 'live') {
-      return 'is-live';
+      const liveState = getLiveState(game);
+      if (liveState?.final) {
+        return 'is-final';
+      }
+      if (liveState?.in_progress) {
+        return 'is-live';
+      }
+      return 'is-soft';
     }
     if (warnings.length) {
       return 'is-warn';
@@ -155,9 +775,54 @@
 
   function statusText(game) {
     if (mode === 'live') {
-      return 'Live';
+      const liveLens = getLiveLens(game);
+      const liveState = getLiveState(game);
+      return liveLens?.statusLabel || String(liveState?.status || 'Live');
     }
     return 'Scheduled';
+  }
+
+  function liveSignalChipClass(signal) {
+    if (signal?.klass === 'BET') {
+      return 'cards-chip cards-chip--accent';
+    }
+    if (signal?.klass === 'WATCH') {
+      return 'cards-chip cards-chip--warm';
+    }
+    return 'cards-chip';
+  }
+
+  function renderLiveSignalChip(signal) {
+    if (!signal) {
+      return '';
+    }
+    return `<span class="${liveSignalChipClass(signal)}" title="${escapeHtml(signal.detail || signal.compactLabel || '')}">${escapeHtml(signal.compactLabel || signal.label || 'Signal')}</span>`;
+  }
+
+  function renderLiveSignalTile(signal) {
+    if (!signal) {
+      return `
+        <div class="cards-live-lens-tile is-empty">
+          <div class="cards-market-kicker">Signal</div>
+          <div class="cards-market-main">No live edge</div>
+          <div class="cards-mini-copy">Waiting for in-game data.</div>
+        </div>
+      `;
+    }
+    const edgeText = signal.key === 'ml'
+      ? `${fmtSigned((Number(signal.edge) || 0) * 100, 1)}pp`
+      : fmtSigned(signal.edge, 1);
+    return `
+      <div class="cards-live-lens-tile ${signal.klass === 'BET' ? 'is-bet' : (signal.klass === 'WATCH' ? 'is-watch' : '')}">
+        <div class="cards-live-lens-tile__head">
+          <div class="cards-market-kicker">${escapeHtml(signal.label)}</div>
+          <span class="${liveSignalChipClass(signal)}">${escapeHtml(signal.klass)}</span>
+        </div>
+        <div class="cards-market-main">${escapeHtml(signal.side || 'No edge')}</div>
+        <div class="cards-live-lens-tile__edge">${escapeHtml(edgeText)}</div>
+        <div class="cards-mini-copy">${escapeHtml(signal.detail || 'No live edge detail')}</div>
+      </div>
+    `;
   }
 
   function showNote(message, kind) {
@@ -173,6 +838,7 @@
   function setLoading() {
     root.classList.add('parity-root');
     root.innerHTML = '<div class="cards-empty">Loading slate...</div>';
+    state.boardInitialized = false;
   }
 
   function safeArray(value) {
@@ -350,6 +1016,73 @@
     return pieces.join(' · ') || 'Daily recommendations export';
   }
 
+  function liveProjectionSummary(item) {
+    if (mode !== 'live') {
+      return '';
+    }
+    const actual = Number(item?.actual);
+    const paceProj = Number(item?.pace_proj);
+    const simValue = Number(item?.sim_mu);
+    const line = Number(item?.line);
+    const pieces = [];
+    if (Number.isFinite(actual)) {
+      pieces.push(`Actual ${fmtNumber(actual, 1)}`);
+    }
+    if (Number.isFinite(paceProj)) {
+      pieces.push(`Proj ${fmtNumber(paceProj, 1)}`);
+    }
+    if (Number.isFinite(simValue)) {
+      pieces.push(`Sim ${fmtNumber(simValue, 1)}`);
+    }
+    if (Number.isFinite(line) && Number.isFinite(paceProj)) {
+      pieces.push(`Edge ${fmtSigned(paceProj - line, 1)}`);
+    }
+    return pieces.join(' · ');
+  }
+
+  function propsStripSortOptions() {
+    if (mode !== 'live') {
+      return [];
+    }
+    return [
+      { key: 'best', label: 'Best' },
+      { key: 'proj', label: 'Projection' },
+      { key: 'win', label: 'Win %' },
+      { key: 'live', label: 'Live edge' },
+    ];
+  }
+
+  function sortedPropsStripItems(items) {
+    const next = [...safeArray(items)];
+    if (mode !== 'live') {
+      return next;
+    }
+    const sortKey = String(state.propsStripSort || 'best');
+    next.sort((left, right) => {
+      if (sortKey === 'proj') {
+        const projLeft = Number(left?.pace_proj);
+        const projRight = Number(right?.pace_proj);
+        return projRight - projLeft;
+      }
+      if (sortKey === 'win') {
+        const winLeft = Number(left?.probability);
+        const winRight = Number(right?.probability);
+        return winRight - winLeft;
+      }
+      if (sortKey === 'live') {
+        const edgeLeft = Number(left?.pace_vs_line ?? ((Number(left?.pace_proj) - Number(left?.line)) || 0));
+        const edgeRight = Number(right?.pace_vs_line ?? ((Number(right?.pace_proj) - Number(right?.line)) || 0));
+        return Math.abs(edgeRight) - Math.abs(edgeLeft);
+      }
+      const scoreLeft = Number(left?.score_adj ?? left?.strength ?? 0);
+      const scoreRight = Number(right?.score_adj ?? right?.strength ?? 0);
+      const evLeft = Number(left?.ev_pct ?? 0);
+      const evRight = Number(right?.ev_pct ?? 0);
+      return (scoreRight - scoreLeft) || (evRight - evLeft);
+    });
+    return next;
+  }
+
   function stripCardTarget(item) {
     const away = String(item?.away_tri || '').trim().toUpperCase();
     const home = String(item?.home_tri || '').trim().toUpperCase();
@@ -373,6 +1106,7 @@
     const actionClass = actionLabel === 'BET'
       ? 'cards-chip--accent'
       : (actionLabel === 'WATCH' || actionLabel === 'MEDIUM' ? 'cards-chip--warm' : '');
+    const liveProjection = liveProjectionSummary(item);
     return `
       <article class="cards-props-strip-card">
         <div class="cards-props-strip-card__top">
@@ -391,6 +1125,7 @@
             </div>
           </div>
           <div class="cards-props-strip-card__play">${escapeHtml(market)} ${escapeHtml(side)} ${Number.isFinite(line) ? fmtNumber(line, 1) : '--'}</div>
+          ${liveProjection ? `<div class="cards-props-strip-card__projection">${escapeHtml(liveProjection)}</div>` : ''}
           <div class="cards-props-strip-card__sub">${escapeHtml(stripSecondaryText(item))}</div>
           <div class="cards-strip-pills">
             ${actionLabel ? `<span class="cards-chip ${actionClass}">${escapeHtml(actionLabel)}</span>` : ''}
@@ -409,17 +1144,19 @@
       return;
     }
     const payload = state.propsStripPayload;
-    const items = safeArray(payload?.items);
+    const items = sortedPropsStripItems(safeArray(payload?.items));
     if (!items.length) {
       clearPropsStrip();
       return;
     }
+    const sortOptions = propsStripSortOptions();
     propsStripEl.classList.remove('hidden');
     propsStripEl.innerHTML = `
       <div class="cards-props-strip-headline">
         <div>
           <h2>${escapeHtml(String(payload?.title || (mode === 'live' ? 'Live player props' : 'Pregame prop movement')))}</h2>
           <p>${escapeHtml(String(payload?.subtitle || ''))}</p>
+          ${sortOptions.length ? `<div class="cards-props-strip-sort">${sortOptions.map((option) => `<button type="button" class="cards-filter-pill ${state.propsStripSort === option.key ? 'is-active' : ''}" data-strip-sort="${escapeHtml(option.key)}">${escapeHtml(option.label)}</button>`).join('')}</div>` : ''}
         </div>
         <div class="cards-strip-pills">
           <span class="cards-source-meta-pill ${mode === 'live' ? 'is-live' : 'is-soft'}">${escapeHtml(String(payload?.rows || items.length))} cards</span>
@@ -464,6 +1201,11 @@
           klass: row?.klass,
           line_source: row?.line_source,
           status_label: status?.final ? 'Final' : (status?.in_progress ? `Q${status?.period || '-'} ${status?.clock || ''}`.trim() : 'Live'),
+          actual: row?.actual,
+          pace_proj: row?.pace_proj,
+          pace_vs_line: row?.pace_vs_line,
+          strength: row?.strength,
+          score_adj: row?.bettable_score ?? row?.strength ?? row?.ev,
           sim_mu: row?.sim_mu,
         }));
       items.push(...gameItems);
@@ -479,11 +1221,14 @@
     };
   }
 
-  async function loadPropsStrip(dateValue) {
+  async function loadPropsStrip(dateValue, options = {}) {
+    const silent = Boolean(options?.silent);
     if (!propsStripEl) {
       return;
     }
-    setPropsStripLoading();
+    if (!silent || !state.propsStripPayload) {
+      setPropsStripLoading();
+    }
     try {
       if (mode === 'live') {
         const response = await fetch(`/api/live_player_lens?date=${encodeURIComponent(dateValue)}`, { cache: 'no-store' });
@@ -505,6 +1250,22 @@
       state.propsStripPayload = null;
       clearPropsStrip();
     }
+  }
+
+  function ensureBoardShell() {
+    let scoreboardEl = root.querySelector('.cards-scoreboard');
+    let gridEl = root.querySelector('.cards-grid');
+    if (!scoreboardEl || !gridEl) {
+      root.classList.add('parity-root');
+      root.innerHTML = `
+        <section class="cards-scoreboard"></section>
+        <section class="cards-grid"></section>
+      `;
+      scoreboardEl = root.querySelector('.cards-scoreboard');
+      gridEl = root.querySelector('.cards-grid');
+    }
+    state.boardInitialized = true;
+    return { scoreboardEl, gridEl };
   }
 
   function updateDateControls() {
@@ -654,11 +1415,24 @@
     const id = cardId(game);
     const betting = game?.betting || {};
     const score = game?.sim?.score || {};
+    const liveLens = getLiveLens(game);
+    const liveState = getLiveState(game);
+    const compactHeaderText = mode === 'live'
+      ? statusText(game)
+      : fmtTime(game?.odds?.commence_time);
+    const awayScore = mode === 'live' && Number.isFinite(Number(liveState?.away_pts)) ? Number(liveState.away_pts) : score.away_mean;
+    const homeScore = mode === 'live' && Number.isFinite(Number(liveState?.home_pts)) ? Number(liveState.home_pts) : score.home_mean;
+    const stripSignals = liveLens?.topSignals?.slice(0, 2) || [];
+    const stripMeta = mode === 'live'
+      ? [
+        liveLens?.signals?.total?.detail,
+        liveLens?.signals?.ats?.detail,
+      ].filter(Boolean)[0] || 'Waiting for a live edge.'
+      : marketCountSummary(game);
     return `
-      <button class="cards-strip-card" type="button" data-jump-card="${escapeHtml(id)}">
+      <button class="cards-strip-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" type="button" data-jump-card="${escapeHtml(id)}">
         <div class="cards-strip-head">
-          <span>${escapeHtml(statusText(game))}</span>
-          <span class="cards-start-time">${escapeHtml(fmtTime(game?.odds?.commence_time))}</span>
+          <span>${escapeHtml(compactHeaderText)}</span>
         </div>
         <div class="cards-linescore is-compact is-strip">
           <div class="cards-linescore-head">
@@ -672,7 +1446,7 @@
               ${stripLogoMarkup(game.away_tri)}
               <strong>${escapeHtml(game.away_tri || 'AWY')}</strong>
             </div>
-            <span class="cards-linescore-stat">${fmtInteger(score.away_mean)}</span>
+            <span class="cards-linescore-stat">${fmtInteger(awayScore)}</span>
             <span class="cards-linescore-stat">${fmtPercent(betting.p_away_win, 0)}</span>
             <span class="cards-linescore-stat">${fmtPercent(betting.p_away_cover, 0)}</span>
           </div>
@@ -681,12 +1455,13 @@
               ${stripLogoMarkup(game.home_tri)}
               <strong>${escapeHtml(game.home_tri || 'HME')}</strong>
             </div>
-            <span class="cards-linescore-stat">${fmtInteger(score.home_mean)}</span>
+            <span class="cards-linescore-stat">${fmtInteger(homeScore)}</span>
             <span class="cards-linescore-stat">${fmtPercent(betting.p_home_win, 0)}</span>
             <span class="cards-linescore-stat">${fmtPercent(betting.p_home_cover, 0)}</span>
           </div>
         </div>
-        <div class="cards-strip-meta">${escapeHtml(marketCountSummary(game))}</div>
+        ${stripSignals.length ? `<div class="cards-strip-pills">${stripSignals.map(renderLiveSignalChip).join('')}</div>` : ''}
+        <div class="cards-strip-meta">${escapeHtml(stripMeta)}</div>
       </button>
     `;
   }
@@ -741,15 +1516,52 @@
     const market = game?.sim?.market || {};
     const warnings = safeArray(game?.warnings);
     const id = cardId(game);
+    const liveLens = getLiveLens(game);
+    const liveState = getLiveState(game);
+    const liveOverview = mode === 'live'
+      ? (() => {
+        const liveTiles = [
+          liveLens?.signals?.quarter_total,
+          liveLens?.signals?.half_total,
+          liveLens?.signals?.total,
+          liveLens?.signals?.quarter_ats,
+          liveLens?.signals?.half_ats,
+          liveLens?.signals?.ats,
+          liveLens?.signals?.quarter_ml,
+          liveLens?.signals?.half_ml,
+          liveLens?.signals?.ml,
+        ].filter(Boolean);
+        const liveChips = [
+          liveLens?.signals?.quarter_total,
+          liveLens?.signals?.half_total,
+          liveLens?.signals?.total,
+          liveLens?.signals?.quarter_ats,
+          liveLens?.signals?.half_ats,
+          liveLens?.signals?.ats,
+          liveLens?.signals?.quarter_ml,
+          liveLens?.signals?.half_ml,
+          liveLens?.signals?.ml,
+        ].filter(Boolean);
+        return `
+        <div class="cards-live-lens-grid">
+          ${liveTiles.map(renderLiveSignalTile).join('')}
+        </div>
+        <div class="cards-source-meta">
+          ${liveChips.map(renderLiveSignalChip).join('')}
+          ${liveLens?.scoreLabel ? `<span class="cards-source-meta-pill is-soft">${escapeHtml(liveLens.scoreLabel)}</span>` : ''}
+          ${liveState?.status ? `<span class="cards-source-meta-pill is-live">${escapeHtml(String(liveState.status))}</span>` : ''}
+        </div>
+      `;
+      })()
+      : `${probabilityRows(game)}<div class="cards-mini-metrics">${miniMetrics(game)}</div>`;
     return `
       <div class="cards-overview-grid">
         <div class="cards-panel-card">
           <div class="cards-box-head">
-            <div class="cards-table-title"><strong>Game lens</strong></div>
+            <div class="cards-table-title"><strong>${escapeHtml(mode === 'live' ? 'Live game lens' : 'Game lens')}</strong></div>
             <span class="cards-overview-badge ${statusClass(game)}">${escapeHtml(mode === 'live' ? 'Live model' : 'Pregame model')}</span>
           </div>
-          <div class="cards-prob-grid">${probabilityRows(game)}</div>
-          <div class="cards-mini-metrics">${miniMetrics(game)}</div>
+          ${liveOverview}
           <div class="cards-market-row cards-market-row--tiles">
             ${renderMarketTile('Moneyline', bestMarketPick(game, 'moneyline'), `${game.home_tri} ${fmtAmerican(betting.home_ml)} / ${game.away_tri} ${fmtAmerican(betting.away_ml)}`, `Home win ${fmtPercent(betting.p_home_win, 0)} · Away win ${fmtPercent(betting.p_away_win, 0)}`, id)}
             ${renderMarketTile('Spread', bestMarketPick(game, 'spread'), `${game.home_tri} ${fmtSigned(betting.home_spread)} · ${game.away_tri} ${fmtSigned(-Number(betting.home_spread))}`, `Model margin ${fmtSigned(score.margin_mean, 1)} · Market ${fmtSigned(-Number(market.market_home_spread), 1)}`, id)}
@@ -1127,10 +1939,20 @@
     const id = cardId(game);
     const activeTab = state.activeTabs.get(id) || 'game';
     const score = game?.sim?.score || {};
+    const liveState = getLiveState(game);
+    const liveLens = getLiveLens(game);
+    const awayScore = mode === 'live' && Number.isFinite(Number(liveState?.away_pts)) ? Number(liveState.away_pts) : score.away_mean;
+    const homeScore = mode === 'live' && Number.isFinite(Number(liveState?.home_pts)) ? Number(liveState.home_pts) : score.home_mean;
+    const scoreMetaPrimary = mode === 'live'
+      ? (liveLens?.topSignals?.map((signal) => signal.compactLabel).join(' · ') || 'Monitoring live game lens for fresh edges.')
+      : 'Pregame matchup card.';
+    const scoreMetaSecondary = mode === 'live'
+      ? (liveLens?.signals?.total?.detail || `Model total ${fmtNumber(score.total_mean, 1)} · margin ${fmtSigned(score.margin_mean, 1)}`)
+      : `Model total ${fmtNumber(score.total_mean, 1)} · margin ${fmtSigned(score.margin_mean, 1)}`;
     const awayLogo = logoForTri(game.away_tri);
     const homeLogo = logoForTri(game.home_tri);
     return `
-      <article class="cards-game-card" data-card-id="${escapeHtml(id)}" id="game-card-${escapeHtml(id)}">
+      <article class="cards-game-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" data-card-id="${escapeHtml(id)}" id="game-card-${escapeHtml(id)}">
         <div class="cards-strip-head">
           <div class="cards-head-left">
             <div class="cards-team-code-shell">
@@ -1153,18 +1975,19 @@
         <div class="cards-score-ribbon">
           <div class="cards-score-side">
             <div class="cards-score-label">Away</div>
-            <div class="cards-score-number">${fmtNumber(score.away_mean, 1)}</div>
+            <div class="cards-score-number">${fmtNumber(awayScore, mode === 'live' ? 0 : 1)}</div>
             <strong>${escapeHtml(game.away_tri)}</strong>
           </div>
           <div class="cards-score-divider">at</div>
           <div class="cards-score-side">
             <div class="cards-score-label">Home</div>
-            <div class="cards-score-number">${fmtNumber(score.home_mean, 1)}</div>
+            <div class="cards-score-number">${fmtNumber(homeScore, mode === 'live' ? 0 : 1)}</div>
             <strong>${escapeHtml(game.home_tri)}</strong>
           </div>
           <div class="cards-score-meta">
-            <div class="cards-live-line">${escapeHtml(mode === 'live' ? 'Live board shell active.' : 'Pregame matchup card.')}</div>
-            <div class="cards-sim-line">Model total ${fmtNumber(score.total_mean, 1)} · margin ${fmtSigned(score.margin_mean, 1)}</div>
+            <div class="cards-live-line">${escapeHtml(scoreMetaPrimary)}</div>
+            <div class="cards-sim-line">${escapeHtml(scoreMetaSecondary)}</div>
+            ${mode === 'live' && liveLens?.topSignals?.length ? `<div class="cards-strip-pills">${liveLens.topSignals.slice(0, 3).map(renderLiveSignalChip).join('')}</div>` : ''}
             <div class="cards-mini-copy">${escapeHtml(game.away_name || game.away_tri)} at ${escapeHtml(game.home_name || game.home_tri)}</div>
           </div>
         </div>
@@ -1197,20 +2020,28 @@
     root.classList.add('parity-root');
     if (!games.length) {
       root.innerHTML = '<div class="cards-empty">No game cards available for this date.</div>';
+      state.boardInitialized = false;
       return;
     }
     if (!filteredGames.length) {
       root.innerHTML = '<div class="cards-empty">No games matched the selected slate filter.</div>';
+      state.boardInitialized = false;
       return;
     }
-    root.innerHTML = `
-      <section class="cards-scoreboard">${filteredGames.map(renderScoreboardItem).join('')}</section>
-      <section class="cards-grid">${filteredGames.map(renderGameCard).join('')}</section>
-    `;
+    const { scoreboardEl, gridEl } = ensureBoardShell();
+    if (scoreboardEl) {
+      scoreboardEl.innerHTML = filteredGames.map(renderScoreboardItem).join('');
+    }
+    if (gridEl) {
+      gridEl.innerHTML = filteredGames.map(renderGameCard).join('');
+    }
   }
 
-  async function loadBoard() {
-    setLoading();
+  async function loadBoard(options = {}) {
+    const silent = Boolean(options?.silent);
+    if (!silent && !state.boardInitialized) {
+      setLoading();
+    }
     try {
       const response = await fetch(`/api/cards?date=${encodeURIComponent(state.date)}`, { cache: 'no-store' });
       const payload = await response.json();
@@ -1218,7 +2049,7 @@
         throw new Error(payload?.error || 'Failed to load game cards.');
       }
       state.payload = payload;
-      await loadPropsStrip(payload.date || state.date);
+      const resolvedDate = payload.date || state.date;
       updateDateControls();
       renderHeaderMeta();
       renderSourceMeta();
@@ -1229,10 +2060,21 @@
         showNote('', 'info');
       }
       renderBoard();
+
+      void loadPropsStrip(resolvedDate, { silent });
+      if (mode === 'live') {
+        void loadLiveGameLens(resolvedDate, payload.games || []).then(() => {
+          if ((state.payload?.date || state.date) === resolvedDate) {
+            renderSourceMeta();
+            renderBoard();
+          }
+        });
+      }
     } catch (error) {
       state.payload = null;
       state.propsStripPayload = null;
       clearPropsStrip();
+      state.boardInitialized = false;
       if (headerMeta) {
         headerMeta.textContent = 'Failed to load slate.';
       }
@@ -1262,7 +2104,7 @@
     }
     state.pollHandle = window.setInterval(() => {
       syncFromControls();
-      loadBoard();
+      loadBoard({ silent: true });
     }, pollIntervalMs);
   }
 
@@ -1330,6 +2172,24 @@
     }
   });
 
+  propsStripEl?.addEventListener('click', (event) => {
+    const sortButton = event.target.closest('[data-strip-sort]');
+    if (sortButton) {
+      state.propsStripSort = sortButton.getAttribute('data-strip-sort') || 'best';
+      renderPropsStrip();
+      return;
+    }
+
+    const jumpButton = event.target.closest('[data-jump-card]');
+    if (jumpButton) {
+      const cardTarget = jumpButton.getAttribute('data-jump-card') || '';
+      const card = root.querySelector(`[data-card-id="${CSS.escape(cardTarget)}"]`);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  });
+
   filtersEl?.addEventListener('click', (event) => {
     const button = event.target.closest('[data-filter-key]');
     if (!button) {
@@ -1356,5 +2216,5 @@
   }
   syncFromControls();
   setupPolling();
-  loadBoard();
+  loadBoard({ silent: false });
 })();
