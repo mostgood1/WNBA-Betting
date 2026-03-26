@@ -521,13 +521,11 @@
 				"-NoProfile",
 				"-ExecutionPolicy",
 				"Bypass",
-				"-Command",
-				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m waitress --listen=0.0.0.0:5051 app:app"
+				"-File",
+				"${workspaceFolder}\\scripts\\run_local_flask_5051.ps1"
 			],
 			"isBackground": true,
-			"problemMatcher": [
-				"$eslint-stylish"
-			],
+			"problemMatcher": [],
 			"group": "build"
 		},
 		{

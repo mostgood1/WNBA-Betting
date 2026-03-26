@@ -3318,7 +3318,6 @@ def _enforce_minimal_ui_allowlist():
         if p.startswith("/web/"):
             allowed_web_exact = {
                 "/web/styles.css",
-                "/web/cards.js",
                 "/web/cards-parity.css",
                 "/web/cards-parity.js",
                 "/web/prop-ladders.js",
@@ -5984,18 +5983,22 @@ def _serve_cards_page(filename: str):
 
 @app.route("/")
 def root():
-    # Serve the pregame slate homepage directly at '/'.
-    return _serve_cards_page("pregame.html")
+    return _serve_cards_page("cards.html")
+
+
+def _redirect_legacy_cards_route():
+    query = request.query_string.decode("utf-8", errors="ignore") if request.query_string else ""
+    return redirect(f"/{('?' + query) if query else ''}")
 
 
 @app.route("/pregame")
 def route_pregame_cards():
-    return _serve_cards_page("pregame.html")
+    return _redirect_legacy_cards_route()
 
 
 @app.route("/live")
 def route_live_cards():
-    return _serve_cards_page("live.html")
+    return _redirect_legacy_cards_route()
 
 
 @app.route("/prop-ladders")
@@ -6263,8 +6266,8 @@ def route_live_player_props_lens_accuracy():
 def health():
     # Lightweight health/status
     try:
-        exists = (WEB_DIR / "index.html").exists()
-        return jsonify({"status": "ok", "have_index": bool(exists)}), 200
+        exists = (WEB_DIR / "cards.html").exists()
+        return jsonify({"status": "ok", "have_cards_page": bool(exists)}), 200
     except Exception as e:  # noqa: BLE001
         return jsonify({"status": "error", "error": str(e)}), 500
 
@@ -9453,7 +9456,7 @@ def api_status():
         return jsonify({
             "status": "ok",
             "processed_files": files,
-            "have_index": (WEB_DIR / "index.html").exists()
+            "have_cards_page": (WEB_DIR / "cards.html").exists()
         })
     except Exception as e:  # noqa: BLE001
         return jsonify({"status": "error", "error": str(e)}), 500

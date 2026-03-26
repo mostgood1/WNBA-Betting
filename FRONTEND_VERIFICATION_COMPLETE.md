@@ -85,7 +85,7 @@ Features: 17
 - Returns JSON with proper structure
 - Status: 200 OK
 
-**4. Frontend Display (index.html + app.js) ✅**
+**4. Frontend Display (cards.html + cards-parity.js) ✅**
 - Fetches data from API
 - Renders game cards with all information
 - Displays win probabilities, spreads, totals
@@ -97,7 +97,7 @@ Features: 17
 
 ## 🎨 Frontend Display Completeness
 
-### ✅ Main Cards View (index.html)
+### ✅ Main Cards View (cards.html)
 
 **Displayed Information:**
 - [x] Team names and logos

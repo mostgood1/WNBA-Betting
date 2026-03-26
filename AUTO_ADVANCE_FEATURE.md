@@ -122,7 +122,7 @@ Potential improvements:
 ## Related Files
 
 - `web/app.js` - Main implementation
-- `web/index.html` - Date picker UI
+- `web/cards.html` - Canonical game cards UI
 - `data/processed/schedule_2025_26.json` - Schedule data source
 
 ## Configuration Summary

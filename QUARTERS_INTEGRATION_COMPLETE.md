@@ -117,7 +117,7 @@ quarters_q4_total      55.683643
 - EV badges: "Winner: Team (EV +XX.X%) • HIGH"
 
 ### 3. Add Season-to-Date Banner
-**File**: `web/index.html`
+**File**: `web/cards.html`
 - Banner at top: "SEASON TO DATE"
 - Overall: "XX.X% Accuracy XXW-XXL-XXP / XXX settled"
 - ROI: "ROI: XX.X% Stake: $XXXX | P/L: $XXX"

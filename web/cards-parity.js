@@ -1700,7 +1700,7 @@
   }
 
   function updateDateControls() {
-    const basePath = mode === 'live' ? '/live' : '/pregame';
+    const basePath = document.body?.dataset?.cardsBasePath || '/';
     const previousDate = shiftISODate(state.date, -1);
     const nextDate = shiftISODate(state.date, 1);
     if (prevDateLink) {

@@ -368,7 +368,7 @@ Environment variables (optional but consistent with NFL app):
 Routing:
 - `/` serves the cards page directly
 - Static assets are under `/web/*` (e.g., `/web/assets/logos/BOS.svg`)
-- Legacy `/web/` and `/web/index.html` redirect to `/` for a single canonical entrypoint
+- Legacy `/web/` and `/web/index.html` redirect to `/`, and `/pregame` and `/live` also redirect to `/` for a single canonical cards entrypoint
 
 Notes:
 - Use the Flask app for both UI and APIs (no separate static http.server is needed).
