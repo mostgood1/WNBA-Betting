@@ -16,7 +16,7 @@
   const filtersEl = document.getElementById('cardsFilters');
   const propsStripEl = document.getElementById('cardsPropsStrip');
   const note = document.getElementById('note');
-  const pollIntervalMs = 30000;
+  const pollIntervalMs = 15000;
 
   const state = {
     activeTabs: new Map(),
@@ -320,6 +320,31 @@
       return 0;
     }
     return edge / threshold;
+  }
+
+  function rankSignals(signals) {
+    return [...safeArray(signals)].sort((left, right) => (signalPriority(right) - signalPriority(left)) || ((Number(right.score) || 0) - (Number(left.score) || 0)) || (Math.abs(Number(right.edge) || 0) - Math.abs(Number(left.edge) || 0)));
+  }
+
+  function compactSignalSelection(signals) {
+    const ranked = rankSignals(signals).filter((signal) => signal?.klass === 'BET' || signal?.klass === 'WATCH');
+    if (!ranked.length) {
+      return [];
+    }
+    const totals = ranked.filter((signal) => ['quarter_total', 'half_total', 'total'].includes(String(signal?.key || '')));
+    const selected = [];
+    if (totals.length) {
+      selected.push(totals[0]);
+    }
+    ranked.forEach((signal) => {
+      if (selected.length >= 2) {
+        return;
+      }
+      if (!selected.some((existing) => existing?.key === signal?.key)) {
+        selected.push(signal);
+      }
+    });
+    return selected;
   }
 
   function completedMarginBeforePeriod(liveState, beforePeriod) {
@@ -655,9 +680,8 @@
     }
 
     const signals = [quarterSignal, halfSignal, totalSignal, quarterAtsSignal, halfAtsSignal, atsSignal, quarterMlSignal, halfMlSignal, mlSignal].filter(Boolean);
-    const topSignals = signals
-      .filter((signal) => signal.klass === 'BET' || signal.klass === 'WATCH')
-      .sort((left, right) => (signalPriority(right) - signalPriority(left)) || ((Number(right.score) || 0) - (Number(left.score) || 0)) || (Math.abs(Number(right.edge) || 0) - Math.abs(Number(left.edge) || 0)));
+    const topSignals = rankSignals(signals).filter((signal) => signal.klass === 'BET' || signal.klass === 'WATCH');
+    const compactSignals = compactSignalSelection(signals);
 
     const overallClass = topSignals[0]?.klass || 'NONE';
     const scoreLabel = Number.isFinite(awayPts) && Number.isFinite(homePts)
@@ -684,6 +708,7 @@
         half_ml: halfMlSignal,
         ml: mlSignal,
       },
+      compactSignals,
       topSignals,
       overallClass,
     };
@@ -1047,6 +1072,215 @@
     return pieces.join(' · ');
   }
 
+  function normalizePlayerKey(value) {
+    return String(value || '')
+      .toUpperCase()
+      .replace(/[^A-Z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function simStatMean(row, market) {
+    const key = String(market || '').trim().toLowerCase();
+    if (!row) {
+      return null;
+    }
+    return {
+      pts: Number(row?.pts_mean),
+      reb: Number(row?.reb_mean),
+      ast: Number(row?.ast_mean),
+      threes: Number(row?.threes_mean),
+      stl: Number(row?.stl_mean),
+      blk: Number(row?.blk_mean),
+      tov: Number(row?.tov_mean),
+      pra: Number(row?.pra_mean),
+    }[key] ?? null;
+  }
+
+  function actualStatValue(row, market) {
+    const key = String(market || '').trim().toLowerCase();
+    if (!row) {
+      return null;
+    }
+    if (key === 'pra') {
+      const pts = Number(row?.pts);
+      const reb = Number(row?.reb);
+      const ast = Number(row?.ast);
+      return Number.isFinite(pts) && Number.isFinite(reb) && Number.isFinite(ast) ? pts + reb + ast : null;
+    }
+    return {
+      pts: Number(row?.pts),
+      reb: Number(row?.reb),
+      ast: Number(row?.ast),
+      threes: Number(row?.threes_made),
+      stl: Number(row?.stl),
+      blk: Number(row?.blk),
+      tov: Number(row?.tov),
+    }[key] ?? null;
+  }
+
+  function livePropThresholds(market) {
+    const key = String(market || '').trim().toLowerCase();
+    if (key === 'pts' || key === 'pra') {
+      return { watch: 2.0, bet: 4.0 };
+    }
+    if (key === 'reb' || key === 'ast') {
+      return { watch: 1.5, bet: 3.0 };
+    }
+    return { watch: 0.5, bet: 1.0 };
+  }
+
+  function classifyLivePropFallback(edge, market) {
+    const thresholds = livePropThresholds(market);
+    const absEdge = Math.abs(Number(edge) || 0);
+    if (absEdge >= thresholds.bet) {
+      return 'BET';
+    }
+    if (absEdge >= thresholds.watch) {
+      return 'WATCH';
+    }
+    return 'NONE';
+  }
+
+  function propPhotoUrl(item) {
+    const direct = String(item?.player_photo || item?.photo || '').trim();
+    if (direct) {
+      return direct;
+    }
+    const playerId = String(item?.player_id || '').trim();
+    return playerId ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${encodeURIComponent(playerId)}.png` : '';
+  }
+
+  function estimatedLiveProjection(actual, minutesPlayed, simMinutes, simValue) {
+    const actualValue = Number(actual);
+    const played = Number(minutesPlayed);
+    const simMin = Number(simMinutes);
+    const simMean = Number(simValue);
+    if (!Number.isFinite(actualValue)) {
+      return Number.isFinite(simMean) ? simMean : null;
+    }
+    if (!Number.isFinite(played) || played <= 0) {
+      return Number.isFinite(simMean) ? simMean : actualValue;
+    }
+    const targetMinutes = Number.isFinite(simMin) && simMin > 0 ? Math.max(played, Math.min(48, simMin)) : 48;
+    const rawProjection = (actualValue / played) * targetMinutes;
+    if (!Number.isFinite(simMean)) {
+      return rawProjection;
+    }
+    const blendWeight = clampNumber(played / Math.max(targetMinutes, 1), 0.25, 0.85);
+    return ((1 - blendWeight) * simMean) + (blendWeight * rawProjection);
+  }
+
+  function buildLiveBoxscoreSimFallback(boxscorePayload, cardsGames, liveStatePayload, dateValue) {
+    const liveGamesByEvent = new Map();
+    safeArray(liveStatePayload?.games).forEach((game) => {
+      const eventId = String(game?.event_id || '').trim();
+      if (eventId) {
+        liveGamesByEvent.set(eventId, game);
+      }
+    });
+
+    const cardsByMatchup = new Map();
+    safeArray(cardsGames).forEach((game) => {
+      const key = matchupKey(game?.away_tri, game?.home_tri);
+      if (key) {
+        cardsByMatchup.set(key, game);
+      }
+    });
+
+    const items = [];
+    const seen = new Set();
+
+    safeArray(boxscorePayload?.games).forEach((entry) => {
+      const eventId = String(entry?.event_id || '').trim();
+      const liveGame = liveGamesByEvent.get(eventId);
+      const awayTri = String(liveGame?.away || '').trim().toUpperCase();
+      const homeTri = String(liveGame?.home || '').trim().toUpperCase();
+      const matchup = matchupKey(awayTri, homeTri);
+      const cardGame = cardsByMatchup.get(matchup);
+      if (!matchup || !cardGame) {
+        return;
+      }
+
+      const simLookup = new Map();
+      ['away', 'home'].forEach((side) => {
+        const simRows = safeArray(cardGame?.sim?.players?.[side]);
+        simRows.forEach((row) => {
+          const teamTri = side === 'home' ? homeTri : awayTri;
+          const playerKey = normalizePlayerKey(row?.player_name);
+          if (teamTri && playerKey) {
+            simLookup.set(`${teamTri}::${playerKey}`, row);
+          }
+        });
+      });
+
+      safeArray(entry?.players).forEach((actualRow) => {
+        const teamTri = String(actualRow?.team_tri || '').trim().toUpperCase();
+        const playerKey = normalizePlayerKey(actualRow?.player);
+        const simRow = simLookup.get(`${teamTri}::${playerKey}`);
+        if (!simRow) {
+          return;
+        }
+
+        ['pts', 'reb', 'ast', 'threes', 'stl', 'blk', 'tov', 'pra'].forEach((market) => {
+          const actual = actualStatValue(actualRow, market);
+          const simMu = simStatMean(simRow, market);
+          const line = Number(simRow?.prop_lines?.[market]);
+          if (!Number.isFinite(actual) || !Number.isFinite(simMu) || !Number.isFinite(line)) {
+            return;
+          }
+          const paceProj = estimatedLiveProjection(actual, Number(actualRow?.mp), Number(simRow?.min_mean), simMu);
+          if (!Number.isFinite(paceProj)) {
+            return;
+          }
+          const paceVsLine = paceProj - line;
+          const simVsLine = simMu - line;
+          const side = paceVsLine >= 0 ? 'OVER' : 'UNDER';
+          const dedupeKey = `${matchup}::${teamTri}::${playerKey}::${market}`;
+          if (seen.has(dedupeKey)) {
+            return;
+          }
+          seen.add(dedupeKey);
+          items.push({
+            away_tri: awayTri,
+            home_tri: homeTri,
+            team_tri: teamTri,
+            opponent_tri: teamTri === homeTri ? awayTri : homeTri,
+            player: actualRow?.player,
+            player_id: simRow?.player_id,
+            player_photo: propPhotoUrl(simRow),
+            market,
+            side,
+            lean: side,
+            line,
+            line_source: 'boxscore_sim',
+            status_label: 'Live',
+            actual,
+            pace_proj: paceProj,
+            pace_vs_line: paceVsLine,
+            sim_mu: simMu,
+            sim_vs_line: simVsLine,
+            strength: Math.abs(paceVsLine),
+            score_adj: Math.abs(paceVsLine),
+            bettable_score: Math.abs(paceVsLine),
+            klass: classifyLivePropFallback(paceVsLine, market),
+          });
+        });
+      });
+    });
+
+    const sortedItems = sortedPropsStripItems(items);
+    return {
+      mode: 'live',
+      date: dateValue,
+      title: 'Live player props',
+      subtitle: 'Live boxscore vs sim fallback when the live lens feed is thin.',
+      rows: sortedItems.length,
+      items: sortedItems,
+      source: 'live_player_boxscore_fallback',
+    };
+  }
+
   function propGameLabel(item) {
     const away = String(item?.away_tri || '').trim().toUpperCase();
     const home = String(item?.home_tri || '').trim().toUpperCase();
@@ -1387,6 +1621,7 @@
 
   async function loadPropsStrip(dateValue, options = {}) {
     const silent = Boolean(options?.silent);
+    const games = safeArray(options?.games || state.payload?.games);
     if (!propsStripEl) {
       return;
     }
@@ -1395,12 +1630,43 @@
     }
     try {
       if (mode === 'live') {
-        const response = await fetch(`/api/live_player_lens?date=${encodeURIComponent(dateValue)}`, { cache: 'no-store' });
+        const liveStateResponse = await fetch(`/api/live_state?date=${encodeURIComponent(dateValue)}`, { cache: 'no-store' });
+        const liveStatePayload = await liveStateResponse.json();
+        if (!liveStateResponse.ok) {
+          throw new Error(liveStatePayload?.error || 'Failed to load live state for player props.');
+        }
+        const liveGames = safeArray(liveStatePayload?.games)
+          .filter((game) => Boolean(game?.in_progress) && !Boolean(game?.final));
+        const eventIds = liveGames
+          .filter((game) => Boolean(game?.event_id))
+          .map((game) => String(game?.event_id || '').trim())
+          .filter(Boolean);
+
+        if (!eventIds.length) {
+          state.propsStripPayload = null;
+          clearPropsStrip();
+          return;
+        }
+
+        const lensQuery = eventIds.length
+          ? `/api/live_player_lens?date=${encodeURIComponent(dateValue)}&event_ids=${encodeURIComponent(eventIds.join(','))}`
+          : `/api/live_player_lens?date=${encodeURIComponent(dateValue)}`;
+        const response = await fetch(lensQuery, { cache: 'no-store' });
         const payload = await response.json();
         if (!response.ok) {
           throw new Error(payload?.error || 'Failed to load live player props.');
         }
-        state.propsStripPayload = transformLiveStripPayload(payload, dateValue);
+        let transformed = transformLiveStripPayload(payload, dateValue);
+
+        if ((!safeArray(transformed?.items).length) && eventIds.length && games.length) {
+          const boxscoreResponse = await fetch(`/api/live_player_boxscore?event_ids=${encodeURIComponent(eventIds.join(','))}`, { cache: 'no-store' });
+          const boxscorePayload = await boxscoreResponse.json();
+          if (boxscoreResponse.ok) {
+            transformed = buildLiveBoxscoreSimFallback(boxscorePayload, games, liveStatePayload, dateValue);
+          }
+        }
+
+        state.propsStripPayload = transformed;
         state.propsStripVisibleCount = Number(state.propsStripDefaultCount) || 18;
       } else {
         const response = await fetch(`/api/cards/props-strip?date=${encodeURIComponent(dateValue)}`, { cache: 'no-store' });
@@ -1587,9 +1853,10 @@
       : fmtTime(game?.odds?.commence_time);
     const awayScore = mode === 'live' && Number.isFinite(Number(liveState?.away_pts)) ? Number(liveState.away_pts) : score.away_mean;
     const homeScore = mode === 'live' && Number.isFinite(Number(liveState?.home_pts)) ? Number(liveState.home_pts) : score.home_mean;
-    const stripSignals = liveLens?.topSignals?.slice(0, 2) || [];
+    const stripSignals = liveLens?.compactSignals?.slice(0, 2) || liveLens?.topSignals?.slice(0, 2) || [];
     const stripMeta = mode === 'live'
       ? [
+        liveLens?.compactSignals?.[0]?.detail,
         liveLens?.signals?.total?.detail,
         liveLens?.signals?.ats?.detail,
       ].filter(Boolean)[0] || 'Waiting for a live edge.'
@@ -2226,7 +2493,7 @@
       }
       renderBoard();
 
-      void loadPropsStrip(resolvedDate, { silent });
+      void loadPropsStrip(resolvedDate, { silent, games: payload.games || [] });
       if (mode === 'live') {
         void loadLiveGameLens(resolvedDate, payload.games || []).then(() => {
           if ((state.payload?.date || state.date) === resolvedDate) {
