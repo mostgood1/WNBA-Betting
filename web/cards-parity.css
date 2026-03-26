@@ -850,10 +850,50 @@ body.cards-app-shell .toggle-chip input {
   margin-top: 12px;
 }
 
+.cards-props-strip-filters {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.cards-props-strip-filter-group {
+  display: grid;
+  gap: 8px;
+}
+
+.cards-props-strip-filter-title {
+  color: var(--cards-text-soft);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cards-props-strip-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .cards-props-strip-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
+}
+
+.cards-props-strip-empty {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(132, 166, 196, 0.14);
+  background: rgba(10, 21, 34, 0.62);
+  color: var(--cards-text-soft);
+  font-size: 13px;
+}
+
+.cards-props-strip-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
 }
 
 .cards-props-strip-card {
