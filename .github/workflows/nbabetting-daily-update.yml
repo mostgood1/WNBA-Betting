@@ -27,18 +27,24 @@ jobs:
         shell: powershell
         run: |
           $event = "${{ github.event_name }}"
-          $utcNow = [DateTime]::UtcNow
-          $centralNow = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId($utcNow, 'Central Standard Time')
+          $scheduledCron = "${{ github.event.schedule }}"
+          $utcNow = [DateTimeOffset]::UtcNow
+          $centralTz = [System.TimeZoneInfo]::FindSystemTimeZoneById('Central Standard Time')
+          $centralNow = [System.TimeZoneInfo]::ConvertTime($utcNow, $centralTz)
 
           $date = $centralNow.ToString('yyyy-MM-dd')
           $run = 'true'
+          $expectedCron = ''
           if ($event -eq 'schedule') {
-            $run = if ($centralNow.Hour -eq 7) { 'true' } else { 'false' }
+            $expectedCron = if ($centralNow.Offset.TotalHours -eq -5) { '0 12 * * *' } else { '0 13 * * *' }
+            $run = if ($scheduledCron -eq $expectedCron) { 'true' } else { 'false' }
           }
 
           Write-Host "event=$event"
+          Write-Host "scheduled_cron=$scheduledCron"
           Write-Host "utc_now=$utcNow"
           Write-Host "central_now=$centralNow"
+          Write-Host "expected_cron=$expectedCron"
           Write-Host "run=$run date=$date"
 
           "run=$run" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
@@ -48,7 +54,7 @@ jobs:
         if: steps.decide.outputs.run != 'true'
         shell: powershell
         run: |
-          Write-Host "Skipping run: not 7AM Central for this schedule tick."
+          Write-Host "Skipping run: this schedule tick does not match today's 7AM Central trigger."
 
       - name: Checkout
         if: steps.decide.outputs.run == 'true'
