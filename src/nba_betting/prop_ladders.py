@@ -552,9 +552,15 @@ def build_card_sim_ladders(
     player_name: Any,
     team: Any,
     plays: Sequence[dict[str, Any]] | None,
-    market_ladders: Sequence[dict[str, Any]] | None,
-    lookup: dict[tuple[str, str], dict[str, Any]] | None,
+    market_ladders: Sequence[dict[str, Any]] | dict[tuple[str, str], dict[str, Any]] | None = None,
+    lookup: dict[tuple[str, str], dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
+    # Backward compatibility: older callers passed only four arguments,
+    # with the SmartSim lookup as the fourth positional parameter.
+    if lookup is None and isinstance(market_ladders, dict):
+        lookup = market_ladders
+        market_ladders = None
+
     if not lookup:
         return []
     player_key = normalize_player_name_key(player_name, case="lower")
