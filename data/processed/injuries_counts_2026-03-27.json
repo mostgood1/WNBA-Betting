@@ -1,0 +1,118 @@
+{
+  "date": "2026-03-27",
+  "team_counts": {
+    "ATL": 1,
+    "BKN": 1,
+    "CHI": 2,
+    "CLE": 1,
+    "DAL": 2,
+    "GSW": 1,
+    "HOU": 1,
+    "IND": 1,
+    "LAC": 1,
+    "MEM": 3,
+    "MIA": 1,
+    "OKC": 1,
+    "TOR": 1,
+    "UTA": 2
+  },
+  "players": [
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Collins",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaren Jackson Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Michael Porter Jr.",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Brandon Clarke",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Scotty Pippen Jr.",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Moussa Cisse",
+      "team": "DAL",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Jaden Ivey",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Dereck Lively II",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Craig Porter Jr.",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Collier",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Johnny Furphy",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "RayJ Dennis",
+      "team": "ATL",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Vladislav Goldin",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Chucky Hepburn",
+      "team": "TOR",
+      "status": "OUT"
+    },
+    {
+      "player": "Brooks Barnhizer",
+      "team": "OKC",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
