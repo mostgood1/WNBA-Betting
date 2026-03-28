@@ -2624,6 +2624,7 @@
     if (!state.propDetails.has(id)) {
       state.propDetails.set(id, {
         selectedKey: null,
+        bucket: 'all',
         side: 'all',
         type: 'all',
       });
@@ -2705,6 +2706,9 @@
       if (detail.type !== 'all' && row.market !== detail.type) {
         return false;
       }
+      if (detail.bucket !== 'all' && row.bucket !== detail.bucket) {
+        return false;
+      }
       return true;
     });
   }
@@ -2720,10 +2724,9 @@
   function selectedPropRow(game) {
     const detail = ensurePropDetail(game);
     const filtered = filteredPropRows(game);
-    const allRows = allPropRows(game);
     let selected = filtered.find((row) => row.key === detail.selectedKey) || null;
     if (!selected) {
-      selected = filtered[0] || allRows[0] || null;
+      selected = filtered[0] || null;
       detail.selectedKey = selected ? selected.key : null;
     }
     return selected;
@@ -2732,6 +2735,17 @@
   function renderPropFilters(game) {
     const detail = ensurePropDetail(game);
     const rows = allPropRows(game);
+    const rowsForCounts = rows.filter((row) => {
+      if (detail.side !== 'all' && row.sideKey !== detail.side) {
+        return false;
+      }
+      if (detail.type !== 'all' && row.market !== detail.type) {
+        return false;
+      }
+      return true;
+    });
+    const officialCount = rowsForCounts.filter((row) => row.bucket === 'official').length;
+    const playableCount = rowsForCounts.filter((row) => row.bucket !== 'official').length;
     const markets = Array.from(new Set(rows.map((row) => row.market))).sort();
     const sidePills = [
       { key: 'all', label: 'All sides' },
@@ -2740,6 +2754,16 @@
     ];
     const typePills = [{ key: 'all', label: 'All props' }].concat(markets.map((market) => ({ key: market, label: marketLabel(market) })));
     return `
+      <div class="cards-filters cards-prop-filter-pills">
+        <button class="cards-filter-pill cards-prop-filter-pill ${detail.bucket === 'official' ? 'is-active' : ''}" type="button" data-prop-filter-bucket="official" data-card-target="${escapeHtml(cardId(game))}">
+          <span>Official</span>
+          <span class="cards-prop-filter-count">${escapeHtml(String(officialCount))}</span>
+        </button>
+        <button class="cards-filter-pill cards-prop-filter-pill ${detail.bucket === 'playable' ? 'is-active' : ''}" type="button" data-prop-filter-bucket="playable" data-card-target="${escapeHtml(cardId(game))}">
+          <span>Playable</span>
+          <span class="cards-prop-filter-count">${escapeHtml(String(playableCount))}</span>
+        </button>
+      </div>
       <div class="cards-filters">
         ${sidePills.map((pill) => `<button class="cards-filter-pill ${detail.side === pill.key ? 'is-active' : ''}" type="button" data-prop-filter-side="${escapeHtml(pill.key)}" data-card-target="${escapeHtml(cardId(game))}">${escapeHtml(pill.label)}</button>`).join('')}
       </div>
@@ -2760,21 +2784,22 @@
       if (!groupRows.length) {
         return '';
       }
+      const bucketKey = title === 'Official plays' ? 'official' : 'playable';
       return `
         <div class="cards-prop-board-group">
           <div class="cards-box-head cards-box-head--nested">
             <div class="cards-table-title"><strong>${escapeHtml(title)}</strong></div>
-            <span class="cards-chip ${title === 'Official plays' ? 'cards-chip--accent' : ''}">${escapeHtml(chipText)}</span>
+            <button class="cards-chip cards-chip-button ${title === 'Official plays' ? 'cards-chip--accent' : ''}" type="button" data-prop-filter-bucket="${escapeHtml(bucketKey)}" data-card-target="${escapeHtml(cardId(game))}">${escapeHtml(chipText)}</button>
           </div>
           <div class="cards-prop-list">
             ${groupRows.map((row) => `
-              <button class="cards-prop-button ${selectedPropRow(game)?.key === row.key ? 'is-active' : ''}" type="button" data-prop-select="${escapeHtml(row.key)}" data-card-target="${escapeHtml(cardId(game))}">
+              <button class="cards-prop-button ${row.bucket === 'official' ? 'is-official' : 'is-candidate'} ${selectedPropRow(game)?.key === row.key ? 'is-active' : ''}" type="button" data-prop-select="${escapeHtml(row.key)}" data-card-target="${escapeHtml(cardId(game))}">
                 <div class="cards-prop-button-head">
                   <strong>${escapeHtml(row.player || 'Player')}</strong>
-                  <span class="cards-chip ${row.bucket === 'official' ? 'cards-chip--accent' : ''}">${row.bucket === 'official' ? 'Official' : 'Playable'}</span>
+                  <span class="cards-chip ${row.bucket === 'official' ? 'is-official' : 'is-candidate'}">${row.bucket === 'official' ? 'Official' : 'Playable'}</span>
                 </div>
                 <div class="cards-prop-button-main">${escapeHtml(row.marketLabel)} ${escapeHtml(row.side)} ${fmtNumber(row.line, 1)}</div>
-                <div class="cards-mini-copy">${escapeHtml(row.teamTri)} · EV ${fmtPercentValue(row.evPct)} · ${fmtAmerican(row.price)} ${escapeHtml(row.book || '')}</div>
+                <small>${escapeHtml(row.teamTri)} · EV ${fmtPercentValue(row.evPct)} · ${fmtAmerican(row.price)} ${escapeHtml(row.book || '')}</small>
               </button>
             `).join('')}
           </div>
@@ -2895,18 +2920,12 @@
 
   function renderPropsPanel(game) {
     const rows = allPropRows(game);
-    const officialCount = rows.filter((row) => row.bucket === 'official').length;
-    const playableCount = rows.filter((row) => row.bucket !== 'official').length;
     return `
       <div class="cards-props-grid">
         <div class="cards-panel-card">
           <div class="cards-box-head">
             <div class="cards-table-title"><strong>Props board</strong></div>
             <span class="cards-chip">${rows.length} total rows</span>
-          </div>
-          <div class="cards-source-meta">
-            <span class="cards-source-meta-pill">${escapeHtml(`${officialCount} official`)}</span>
-            <span class="cards-source-meta-pill is-soft">${escapeHtml(`${playableCount} playable`)}</span>
           </div>
           <div class="cards-prop-filter-shell">${renderPropFilters(game)}</div>
           <div class="cards-prop-groups">${renderPropGroups(game)}</div>
@@ -3134,6 +3153,19 @@
       const detail = state.propDetails.get(cardTarget);
       if (detail) {
         detail.type = propType.getAttribute('data-prop-filter-type') || 'all';
+        detail.selectedKey = null;
+        renderBoard();
+      }
+      return;
+    }
+
+    const propBucket = event.target.closest('[data-prop-filter-bucket]');
+    if (propBucket) {
+      const cardTarget = propBucket.getAttribute('data-card-target') || '';
+      const detail = state.propDetails.get(cardTarget);
+      if (detail) {
+        const nextBucket = propBucket.getAttribute('data-prop-filter-bucket') || 'all';
+        detail.bucket = detail.bucket === nextBucket ? 'all' : nextBucket;
         detail.selectedKey = null;
         renderBoard();
       }

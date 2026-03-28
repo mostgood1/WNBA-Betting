@@ -586,6 +586,29 @@ body.cards-app-shell .toggle-chip input {
   color: #ffe1b7;
 }
 
+.cards-chip.is-official {
+  color: var(--cards-bg);
+  background: linear-gradient(135deg, var(--cards-accent-strong), var(--cards-accent));
+}
+
+.cards-chip.is-candidate {
+  color: var(--cards-text-soft);
+  border: 1px solid rgba(132, 166, 196, 0.24);
+  background: rgba(8, 18, 30, 0.9);
+}
+
+.cards-chip-button {
+  cursor: pointer;
+  font: inherit;
+}
+
+.cards-chip-button:hover,
+.cards-chip-button:focus-visible {
+  border-color: rgba(154, 243, 222, 0.32);
+  transform: translateY(-1px);
+  outline: none;
+}
+
 .cards-pill--danger,
 .cards-warning,
 .box-injury,
@@ -604,21 +627,39 @@ body.cards-app-shell .toggle-chip input {
 }
 
 .cards-filters {
-  margin: 0;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
 }
 
 .cards-grid {
   display: grid;
-  gap: 14px;
+  align-content: start;
+  gap: 3px;
+  min-height: 60px;
   min-width: 0;
-  justify-items: center;
-}
-
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--cards-line);
+  border-radius: 14px;
+  background: rgba(10, 21, 34, 0.88);
 .cards-game-card {
   display: grid;
+  font-size: 12.5px;
+  line-height: 1.25;
   gap: 14px;
   width: min(100%, 1540px);
+  overflow-wrap: anywhere;
   padding: 17px;
+
+.cards-prop-button.is-official {
+  border-color: rgba(154, 243, 222, 0.24);
+  background: linear-gradient(180deg, rgba(17, 38, 52, 0.94), rgba(10, 21, 34, 0.92));
+}
+
+.cards-prop-button.is-candidate {
+  border-style: dashed;
+  border-color: rgba(132, 166, 196, 0.22);
+  background: rgba(8, 18, 30, 0.72);
+}
   border-radius: var(--cards-radius-xl);
   border: 1px solid var(--cards-line);
   background:
@@ -626,7 +667,15 @@ body.cards-app-shell .toggle-chip input {
   box-shadow: var(--cards-shadow);
   animation: cards-fade-up 320ms ease both;
   min-width: 0;
+.cards-prop-button small {
+  display: block;
+  margin-top: 2px;
+  color: var(--cards-text-soft);
+  font-size: 11.5px;
+  line-height: 1.25;
 }
+
+.cards-prop-button.is-active small {
 
 .cards-game-card[hidden],
 .cards-strip-card[hidden] {
@@ -1840,8 +1889,14 @@ body.cards-app-shell .toggle-chip input {
   align-items: center;
 }
 
-.cards-prop-button-main {
+.cards-prop-button-head strong {
+  font-size: 12.5px;
   font-weight: 700;
+  line-height: 1.25;
+}
+
+.cards-prop-button-main {
+  font-size: 12.5px;
 }
 
 .cards-props-column,
@@ -2019,16 +2074,16 @@ body.cards-app-shell .toggle-chip input {
 }
 
 .ladder-selected-team-logo {
-  width: 46px;
-  height: 46px;
+  width: 34px;
+  height: 34px;
   object-fit: contain;
   flex: 0 0 auto;
 }
 
 .ladder-selected-headshot {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.05);
@@ -2088,12 +2143,12 @@ body.cards-app-shell .toggle-chip input {
 
 .ladder-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 12px;
 }
 
 .ladder-card {
-  padding: 13px;
+  padding: 12px;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 18px;
   background: linear-gradient(180deg, rgba(17, 28, 45, 0.98), rgba(10, 18, 31, 0.94));
@@ -2110,8 +2165,13 @@ body.cards-app-shell .toggle-chip input {
 
 .ladder-card-identity {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.ladder-card-identity > div:last-child {
   min-width: 0;
 }
 
@@ -2119,13 +2179,13 @@ body.cards-app-shell .toggle-chip input {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex: 0 0 auto;
 }
 
 .ladder-team-logo-primary {
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   flex: 0 0 auto;
 }
 
@@ -2140,9 +2200,9 @@ body.cards-app-shell .toggle-chip input {
 }
 
 .ladder-player-headshot {
-  width: 50px;
-  height: 50px;
-  border-radius: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.05);
@@ -2151,18 +2211,20 @@ body.cards-app-shell .toggle-chip input {
 
 .ladder-card-title {
   margin: 0;
-  font-size: 18px;
-  line-height: 1.1;
+  font-size: 15px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
 .ladder-card-subtitle {
   margin-top: 3px;
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 1.3;
   color: rgba(230, 234, 239, 0.8);
 }
 
 .ladder-card-link {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
 }
 
@@ -2238,10 +2300,10 @@ body.cards-app-shell .toggle-chip input {
 
 .ladder-table th,
 .ladder-table td {
-  padding: 8px 6px;
+  padding: 7px 6px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   text-align: left;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .ladder-table th {
@@ -2249,6 +2311,25 @@ body.cards-app-shell .toggle-chip input {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(230, 234, 239, 0.74);
+}
+
+@media (max-width: 720px) {
+  .ladder-selected-card,
+  .ladder-card-head {
+    align-items: flex-start;
+  }
+
+  .ladder-selected-card,
+  .ladder-card-head,
+  .ladder-card-identity {
+    flex-wrap: wrap;
+  }
+
+  .ladder-card-actions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+  }
 }
 
 .ladder-table tr:last-child td {
