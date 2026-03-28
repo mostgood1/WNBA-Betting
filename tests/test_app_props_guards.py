@@ -603,6 +603,13 @@ def test_api_cards_surfaces_snapshot_prop_line_options_and_marks_recommendations
 
     payload = response.get_json()
     game = payload["games"][0]
+    assert isinstance(game["game_market_recommendations"], list)
+
+    prop_rows = game["prop_recommendations"]["home"]
+    assert len(prop_rows) == 1
+    assert prop_rows[0]["card_bucket"] == "official"
+    assert prop_rows[0]["card_rank"] == 1
+
     ja_row = next(row for row in game["sim"]["players"]["home"] if row["player_name"] == "Ja Morant")
     pts_options = ja_row["prop_line_options"]["pts"]
 

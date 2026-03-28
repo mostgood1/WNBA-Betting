@@ -12214,6 +12214,243 @@ def _decorate_prop_recommendation_payload(
     return _merge_recommendation_reason_fields(payload, decorated, top_play_key="top_play_reasons")
 
 
+def _load_cards_game_recommendations_index(date_str: str) -> dict[tuple[str, str], list[dict[str, Any]]]:
+    path = DATA_PROCESSED_DIR / f"recommendations_{date_str}.csv"
+    if not path.exists():
+        try:
+            _maybe_fetch_remote_processed(path.name)
+        except Exception:
+            pass
+    try:
+        if not path.exists():
+            return {}
+        df = pd.read_csv(path)
+    except Exception:
+        return {}
+    if not isinstance(df, pd.DataFrame) or df.empty:
+        return {}
+
+    out: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for _, raw_row in df.iterrows():
+        try:
+            row = raw_row.to_dict()
+            home_tri = _get_tricode(row.get("home")) or str(row.get("home") or "").strip().upper()
+            away_tri = _get_tricode(row.get("away")) or str(row.get("away") or "").strip().upper()
+            if not home_tri or not away_tri:
+                continue
+            out.setdefault((home_tri, away_tri), []).append(row)
+        except Exception:
+            continue
+    return out
+
+
+def _load_cards_prop_snapshot_index(date_str: str) -> dict[tuple[str, str], list[dict[str, Any]]]:
+    payload = _load_props_recommendations_top_by_game_snapshot(date_str) or {}
+    top_by_game = payload.get("top_by_game") if isinstance(payload.get("top_by_game"), list) else []
+    out: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for game in top_by_game:
+        if not isinstance(game, dict):
+            continue
+        home_tri = str(game.get("home_tricode") or "").strip().upper()
+        away_tri = str(game.get("away_tricode") or "").strip().upper()
+        if not home_tri or not away_tri:
+            continue
+        picks = [pick for pick in (game.get("picks") or []) if isinstance(pick, dict)]
+        if picks:
+            out[(home_tri, away_tri)] = picks
+    return out
+
+
+def _cards_recommendation_sort_key(row: dict[str, Any]) -> tuple[float, float, float, float]:
+    if not isinstance(row, dict):
+        return (0.0, 0.0, 0.0, 0.0)
+    return _best_bets_priority_sort_key(row)
+
+
+def _cards_market_label(value: Any) -> str:
+    market = str(value or "").strip().upper()
+    if market == "ATS":
+        return "Spread"
+    if market in {"TOTAL", "OU"}:
+        return "Total"
+    if market == "ML":
+        return "Moneyline"
+    return market.title() if market else "Market"
+
+
+def _build_cards_game_market_recommendations(
+    *,
+    date_str: str,
+    home_name: str,
+    away_name: str,
+    home_tri: str,
+    away_tri: str,
+    bet: dict[str, Any],
+    game_context: dict[str, Any] | None,
+    injury_snapshot: dict[str, dict[str, Any]],
+    slate_total_median: float | None,
+    raw_rows: list[dict[str, Any]] | None,
+) -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = []
+    source_rows = [row for row in (raw_rows or []) if isinstance(row, dict)]
+
+    if not source_rows:
+        home_spread = _safe_float(bet.get("home_spread"))
+        total_line = _safe_float(bet.get("total"))
+        fallback_rows = [
+            {
+                "home": home_name,
+                "away": away_name,
+                "market": "ML",
+                "side": "home" if (_safe_float(bet.get("home_ml_ev")) or float("-inf")) >= (_safe_float(bet.get("away_ml_ev")) or float("-inf")) else "away",
+                "price": bet.get("home_ml") if (_safe_float(bet.get("home_ml_ev")) or float("-inf")) >= (_safe_float(bet.get("away_ml_ev")) or float("-inf")) else bet.get("away_ml"),
+                "ev": bet.get("home_ml_ev") if (_safe_float(bet.get("home_ml_ev")) or float("-inf")) >= (_safe_float(bet.get("away_ml_ev")) or float("-inf")) else bet.get("away_ml_ev"),
+                "date": date_str,
+            },
+            {
+                "home": home_name,
+                "away": away_name,
+                "market": "ATS",
+                "side": "home" if (_safe_float(bet.get("home_spread_ev")) or float("-inf")) >= (_safe_float(bet.get("away_spread_ev")) or float("-inf")) else "away",
+                "line": abs(float(home_spread)) if home_spread is not None else None,
+                "price": -110,
+                "ev": bet.get("home_spread_ev") if (_safe_float(bet.get("home_spread_ev")) or float("-inf")) >= (_safe_float(bet.get("away_spread_ev")) or float("-inf")) else bet.get("away_spread_ev"),
+                "market_home_margin": (-float(home_spread)) if home_spread is not None else None,
+                "pred_margin": _safe_float((game_context.get("by_pair") or {}).get((home_tri, away_tri), {}).get("pred_margin")) if isinstance(game_context, dict) else None,
+                "date": date_str,
+            },
+            {
+                "home": home_name,
+                "away": away_name,
+                "market": "TOTAL",
+                "side": "over" if (_safe_float(bet.get("over_ev")) or float("-inf")) >= (_safe_float(bet.get("under_ev")) or float("-inf")) else "under",
+                "line": total_line,
+                "price": -110,
+                "ev": bet.get("over_ev") if (_safe_float(bet.get("over_ev")) or float("-inf")) >= (_safe_float(bet.get("under_ev")) or float("-inf")) else bet.get("under_ev"),
+                "pred_total": _safe_float((game_context.get("by_pair") or {}).get((home_tri, away_tri), {}).get("pred_total")) if isinstance(game_context, dict) else None,
+                "date": date_str,
+            },
+        ]
+        source_rows = [row for row in fallback_rows if _safe_float(row.get("ev")) is not None]
+
+    for row in source_rows:
+        decorated = _decorate_game_recommendation_payload(
+            row,
+            date_str=date_str,
+            game_context=game_context,
+            injury_snapshot=injury_snapshot,
+            slate_total_median=slate_total_median,
+        )
+        if not isinstance(decorated, dict):
+            continue
+        entry = dict(decorated)
+        entry["market"] = row.get("market") or entry.get("market")
+        entry["market_label"] = _cards_market_label(entry.get("market") or row.get("market") or entry.get("rec_code"))
+        candidates.append(entry)
+
+    if not candidates:
+        return []
+
+    by_market: dict[str, list[dict[str, Any]]] = {}
+    for row in candidates:
+        market_key = str(row.get("market") or "").strip().upper()
+        by_market.setdefault(market_key, []).append(row)
+
+    official: list[dict[str, Any]] = []
+    playable: list[dict[str, Any]] = []
+    for rows in by_market.values():
+        ranked = sorted(rows, key=_cards_recommendation_sort_key, reverse=True)
+        if ranked:
+            official.append(dict(ranked[0], card_bucket="official"))
+        for extra in ranked[1:]:
+            playable.append(dict(extra, card_bucket="playable"))
+
+    ordered_official = sorted(official, key=_cards_recommendation_sort_key, reverse=True)
+    ordered_playable = sorted(playable, key=_cards_recommendation_sort_key, reverse=True)
+    for idx, row in enumerate(ordered_official, start=1):
+        row["card_rank"] = idx
+    for idx, row in enumerate(ordered_playable, start=1):
+        row["card_rank"] = idx
+    return ordered_official + ordered_playable
+
+
+def _prop_recommendation_identity(row: dict[str, Any]) -> tuple[str, str, str, str, float | None] | None:
+    if not isinstance(row, dict):
+        return None
+    best = row.get("best") if isinstance(row.get("best"), dict) else {}
+    team_key = str(row.get("team") or "").strip().upper()
+    player_key = _norm_player_name(str(row.get("player") or ""))
+    market = str(best.get("market") or "").strip().lower()
+    side = str(best.get("side") or "").strip().upper()
+    line = _safe_float(best.get("line"))
+    if not team_key or not player_key or not market or not side:
+        return None
+    return (team_key, player_key, market, side, float(line) if line is not None else None)
+
+
+def _prop_snapshot_identity(pick: dict[str, Any]) -> tuple[str, str, str, str, float | None] | None:
+    if not isinstance(pick, dict):
+        return None
+    top_play = pick.get("top_play") if isinstance(pick.get("top_play"), dict) else {}
+    team_key = str(pick.get("team_tricode") or pick.get("team") or "").strip().upper()
+    player_key = _norm_player_name(str(pick.get("player") or ""))
+    market = str(top_play.get("market") or "").strip().lower()
+    side = str(top_play.get("side") or "").strip().upper()
+    line = _safe_float(top_play.get("line"))
+    if not team_key or not player_key or not market or not side:
+        return None
+    return (team_key, player_key, market, side, float(line) if line is not None else None)
+
+
+def _apply_cards_prop_recommendation_buckets(
+    prop_recommendations: dict[str, list[dict[str, Any]]],
+    *,
+    snapshot_picks: list[dict[str, Any]] | None,
+) -> None:
+    ranked_rows: list[dict[str, Any]] = []
+    for side_key in ("home", "away"):
+        rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
+        for row in (rows or []):
+            if isinstance(row, dict):
+                ranked_rows.append(row)
+
+    ranked_rows.sort(key=_cards_recommendation_sort_key, reverse=True)
+    snapshot_meta: dict[tuple[str, str, str, str, float | None], dict[str, Any]] = {}
+    for pick in (snapshot_picks or []):
+        ident = _prop_snapshot_identity(pick)
+        if ident is not None:
+            snapshot_meta[ident] = pick
+
+    if snapshot_meta:
+        official_count = 0
+        playable_count = 0
+        for row in ranked_rows:
+            ident = _prop_recommendation_identity(row)
+            match = snapshot_meta.get(ident) if ident is not None else None
+            if match is not None:
+                row["card_bucket"] = "official"
+                official_count += 1
+                row["card_rank"] = official_count
+                if match.get("tier") is not None and row.get("tier") is None:
+                    row["tier"] = match.get("tier")
+                if match.get("score_adj") is not None and row.get("recommendation_priority_score") is None:
+                    row["recommendation_priority_score"] = match.get("score_adj")
+            else:
+                row["card_bucket"] = "playable"
+                playable_count += 1
+                row["card_rank"] = playable_count
+        return
+
+    official_limit = min(3, len(ranked_rows))
+    for idx, row in enumerate(ranked_rows, start=1):
+        if idx <= official_limit:
+            row["card_bucket"] = "official"
+            row["card_rank"] = idx
+        else:
+            row["card_bucket"] = "playable"
+            row["card_rank"] = idx - official_limit
+
+
 def _build_games_best_bets_and_parlays(
     date_str: str,
     *,
@@ -13219,6 +13456,8 @@ def api_cards():
         if isinstance(best_bets_game_context, dict)
         else None
     )
+    cards_game_recommendations_index = _load_cards_game_recommendations_index(d)
+    cards_prop_snapshot_index = _load_cards_prop_snapshot_index(d)
 
     props_recs_source_lookup: dict[tuple[str, str], dict[str, Any]] = {}
     try:
@@ -14436,6 +14675,30 @@ def api_cards():
             pass
 
         try:
+            _apply_cards_prop_recommendation_buckets(
+                prop_recommendations,
+                snapshot_picks=cards_prop_snapshot_index.get((home_tri, away_tri)) or [],
+            )
+        except Exception:
+            pass
+
+        try:
+            game_market_recommendations = _build_cards_game_market_recommendations(
+                date_str=d,
+                home_name=home_name,
+                away_name=away_name,
+                home_tri=home_tri,
+                away_tri=away_tri,
+                bet=bet,
+                game_context=best_bets_game_context,
+                injury_snapshot=best_bets_injury_snapshot,
+                slate_total_median=best_bets_slate_total_median,
+                raw_rows=cards_game_recommendations_index.get((home_tri, away_tri)) or [],
+            )
+        except Exception:
+            game_market_recommendations = []
+
+        try:
             rec_index = _build_boxscore_prop_recommendation_index(prop_recommendations)
             _apply_boxscore_prop_recommendation_markers(players_out.get("home") or [], home_tri, rec_index)
             _apply_boxscore_prop_recommendation_markers(players_out.get("away") or [], away_tri, rec_index)
@@ -14470,6 +14733,7 @@ def api_cards():
             "sim": sim,
             "betting": bet,
             "prop_recommendations": prop_recommendations,
+            "game_market_recommendations": game_market_recommendations,
         }
         if missing_bits and not sim_error:
             game.setdefault("warnings", [])

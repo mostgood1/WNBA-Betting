@@ -639,10 +639,49 @@ body.cards-app-shell .toggle-chip input {
 
 .cards-head-left {
   justify-content: flex-start;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .cards-status-cluster {
   justify-content: flex-end;
+}
+
+.cards-team-line {
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cards-logo,
+.cards-logo-fallback {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.cards-logo {
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cards-logo-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--cards-line);
+  color: var(--cards-text-soft);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.cards-team-meta {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
 }
 
 .cards-strip-logo {
@@ -655,6 +694,12 @@ body.cards-app-shell .toggle-chip input {
 .cards-team-code {
   font-size: 18px;
   font-weight: 700;
+}
+
+.cards-team-name {
+  color: var(--cards-text-soft);
+  font-size: 12px;
+  line-height: 1.25;
 }
 
 .cards-status-badge {
@@ -1169,6 +1214,65 @@ body.cards-app-shell .toggle-chip input {
   gap: 10px;
 }
 
+.cards-live-lens-card {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  padding: 11px;
+  border: 1px solid rgba(132, 166, 196, 0.14);
+  border-radius: 14px;
+  background: rgba(10, 21, 34, 0.9);
+}
+
+.cards-live-lens-head,
+.cards-live-lens-summary-row,
+.cards-live-lens-picks {
+  display: grid;
+  gap: 8px;
+}
+
+.cards-live-lens-head {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.cards-live-lens-title-block {
+  display: grid;
+  gap: 4px;
+}
+
+.cards-live-lens-subtitle,
+.cards-live-lens-market {
+  color: var(--cards-text-soft);
+  font-size: 11px;
+  line-height: 1.28;
+}
+
+.cards-live-lens-summary-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cards-live-lens-picks {
+  border-top: 1px solid rgba(132, 166, 196, 0.12);
+  padding-top: 8px;
+}
+
+.cards-live-lens-pick {
+  color: var(--cards-text);
+  font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.18;
+}
+
+.cards-live-lens-grid .cards-data-pair {
+  min-height: 0;
+  padding: 6px 7px;
+}
+
+.cards-live-lens-grid .cards-data-pair strong {
+  font-size: 13px;
+}
+
 .cards-live-lens-tile {
   display: grid;
   gap: 8px;
@@ -1226,6 +1330,24 @@ body.cards-app-shell .toggle-chip input {
   background: rgba(10, 21, 34, 0.6);
 }
 
+.cards-callout-button {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.cards-callout-button:hover,
+.cards-callout-button:focus-visible,
+.cards-playable-item:hover,
+.cards-playable-item:focus-visible {
+  border-color: rgba(158, 243, 212, 0.28);
+  background: rgba(9, 24, 36, 0.92);
+  outline: none;
+}
+
 .cards-callout-label {
   color: var(--cards-text-soft);
   font-size: 10px;
@@ -1253,6 +1375,47 @@ body.cards-app-shell .toggle-chip input {
 .cards-card-context {
   display: grid;
   gap: 10px;
+}
+
+.cards-box-head--nested {
+  padding-top: 4px;
+}
+
+.cards-playable-board,
+.cards-playable-section,
+.cards-playable-list,
+.cards-playable-head {
+  display: grid;
+  gap: 10px;
+}
+
+.cards-playable-list {
+  grid-template-columns: 1fr;
+}
+
+.cards-playable-item {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid rgba(132, 166, 196, 0.12);
+  border-radius: 14px;
+  background: rgba(10, 21, 34, 0.6);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.cards-playable-head {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.cards-playable-main {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 .cards-prob-row {
@@ -1359,6 +1522,12 @@ body.cards-app-shell .toggle-chip input {
 .cards-box-grid,
 .cards-props-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cards-box-column {
+  display: grid;
+  gap: 12px;
+  align-content: start;
 }
 
 .cards-props-grid {
@@ -1539,11 +1708,17 @@ body.cards-app-shell .toggle-chip input {
 
 .cards-prop-filter-shell,
 .cards-prop-groups,
+.cards-prop-board,
+.cards-prop-board-group,
 .cards-prop-group,
 .cards-prop-stack,
 .cards-detail-grid {
   display: grid;
   gap: 10px;
+}
+
+.cards-prop-board-group {
+  padding-top: 2px;
 }
 
 .cards-lens-shell {
