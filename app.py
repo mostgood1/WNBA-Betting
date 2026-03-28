@@ -9948,11 +9948,27 @@ def _smart_sim_authoritative_matchups_for_date(date_str: str) -> set[tuple[str, 
 
 def _load_smart_sim_files_for_authoritative_slate(date_str: str, prefix: str | None = None) -> list[Path]:
     files = _load_smart_sim_files_for_date(date_str, prefix=prefix)
-    if not files:
-        return files
-
     allowed_matchups = _smart_sim_authoritative_matchups_for_date(date_str)
     if not allowed_matchups:
+        return files
+
+    try:
+        pref = str(prefix or os.environ.get("SMART_SIM_PREFIX") or "smart_sim").strip() or "smart_sim"
+        existing_matchups = {
+            matchup
+            for matchup in (
+                _smart_sim_matchup_from_path(date_str, fp, prefix=prefix)
+                for fp in files
+            )
+            if matchup is not None
+        }
+        for home_tri, away_tri in sorted(allowed_matchups - existing_matchups):
+            _maybe_fetch_remote_processed(f"{pref}_{date_str}_{home_tri}_{away_tri}.json")
+        files = _load_smart_sim_files_for_date(date_str, prefix=prefix)
+    except Exception:
+        pass
+
+    if not files:
         return files
 
     filtered: list[Path] = []
@@ -10058,6 +10074,120 @@ def _load_game_odds_map(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
     except Exception:
         return out
     return out
+
+
+def _load_predictions_rows_map(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
+    out: dict[tuple[str, str], dict[str, Any]] = {}
+    pred_path = _find_predictions_for_date(date_str)
+    if pred_path is None:
+        return out
+    try:
+        df = pd.read_csv(pred_path)
+        if df is None or df.empty:
+            return out
+
+        def _tri(raw: Any) -> str:
+            val = str(raw or "").strip()
+            if not val:
+                return ""
+            tri = _get_tricode(val)
+            return str(tri or val).strip().upper()
+
+        for _, row in df.iterrows():
+            home_raw = row.get("home_team") if row.get("home_team") is not None else row.get("home")
+            away_raw = row.get("visitor_team")
+            if away_raw is None:
+                away_raw = row.get("away_team") if row.get("away_team") is not None else row.get("away")
+            home_tri = _tri(home_raw)
+            away_tri = _tri(away_raw)
+            if home_tri and away_tri:
+                out[(home_tri, away_tri)] = row.to_dict()
+    except Exception:
+        return out
+    return out
+
+
+def _build_fallback_smart_sim_object(
+    date_str: str,
+    home_tri: str,
+    away_tri: str,
+    prediction_row: dict[str, Any] | None,
+    odds_row: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    if not isinstance(prediction_row, dict):
+        return None
+
+    pred_margin = _safe_float(
+        prediction_row.get("spread_margin")
+        if prediction_row.get("spread_margin") is not None
+        else prediction_row.get("pred_margin")
+    )
+    total_mean = _safe_float(
+        prediction_row.get("totals")
+        if prediction_row.get("totals") is not None
+        else prediction_row.get("pred_total")
+    )
+    home_win_prob = _safe_float(
+        prediction_row.get("home_win_prob_cal")
+        if prediction_row.get("home_win_prob_cal") is not None
+        else (
+            prediction_row.get("home_win_prob")
+            if prediction_row.get("home_win_prob") is not None
+            else prediction_row.get("home_win_prob_iso")
+        )
+    )
+
+    home_mean = None
+    away_mean = None
+    if total_mean is not None and pred_margin is not None:
+        try:
+            home_mean = float((float(total_mean) + float(pred_margin)) / 2.0)
+            away_mean = float((float(total_mean) - float(pred_margin)) / 2.0)
+        except Exception:
+            home_mean = None
+            away_mean = None
+
+    periods: dict[str, Any] = {}
+    for src, dst in (("quarters_q1", "q1"), ("quarters_q2", "q2"), ("quarters_q3", "q3"), ("quarters_q4", "q4"), ("halves_h1", "h1"), ("halves_h2", "h2")):
+        win_val = _safe_float(prediction_row.get(f"{src}_win"))
+        margin_val = _safe_float(prediction_row.get(f"{src}_margin"))
+        total_val = _safe_float(prediction_row.get(f"{src}_total"))
+        if win_val is None and margin_val is None and total_val is None:
+            continue
+        periods[dst] = {
+            "p_home_win": win_val,
+            "margin_mean": margin_val,
+            "total_mean": total_val,
+        }
+
+    odds = odds_row or {}
+
+    return {
+        "home": home_tri,
+        "away": away_tri,
+        "date": date_str,
+        "game_id": f"{away_tri}@{home_tri}",
+        "mode": "prediction_fallback",
+        "context": {
+            "fallback_source": "predictions_csv",
+            "fallback_reason": "missing_smart_sim",
+        },
+        "market": {
+            "market_home_spread": _safe_float(odds.get("home_spread")),
+            "market_total": _safe_float(odds.get("total")),
+        },
+        "score": {
+            "p_home_win": home_win_prob,
+            "p_home_cover": None,
+            "p_total_over": None,
+            "home_mean": home_mean,
+            "away_mean": away_mean,
+            "total_mean": total_mean,
+            "margin_mean": pred_margin,
+        },
+        "periods": periods,
+        "players": {"home": [], "away": []},
+    }
 
 
 def _load_props_predictions_map(date_str: str) -> dict[int, dict[str, Any]]:
@@ -13442,6 +13572,7 @@ def api_cards():
             smart_sim_files = next_files
 
     odds_map = _load_game_odds_map(d)
+    prediction_rows_map = _load_predictions_rows_map(d)
     props_map = _load_props_predictions_map(d)
     min_priors = _compute_player_minutes_priors(d, days_back=21)
     props_edges_line_idx = _live_load_props_edges_index(d)
@@ -14238,19 +14369,46 @@ def api_cards():
 
     all_team_boxscore_prop_sources = _build_boxscore_prop_line_sources(d)
 
-    games: list[dict[str, Any]] = []
+    smart_sim_files_by_matchup: dict[tuple[str, str], Path] = {}
     for fp in smart_sim_files:
-        try:
-            obj = json.loads(fp.read_text(encoding="utf-8"))
-        except Exception:
-            continue
-        if not isinstance(obj, dict):
-            continue
+        matchup = _smart_sim_matchup_from_path(d, fp)
+        if matchup is not None and matchup not in smart_sim_files_by_matchup:
+            smart_sim_files_by_matchup[matchup] = fp
+
+    slate_matchups = set(smart_sim_files_by_matchup.keys()) | set(odds_map.keys()) | set(prediction_rows_map.keys())
+
+    def _matchup_sort_key(matchup: tuple[str, str]) -> tuple[str, str, str]:
+        odds_row = odds_map.get(matchup) or {}
+        pred_row = prediction_rows_map.get(matchup) or {}
+        commence_time = odds_row.get("commence_time") or pred_row.get("commence_time") or ""
+        return (str(commence_time or ""), matchup[0], matchup[1])
+
+    games: list[dict[str, Any]] = []
+    for home_tri, away_tri in sorted(slate_matchups, key=_matchup_sort_key):
+        fp = smart_sim_files_by_matchup.get((home_tri, away_tri))
+        if fp is not None:
+            try:
+                obj = json.loads(fp.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            if not isinstance(obj, dict):
+                continue
+        else:
+            obj = _build_fallback_smart_sim_object(
+                d,
+                home_tri,
+                away_tri,
+                prediction_rows_map.get((home_tri, away_tri)),
+                odds_map.get((home_tri, away_tri)),
+            )
+            if not isinstance(obj, dict):
+                continue
+            fp = DATA_PROCESSED_DIR / f"smart_sim_{d}_{home_tri}_{away_tri}.json"
 
         sim_error = obj.get("error")
 
-        home_tri = str(obj.get("home") or "").strip().upper()
-        away_tri = str(obj.get("away") or "").strip().upper()
+        home_tri = str(obj.get("home") or home_tri or "").strip().upper()
+        away_tri = str(obj.get("away") or away_tri or "").strip().upper()
         if not home_tri or not away_tri:
             continue
 
@@ -14753,6 +14911,14 @@ def api_cards():
         except Exception:
             pass
         game["writeup"] = _matchup_writeup(game)
+
+        try:
+            sim_context = sim.get("context") if isinstance(sim.get("context"), dict) else {}
+            if str(sim_context.get("fallback_reason") or "").strip().lower() == "missing_smart_sim":
+                game.setdefault("warnings", [])
+                game["warnings"].append("Using predictions fallback because SmartSim artifact is missing for this matchup.")
+        except Exception:
+            pass
 
         if sim_error:
             try:

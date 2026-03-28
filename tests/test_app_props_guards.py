@@ -147,6 +147,85 @@ def test_api_cards_skips_missing_prop_players_warning_when_smartsim_errors(tmp_p
     assert all("Players with prop lines missing from SmartSim boxscore" not in warning for warning in warnings)
 
 
+def test_api_cards_falls_back_to_predictions_when_smart_sim_missing(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+
+    pd.DataFrame(
+        [
+            {
+                "date": "2026-03-28",
+                "home_team": "PHOENIX SUNS",
+                "visitor_team": "UTAH JAZZ",
+                "home_win_prob": 0.6191085240899175,
+                "spread_margin": 5.150077403744712,
+                "totals": 229.85171222031929,
+                "quarters_q1_win": 0.5727539225959937,
+                "quarters_q1_margin": 1.8587640828792336,
+                "quarters_q1_total": 56.03260037762033,
+                "quarters_q2_win": 0.5810418441135232,
+                "quarters_q2_margin": 2.298050030953906,
+                "quarters_q2_total": 59.169649448678136,
+                "quarters_q3_win": 0.4742736864944752,
+                "quarters_q3_margin": 0.1874770016348637,
+                "quarters_q3_total": 56.0023145337821,
+                "quarters_q4_win": 0.4556026591423514,
+                "quarters_q4_margin": 0.3610672101987547,
+                "quarters_q4_total": 57.03009650947159,
+                "home_win_prob_cal": 0.6090342803663917,
+                "commence_time": "2026-03-28T22:00:00Z",
+            }
+        ]
+    ).to_csv(processed / "predictions_2026-03-28.csv", index=False)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "_load_smart_sim_files_for_authoritative_slate", lambda _date: [])
+    monkeypatch.setattr(app_module, "_find_next_available_smart_sim_date", lambda *_args, **_kwargs: (None, []))
+    monkeypatch.setattr(
+        app_module,
+        "_load_game_odds_map",
+        lambda _date: {
+            ("PHX", "UTA"): {
+                "home_team": "Phoenix Suns",
+                "visitor_team": "Utah Jazz",
+                "home_spread": -5.5,
+                "total": 230.5,
+                "commence_time": "2026-03-28T22:00:00Z",
+            }
+        },
+    )
+    monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_props_recommendations_by_team", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_game_context", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_props_prediction_lookup", lambda _date: {})
+    monkeypatch.setattr(app_module, "_best_bets_load_injury_snapshot", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_game_recommendations_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_prop_snapshot_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_sim_vs_line_prop_recommendations", lambda *args, **kwargs: {"home": [], "away": []})
+    monkeypatch.setattr(app_module, "_build_cards_game_market_recommendations", lambda **kwargs: [])
+    monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
+
+    with app_module.app.test_request_context("/api/cards?date=2026-03-28"):
+        response = app_module.api_cards()
+
+    payload = response.get_json()
+
+    assert payload["date"] == "2026-03-28"
+    assert len(payload["games"]) == 1
+
+    game = payload["games"][0]
+    assert game["home_tri"] == "PHX"
+    assert game["away_tri"] == "UTA"
+    assert game["sim"]["mode"] == "prediction_fallback"
+    assert game["sim"]["score"]["p_home_win"] == 0.6090342803663917
+    assert game["sim"]["score"]["total_mean"] == 229.85171222031929
+    assert "Using predictions fallback because SmartSim artifact is missing for this matchup." in (game.get("warnings") or [])
+
+
 def test_api_cards_normalizes_snapshot_names_and_backfills_roster_coverage(tmp_path, monkeypatch):
     data_dir = tmp_path / "data"
     processed = data_dir / "processed"
