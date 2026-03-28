@@ -28386,6 +28386,68 @@ def _build_prop_ladder_market_lines_from_options(
     return normalized_entries
 
 
+def _prop_ladder_market_order(value: object) -> tuple[int, str]:
+    key = _normalize_prop_ladder_market(value)
+    order = {
+        "pts": 0,
+        "reb": 1,
+        "ast": 2,
+        "threes": 3,
+        "pra": 4,
+        "pr": 5,
+        "pa": 6,
+        "ra": 7,
+        "stl": 8,
+        "blk": 9,
+        "tov": 10,
+        "dd": 11,
+        "td": 12,
+    }
+    return (order.get(key, 99), key)
+
+
+def _build_prop_ladder_available_markets_from_player_options(
+    active_market_key: str,
+    prop_lines: object,
+    prop_line_options: object,
+) -> list[dict[str, Any]]:
+    prop_lines_map = prop_lines if isinstance(prop_lines, dict) else {}
+    prop_line_options_map = prop_line_options if isinstance(prop_line_options, dict) else {}
+    market_keys = {
+        _normalize_prop_ladder_market(key)
+        for key in list(prop_lines_map.keys()) + list(prop_line_options_map.keys())
+        if _normalize_prop_ladder_market(key)
+    }
+    out: list[dict[str, Any]] = []
+    for market_key in sorted(market_keys, key=_prop_ladder_market_order):
+        primary_line = _coerce_prop_ladder_float(prop_lines_map.get(market_key))
+        market_lines = _build_prop_ladder_market_lines_from_options(
+            market_key,
+            prop_line_options_map.get(market_key),
+            primary_line,
+        )
+        primary_entry = next((entry for entry in market_lines if isinstance(entry, dict) and entry.get("isPrimary")), None)
+        if primary_entry is None and market_lines:
+            primary_entry = market_lines[0]
+        resolved_line = _coerce_prop_ladder_float((primary_entry or {}).get("line"))
+        if resolved_line is None:
+            resolved_line = primary_line
+        if resolved_line is None and not market_lines:
+            continue
+        out.append(
+            {
+                "market": market_key,
+                "label": _prop_ladder_market_label(market_key),
+                "marketLine": resolved_line,
+                "marketLinesByStat": market_lines,
+                "overOdds": (primary_entry or {}).get("overOdds"),
+                "underOdds": (primary_entry or {}).get("underOdds"),
+                "isActive": market_key == _normalize_prop_ladder_market(active_market_key),
+            }
+        )
+    return out
+
+
 def _compute_prop_ladder_over_line_stats(
     ladder_rows: object,
     market_line: object,
@@ -28565,9 +28627,9 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
     game_filter = str(request.args.get("game") or "").strip()
     team_filter = (_get_tricode(str(request.args.get("team") or "")) or str(request.args.get("team") or "").strip().upper()) if request.args.get("team") else ""
     player_filter = str(request.args.get("player") or "").strip()
-    sort_filter = str(request.args.get("sort") or "team").strip().lower()
+    sort_filter = str(request.args.get("sort") or "mean").strip().lower()
     if sort_filter not in {"team", "prob", "mean"}:
-        sort_filter = "team"
+        sort_filter = "mean"
 
     rows: list[dict[str, Any]] = []
     game_options: dict[str, dict[str, Any]] = {}
@@ -28636,6 +28698,12 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
                 if not isinstance(active_market, dict):
                     continue
 
+                available_markets = _build_prop_ladder_available_markets_from_player_options(
+                    market_filter,
+                    prop_lines,
+                    prop_line_options,
+                )
+
                 ladder_rows = active_market.get("ladder") if isinstance(active_market.get("ladder"), list) else []
                 player_id = player_row.get("player_id")
                 headshot_url = _best_player_headshot_url(
@@ -28667,6 +28735,7 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
                         "maxTotal": active_market.get("maxTotal"),
                         "marketLine": _coerce_prop_ladder_float(active_market.get("marketLine")),
                         "marketLinesByStat": active_market.get("marketLinesByStat") if isinstance(active_market.get("marketLinesByStat"), list) else [],
+                        "availableMarkets": available_markets,
                         "overLineCount": active_market.get("overLineCount"),
                         "overLineProb": _coerce_prop_ladder_float(active_market.get("overLineProb")),
                         "ladder": ladder_rows,
@@ -28737,9 +28806,9 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
         "teamOptions": [team_options[key] for key in sorted(team_options)],
         "playerOptions": [player_options[key] for key in sorted(player_options)],
         "sortOptions": [
-            {"value": "team", "label": "Team"},
-            {"value": "prob", "label": "Over-line hit %"},
             {"value": "mean", "label": "Mean"},
+            {"value": "prob", "label": "Over-line hit %"},
+            {"value": "team", "label": "Team"},
         ],
         "ladderShape": (
             "estimated"
@@ -28793,9 +28862,9 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
     game_filter = str(request.args.get("game") or "").strip()
     team_filter = (_get_tricode(str(request.args.get("team") or "")) or str(request.args.get("team") or "").strip().upper()) if request.args.get("team") else ""
     player_filter = str(request.args.get("player") or "").strip()
-    sort_filter = str(request.args.get("sort") or "team").strip().lower()
+    sort_filter = str(request.args.get("sort") or "mean").strip().lower()
     if sort_filter not in {"team", "prob", "mean"}:
-        sort_filter = "team"
+        sort_filter = "mean"
 
     rows: list[dict[str, Any]] = []
     game_options: dict[str, dict[str, Any]] = {}
@@ -29051,9 +29120,9 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
         "teamOptions": [team_options[key] for key in sorted(team_options)],
         "playerOptions": [player_options[key] for key in sorted(player_options)],
         "sortOptions": [
-            {"value": "team", "label": "Team"},
-            {"value": "prob", "label": "Over-line hit %"},
             {"value": "mean", "label": "Mean"},
+            {"value": "prob", "label": "Over-line hit %"},
+            {"value": "team", "label": "Team"},
         ],
         "ladderShape": (
             "estimated"

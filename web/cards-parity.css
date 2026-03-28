@@ -632,34 +632,16 @@ body.cards-app-shell .toggle-chip input {
 
 .cards-grid {
   display: grid;
-  align-content: start;
-  gap: 3px;
-  min-height: 60px;
+  gap: 14px;
   min-width: 0;
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--cards-line);
-  border-radius: 14px;
-  background: rgba(10, 21, 34, 0.88);
+  justify-items: center;
+}
+
 .cards-game-card {
   display: grid;
-  font-size: 12.5px;
-  line-height: 1.25;
   gap: 14px;
   width: min(100%, 1540px);
-  overflow-wrap: anywhere;
   padding: 17px;
-
-.cards-prop-button.is-official {
-  border-color: rgba(154, 243, 222, 0.24);
-  background: linear-gradient(180deg, rgba(17, 38, 52, 0.94), rgba(10, 21, 34, 0.92));
-}
-
-.cards-prop-button.is-candidate {
-  border-style: dashed;
-  border-color: rgba(132, 166, 196, 0.22);
-  background: rgba(8, 18, 30, 0.72);
-}
   border-radius: var(--cards-radius-xl);
   border: 1px solid var(--cards-line);
   background:
@@ -667,15 +649,7 @@ body.cards-app-shell .toggle-chip input {
   box-shadow: var(--cards-shadow);
   animation: cards-fade-up 320ms ease both;
   min-width: 0;
-.cards-prop-button small {
-  display: block;
-  margin-top: 2px;
-  color: var(--cards-text-soft);
-  font-size: 11.5px;
-  line-height: 1.25;
 }
-
-.cards-prop-button.is-active small {
 
 .cards-game-card[hidden],
 .cards-strip-card[hidden] {
@@ -2263,6 +2237,23 @@ body.cards-app-shell .toggle-chip input {
   margin: 0 0 10px;
 }
 
+.ladder-market-lines--all-props {
+  margin-bottom: 12px;
+}
+
+.ladder-available-props {
+  display: grid;
+  gap: 6px;
+}
+
+.ladder-available-props__label {
+  color: rgba(230, 234, 239, 0.72);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .ladder-market-line {
   display: inline-flex;
   align-items: center;
@@ -2276,9 +2267,21 @@ body.cards-app-shell .toggle-chip input {
   line-height: 1.1;
 }
 
+.ladder-available-market {
+  color: inherit;
+  text-decoration: none;
+}
+
 .ladder-market-line.is-active {
   border-color: rgba(158, 208, 255, 0.48);
   background: rgba(158, 208, 255, 0.09);
+}
+
+.ladder-available-market:hover,
+.ladder-available-market:focus-visible {
+  border-color: rgba(154, 243, 222, 0.32);
+  background: rgba(158, 208, 255, 0.08);
+  outline: none;
 }
 
 .ladder-market-line-label {

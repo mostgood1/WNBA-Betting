@@ -28,7 +28,7 @@
     game: String(params.get('game') || ''),
     team: String(params.get('team') || ''),
     player: String(params.get('player') || ''),
-    sort: String(params.get('sort') || 'team'),
+    sort: String(params.get('sort') || 'mean'),
   };
 
   function getLocalDateISO() {
@@ -182,6 +182,31 @@
     `;
   }
 
+  function renderAvailableMarketChips(row) {
+    const markets = Array.isArray(row.availableMarkets) ? row.availableMarkets : [];
+    if (!markets.length) return '';
+    return `
+      <div class="ladder-available-props">
+        <div class="ladder-available-props__label">Available props</div>
+        <div class="ladder-market-lines ladder-market-lines--all-props">
+          ${markets.map((market) => {
+            const oddsBits = [];
+            if (market.overOdds != null) oddsBits.push(`O ${escapeHtml(formatOdds(market.overOdds))}`);
+            if (market.underOdds != null) oddsBits.push(`U ${escapeHtml(formatOdds(market.underOdds))}`);
+            const href = pageHref(state.date, market.market, state.game, state.team, row.playerName || state.player, state.sort);
+            return `
+              <a class="ladder-market-line ladder-available-market${market.isActive ? ' is-active' : ''}" href="${href}">
+                <span class="ladder-market-line-label">${escapeHtml(market.label || 'Prop')}</span>
+                <strong>${escapeHtml(formatNumber(market.marketLine, 1))}</strong>
+                <span class="ladder-market-line-odds">${oddsBits.length ? oddsBits.join(' / ') : 'No odds'}</span>
+              </a>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
   function renderTeamSelector(payload) {
     const options = Array.isArray(payload.teamOptions) ? payload.teamOptions : [];
     teamInputEl.innerHTML = [
@@ -326,6 +351,7 @@
           ${row.marketLine == null ? '' : `<span class="ladder-pill"><span>Market line</span><strong>${escapeHtml(formatNumber(row.marketLine, 1))}</strong></span>`}
           ${overLineText}
         </div>
+        ${renderAvailableMarketChips(row)}
         ${renderMarketLineChips(row)}
         ${isEstimated ? '<div class="ladder-empty">Exact ladder counts were not embedded in the SmartSim artifact for this date. This ladder is reconstructed from the same-day SmartSim mean and variance.</div>' : ''}
         ${ladderRows.length ? `
@@ -360,9 +386,9 @@
     renderTeamSelector(payload);
     renderPlayerSelector(payload);
     renderSelectedPlayer(payload);
-    sortInputEl.value = String(payload.selectedSort || state.sort || 'team');
+    sortInputEl.value = String(payload.selectedSort || state.sort || 'mean');
     const gameLabel = String((Array.isArray(payload.gameOptions) ? payload.gameOptions : []).find((option) => String(option.value || '') === String(payload.selectedGame || state.game || ''))?.label || '');
-    const sortLabel = String((Array.isArray(payload.sortOptions) ? payload.sortOptions : []).find((option) => String(option.value || '') === String(payload.selectedSort || state.sort || 'team'))?.label || (payload.selectedSort || state.sort || 'team'));
+    const sortLabel = String((Array.isArray(payload.sortOptions) ? payload.sortOptions : []).find((option) => String(option.value || '') === String(payload.selectedSort || state.sort || 'mean'))?.label || (payload.selectedSort || state.sort || 'mean'));
     headerMetaEl.textContent = payload.found
       ? sourceMode === 'estimated'
         ? `${summary.players || 0} players across ${summary.games || 0} games from reconstructed SmartSim ladders built from same-day player summary moments. Exact rung counts were not embedded for this date. Sorted by ${sortLabel}.${state.game ? ` Filtered to ${gameLabel || state.game}.` : ''}${state.team ? ` Filtered to team ${state.team}.` : ''}${state.player ? ` Filtered to player ${state.player}.` : ''}`
@@ -417,7 +443,7 @@
     state.game = String(gameInputEl.value || '');
     state.team = String(teamInputEl.value || '');
     state.player = String(playerInputEl.value || '');
-    state.sort = String(sortInputEl.value || 'team');
+    state.sort = String(sortInputEl.value || 'mean');
     window.history.replaceState({}, '', pageHref(state.date, state.prop, state.game, state.team, state.player, state.sort));
     try {
       await loadPayload();
