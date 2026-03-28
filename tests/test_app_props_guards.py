@@ -226,6 +226,105 @@ def test_api_cards_falls_back_to_predictions_when_smart_sim_missing(tmp_path, mo
     assert "Using predictions fallback because SmartSim artifact is missing for this matchup." in (game.get("warnings") or [])
 
 
+def test_api_cards_prefers_cards_props_snapshot_over_runtime_recompute(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+
+    (processed / "cards_props_snapshot_2026-03-28.json").write_text(
+        json.dumps(
+            {
+                "date": "2026-03-28",
+                "games": [
+                    {
+                        "home_tri": "PHX",
+                        "away_tri": "UTA",
+                        "prop_recommendations": {
+                            "home": [
+                                {
+                                    "player": "Devin Booker",
+                                    "card_bucket": "official",
+                                    "card_rank": 1,
+                                    "best": {
+                                        "market": "pts",
+                                        "side": "OVER",
+                                        "line": 27.5,
+                                        "price": -110,
+                                    },
+                                    "picks": [],
+                                }
+                            ],
+                            "away": [],
+                        },
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "_load_smart_sim_files_for_authoritative_slate", lambda _date: [])
+    monkeypatch.setattr(app_module, "_find_next_available_smart_sim_date", lambda *_args, **_kwargs: (None, []))
+    monkeypatch.setattr(
+        app_module,
+        "_load_game_odds_map",
+        lambda _date: {
+            ("PHX", "UTA"): {
+                "home_team": "Phoenix Suns",
+                "visitor_team": "Utah Jazz",
+                "home_spread": -5.5,
+                "total": 230.5,
+                "commence_time": "2026-03-28T22:00:00Z",
+            }
+        },
+    )
+    monkeypatch.setattr(
+        app_module,
+        "_load_predictions_rows_map",
+        lambda _date: {
+            ("PHX", "UTA"): {
+                "date": "2026-03-28",
+                "home_team": "PHOENIX SUNS",
+                "visitor_team": "UTAH JAZZ",
+                "home_win_prob_cal": 0.61,
+                "spread_margin": 5.1,
+                "totals": 229.8,
+                "commence_time": "2026-03-28T22:00:00Z",
+            }
+        },
+    )
+    monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_props_recommendations_by_team", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_game_context", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_props_prediction_lookup", lambda _date: {})
+    monkeypatch.setattr(app_module, "_best_bets_load_injury_snapshot", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_game_recommendations_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_prop_snapshot_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_build_cards_game_market_recommendations", lambda **kwargs: [])
+    monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
+
+    def _unexpected_runtime(*args, **kwargs):
+        raise AssertionError("runtime prop recompute should not run when a cards snapshot exists")
+
+    monkeypatch.setattr(app_module, "_sim_vs_line_prop_recommendations", _unexpected_runtime)
+
+    with app_module.app.test_request_context("/api/cards?date=2026-03-28"):
+        response = app_module.api_cards()
+
+    payload = response.get_json()
+    game = payload["games"][0]
+
+    assert game["home_tri"] == "PHX"
+    assert game["away_tri"] == "UTA"
+    assert len(game["prop_recommendations"]["home"]) == 1
+    assert game["prop_recommendations"]["home"][0]["player"] == "Devin Booker"
+    assert game["prop_recommendations"]["home"][0]["card_bucket"] == "official"
+
+
 def test_api_cards_normalizes_snapshot_names_and_backfills_roster_coverage(tmp_path, monkeypatch):
     data_dir = tmp_path / "data"
     processed = data_dir / "processed"

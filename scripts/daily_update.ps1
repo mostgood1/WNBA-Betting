@@ -237,6 +237,7 @@ function Test-ManagedProcessedArtifactName {
   $allowedPrefixes = @(
     'predictions_',
     'recommendations_',
+    'cards_props_snapshot_',
     'recon_games_',
     'recon_quarters_',
     'recon_props_',
@@ -3195,6 +3196,72 @@ print("OK")
   }
 } catch {
   Write-Log ("Curated slate JSON build failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 6c.1.6) Build cards props snapshot artifact for /api/cards (non-fatal)
+try {
+  $skipCardsPropsSnapshot = $env:DAILY_SKIP_CARDS_PROPS_SNAPSHOT
+  if ($null -ne $skipCardsPropsSnapshot -and $skipCardsPropsSnapshot -match '^(1|true|yes)$') {
+    Write-Log 'Skipping cards props snapshot build (DAILY_SKIP_CARDS_PROPS_SNAPSHOT=1)'
+  } else {
+    $cardsPropsOut = Join-Path $RepoRoot ("data/processed/cards_props_snapshot_{0}.json" -f $Date)
+    try { if (Test-Path $cardsPropsOut) { Remove-Item $cardsPropsOut -Force -ErrorAction SilentlyContinue } } catch { }
+    Write-Log ("Building cards props snapshot for {0} -> {1}" -f $Date, $cardsPropsOut)
+
+    $tmpPyCardsProps = Join-Path $LogPath ("build_cards_props_snapshot_{0}.py" -f $Stamp)
+    $pyCardsProps = @"
+import json
+import sys
+from pathlib import Path
+
+repo_root = Path(r"{REPO_PLACEHOLDER}")
+if str(repo_root) not in sys.path:
+  sys.path.insert(0, str(repo_root))
+
+import app
+
+date_str = r"{DATE_PLACEHOLDER}"
+out_path = Path(r"{OUT_PLACEHOLDER}")
+
+client = app.app.test_client()
+resp = client.get(f"/api/cards?date={date_str}&props_source=runtime")
+try:
+  payload = resp.get_json() if resp is not None else None
+except Exception:
+  payload = None
+
+games_out = []
+if isinstance(payload, dict):
+  for game in (payload.get("games") or []):
+    if not isinstance(game, dict):
+      continue
+    prop_recommendations = game.get("prop_recommendations") if isinstance(game.get("prop_recommendations"), dict) else {}
+    games_out.append({
+      "home_tri": game.get("home_tri"),
+      "away_tri": game.get("away_tri"),
+      "prop_recommendations": {
+        "home": [row for row in (prop_recommendations.get("home") or []) if isinstance(row, dict)],
+        "away": [row for row in (prop_recommendations.get("away") or []) if isinstance(row, dict)],
+      },
+    })
+
+out = {
+  "date": date_str,
+  "games": games_out,
+}
+out_path.parent.mkdir(parents=True, exist_ok=True)
+out_path.write_text(json.dumps(out, indent=2), encoding="utf-8")
+print("OK")
+"@
+    $pyCardsProps = $pyCardsProps.Replace('{DATE_PLACEHOLDER}', $Date)
+    $pyCardsProps = $pyCardsProps.Replace('{REPO_PLACEHOLDER}', $RepoRoot)
+    $pyCardsProps = $pyCardsProps.Replace('{OUT_PLACEHOLDER}', $cardsPropsOut)
+    Set-Content -Path $tmpPyCardsProps -Value $pyCardsProps -Encoding UTF8
+    $outCardsProps = & $Python $tmpPyCardsProps 2>&1 | Tee-Object -FilePath $LogFile -Append
+    if ($outCardsProps -match 'OK') { Write-Log ("Wrote {0}" -f $cardsPropsOut) } else { Write-Log ("Cards props snapshot build returned: {0}" -f $outCardsProps) }
+  }
+} catch {
+  Write-Log ("Cards props snapshot build failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
 # 6c.2) Props reliability (60d) and probability calibration JSON (local-only)

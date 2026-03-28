@@ -12391,6 +12391,43 @@ def _load_cards_prop_snapshot_index(date_str: str) -> dict[tuple[str, str], list
     return out
 
 
+def _load_cards_prop_recommendations_snapshot(date_str: str) -> dict[str, Any] | None:
+    path = DATA_PROCESSED_DIR / f"cards_props_snapshot_{date_str}.json"
+    if not path.exists():
+        try:
+            _maybe_fetch_remote_processed(path.name)
+        except Exception:
+            pass
+    try:
+        if not path.exists():
+            return None
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _load_cards_prop_recommendations_index(date_str: str) -> dict[tuple[str, str], dict[str, list[dict[str, Any]]]]:
+    payload = _load_cards_prop_recommendations_snapshot(date_str) or {}
+    games = payload.get("games") if isinstance(payload.get("games"), list) else []
+    out: dict[tuple[str, str], dict[str, list[dict[str, Any]]]] = {}
+    for game in games:
+        if not isinstance(game, dict):
+            continue
+        home_tri = str(game.get("home_tri") or "").strip().upper()
+        away_tri = str(game.get("away_tri") or "").strip().upper()
+        if not home_tri or not away_tri:
+            continue
+        prop_recommendations = game.get("prop_recommendations") if isinstance(game.get("prop_recommendations"), dict) else {}
+        home_rows = [row for row in (prop_recommendations.get("home") or []) if isinstance(row, dict)]
+        away_rows = [row for row in (prop_recommendations.get("away") or []) if isinstance(row, dict)]
+        if home_rows or away_rows:
+            out[(home_tri, away_tri)] = {
+                "home": home_rows,
+                "away": away_rows,
+            }
+    return out
+
+
 def _cards_recommendation_sort_key(row: dict[str, Any]) -> tuple[float, float, float, float]:
     if not isinstance(row, dict):
         return (0.0, 0.0, 0.0, 0.0)
@@ -13564,6 +13601,9 @@ def api_cards():
         return jsonify({"error": "missing date"}), 400
 
     requested_date = d
+    props_source = str(request.args.get("props_source", request.args.get("propsSource", "auto")) or "auto").strip().lower()
+    if props_source not in {"auto", "snapshot", "runtime"}:
+        props_source = "auto"
     smart_sim_files = _load_smart_sim_files_for_authoritative_slate(d)
     if not smart_sim_files:
         next_date, next_files = _find_next_available_smart_sim_date(d, max_ahead=_app_lookahead_days())
@@ -13589,6 +13629,7 @@ def api_cards():
     )
     cards_game_recommendations_index = _load_cards_game_recommendations_index(d)
     cards_prop_snapshot_index = _load_cards_prop_snapshot_index(d)
+    cards_prop_recommendations_index = _load_cards_prop_recommendations_index(d)
 
     props_recs_source_lookup: dict[tuple[str, str], dict[str, Any]] = {}
     try:
@@ -14774,71 +14815,78 @@ def api_cards():
         if allowed_books and excluded_books:
             allowed_books = {bk for bk in allowed_books if bk not in excluded_books}
 
-        prop_recommendations = _sim_vs_line_prop_recommendations(
-            players_out,
-            props_recs_by_team,
-            home_tri=home_tri,
-            away_tri=away_tri,
-            topn_per_side=6,
-            allowed_markets=allowed_markets,
-            allowed_books=allowed_books,
-            min_ev_pct=min_ev_pct,
-            excluded_books=excluded_books,
-        )
-
-        try:
-            for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
-                rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
-                if not isinstance(rows, list):
-                    continue
-                for row in rows:
-                    if not isinstance(row, dict):
-                        continue
-                    best = row.get("best") if isinstance(row.get("best"), dict) else None
-                    if not isinstance(best, dict):
-                        continue
-                    player_name = str(row.get("player") or best.get("player") or best.get("player_name") or "").strip()
-                    player_key = _norm_player_name(player_name)
-                    source_row = props_recs_source_lookup.get((str(team_tri or "").strip().upper(), player_key))
-                    support_fields = _prop_source_support_fields(
-                        source_row,
-                        market=str(best.get("market") or ""),
-                        side=str(best.get("side") or ""),
-                        line=_safe_float(best.get("line")),
-                    )
-                    reason_payload = _decorate_prop_recommendation_payload(
-                        player_name=player_name,
-                        team_tri=team_tri,
-                        top_play=best,
-                        date_str=d,
-                        prop_prediction_lookup=best_bets_prop_prediction_lookup,
-                        game_context=best_bets_game_context,
-                        injury_snapshot=best_bets_injury_snapshot,
-                        slate_total_median=best_bets_slate_total_median,
-                        support_fields=support_fields,
-                    )
-                    if not isinstance(reason_payload, dict):
-                        continue
-                    row.update(reason_payload)
-                    row["top_play_reasons"] = list(reason_payload.get("top_play_reasons") or reason_payload.get("reasons") or [])
-                    best["reasons"] = list(reason_payload.get("reasons") or [])
-                    for key in ("basketball_summary", "basketball_reasons", "model_reasons", "market_reasons"):
-                        value = reason_payload.get(key)
-                        if isinstance(value, list):
-                            best[key] = list(value)
-                        elif value is not None:
-                            best[key] = value
-                    _attach_recon_to_prop_recommendation(row, team_tri)
-        except Exception:
-            pass
-
-        try:
-            _apply_cards_prop_recommendation_buckets(
-                prop_recommendations,
-                snapshot_picks=cards_prop_snapshot_index.get((home_tri, away_tri)) or [],
+        prop_recommendations_snapshot = cards_prop_recommendations_index.get((home_tri, away_tri)) if props_source != "runtime" else None
+        if isinstance(prop_recommendations_snapshot, dict):
+            prop_recommendations = {
+                "home": [dict(row) for row in (prop_recommendations_snapshot.get("home") or []) if isinstance(row, dict)],
+                "away": [dict(row) for row in (prop_recommendations_snapshot.get("away") or []) if isinstance(row, dict)],
+            }
+        else:
+            prop_recommendations = _sim_vs_line_prop_recommendations(
+                players_out,
+                props_recs_by_team,
+                home_tri=home_tri,
+                away_tri=away_tri,
+                topn_per_side=6,
+                allowed_markets=allowed_markets,
+                allowed_books=allowed_books,
+                min_ev_pct=min_ev_pct,
+                excluded_books=excluded_books,
             )
-        except Exception:
-            pass
+
+            try:
+                for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
+                    rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
+                    if not isinstance(rows, list):
+                        continue
+                    for row in rows:
+                        if not isinstance(row, dict):
+                            continue
+                        best = row.get("best") if isinstance(row.get("best"), dict) else None
+                        if not isinstance(best, dict):
+                            continue
+                        player_name = str(row.get("player") or best.get("player") or best.get("player_name") or "").strip()
+                        player_key = _norm_player_name(player_name)
+                        source_row = props_recs_source_lookup.get((str(team_tri or "").strip().upper(), player_key))
+                        support_fields = _prop_source_support_fields(
+                            source_row,
+                            market=str(best.get("market") or ""),
+                            side=str(best.get("side") or ""),
+                            line=_safe_float(best.get("line")),
+                        )
+                        reason_payload = _decorate_prop_recommendation_payload(
+                            player_name=player_name,
+                            team_tri=team_tri,
+                            top_play=best,
+                            date_str=d,
+                            prop_prediction_lookup=best_bets_prop_prediction_lookup,
+                            game_context=best_bets_game_context,
+                            injury_snapshot=best_bets_injury_snapshot,
+                            slate_total_median=best_bets_slate_total_median,
+                            support_fields=support_fields,
+                        )
+                        if not isinstance(reason_payload, dict):
+                            continue
+                        row.update(reason_payload)
+                        row["top_play_reasons"] = list(reason_payload.get("top_play_reasons") or reason_payload.get("reasons") or [])
+                        best["reasons"] = list(reason_payload.get("reasons") or [])
+                        for key in ("basketball_summary", "basketball_reasons", "model_reasons", "market_reasons"):
+                            value = reason_payload.get(key)
+                            if isinstance(value, list):
+                                best[key] = list(value)
+                            elif value is not None:
+                                best[key] = value
+                        _attach_recon_to_prop_recommendation(row, team_tri)
+            except Exception:
+                pass
+
+            try:
+                _apply_cards_prop_recommendation_buckets(
+                    prop_recommendations,
+                    snapshot_picks=cards_prop_snapshot_index.get((home_tri, away_tri)) or [],
+                )
+            except Exception:
+                pass
 
         try:
             game_market_recommendations = _build_cards_game_market_recommendations(

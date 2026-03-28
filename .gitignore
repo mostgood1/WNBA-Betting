@@ -92,6 +92,7 @@ data/processed/rosters_[0-9][0-9][0-9][0-9].csv
 # SmartSim artifacts (used for props derivation + diagnostics)
 !data/processed/smart_sim_*.json
 !data/processed/daily_artifacts_*.json
+!data/processed/cards_props_snapshot_*.json
 
 # Injury snapshot used by UI/explainability
 !data/processed/injuries_counts_*.json
