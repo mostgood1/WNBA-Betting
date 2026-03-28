@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NBA Betting - Game Cards</title>
   <link rel="stylesheet" href="/web/styles.css?v=20260324-1" />
-  <link rel="stylesheet" href="/web/cards-parity.css?v=20260326-1" />
+  <link rel="stylesheet" href="/web/cards-parity.css?v=20260328-1" />
 </head>
-<body data-page-mode="live" data-cards-base-path="/" class="cards-app-shell">
+<body data-page-mode="live" data-cards-base-path="/" class="cards-body cards-app-shell">
   <div class="site-chrome">
     <main class="site-main">
       <div class="cards-shell cards-page-shell">
@@ -41,12 +41,17 @@
           <div class="cards-filters" id="cardsFilters" aria-label="Slate filters"></div>
         </section>
         <div id="note" class="alert hidden"></div>
-        <div id="cards" class="cards"></div>
+        <section class="cards-scoreboard" id="cardsScoreboard" aria-label="Games">
+          <div class="cards-loading-strip">Loading scoreboard...</div>
+        </section>
+        <main class="cards-grid" id="cardsGrid" aria-live="polite">
+          <div class="cards-loading-state">Loading cards...</div>
+        </main>
         <section id="cardsPropsStrip" class="cards-props-strip-shell hidden" aria-live="polite"></section>
       </div>
     </main>
   </div>
 
-  <script src="/web/cards-parity.js?v=20260326-1"></script>
+  <script src="/web/cards-parity.js?v=20260328-1"></script>
 </body>
 </html>

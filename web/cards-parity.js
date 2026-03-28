@@ -1,6 +1,8 @@
 (function () {
-  const root = document.getElementById('cards');
-  if (!root) {
+  const scoreboardRoot = document.getElementById('cardsScoreboard');
+  const gridRoot = document.getElementById('cardsGrid');
+  const boardShell = document.querySelector('.cards-page-shell') || document.body;
+  if (!scoreboardRoot || !gridRoot) {
     return;
   }
 
@@ -868,8 +870,8 @@
   }
 
   function setLoading() {
-    root.classList.add('parity-root');
-    root.innerHTML = '<div class="cards-empty">Loading slate...</div>';
+    scoreboardRoot.innerHTML = '<div class="cards-loading-strip">Loading scoreboard...</div>';
+    gridRoot.innerHTML = '<div class="cards-loading-state">Loading cards...</div>';
     state.boardInitialized = false;
   }
 
@@ -1747,19 +1749,8 @@
   }
 
   function ensureBoardShell() {
-    let scoreboardEl = root.querySelector('.cards-scoreboard');
-    let gridEl = root.querySelector('.cards-grid');
-    if (!scoreboardEl || !gridEl) {
-      root.classList.add('parity-root');
-      root.innerHTML = `
-        <section class="cards-scoreboard"></section>
-        <section class="cards-grid"></section>
-      `;
-      scoreboardEl = root.querySelector('.cards-scoreboard');
-      gridEl = root.querySelector('.cards-grid');
-    }
     state.boardInitialized = true;
-    return { scoreboardEl, gridEl };
+    return { scoreboardEl: scoreboardRoot, gridEl: gridRoot };
   }
 
   function updateDateControls() {
@@ -1905,18 +1896,33 @@
       : '';
   }
 
+  function teamHeaderMarkup(teamTri, teamName) {
+    const logo = logoForTri(teamTri);
+    return `
+      <div class="cards-team-line">
+        ${logo
+          ? `<img class="cards-logo" src="${escapeHtml(logo)}" alt="${escapeHtml(teamTri || teamName || 'Team')} logo" />`
+          : `<span class="cards-logo-fallback">${escapeHtml(String(teamTri || teamName || 'TM').slice(0, 3).toUpperCase())}</span>`}
+        <div class="cards-team-meta">
+          <div class="cards-team-code">${escapeHtml(teamTri || 'TBD')}</div>
+          <div class="cards-team-name">${escapeHtml(teamName || teamTri || 'Team')}</div>
+        </div>
+      </div>
+    `;
+  }
+
   function renderScoreboardItem(game) {
-    const id = cardId(game);
     const betting = game?.betting || {};
     const score = game?.sim?.score || {};
     const liveLens = getLiveLens(game);
     const liveState = getLiveState(game);
-    const compactHeaderText = mode === 'live'
-      ? statusText(game)
+    const id = cardId(game);
+    const compactHeaderText = statusText(game);
+    const compactDetailText = mode === 'live'
+      ? (liveLens?.signals?.total?.detail || liveLens?.scoreLabel || 'Monitoring live game lens')
       : fmtTime(game?.odds?.commence_time);
     const awayScore = mode === 'live' && Number.isFinite(Number(liveState?.away_pts)) ? Number(liveState.away_pts) : score.away_mean;
     const homeScore = mode === 'live' && Number.isFinite(Number(liveState?.home_pts)) ? Number(liveState.home_pts) : score.home_mean;
-    const stripSignals = liveLens?.compactSignals?.slice(0, 2) || liveLens?.topSignals?.slice(0, 2) || [];
     const stripMeta = mode === 'live'
       ? [
         liveLens?.compactSignals?.[0]?.detail,
@@ -1925,9 +1931,10 @@
       ].filter(Boolean)[0] || 'Waiting for a live edge.'
       : marketCountSummary(game);
     return `
-      <button class="cards-strip-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" type="button" data-jump-card="${escapeHtml(id)}">
+      <a class="cards-strip-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" href="#game-card-${encodeURIComponent(id)}">
         <div class="cards-strip-head">
           <span>${escapeHtml(compactHeaderText)}</span>
+          <span>${escapeHtml(compactDetailText)}</span>
         </div>
         <div class="cards-linescore is-compact is-strip">
           <div class="cards-linescore-head">
@@ -1955,9 +1962,8 @@
             <span class="cards-linescore-stat">${fmtPercent(betting.p_home_cover, 0)}</span>
           </div>
         </div>
-        ${stripSignals.length ? `<div class="cards-strip-pills">${stripSignals.map(renderLiveSignalChip).join('')}</div>` : ''}
         <div class="cards-strip-meta">${escapeHtml(stripMeta)}</div>
-      </button>
+      </a>
     `;
   }
 
@@ -2006,11 +2012,7 @@
   }
 
   function renderGamePanel(game) {
-    const betting = game?.betting || {};
-    const score = game?.sim?.score || {};
-    const market = game?.sim?.market || {};
     const warnings = safeArray(game?.warnings);
-    const id = cardId(game);
     const liveLens = getLiveLens(game);
     const liveState = getLiveState(game);
     const liveOverview = mode === 'live'
@@ -2048,7 +2050,7 @@
         </div>
       `;
       })()
-      : `${probabilityRows(game)}<div class="cards-mini-metrics">${miniMetrics(game)}</div>`;
+      : `<div class="cards-prob-grid">${probabilityRows(game)}</div><div class="cards-mini-metrics">${miniMetrics(game)}</div>`;
     return `
       <div class="cards-overview-grid">
         <div class="cards-panel-card">
@@ -2057,23 +2059,20 @@
             <span class="cards-overview-badge ${statusClass(game)}">${escapeHtml(mode === 'live' ? 'Live model' : 'Pregame model')}</span>
           </div>
           ${liveOverview}
-          <div class="cards-market-row cards-market-row--tiles">
-            ${renderMarketTile('Moneyline', bestMarketPick(game, 'moneyline'), `${game.home_tri} ${fmtAmerican(betting.home_ml)} / ${game.away_tri} ${fmtAmerican(betting.away_ml)}`, `Home win ${fmtPercent(betting.p_home_win, 0)} · Away win ${fmtPercent(betting.p_away_win, 0)}`, id)}
-            ${renderMarketTile('Spread', bestMarketPick(game, 'spread'), `${game.home_tri} ${fmtSigned(betting.home_spread)} · ${game.away_tri} ${fmtSigned(-Number(betting.home_spread))}`, `Model margin ${fmtSigned(score.margin_mean, 1)} · Market ${fmtSigned(-Number(market.market_home_spread), 1)}`, id)}
-            ${renderMarketTile('Total', bestMarketPick(game, 'total'), `Total ${fmtNumber(betting.total, 1)}`, `Model total ${fmtNumber(score.total_mean, 1)} · Over ${fmtPercent(betting.p_total_over, 0)}`, id)}
-            ${renderMarketTile('Props', { detail: `${safeArray(game?.prop_recommendations?.home).length + safeArray(game?.prop_recommendations?.away).length} playable props`, probability: null, ev: null, tabTarget: 'props' }, 'Jump to props board', 'Filter by team side and stat type in the Props tab.', id)}
-          </div>
         </div>
         <div class="cards-panel-card">
           <div class="cards-box-head">
             <div class="cards-table-title"><strong>Official card</strong></div>
-            <span class="cards-chip">3 core markets</span>
+            <span class="cards-chip">${escapeHtml(marketCountSummary(game) || 'Market board')}</span>
           </div>
           <ul class="cards-callout-list">${officialCardRows(game)}</ul>
-          <div class="cards-panel-copy">${escapeHtml(game?.writeup || 'No matchup writeup generated for this game.')}</div>
-          ${warnings.length ? `<div class="cards-warning-list">${warnings.map((warning) => `<span class="cards-warning">${escapeHtml(warning)}</span>`).join('')}</div>` : ''}
-          <div class="cards-source-meta">${renderContextBadges(game)}</div>
-          <div>
+          <div class="cards-card-context">
+            <div class="cards-table-title"><strong>Matchup context</strong></div>
+            <div class="cards-panel-copy">${escapeHtml(game?.writeup || 'No matchup writeup generated for this game.')}</div>
+            ${warnings.length ? `<div class="cards-warning-list">${warnings.map((warning) => `<span class="cards-warning">${escapeHtml(warning)}</span>`).join('')}</div>` : ''}
+            <div class="cards-source-meta">${renderContextBadges(game)}</div>
+          </div>
+          <div class="cards-card-context">
             <div class="cards-table-title"><strong>Quarter outlook</strong></div>
             <div class="cards-period-grid">${renderPeriodTiles(game?.sim?.periods || {})}</div>
           </div>
@@ -2433,7 +2432,9 @@
   function renderGameCard(game) {
     const id = cardId(game);
     const activeTab = state.activeTabs.get(id) || 'game';
+    const betting = game?.betting || {};
     const score = game?.sim?.score || {};
+    const market = game?.sim?.market || {};
     const liveState = getLiveState(game);
     const liveLens = getLiveLens(game);
     const awayScore = mode === 'live' && Number.isFinite(Number(liveState?.away_pts)) ? Number(liveState.away_pts) : score.away_mean;
@@ -2444,26 +2445,22 @@
     const scoreMetaSecondary = mode === 'live'
       ? (liveLens?.signals?.total?.detail || `Model total ${fmtNumber(score.total_mean, 1)} · margin ${fmtSigned(score.margin_mean, 1)}`)
       : `Model total ${fmtNumber(score.total_mean, 1)} · margin ${fmtSigned(score.margin_mean, 1)}`;
-    const awayLogo = logoForTri(game.away_tri);
-    const homeLogo = logoForTri(game.home_tri);
     return `
       <article class="cards-game-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" data-card-id="${escapeHtml(id)}" id="game-card-${escapeHtml(id)}">
         <div class="cards-strip-head">
           <div class="cards-head-left">
-            <div class="cards-team-code-shell">
-              ${awayLogo ? `<img class="cards-team-logo" src="${escapeHtml(awayLogo)}" alt="${escapeHtml(game.away_tri)} logo" />` : ''}
-              <span class="cards-team-code">${escapeHtml(game.away_tri)}</span>
-            </div>
+            ${teamHeaderMarkup(game.away_tri, game.away_name)}
             <span class="cards-score-divider">@</span>
-            <div class="cards-team-code-shell">
-              ${homeLogo ? `<img class="cards-team-logo" src="${escapeHtml(homeLogo)}" alt="${escapeHtml(game.home_tri)} logo" />` : ''}
-              <span class="cards-team-code">${escapeHtml(game.home_tri)}</span>
-            </div>
+            ${teamHeaderMarkup(game.home_tri, game.home_name)}
           </div>
           <div class="cards-status-cluster">
+            <div class="cards-game-time-row">
+              <span class="cards-game-time-label">Tipoff</span>
+              <span class="cards-game-time-value">${escapeHtml(fmtTime(game?.odds?.commence_time))}</span>
+            </div>
             <span class="cards-status-badge ${statusClass(game)}">${escapeHtml(statusText(game))}</span>
-            <div class="cards-start-time">${escapeHtml(fmtTime(game?.odds?.commence_time))}</div>
-            <a class="cards-game-link" href="#game-card-${encodeURIComponent(id)}">Card view</a>
+            <div class="cards-start-time">${escapeHtml(mode === 'live' ? (liveLens?.scoreLabel || liveState?.status || 'Live game lens active') : 'Model slate snapshot')}</div>
+            <a class="cards-game-link" href="#game-card-${encodeURIComponent(id)}">Open game view</a>
           </div>
         </div>
 
@@ -2482,29 +2479,31 @@
           <div class="cards-score-meta">
             <div class="cards-live-line">${escapeHtml(scoreMetaPrimary)}</div>
             <div class="cards-sim-line">${escapeHtml(scoreMetaSecondary)}</div>
-            ${mode === 'live' && liveLens?.topSignals?.length ? `<div class="cards-strip-pills">${liveLens.topSignals.slice(0, 3).map(renderLiveSignalChip).join('')}</div>` : ''}
             <div class="cards-mini-copy">${escapeHtml(game.away_name || game.away_tri)} at ${escapeHtml(game.home_name || game.home_tri)}</div>
           </div>
         </div>
 
-        <div class="cards-card__header">
-          <div class="cards-tabs">
-            <button class="cards-tab ${activeTab === 'game' ? 'is-active' : ''}" type="button" data-card-tab="game" data-card-target="${escapeHtml(id)}">Game</button>
-            <button class="cards-tab ${activeTab === 'box' ? 'is-active' : ''}" type="button" data-card-tab="box" data-card-target="${escapeHtml(id)}">Box Score</button>
-            <button class="cards-tab ${activeTab === 'props' ? 'is-active' : ''}" type="button" data-card-tab="props" data-card-target="${escapeHtml(id)}">Props</button>
-          </div>
+        <div class="cards-market-row">
+          ${renderMarketTile('Moneyline', bestMarketPick(game, 'moneyline'), `${game.home_tri} ${fmtAmerican(betting.home_ml)} / ${game.away_tri} ${fmtAmerican(betting.away_ml)}`, `Home win ${fmtPercent(betting.p_home_win, 0)} · Away win ${fmtPercent(betting.p_away_win, 0)}`, id)}
+          ${renderMarketTile('Spread', bestMarketPick(game, 'spread'), `${game.home_tri} ${fmtSigned(betting.home_spread)} · ${game.away_tri} ${fmtSigned(-Number(betting.home_spread))}`, `Model margin ${fmtSigned(score.margin_mean, 1)} · Market ${fmtSigned(-Number(market.market_home_spread), 1)}`, id)}
+          ${renderMarketTile('Total', bestMarketPick(game, 'total'), `Total ${fmtNumber(betting.total, 1)}`, `Model total ${fmtNumber(score.total_mean, 1)} · Over ${fmtPercent(betting.p_total_over, 0)}`, id)}
+          ${renderMarketTile('Props', { detail: `${safeArray(game?.prop_recommendations?.home).length + safeArray(game?.prop_recommendations?.away).length} playable props`, probability: null, ev: null, tabTarget: 'props' }, 'Jump to props board', 'Filter by team side and stat type in the Props tab.', id)}
         </div>
 
-        <div class="cards-card__body">
-          <section class="cards-panel ${activeTab === 'game' ? 'is-active' : ''}" data-panel-id="game">${renderGamePanel(game)}</section>
-          <section class="cards-panel ${activeTab === 'box' ? 'is-active' : ''}" data-panel-id="box">
-            <div class="cards-box-grid">
-              ${renderBoxSection(game.away_tri, game.away_name, game?.sim?.players?.away || [], game?.sim?.injuries?.away || [], game?.sim?.missing_prop_players?.away || [])}
-              ${renderBoxSection(game.home_tri, game.home_name, game?.sim?.players?.home || [], game?.sim?.injuries?.home || [], game?.sim?.missing_prop_players?.home || [])}
-            </div>
-          </section>
-          <section class="cards-panel ${activeTab === 'props' ? 'is-active' : ''}" data-panel-id="props">${renderPropsPanel(game)}</section>
+        <div class="cards-tabs">
+          <button class="cards-tab ${activeTab === 'game' ? 'is-active' : ''}" type="button" data-card-tab="game" data-card-target="${escapeHtml(id)}">Game</button>
+          <button class="cards-tab ${activeTab === 'box' ? 'is-active' : ''}" type="button" data-card-tab="box" data-card-target="${escapeHtml(id)}">Box Score</button>
+          <button class="cards-tab ${activeTab === 'props' ? 'is-active' : ''}" type="button" data-card-tab="props" data-card-target="${escapeHtml(id)}">Props</button>
         </div>
+
+        <section class="cards-panel ${activeTab === 'game' ? 'is-active' : ''}" data-panel-id="game">${renderGamePanel(game)}</section>
+        <section class="cards-panel ${activeTab === 'box' ? 'is-active' : ''}" data-panel-id="box">
+          <div class="cards-box-grid">
+            ${renderBoxSection(game.away_tri, game.away_name, game?.sim?.players?.away || [], game?.sim?.injuries?.away || [], game?.sim?.missing_prop_players?.away || [])}
+            ${renderBoxSection(game.home_tri, game.home_name, game?.sim?.players?.home || [], game?.sim?.injuries?.home || [], game?.sim?.missing_prop_players?.home || [])}
+          </div>
+        </section>
+        <section class="cards-panel ${activeTab === 'props' ? 'is-active' : ''}" data-panel-id="props">${renderPropsPanel(game)}</section>
       </article>
     `;
   }
@@ -2512,24 +2511,21 @@
   function renderBoard() {
     const games = safeArray(state.payload?.games);
     const filteredGames = games.filter((game) => matchesFilter(game, state.filter));
-    root.classList.add('parity-root');
+    const { scoreboardEl, gridEl } = ensureBoardShell();
     if (!games.length) {
-      root.innerHTML = '<div class="cards-empty">No game cards available for this date.</div>';
+      scoreboardEl.innerHTML = '<div class="cards-loading-strip">No games on this slate.</div>';
+      gridEl.innerHTML = '<div class="cards-empty-state">No game cards available for this date.</div>';
       state.boardInitialized = false;
       return;
     }
     if (!filteredGames.length) {
-      root.innerHTML = '<div class="cards-empty">No games matched the selected slate filter.</div>';
+      scoreboardEl.innerHTML = games.map(renderScoreboardItem).join('');
+      gridEl.innerHTML = '<div class="cards-empty-state">No games matched the selected slate filter.</div>';
       state.boardInitialized = false;
       return;
     }
-    const { scoreboardEl, gridEl } = ensureBoardShell();
-    if (scoreboardEl) {
-      scoreboardEl.innerHTML = filteredGames.map(renderScoreboardItem).join('');
-    }
-    if (gridEl) {
-      gridEl.innerHTML = filteredGames.map(renderGameCard).join('');
-    }
+    scoreboardEl.innerHTML = filteredGames.map(renderScoreboardItem).join('');
+    gridEl.innerHTML = filteredGames.map(renderGameCard).join('');
   }
 
   async function loadBoard(options = {}) {
@@ -2573,7 +2569,8 @@
       if (headerMeta) {
         headerMeta.textContent = 'Failed to load slate.';
       }
-      root.innerHTML = `<div class="cards-empty">${escapeHtml(error?.message || 'Failed to load slate.')}</div>`;
+      scoreboardRoot.innerHTML = '<div class="cards-loading-strip">Failed to load scoreboard.</div>';
+      gridRoot.innerHTML = `<div class="cards-empty-state">${escapeHtml(error?.message || 'Failed to load slate.')}</div>`;
       showNote(error?.message || 'Failed to load slate.', 'warning');
     }
   }
@@ -2603,7 +2600,7 @@
     }, pollIntervalMs);
   }
 
-  root.addEventListener('click', (event) => {
+  boardShell.addEventListener('click', (event) => {
     const tabButton = event.target.closest('[data-card-tab]');
     if (tabButton) {
       const cardTarget = tabButton.getAttribute('data-card-target') || '';
@@ -2616,7 +2613,7 @@
     const jumpButton = event.target.closest('[data-jump-card]');
     if (jumpButton) {
       const cardTarget = jumpButton.getAttribute('data-jump-card') || '';
-      const card = root.querySelector(`[data-card-id="${CSS.escape(cardTarget)}"]`);
+      const card = gridRoot.querySelector(`[data-card-id="${CSS.escape(cardTarget)}"]`);
       if (card) {
         card.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
@@ -2711,7 +2708,7 @@
     const jumpButton = event.target.closest('[data-jump-card]');
     if (jumpButton) {
       const cardTarget = jumpButton.getAttribute('data-jump-card') || '';
-      const card = root.querySelector(`[data-card-id="${CSS.escape(cardTarget)}"]`);
+      const card = gridRoot.querySelector(`[data-card-id="${CSS.escape(cardTarget)}"]`);
       if (card) {
         card.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
