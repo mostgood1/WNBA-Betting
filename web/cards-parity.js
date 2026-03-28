@@ -1475,98 +1475,152 @@
     return away && home ? `${away}@${home}` : '';
   }
 
+  function sanitizePropsStripItem(rawItem) {
+    if (!rawItem || typeof rawItem !== 'object') {
+      return null;
+    }
+    const item = { ...rawItem };
+    item.away_tri = String(item.away_tri || '').trim().toUpperCase();
+    item.home_tri = String(item.home_tri || '').trim().toUpperCase();
+    item.team_tri = String(item.team_tri || '').trim().toUpperCase();
+    item.opponent_tri = String(item.opponent_tri || '').trim().toUpperCase();
+    item.player = String(item.player || '').trim();
+    item.market = String(item.market || '').trim().toLowerCase();
+    item.side = String(item.side || item.ev_side || item.lean || '').trim().toUpperCase();
+    item.ev_side = String(item.ev_side || '').trim().toUpperCase();
+    item.lean = String(item.lean || '').trim().toUpperCase();
+    item.klass = String(item.klass || '').trim().toUpperCase();
+    item.line_source = String(item.line_source || '').trim().toLowerCase();
+    item.status_label = String(item.status_label || '').trim();
+    item.photo = String(item.photo || '').trim();
+    item.player_photo = String(item.player_photo || '').trim();
+    item.book = String(item.book || '').trim();
+    return item;
+  }
+
+  function safePropsStripItems(items) {
+    return safeArray(items)
+      .map(sanitizePropsStripItem)
+      .filter(Boolean);
+  }
+
+  function reportPropsStripError(stage, error, detail) {
+    try {
+      const suffix = detail ? ` ${detail}` : '';
+      console.warn(`cards props strip ${stage} failed.${suffix}`, error);
+    } catch (_error) {
+      // Ignore console/reporting failures.
+    }
+  }
+
   function renderPropsStripItem(item) {
-    const photo = String(item?.photo || item?.player_photo || '').trim();
-    const logo = logoForTri(item?.team_tri);
-    const opponentTri = String(item?.opponent_tri || '').trim().toUpperCase();
-    const market = marketLabel(item?.market);
-    const side = livePropPrimarySide(item) || String(item?.side || '').trim().toUpperCase();
-    const line = Number(item?.line);
-    const price = Number(item?.price);
-    const evPct = Number(item?.ev_pct);
-    const winProb = Number(item?.probability ?? item?.prob_calib);
-    const cardTarget = stripCardTarget(item);
-    const actionLabel = mode === 'live'
-      ? String(item?.klass || '').trim().toUpperCase()
-      : String(item?.tier || '').trim().toUpperCase();
-    const actionClass = actionLabel === 'BET'
-      ? 'cards-chip--accent'
-      : (actionLabel === 'WATCH' || actionLabel === 'MEDIUM' ? 'cards-chip--warm' : '');
-    const liveProjection = liveProjectionSummary(item);
-    return `
-      <article class="cards-props-strip-card">
-        <div class="cards-props-strip-card__top">
-          <div class="cards-props-strip-card__context">${escapeHtml(String(item?.away_tri || '--'))} @ ${escapeHtml(String(item?.home_tri || '--'))}</div>
-          <div class="cards-props-strip-card__status">${escapeHtml(stripStatusText(item))}</div>
-        </div>
-        <div class="cards-props-strip-card__body">
-          <div class="cards-props-strip-card__identity">
-            <div class="cards-props-strip-card__media">
-              ${photo ? `<img class="cards-props-strip-card__photo" src="${escapeHtml(photo)}" alt="${escapeHtml(String(item?.player || 'Player'))}" />` : `<div class="cards-props-strip-card__photo is-fallback">${escapeHtml(String(item?.team_tri || '?'))}</div>`}
-              ${logo ? `<img class="cards-props-strip-card__logo" src="${escapeHtml(logo)}" alt="${escapeHtml(String(item?.team_tri || ''))} logo" />` : ''}
+    try {
+      const safeItem = sanitizePropsStripItem(item);
+      if (!safeItem) {
+        return '';
+      }
+      const photo = String(safeItem.photo || safeItem.player_photo || '').trim();
+      const logo = logoForTri(safeItem.team_tri);
+      const opponentTri = String(safeItem.opponent_tri || '').trim().toUpperCase();
+      const market = marketLabel(safeItem.market);
+      const side = livePropPrimarySide(safeItem) || String(safeItem.side || '').trim().toUpperCase();
+      const line = Number(safeItem.line);
+      const price = Number(safeItem.price);
+      const evPct = Number(safeItem.ev_pct);
+      const winProb = Number(safeItem.probability ?? safeItem.prob_calib);
+      const cardTarget = stripCardTarget(safeItem);
+      const actionLabel = mode === 'live'
+        ? String(safeItem.klass || '').trim().toUpperCase()
+        : String(safeItem.tier || '').trim().toUpperCase();
+      const actionClass = actionLabel === 'BET'
+        ? 'cards-chip--accent'
+        : (actionLabel === 'WATCH' || actionLabel === 'MEDIUM' ? 'cards-chip--warm' : '');
+      const liveProjection = liveProjectionSummary(safeItem);
+      return `
+        <article class="cards-props-strip-card">
+          <div class="cards-props-strip-card__top">
+            <div class="cards-props-strip-card__context">${escapeHtml(String(safeItem.away_tri || '--'))} @ ${escapeHtml(String(safeItem.home_tri || '--'))}</div>
+            <div class="cards-props-strip-card__status">${escapeHtml(stripStatusText(safeItem))}</div>
+          </div>
+          <div class="cards-props-strip-card__body">
+            <div class="cards-props-strip-card__identity">
+              <div class="cards-props-strip-card__media">
+                ${photo ? `<img class="cards-props-strip-card__photo" src="${escapeHtml(photo)}" alt="${escapeHtml(String(safeItem.player || 'Player'))}" />` : `<div class="cards-props-strip-card__photo is-fallback">${escapeHtml(String(safeItem.team_tri || '?'))}</div>`}
+                ${logo ? `<img class="cards-props-strip-card__logo" src="${escapeHtml(logo)}" alt="${escapeHtml(String(safeItem.team_tri || ''))} logo" />` : ''}
+              </div>
+              <div class="cards-props-strip-card__copy">
+                <div class="cards-props-strip-card__name">${escapeHtml(String(safeItem.player || 'Unknown player'))}</div>
+                <div class="cards-props-strip-card__matchup">${escapeHtml(String(safeItem.team_tri || '--'))}${opponentTri ? ` vs ${escapeHtml(opponentTri)}` : ''}</div>
+              </div>
             </div>
-            <div class="cards-props-strip-card__copy">
-              <div class="cards-props-strip-card__name">${escapeHtml(String(item?.player || 'Unknown player'))}</div>
-              <div class="cards-props-strip-card__matchup">${escapeHtml(String(item?.team_tri || '--'))}${opponentTri ? ` vs ${escapeHtml(opponentTri)}` : ''}</div>
+            <div class="cards-props-strip-card__play">${escapeHtml(market)} ${escapeHtml(side)} ${Number.isFinite(line) ? fmtNumber(line, 1) : '--'}</div>
+            ${liveProjection ? `<div class="cards-props-strip-card__projection">${escapeHtml(liveProjection)}</div>` : ''}
+            <div class="cards-props-strip-card__sub">${escapeHtml(stripSecondaryText(safeItem))}</div>
+            <div class="cards-strip-pills">
+              ${actionLabel ? `<span class="cards-chip ${actionClass}">${escapeHtml(actionLabel)}</span>` : ''}
+              ${Number.isFinite(price) ? `<span class="cards-chip">${escapeHtml(fmtAmerican(price))}</span>` : ''}
+              ${Number.isFinite(evPct) ? `<span class="cards-chip cards-chip--accent">EV ${escapeHtml(fmtPercentValue(evPct))}</span>` : ''}
+              ${Number.isFinite(winProb) ? `<span class="cards-chip">${escapeHtml(mode === 'live' ? fmtPercent(winProb, 0) : fmtPercentValue(winProb))}</span>` : ''}
             </div>
           </div>
-          <div class="cards-props-strip-card__play">${escapeHtml(market)} ${escapeHtml(side)} ${Number.isFinite(line) ? fmtNumber(line, 1) : '--'}</div>
-          ${liveProjection ? `<div class="cards-props-strip-card__projection">${escapeHtml(liveProjection)}</div>` : ''}
-          <div class="cards-props-strip-card__sub">${escapeHtml(stripSecondaryText(item))}</div>
-          <div class="cards-strip-pills">
-            ${actionLabel ? `<span class="cards-chip ${actionClass}">${escapeHtml(actionLabel)}</span>` : ''}
-            ${Number.isFinite(price) ? `<span class="cards-chip">${escapeHtml(fmtAmerican(price))}</span>` : ''}
-            ${Number.isFinite(evPct) ? `<span class="cards-chip cards-chip--accent">EV ${escapeHtml(fmtPercentValue(evPct))}</span>` : ''}
-            ${Number.isFinite(winProb) ? `<span class="cards-chip">${escapeHtml(mode === 'live' ? fmtPercent(winProb, 0) : fmtPercentValue(winProb))}</span>` : ''}
-          </div>
-        </div>
-        ${cardTarget ? `<button class="cards-props-strip-card__jump" type="button" data-jump-card="${escapeHtml(cardTarget)}">Jump to game</button>` : ''}
-      </article>
-    `;
+          ${cardTarget ? `<button class="cards-props-strip-card__jump" type="button" data-jump-card="${escapeHtml(cardTarget)}">Jump to game</button>` : ''}
+        </article>
+      `;
+    } catch (error) {
+      reportPropsStripError('render-item', error, String(item?.player || item?.market || 'unknown-item'));
+      return '';
+    }
   }
 
   function renderPropsStrip() {
     if (!propsStripEl) {
       return;
     }
-    const payload = state.propsStripPayload;
-    const sortedItems = sortedPropsStripItems(safeArray(payload?.items));
-    const filteredItems = filteredPropsStripItems(sortedItems);
-    const visibleItems = visiblePropsStripItems(sortedItems);
-    if (!sortedItems.length) {
+    try {
+      const payload = state.propsStripPayload;
+      const sortedItems = sortedPropsStripItems(safePropsStripItems(payload?.items));
+      const filteredItems = filteredPropsStripItems(sortedItems);
+      const visibleItems = visiblePropsStripItems(sortedItems);
+      if (!sortedItems.length) {
+        clearPropsStrip();
+        return;
+      }
+      const sortOptions = propsStripSortOptions();
+      const filterOptions = propsStripFilterOptions(sortedItems);
+      sanitizePropsStripFilters(filterOptions);
+      const activeFilters = state.propsStripFilters || {};
+      const canShowMore = mode === 'live' && visibleItems.length < filteredItems.length;
+      const renderedItems = visibleItems.map(renderPropsStripItem).filter(Boolean);
+      propsStripEl.classList.remove('hidden');
+      propsStripEl.innerHTML = `
+        <div class="cards-props-strip-headline">
+          <div>
+            <h2>${escapeHtml(String(payload?.title || (mode === 'live' ? 'Live player props' : 'Pregame prop movement')))}</h2>
+            <p>${escapeHtml(String(payload?.subtitle || ''))}</p>
+            ${sortOptions.length ? `<div class="cards-props-strip-sort">${sortOptions.map((option) => `<button type="button" class="cards-filter-pill ${state.propsStripSort === option.key ? 'is-active' : ''}" data-strip-sort="${escapeHtml(option.key)}">${escapeHtml(option.label)}</button>`).join('')}</div>` : ''}
+            ${mode === 'live' ? `
+              <div class="cards-props-strip-filters">
+                ${renderPropsStripFilterGroup('Prop', [{ key: 'all', label: 'All props' }, ...filterOptions.markets.map((market) => ({ key: market, label: marketLabel(market) }))], activeFilters.market || 'all', 'data-strip-market')}
+                ${renderPropsStripFilterGroup('Side', [{ key: 'all', label: 'All sides' }, { key: 'OVER', label: 'Over' }, { key: 'UNDER', label: 'Under' }], activeFilters.side || 'all', 'data-strip-side')}
+                ${renderPropsStripFilterGroup('Game', [{ key: 'all', label: 'All games' }, ...filterOptions.games.map((gameKey) => ({ key: gameKey, label: gameKey.replace('@', ' @ ') }))], activeFilters.game || 'all', 'data-strip-game')}
+              </div>
+            ` : ''}
+          </div>
+          <div class="cards-strip-pills">
+            <span class="cards-source-meta-pill ${mode === 'live' ? 'is-live' : 'is-soft'}">${escapeHtml(String(renderedItems.length))} shown</span>
+            ${mode === 'live' ? `<span class="cards-source-meta-pill is-soft">${escapeHtml(String(filteredItems.length))} match</span>` : ''}
+            ${mode === 'live' ? `<span class="cards-source-meta-pill is-soft">${escapeHtml(String(sortedItems.length))} in pool</span>` : ''}
+            <span class="cards-source-meta-pill">${escapeHtml(String(payload?.date || state.date || ''))}</span>
+          </div>
+        </div>
+        <div class="cards-props-strip-grid">${renderedItems.length ? renderedItems.join('') : `<div class="cards-props-strip-empty">No player props are available right now.</div>`}</div>
+        ${canShowMore ? `<div class="cards-props-strip-actions"><button type="button" class="cards-filter-pill" data-strip-show-more="1">Show more</button></div>` : ''}
+      `;
+    } catch (error) {
+      reportPropsStripError('render', error);
+      state.propsStripPayload = null;
       clearPropsStrip();
-      return;
     }
-    const sortOptions = propsStripSortOptions();
-    const filterOptions = propsStripFilterOptions(sortedItems);
-    sanitizePropsStripFilters(filterOptions);
-    const activeFilters = state.propsStripFilters || {};
-    const canShowMore = mode === 'live' && visibleItems.length < filteredItems.length;
-    propsStripEl.classList.remove('hidden');
-    propsStripEl.innerHTML = `
-      <div class="cards-props-strip-headline">
-        <div>
-          <h2>${escapeHtml(String(payload?.title || (mode === 'live' ? 'Live player props' : 'Pregame prop movement')))}</h2>
-          <p>${escapeHtml(String(payload?.subtitle || ''))}</p>
-          ${sortOptions.length ? `<div class="cards-props-strip-sort">${sortOptions.map((option) => `<button type="button" class="cards-filter-pill ${state.propsStripSort === option.key ? 'is-active' : ''}" data-strip-sort="${escapeHtml(option.key)}">${escapeHtml(option.label)}</button>`).join('')}</div>` : ''}
-          ${mode === 'live' ? `
-            <div class="cards-props-strip-filters">
-              ${renderPropsStripFilterGroup('Prop', [{ key: 'all', label: 'All props' }, ...filterOptions.markets.map((market) => ({ key: market, label: marketLabel(market) }))], activeFilters.market || 'all', 'data-strip-market')}
-              ${renderPropsStripFilterGroup('Side', [{ key: 'all', label: 'All sides' }, { key: 'OVER', label: 'Over' }, { key: 'UNDER', label: 'Under' }], activeFilters.side || 'all', 'data-strip-side')}
-              ${renderPropsStripFilterGroup('Game', [{ key: 'all', label: 'All games' }, ...filterOptions.games.map((gameKey) => ({ key: gameKey, label: gameKey.replace('@', ' @ ') }))], activeFilters.game || 'all', 'data-strip-game')}
-            </div>
-          ` : ''}
-        </div>
-        <div class="cards-strip-pills">
-          <span class="cards-source-meta-pill ${mode === 'live' ? 'is-live' : 'is-soft'}">${escapeHtml(String(visibleItems.length))} shown</span>
-          ${mode === 'live' ? `<span class="cards-source-meta-pill is-soft">${escapeHtml(String(filteredItems.length))} match</span>` : ''}
-          ${mode === 'live' ? `<span class="cards-source-meta-pill is-soft">${escapeHtml(String(sortedItems.length))} in pool</span>` : ''}
-          <span class="cards-source-meta-pill">${escapeHtml(String(payload?.date || state.date || ''))}</span>
-        </div>
-      </div>
-      <div class="cards-props-strip-grid">${visibleItems.length ? visibleItems.map(renderPropsStripItem).join('') : `<div class="cards-props-strip-empty">No live props matched the current filters.</div>`}</div>
-      ${canShowMore ? `<div class="cards-props-strip-actions"><button type="button" class="cards-filter-pill" data-strip-show-more="1">Show more</button></div>` : ''}
-    `;
   }
 
   function transformLiveStripPayload(payload, dateValue) {
@@ -1577,35 +1631,43 @@
         .filter((row) => row && row.player && row.team_tri)
         .filter((row) => row.line_source && row.line_source !== 'model')
         .filter((row) => row.pace_proj != null || row.sim_mu != null || row.ev_side || row.lean)
-        .map((row) => ({
-          away_tri: game?.away,
-          home_tri: game?.home,
-          team_tri: row?.team_tri,
-          opponent_tri: row?.team_tri === game?.home ? game?.away : game?.home,
-          player: row?.player,
-          player_photo: row?.player_photo,
-          market: row?.stat,
-          side: row?.lean || row?.ev_side,
-          ev_side: row?.ev_side,
-          line: row?.line_live ?? row?.line,
-          price: String(row?.ev_side || row?.lean).toUpperCase() === 'UNDER' ? row?.price_under : row?.price_over,
-          ev_pct: Number.isFinite(Number(row?.ev)) ? Number(row.ev) * 100 : null,
-          probability: row?.win_prob,
-          klass: row?.klass,
-          line_source: row?.line_source,
-          status_label: status?.final ? 'Final' : (status?.in_progress ? `Q${status?.period || '-'} ${status?.clock || ''}`.trim() : 'Live'),
-          actual: row?.actual,
-          pace_proj: row?.pace_proj,
-          pace_vs_line: row?.pace_vs_line,
-          strength: row?.strength,
-          score_adj: row?.bettable_score ?? row?.strength ?? row?.ev,
-          sim_mu: row?.sim_mu,
-          sim_vs_line: row?.sim_vs_line,
-          lean: row?.lean,
-          bettable_score: row?.bettable_score,
-          line_live: row?.line_live,
-          line_pregame: row?.line_pregame,
-        }));
+        .map((row) => {
+          try {
+            return {
+              away_tri: game?.away,
+              home_tri: game?.home,
+              team_tri: row?.team_tri,
+              opponent_tri: row?.team_tri === game?.home ? game?.away : game?.home,
+              player: row?.player,
+              player_photo: row?.player_photo,
+              market: row?.stat,
+              side: row?.lean || row?.ev_side,
+              ev_side: row?.ev_side,
+              line: row?.line_live ?? row?.line,
+              price: String(row?.ev_side || row?.lean).toUpperCase() === 'UNDER' ? row?.price_under : row?.price_over,
+              ev_pct: Number.isFinite(Number(row?.ev)) ? Number(row.ev) * 100 : null,
+              probability: row?.win_prob,
+              klass: row?.klass,
+              line_source: row?.line_source,
+              status_label: status?.final ? 'Final' : (status?.in_progress ? `Q${status?.period || '-'} ${status?.clock || ''}`.trim() : 'Live'),
+              actual: row?.actual,
+              pace_proj: row?.pace_proj,
+              pace_vs_line: row?.pace_vs_line,
+              strength: row?.strength,
+              score_adj: row?.bettable_score ?? row?.strength ?? row?.ev,
+              sim_mu: row?.sim_mu,
+              sim_vs_line: row?.sim_vs_line,
+              lean: row?.lean,
+              bettable_score: row?.bettable_score,
+              line_live: row?.line_live,
+              line_pregame: row?.line_pregame,
+            };
+          } catch (error) {
+            reportPropsStripError('transform-row', error, String(row?.player || row?.stat || 'unknown-row'));
+            return null;
+          }
+        })
+        .filter(Boolean);
       items.push(...gameItems);
     });
     const sortedItems = sortedPropsStripItems(items);
@@ -1678,6 +1740,7 @@
       }
       renderPropsStrip();
     } catch (_error) {
+      reportPropsStripError('load', _error, dateValue);
       state.propsStripPayload = null;
       clearPropsStrip();
     }
