@@ -1,0 +1,2 @@
+home,away,error
+PHX,UTA,'numpy.float64' object has no attribute 'fillna'
