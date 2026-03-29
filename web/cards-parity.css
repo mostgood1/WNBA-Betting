@@ -1505,6 +1505,11 @@ body.cards-app-shell .toggle-chip input {
   gap: 6px;
 }
 
+.cards-mini-metric.is-rich {
+  align-content: start;
+  min-height: 92px;
+}
+
 .cards-box-head {
   align-items: center;
 }

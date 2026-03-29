@@ -501,16 +501,25 @@
       : null;
     const pregameContext = game?.sim?.context || {};
 
-    function possessionEstimateForTeam(teamTri, sideKey) {
-      const buckets = pbpStats?.pbp_possessions || {};
+    function bucketForTeam(source, teamTri, sideKey) {
+      const buckets = source && typeof source === 'object' ? source : {};
       const teamKey = String(teamTri || '').trim().toUpperCase();
-      const direct = Number(buckets?.[teamKey]?.poss_est);
-      if (Number.isFinite(direct)) {
+      const direct = buckets?.[teamKey];
+      if (direct && typeof direct === 'object') {
         return direct;
       }
-      const sideValue = Number(buckets?.[sideKey]?.poss_est);
-      if (Number.isFinite(sideValue)) {
+      const sideValue = buckets?.[sideKey];
+      if (sideValue && typeof sideValue === 'object') {
         return sideValue;
+      }
+      return null;
+    }
+
+    function possessionEstimateForTeam(teamTri, sideKey) {
+      const bucket = bucketForTeam(pbpStats?.pbp_possessions, teamTri, sideKey);
+      const direct = Number(bucket?.poss_est);
+      if (Number.isFinite(direct)) {
+        return direct;
       }
       return null;
     }
@@ -783,6 +792,10 @@
       : (liveState.in_progress ? String(liveState.status || `Q${liveState.period || ''} ${liveState.clock || ''}`).trim() : 'Scheduled');
     const awayPace = livePaceProjection(game?.away_tri, 'away', pregameContext.away_pace);
     const homePace = livePaceProjection(game?.home_tri, 'home', pregameContext.home_pace);
+    const awayAttempts = bucketForTeam(pbpStats?.pbp_attempts, game?.away_tri, 'away');
+    const homeAttempts = bucketForTeam(pbpStats?.pbp_attempts, game?.home_tri, 'home');
+    const awayPossessions = possessionEstimateForTeam(game?.away_tri, 'away');
+    const homePossessions = possessionEstimateForTeam(game?.home_tri, 'home');
 
     return {
       statusLabel,
@@ -792,6 +805,10 @@
       elapsedMinutes,
       awayPace,
       homePace,
+      awayPossessions,
+      homePossessions,
+      awayAttempts,
+      homeAttempts,
       signals: {
         quarter_total: quarterSignal,
         half_total: halfSignal,
@@ -2365,15 +2382,61 @@
     const homePace = mode === 'live' && Number.isFinite(Number(liveLens?.homePace))
       ? Number(liveLens.homePace)
       : Number(context.home_pace);
-    return [
-      { label: `${game.away_tri} pace`, value: fmtNumber(awayPace, 1), sub: mode === 'live' ? 'live expected possessions' : 'expected possessions' },
-      { label: `${game.home_tri} pace`, value: fmtNumber(homePace, 1), sub: mode === 'live' ? 'live expected possessions' : 'expected possessions' },
-      { label: 'Official props', value: String(counts.home + counts.away), sub: `${counts.away} away · ${counts.home} home` },
-    ].map((entry) => `
-      <div class="cards-mini-metric">
+    const liveAwayPoss = Number(liveLens?.awayPossessions);
+    const liveHomePoss = Number(liveLens?.homePossessions);
+
+    function shootingBreakdown(bucket) {
+      if (!bucket || typeof bucket !== 'object') {
+        return '';
+      }
+      const ftAtt = Number(bucket.ft_att);
+      const fg2Att = Number(bucket.fg2_att);
+      const fg3Att = Number(bucket.fg3_att);
+      const ftMade = Number(bucket.ft_made);
+      const fg2Made = Number(bucket.fg2_made);
+      const fg3Made = Number(bucket.fg3_made);
+      const parts = [];
+      if (Number.isFinite(ftAtt) && ftAtt > 0) {
+        parts.push(`FT ${fmtInteger(ftMade)}/${fmtInteger(ftAtt)}`);
+      }
+      if (Number.isFinite(fg2Att) && fg2Att > 0) {
+        parts.push(`2P ${fmtInteger(fg2Made)}/${fmtInteger(fg2Att)}`);
+      }
+      if (Number.isFinite(fg3Att) && fg3Att > 0) {
+        parts.push(`3P ${fmtInteger(fg3Made)}/${fmtInteger(fg3Att)}`);
+      }
+      return parts.join(' · ');
+    }
+
+    function livePaceTile(teamTri, paceValue, possessions, attempts) {
+      const hasLivePossessions = Number.isFinite(Number(possessions));
+      const breakdown = shootingBreakdown(attempts);
+      return {
+        label: `${teamTri} pace`,
+        value: fmtNumber(paceValue, 1),
+        sub: hasLivePossessions ? `Poss est ${fmtNumber(possessions, 1)}` : 'live expected possessions',
+        extra: breakdown ? [breakdown] : [],
+      };
+    }
+
+    const entries = mode === 'live'
+      ? [
+        livePaceTile(game.away_tri, awayPace, liveAwayPoss, liveLens?.awayAttempts),
+        livePaceTile(game.home_tri, homePace, liveHomePoss, liveLens?.homeAttempts),
+        { label: 'Official props', value: String(counts.home + counts.away), sub: `${counts.away} away · ${counts.home} home` },
+      ]
+      : [
+        { label: `${game.away_tri} pace`, value: fmtNumber(awayPace, 1), sub: 'expected possessions' },
+        { label: `${game.home_tri} pace`, value: fmtNumber(homePace, 1), sub: 'expected possessions' },
+        { label: 'Official props', value: String(counts.home + counts.away), sub: `${counts.away} away · ${counts.home} home` },
+      ];
+
+    return entries.map((entry) => `
+      <div class="cards-mini-metric ${safeArray(entry.extra).length ? 'is-rich' : ''}">
         <span class="cards-section-label">${escapeHtml(entry.label)}</span>
         <strong>${escapeHtml(entry.value)}</strong>
         <div class="cards-mini-copy">${escapeHtml(entry.sub)}</div>
+        ${safeArray(entry.extra).map((line) => `<div class="cards-mini-copy">${escapeHtml(line)}</div>`).join('')}
       </div>
     `).join('');
   }
