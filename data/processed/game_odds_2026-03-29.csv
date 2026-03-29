@@ -1,2 +1,10 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-03-29,2026-03-29T23:40:00Z,Oklahoma City Thunder,New York Knicks,-300.1861226461344,300.18612264613444,-9.5,9.5,,,223.5,-100.0,-100.0,3,3,1,2,oddsapi_consensus
+2026-03-29,2026-03-29T21:10:00Z,Indiana Pacers,Miami Heat,337.530514774084,-337.53051477408405,9.5,-9.5,-115,-105,245.5,-100.0,-100.0,11,11,10,9,oddsapi_consensus
+2026-03-29,2026-03-29T22:10:00Z,Toronto Raptors,Orlando Magic,-124.06117149138409,124.06117149138409,-2.5,2.5,-115,-105,225.5,-101.96270805580315,101.96270805580316,11,11,10,7,oddsapi_consensus
+2026-03-29,2026-03-29T22:10:00Z,Portland Trail Blazers,Washington Wizards,-802.2115680254842,802.2115680254843,-15.5,15.5,-115,-105,239.0,-100.0,-100.0,11,11,11,6,oddsapi_consensus
+2026-03-29,2026-03-29T22:10:00Z,Charlotte Hornets,Boston Celtics,-100.63976392740412,100.63976392740412,-1.0,1.0,-110,-110,215.5,-100.0,-100.0,10,10,4,7,oddsapi_consensus
+2026-03-29,2026-03-30T02:10:00Z,Denver Nuggets,Golden State Warriors,-495.374298594003,495.37429859400265,-12.0,12.0,-115,-105,239.0,-101.87716790460418,101.87716790460422,11,11,5,8,oddsapi_consensus
+2026-03-29,2026-03-29T22:10:00Z,Brooklyn Nets,Sacramento Kings,106.29971665137808,-106.29971665137808,1.0,-1.0,-110,-110,221.5,-100.0,-100.0,11,8,6,11,oddsapi_consensus
+2026-03-29,2026-03-29T23:10:00Z,New Orleans Pelicans,Houston Rockets,201.88001643900074,-201.88001643900074,5.5,-5.5,-115,-105,225.0,-100.0,-100.0,11,11,5,5,oddsapi_consensus
+2026-03-29,2026-03-29T23:40:00Z,Oklahoma City Thunder,New York Knicks,-301.0420677740004,301.0420677740003,-8.5,8.5,-110,-110,224.0,-100.0,-100.0,11,11,11,7,oddsapi_consensus
+2026-03-29,2026-03-29T19:40:00Z,Milwaukee Bucks,Los Angeles Clippers,595.7431171731648,-595.7431171731654,14.0,-14.0,-105,-115,222.0,-102.75862000955576,102.75862000955574,11,11,6,5,oddsapi_consensus
