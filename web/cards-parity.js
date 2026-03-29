@@ -499,6 +499,41 @@
     const currentQuarterKey = Number.isFinite(currentPeriod) && currentPeriod >= 1 && currentPeriod <= 4
       ? `q${Math.floor(currentPeriod)}`
       : null;
+    const pregameContext = game?.sim?.context || {};
+
+    function possessionEstimateForTeam(teamTri, sideKey) {
+      const buckets = pbpStats?.pbp_possessions || {};
+      const teamKey = String(teamTri || '').trim().toUpperCase();
+      const direct = Number(buckets?.[teamKey]?.poss_est);
+      if (Number.isFinite(direct)) {
+        return direct;
+      }
+      const sideValue = Number(buckets?.[sideKey]?.poss_est);
+      if (Number.isFinite(sideValue)) {
+        return sideValue;
+      }
+      return null;
+    }
+
+    function livePaceProjection(teamTri, sideKey, pregamePace) {
+      if (!Number.isFinite(elapsedMinutes) || elapsedMinutes <= 0) {
+        return Number.isFinite(Number(pregamePace)) ? Number(pregamePace) : null;
+      }
+      const possEst = possessionEstimateForTeam(teamTri, sideKey);
+      const pregame = Number(pregamePace);
+      if (!Number.isFinite(possEst)) {
+        return Number.isFinite(pregame) ? pregame : null;
+      }
+      const projected = (possEst / Math.max(elapsedMinutes, 1)) * 48;
+      if (!Number.isFinite(projected)) {
+        return Number.isFinite(pregame) ? pregame : null;
+      }
+      if (!Number.isFinite(pregame)) {
+        return projected;
+      }
+      const blendWeight = clampNumber(elapsedMinutes / 48, 0.18, 1);
+      return ((1 - blendWeight) * pregame) + (blendWeight * projected);
+    }
 
     function buildSignal(key, label, klass, side, edge, line, projection, extraDetail) {
       const sideLabel = side ? `${side} ` : '';
@@ -746,6 +781,8 @@
     const statusLabel = liveState.final
       ? 'Final'
       : (liveState.in_progress ? String(liveState.status || `Q${liveState.period || ''} ${liveState.clock || ''}`).trim() : 'Scheduled');
+    const awayPace = livePaceProjection(game?.away_tri, 'away', pregameContext.away_pace);
+    const homePace = livePaceProjection(game?.home_tri, 'home', pregameContext.home_pace);
 
     return {
       statusLabel,
@@ -753,6 +790,8 @@
       currentTotal,
       currentMargin,
       elapsedMinutes,
+      awayPace,
+      homePace,
       signals: {
         quarter_total: quarterSignal,
         half_total: halfSignal,
@@ -980,9 +1019,65 @@
 
   function cardStatus(game) {
     if (mode === 'live') {
-      return 'live';
+      const liveState = getLiveState(game);
+      if (liveState?.final) {
+        return 'final';
+      }
+      if (liveState?.in_progress) {
+        return 'live';
+      }
+      return 'upcoming';
     }
     return 'scheduled';
+  }
+
+  function gameStatusSortValue(game) {
+    const status = cardStatus(game);
+    if (status === 'live') {
+      return 0;
+    }
+    if (status === 'upcoming' || status === 'scheduled') {
+      return 1;
+    }
+    if (status === 'final') {
+      return 2;
+    }
+    return 3;
+  }
+
+  function gameCommenceSortValue(game) {
+    const raw = String(game?.odds?.commence_time || '').trim();
+    if (!raw) {
+      return Number.POSITIVE_INFINITY;
+    }
+    const value = new Date(raw).getTime();
+    return Number.isFinite(value) ? value : Number.POSITIVE_INFINITY;
+  }
+
+  function sortGamesForDisplay(games) {
+    return [...safeArray(games)].sort((left, right) => {
+      const statusDiff = gameStatusSortValue(left) - gameStatusSortValue(right);
+      if (statusDiff !== 0) {
+        return statusDiff;
+      }
+
+      const leftStatus = cardStatus(left);
+      const rightStatus = cardStatus(right);
+      if (leftStatus === 'live' && rightStatus === 'live') {
+        const leftElapsed = Number(liveElapsedMinutes(getLiveState(left)) || 0);
+        const rightElapsed = Number(liveElapsedMinutes(getLiveState(right)) || 0);
+        if (leftElapsed !== rightElapsed) {
+          return rightElapsed - leftElapsed;
+        }
+      }
+
+      const timeDiff = gameCommenceSortValue(left) - gameCommenceSortValue(right);
+      if (timeDiff !== 0) {
+        return timeDiff;
+      }
+
+      return cardId(left).localeCompare(cardId(right));
+    });
   }
 
   function hasStartedGame(liveState) {
@@ -2259,13 +2354,20 @@
 
   function miniMetrics(game) {
     const context = game?.sim?.context || {};
+    const liveLens = getLiveLens(game);
     const counts = {
       home: safeArray(game?.prop_recommendations?.home).length,
       away: safeArray(game?.prop_recommendations?.away).length,
     };
+    const awayPace = mode === 'live' && Number.isFinite(Number(liveLens?.awayPace))
+      ? Number(liveLens.awayPace)
+      : Number(context.away_pace);
+    const homePace = mode === 'live' && Number.isFinite(Number(liveLens?.homePace))
+      ? Number(liveLens.homePace)
+      : Number(context.home_pace);
     return [
-      { label: `${game.away_tri} pace`, value: fmtNumber(context.away_pace, 1), sub: 'expected possessions' },
-      { label: `${game.home_tri} pace`, value: fmtNumber(context.home_pace, 1), sub: 'expected possessions' },
+      { label: `${game.away_tri} pace`, value: fmtNumber(awayPace, 1), sub: mode === 'live' ? 'live expected possessions' : 'expected possessions' },
+      { label: `${game.home_tri} pace`, value: fmtNumber(homePace, 1), sub: mode === 'live' ? 'live expected possessions' : 'expected possessions' },
       { label: 'Official props', value: String(counts.home + counts.away), sub: `${counts.away} away · ${counts.home} home` },
     ].map((entry) => `
       <div class="cards-mini-metric">
@@ -2433,9 +2535,8 @@
           <div class="cards-prob-grid">${segmentProbabilityRows(game)}</div>
           <div class="cards-mini-metrics">${miniMetrics(game)}</div>
           ${mode === 'live' && (liveLens?.topSignals?.length || liveState?.status)
-            ? `<div class="cards-source-meta">
+            ? `<div class="cards-source-meta cards-live-signal-row">
                 ${safeArray(liveLens?.topSignals).slice(0, 4).map(renderLiveSignalChip).join('')}
-                ${liveState?.status ? `<span class="cards-source-meta-pill is-live">${escapeHtml(String(liveState.status))}</span>` : ''}
               </div>`
             : ''}
         </div>
@@ -3040,8 +3141,8 @@
   }
 
   function renderBoard() {
-    const games = safeArray(state.payload?.games);
-    const filteredGames = games.filter((game) => matchesFilter(game, state.filter));
+    const games = sortGamesForDisplay(state.payload?.games);
+    const filteredGames = sortGamesForDisplay(games.filter((game) => matchesFilter(game, state.filter)));
     const { scoreboardEl, gridEl } = ensureBoardShell();
     if (!games.length) {
       scoreboardEl.innerHTML = '<div class="cards-loading-strip">No games on this slate.</div>';

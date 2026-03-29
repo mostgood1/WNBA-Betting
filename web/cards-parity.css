@@ -1334,6 +1334,24 @@ body.cards-app-shell .toggle-chip input {
   line-height: 1;
 }
 
+.cards-live-signal-row {
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -ms-overflow-style: none;
+}
+
+.cards-live-signal-row::-webkit-scrollbar {
+  display: none;
+}
+
+.cards-live-signal-row .cards-chip,
+.cards-live-signal-row .cards-source-meta-pill {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .cards-callout-list {
   list-style: none;
   margin: 0;
