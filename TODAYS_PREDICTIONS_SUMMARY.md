@@ -65,7 +65,7 @@ python -m nba_betting.cli recommendations --date 2025-10-17
 ### 5. View in Browser (Optional)
 ```powershell
 .\start-local.ps1
-# Then open: http://localhost:5051/recommendations.html
+# Then open: http://localhost:5051/betting-card
 ```
 
 ---

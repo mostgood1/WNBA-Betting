@@ -127,7 +127,20 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "& '.\\.venv\\Scripts\\py
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\render_smoke.ps1 -Date "2026-01-01" -RunDailyUpdate
 ```
 
-- Unified recommendations API (compact + regular-priced props):
+- Canonical betting card API (games + props):
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://localhost:5051/api/betting-card?date=2026-01-01' | Select-Object -ExpandProperty Content
+```
+
+- Human-facing pages:
+
+```text
+http://localhost:5051/betting-card
+http://localhost:5051/betting-recap
+```
+
+- Legacy machine-facing compatibility remains available for internal tooling:
 
 ```powershell
 Invoke-WebRequest -UseBasicParsing 'http://localhost:5051/recommendations?format=json&view=all&date=2026-01-01&compact=1&regular_only=1' | Select-Object -ExpandProperty Content
@@ -366,9 +379,11 @@ Environment variables (optional but consistent with NFL app):
 - `PYTHONUNBUFFERED=1`
 
 Routing:
-- `/` serves the cards page directly
+- `/` and `/betting-card` serve the canonical daily betting card
+- `/betting-recap` serves the canonical betting recap page
 - Static assets are under `/web/*` (e.g., `/web/assets/logos/BOS.svg`)
-- Legacy `/web/` and `/web/index.html` redirect to `/`, and `/pregame` and `/live` also redirect to `/` for a single canonical cards entrypoint
+- Legacy `/recommendations`, `/best-bets-parlays`, `/props/recommendations`, `/props/best-bets-parlays`, and `/reconciliation` redirect to the canonical betting card or recap routes
+- Legacy `/web/` and `/web/index.html` redirect to `/`, and `/pregame` and `/live` remain compatibility entrypoints for the cards experience
 
 Notes:
 - Use the Flask app for both UI and APIs (no separate static http.server is needed).
@@ -378,27 +393,30 @@ Notes:
 ### New pages and APIs for player props parity
 
 Frontend pages (under `web/`):
-- `/props` – existing props-by-day table
-- `/props/recommendations` – per-player cards of best edges (NFL-style)
-- `/props/reconciliation` – table view of reconciled props/actuals
+- `/betting-card` – canonical daily pregame card for game plays and prop plays
+- `/betting-recap` – canonical recap page for settled games and props performance
+- `/prop-ladders` – player distribution and ladder board
 
 APIs:
+- `GET /api/betting-card?date=YYYY-MM-DD[&section=all|games|props]`
+	- Returns the unified daily card payload built from `/api/cards`, including flattened game plays and prop plays.
+- `GET /api/betting-recap?[&days=14][&since=YYYY-MM-DD&until=YYYY-MM-DD]`
+	- Returns canonical recap summaries for games and props over the selected window.
 - `GET /api/props?date=YYYY-MM-DD[&home_team=...&away_team=...&min_edge=...&min_ev=...]`
 	- Returns raw props rows (edges or predictions) with optional collapse to best-of-book.
 - `GET /api/props/recommendations?date=YYYY-MM-DD[&market=pts|reb|ast|threes][&onlyEV=1][&minEV=1.0][&home_team=...&away_team=...]`
-	- Aggregates props edges into player cards with plays sorted by EV% then edge. `minEV` is percent.
-	- Includes `games` array built from the day’s predictions when available.
+	- Legacy machine-facing compatibility endpoint still used by internal tooling.
 - `GET /api/props/reconciliation?date=YYYY-MM-DD[&team=...][&player=...]`
 	- Serves reconciled props rows for the date (built from nbastatR logs), filterable by team/player.
 
 Examples (PowerShell):
 
 ```powershell
-# Cards aggregation with min EV filter
-Invoke-RestMethod 'http://localhost:5050/api/props/recommendations?date=2025-10-05&onlyEV=1&minEV=10'
+# Unified betting card
+Invoke-RestMethod 'http://localhost:5050/api/betting-card?date=2025-10-05&section=props'
 
-# Reconciliation table for a past date
-Invoke-RestMethod 'http://localhost:5050/api/props/reconciliation?date=2025-10-04'
+# Betting recap window
+Invoke-RestMethod 'http://localhost:5050/api/betting-recap?days=7'
 ```
 
 ## Admin endpoints (optional)

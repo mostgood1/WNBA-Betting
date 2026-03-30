@@ -19,6 +19,7 @@ import shlex
 import threading
 import re
 import requests
+from urllib.parse import urlencode
 from pathlib import Path
 import traceback
 
@@ -3296,6 +3297,8 @@ def _enforce_minimal_ui_allowlist():
         allowed_exact = {
             "/",
             "/pregame",
+            "/betting-card",
+            "/betting-recap",
             "/live",
             "/prop-ladders",
             "/recommendations",
@@ -3337,6 +3340,9 @@ def _enforce_minimal_ui_allowlist():
             "/api/status/props-refresh",
             "/api/cards",
             "/api/cards/props-strip",
+            "/api/betting-card",
+            "/api/betting-card/recap",
+            "/api/betting-recap",
             "/api/predictions",
             "/api/schedule",
             "/api/scoreboard",
@@ -6005,6 +6011,56 @@ def _serve_cards_page(filename: str, *, page_mode: str | None = None, title: str
         return send_from_directory(str(WEB_DIR), filename)
 
 
+def _response_json_value(resp: Any) -> tuple[dict[str, Any] | None, int | None]:
+    response_obj = resp
+    status_code = None
+    if isinstance(resp, tuple):
+        if resp:
+            response_obj = resp[0]
+        if len(resp) >= 2:
+            try:
+                status_code = int(resp[1])
+            except Exception:
+                status_code = None
+    try:
+        if hasattr(response_obj, "status_code"):
+            status_code = int(getattr(response_obj, "status_code"))
+    except Exception:
+        pass
+    payload_obj = None
+    try:
+        if hasattr(response_obj, "get_json"):
+            payload_obj = response_obj.get_json(silent=True)
+    except Exception:
+        payload_obj = None
+    if isinstance(payload_obj, dict):
+        return payload_obj, status_code
+    return None, status_code
+
+
+def _redirect_with_request_params(target: str, *, extra_params: dict[str, Any] | None = None, drop_params: set[str] | None = None):
+    params: list[tuple[str, str]] = []
+    drop = {str(k) for k in (drop_params or set())}
+    for key, values in request.args.lists():
+        if key in drop:
+            continue
+        for value in values:
+            params.append((str(key), str(value)))
+
+    for key, value in (extra_params or {}).items():
+        params = [(existing_key, existing_value) for existing_key, existing_value in params if existing_key != key]
+        if value is None:
+            continue
+        if isinstance(value, (list, tuple)):
+            for item in value:
+                params.append((str(key), str(item)))
+        else:
+            params.append((str(key), str(value)))
+
+    query = urlencode(params, doseq=True)
+    return redirect(f"{target}?{query}" if query else target)
+
+
 @app.route("/")
 def root():
     return _serve_cards_page(
@@ -6024,6 +6080,17 @@ def route_pregame_cards():
         title="NBA Betting – Pregame",
         heading="NBA Betting – Pregame",
         base_path="/pregame",
+    )
+
+
+@app.route("/betting-card")
+def route_betting_card():
+    return _serve_cards_page(
+        "cards.html",
+        page_mode="pregame",
+        title="NBA Betting - Daily Betting Card",
+        heading="NBA Betting - Daily Betting Card",
+        base_path="/betting-card",
     )
 
 
@@ -6092,6 +6159,113 @@ def data_static(path: str):
 # Note: unified below with the main implementation at the end of the file.
 
 # Friendly routes to mirror NHL site paths (serve static HTML files)
+@app.route("/api/betting-card")
+def api_betting_card():
+    section = str(request.args.get("section") or "all").strip().lower() or "all"
+    if section not in {"all", "games", "props"}:
+        return jsonify({
+            "error": "unknown betting card section",
+            "section": section,
+            "allowed": ["all", "games", "props"],
+        }), 400
+
+    cards_payload, status_code = _response_json_value(api_cards())
+    if status_code and status_code >= 400:
+        return jsonify(_to_jsonable(cards_payload or {"error": "failed to build betting card"})), status_code
+    if not isinstance(cards_payload, dict):
+        return jsonify({"error": "failed to build betting card"}), 500
+
+    games = [game for game in (cards_payload.get("games") or []) if isinstance(game, dict)]
+    game_plays: list[dict[str, Any]] = []
+    prop_plays: list[dict[str, Any]] = []
+
+    def _metric(item: dict[str, Any], *names: str) -> float:
+        for name in names:
+            value = _safe_float(item.get(name))
+            if value is not None:
+                return float(value)
+        return float("-inf")
+
+    for game in games:
+        home_tri = str(game.get("home_tri") or "").strip().upper()
+        away_tri = str(game.get("away_tri") or "").strip().upper()
+        matchup = f"{away_tri} @ {home_tri}" if home_tri and away_tri else str(game.get("matchup") or "").strip()
+        odds = game.get("odds") if isinstance(game.get("odds"), dict) else {}
+        commence_time = odds.get("commence_time")
+
+        for rec in (game.get("game_market_recommendations") or []):
+            if not isinstance(rec, dict):
+                continue
+            item = dict(rec)
+            item.setdefault("matchup", matchup)
+            item["home_tri"] = home_tri
+            item["away_tri"] = away_tri
+            item["commence_time"] = commence_time
+            game_plays.append(item)
+
+        prop_map = game.get("prop_recommendations") if isinstance(game.get("prop_recommendations"), dict) else {}
+        for team_side in ("away", "home"):
+            for rec in (prop_map.get(team_side) or []):
+                if not isinstance(rec, dict):
+                    continue
+                item = dict(rec)
+                item.setdefault("matchup", matchup)
+                item.setdefault("team_side", team_side)
+                item["home_tri"] = home_tri
+                item["away_tri"] = away_tri
+                item["commence_time"] = commence_time
+                prop_plays.append(item)
+
+    game_plays.sort(
+        key=lambda item: (
+            _metric(item, "recommendation_priority_score", "score", "edge"),
+            _metric(item, "edge", "ev"),
+            _metric(item, "ev", "home_win_prob"),
+        ),
+        reverse=True,
+    )
+    prop_plays.sort(
+        key=lambda item: (
+            _metric(item, "recommendation_priority_score", "score_adj", "score"),
+            _metric(item, "ev", "edge"),
+            _metric(item, "prob_calib", "probability", "win_prob"),
+        ),
+        reverse=True,
+    )
+
+    if section == "games":
+        prop_plays = []
+    elif section == "props":
+        game_plays = []
+
+    return jsonify(
+        _to_jsonable(
+            {
+                "date": cards_payload.get("date"),
+                "requested_date": cards_payload.get("requested_date"),
+                "lookahead_applied": bool(cards_payload.get("lookahead_applied")),
+                "section": section,
+                "generated_from": "/api/cards",
+                "recap_endpoint": "/api/betting-recap",
+                "counts": {
+                    "games": len(games),
+                    "game_plays": len(game_plays),
+                    "prop_plays": len(prop_plays),
+                },
+                "game_plays": game_plays,
+                "prop_plays": prop_plays,
+                "games": games,
+            }
+        )
+    )
+
+
+@app.route("/api/betting-recap")
+@app.route("/api/betting-card/recap")
+def api_betting_recap():
+    return _recommendations_recaps()
+
+
 @app.route("/recommendations")
 def route_recommendations():
     # Single unified recommendations endpoint.
@@ -6133,32 +6307,31 @@ def route_recommendations():
             ],
         }), 400
 
-    return send_from_directory(str(WEB_DIR), "recommendations.html")
+    return _redirect_with_request_params("/betting-card")
 
 
 @app.route("/props/recommendations")
 def route_props_recommendations_page():
-    return send_from_directory(str(WEB_DIR), "props_recommendations.html")
+    return _redirect_with_request_params("/betting-card", extra_params={"section": "props"})
 
 
 @app.route("/best-bets-parlays")
 def route_best_bets_parlays():
     fmt = str(request.args.get("format") or "").strip().lower()
     if fmt == "json":
-        return api_best_bets_parlays()
-    return send_from_directory(str(WEB_DIR), "best_bets_parlays.html")
+        return _redirect_with_request_params("/api/betting-card", extra_params={"section": "games"}, drop_params={"format"})
+    return _redirect_with_request_params("/betting-card", extra_params={"section": "games"})
 
 
 @app.route("/props/best-bets-parlays")
 def route_props_best_bets_parlays():
     fmt = str(request.args.get("format") or "").strip().lower()
     if fmt == "json":
-        return api_props_best_bets_parlays()
-    return send_from_directory(str(WEB_DIR), "props_best_bets_parlays.html")
+        return _redirect_with_request_params("/api/betting-card", extra_params={"section": "props"}, drop_params={"format"})
+    return _redirect_with_request_params("/betting-card", extra_params={"section": "props"})
 
 
 @app.route("/api/best-bets-parlays")
-@app.route("/api/games/best-bets-parlays")
 def api_best_bets_parlays():
     d = _parse_date_param(request)
     if not d:
@@ -6213,8 +6386,12 @@ def api_best_bets_parlays():
     return jsonify(_to_jsonable(payload))
 
 
+@app.route("/api/games/best-bets-parlays")
+def api_games_best_bets_parlays_alias():
+    return _redirect_with_request_params("/api/betting-card", extra_params={"section": "games"})
+
+
 @app.route("/api/props/best-bets-parlays")
-@app.route("/api/props-best-bets-parlays")
 def api_props_best_bets_parlays():
     d = _parse_date_param(request)
     if not d:
@@ -6268,10 +6445,19 @@ def api_props_best_bets_parlays():
     )
     return jsonify(_to_jsonable(payload))
 
-# Reconciliation pages (static)
+
+@app.route("/api/props-best-bets-parlays")
+def api_props_best_bets_parlays_alias():
+    return _redirect_with_request_params("/api/betting-card", extra_params={"section": "props"})
+
+@app.route("/betting-recap")
+def route_betting_recap():
+    return send_from_directory(str(WEB_DIR), "reconciliation.html")
+
+
 @app.route("/reconciliation")
 def route_reconciliation():
-    return send_from_directory(str(WEB_DIR), "reconciliation.html")
+    return _redirect_with_request_params("/betting-recap")
 
 
 @app.route("/features")

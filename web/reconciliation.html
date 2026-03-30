@@ -3,13 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recommendations Reconciliation | NBA Betting</title>
+  <title>Betting Recap | NBA Betting</title>
   <link rel="stylesheet" href="/web/styles.css?v=20260127-1" />
   <meta http-equiv="Cache-Control" content="no-store" />
+  <style>
+    .recap-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .summary-kpi { display:grid; gap: 4px; }
+    .summary-kpi .label { font-size: 12px; color: #9fb0ff; text-transform: uppercase; letter-spacing: .04em; }
+    .summary-kpi .value { font-size: 24px; font-weight: 800; }
+    .section-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; }
+    .meta-line { font-size: 12px; color: #9fb0ff; margin-bottom: 8px; }
+    .pill { display:inline-block; padding: 2px 8px; border: 1px solid #31429a; border-radius: 999px; font-size: 12px; color: #d8e2ff; }
+    .daily-list { display:grid; gap: 12px; }
+    .day-card { border: 1px solid #25316a; border-radius: 12px; background: #0f1530; padding: 12px; }
+    .day-head { display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom: 10px; }
+    .day-title { font-size: 18px; font-weight: 800; }
+    .day-meta { font-size: 12px; color: #9fb0ff; }
+    .table-wrap { overflow-x:auto; }
+    .recap-table { width:100%; border-collapse:collapse; }
+    .recap-table th, .recap-table td { padding: 8px; text-align:left; border-top: 1px solid #25316a; }
+    .recap-table thead th { border-top: 0; color: #9fb0ff; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .good { color: #9ae6b4; }
+    .bad { color: #fca5a5; }
+    @media (max-width: 760px) {
+      .day-head { align-items:flex-start; }
+      .summary-kpi .value { font-size: 20px; }
+    }
+  </style>
   <script>
     function localYMD(){
       const tz = 'America/New_York';
-      const cutoffHour = 6; // Treat 12:00am–5:59am ET as the prior NBA slate day.
+      const cutoffHour = 6;
       try{
         const now = new Date();
         const hourStr = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour:'2-digit', hour12:false }).format(now);
@@ -19,67 +43,203 @@
           : now;
         return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' }).format(base);
       }catch(_){
-        const d=new Date();
+        const d = new Date();
         const base = (d.getHours() < cutoffHour) ? new Date(d.getTime() - 24*60*60*1000) : d;
-        const y=base.getFullYear();
-        const m=String(base.getMonth()+1).padStart(2,'0');
-        const day=String(base.getDate()).padStart(2,'0');
+        const y = base.getFullYear();
+        const m = String(base.getMonth()+1).padStart(2,'0');
+        const day = String(base.getDate()).padStart(2,'0');
         return `${y}-${m}-${day}`;
       }
     }
+
+    function shiftDate(ymd, deltaDays){
+      const base = new Date(`${String(ymd)}T12:00:00`);
+      if(Number.isNaN(base.getTime())) return localYMD();
+      base.setDate(base.getDate() + Number(deltaDays || 0));
+      const offsetMs = base.getTimezoneOffset() * 60000;
+      return new Date(base.getTime() - offsetMs).toISOString().slice(0, 10);
+    }
+
     function esc(s){ return String(s??'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
     async function fetchJson(url){ const r=await fetch(url,{cache:'no-store'}); if(!r.ok) throw new Error(`${r.status} ${r.statusText}`); return await r.json(); }
 
-    function renderBuckets(buckets){
-      const order=['Overall','High','Medium','Low'];
-      const rows = order.map(k=>{
-        const b = buckets && buckets[k] ? buckets[k] : null;
-        if(!b) return '';
-        const acc = (b.accuracy_pct!=null)? `${b.accuracy_pct}%`:'—';
-        const roi = (b.roi_pct!=null)? `${b.roi_pct}%`:'—';
-        const wl = `${b.wins||0}-${b.losses||0}${(b.pushes||0)?'-'+(b.pushes||0)+'P':''}`;
-        return `<tr><td class="fw-700">${esc(k)}</td><td>${esc(String(b.total??0))}</td><td>${esc(String(b.resolved??0))}</td><td>${esc(wl)}</td><td>${esc(acc)}</td><td>${esc(roi)}</td></tr>`;
+    function bucketOverall(group){
+      return group && group.buckets ? (group.buckets.Overall || null) : null;
+    }
+
+    function addTotals(total, bucket){
+      if(!bucket) return;
+      total.total += Number(bucket.total || 0);
+      total.resolved += Number(bucket.resolved || 0);
+      total.wins += Number(bucket.wins || 0);
+      total.losses += Number(bucket.losses || 0);
+      total.pushes += Number(bucket.pushes || 0);
+      total.stake_total += Number(bucket.stake_total || 0);
+      total.profit_total += Number(bucket.profit_total || 0);
+    }
+
+    function finalizeTotal(total){
+      const resolved = Number(total.resolved || 0);
+      const stake = Number(total.stake_total || 0);
+      return {
+        ...total,
+        accuracy_pct: resolved > 0 ? ((100 * Number(total.wins || 0)) / resolved) : null,
+        roi_pct: stake > 0 ? ((100 * Number(total.profit_total || 0)) / stake) : null,
+      };
+    }
+
+    function fmtPct(value){
+      const n = Number(value);
+      return Number.isFinite(n) ? `${n.toFixed(1)}%` : '—';
+    }
+
+    function fmtUnits(value){
+      const n = Number(value);
+      if(!Number.isFinite(n)) return '—';
+      return `${n > 0 ? '+' : ''}${n.toFixed(2)}u`;
+    }
+
+    function wl(bucket){
+      return `${Number(bucket?.wins || 0)}-${Number(bucket?.losses || 0)}-${Number(bucket?.pushes || 0)}`;
+    }
+
+    function renderBucketTable(group){
+      const rows = ['Overall','High','Medium','Low'].map(name => {
+        const bucket = group && group.buckets ? group.buckets[name] : null;
+        if(!bucket) return '';
+        const profitClass = Number(bucket.profit_total || 0) >= 0 ? 'good' : 'bad';
+        return `<tr><td>${esc(name)}</td><td>${esc(String(bucket.total || 0))}</td><td>${esc(String(bucket.resolved || 0))}</td><td>${esc(wl(bucket))}</td><td>${esc(fmtPct(bucket.accuracy_pct))}</td><td class="${profitClass}">${esc(fmtPct(bucket.roi_pct))}</td><td class="${profitClass}">${esc(fmtUnits(bucket.profit_total))}</td></tr>`;
       }).join('');
-      return `<div class="table-wrap"><table class="data-table"><thead><tr><th>Tier</th><th>Total</th><th>Settled</th><th>W-L-P</th><th>Accuracy</th><th>ROI</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No data.</td></tr>'}</tbody></table></div>`;
+      return `<div class="table-wrap"><table class="recap-table"><thead><tr><th>Tier</th><th>Total</th><th>Settled</th><th>W-L-P</th><th>Accuracy</th><th>ROI</th><th>Net</th></tr></thead><tbody>${rows || '<tr><td colspan="7">No data.</td></tr>'}</tbody></table></div>`;
+    }
+
+    function renderSummary(payload){
+      const totals = {
+        games: { total:0, resolved:0, wins:0, losses:0, pushes:0, stake_total:0, profit_total:0 },
+        props: { total:0, resolved:0, wins:0, losses:0, pushes:0, stake_total:0, profit_total:0 },
+      };
+      (payload.items || []).forEach(item => {
+        addTotals(totals.games, bucketOverall(item.games));
+        addTotals(totals.props, bucketOverall(item.props));
+      });
+      totals.games = finalizeTotal(totals.games);
+      totals.props = finalizeTotal(totals.props);
+
+      document.getElementById('summaryRoot').innerHTML = `
+        <div class="card summary-kpi">
+          <div class="label">Window</div>
+          <div class="value">${esc(`${payload.window?.since || '—'} to ${payload.window?.until || '—'}`)}</div>
+          <div class="meta-line">${esc(String((payload.items || []).length))} scored dates</div>
+        </div>
+        <div class="card summary-kpi">
+          <div class="label">Games</div>
+          <div class="value ${Number(totals.games.profit_total || 0) >= 0 ? 'good' : 'bad'}">${esc(fmtUnits(totals.games.profit_total))}</div>
+          <div class="meta-line">${esc(wl(totals.games))} settled, ${esc(fmtPct(totals.games.roi_pct))} ROI</div>
+        </div>
+        <div class="card summary-kpi">
+          <div class="label">Props</div>
+          <div class="value ${Number(totals.props.profit_total || 0) >= 0 ? 'good' : 'bad'}">${esc(fmtUnits(totals.props.profit_total))}</div>
+          <div class="meta-line">${esc(wl(totals.props))} settled, ${esc(fmtPct(totals.props.roi_pct))} ROI</div>
+        </div>`;
+    }
+
+    function renderDays(payload){
+      const root = document.getElementById('daysRoot');
+      const items = Array.isArray(payload.items) ? payload.items : [];
+      if(!items.length){
+        root.innerHTML = '<div class="card">No scored recap rows were available for this window.</div>';
+        return;
+      }
+      root.innerHTML = items.map(item => {
+        const games = bucketOverall(item.games) || {};
+        const props = bucketOverall(item.props) || {};
+        return `
+          <section class="day-card">
+            <div class="day-head">
+              <div>
+                <div class="day-title">${esc(item.date || 'Unknown date')}</div>
+                <div class="day-meta">Games ${esc(wl(games))} • Props ${esc(wl(props))}</div>
+              </div>
+              <div>
+                <span class="pill ${Number(games.profit_total || 0) >= 0 ? 'good' : 'bad'}">Games ${esc(fmtUnits(games.profit_total))}</span>
+                <span class="pill ${Number(props.profit_total || 0) >= 0 ? 'good' : 'bad'}">Props ${esc(fmtUnits(props.profit_total))}</span>
+              </div>
+            </div>
+            <div class="section-grid">
+              <div class="card">
+                <div class="meta-line">Game plays</div>
+                ${renderBucketTable(item.games)}
+              </div>
+              <div class="card">
+                <div class="meta-line">Prop plays</div>
+                ${renderBucketTable(item.props)}
+              </div>
+            </div>
+          </section>`;
+      }).join('');
     }
 
     async function load(){
-      const d = document.getElementById('datePicker').value;
       const note = document.getElementById('note');
-      note.classList.add('hidden'); note.textContent='';
+      note.classList.add('hidden');
+      note.textContent = '';
+      document.getElementById('summaryRoot').innerHTML = '<div class="card">Loading recap…</div>';
+      document.getElementById('daysRoot').innerHTML = '';
 
-      const gRoot = document.getElementById('gamesRoot');
-      const pRoot = document.getElementById('propsRoot');
-      gRoot.innerHTML = '<div class="card">Loading…</div>';
-      pRoot.innerHTML = '<div class="card">Loading…</div>';
+      const since = document.getElementById('sinceInput').value;
+      const until = document.getElementById('untilInput').value;
+      const days = document.getElementById('daysInput').value;
+      const params = new URLSearchParams();
+      if(since && until){
+        params.set('since', since);
+        params.set('until', until);
+      } else if(days) {
+        params.set('days', days);
+      }
+
       try{
-        const gs = await fetchJson(`/api/evaluate/games?since=${encodeURIComponent(d)}&until=${encodeURIComponent(d)}`);
-        const ps = await fetchJson(`/api/evaluate/props?since=${encodeURIComponent(d)}&until=${encodeURIComponent(d)}&regular_only=1`);
-        gRoot.innerHTML = `<div class="card"><div class="subtle">Games (date ${esc(d)})</div>${renderBuckets(gs.buckets)}</div>`;
-        pRoot.innerHTML = `<div class="card"><div class="subtle">Props (top plays, regular price) (date ${esc(d)})</div>${renderBuckets(ps.buckets)}</div>`;
-      }catch(e){
-        note.textContent = `Failed to load reconciliation: ${String(e && e.message ? e.message : e)}`;
+        const payload = await fetchJson(`/api/betting-recap?${params.toString()}`);
+        renderSummary(payload);
+        renderDays(payload);
+        const url = new URL(window.location.href);
+        if(since) url.searchParams.set('since', since); else url.searchParams.delete('since');
+        if(until) url.searchParams.set('until', until); else url.searchParams.delete('until');
+        if(days) url.searchParams.set('days', days); else url.searchParams.delete('days');
+        window.history.replaceState({}, '', url.toString());
+      } catch (error) {
+        note.textContent = `Failed to load betting recap: ${String(error && error.message ? error.message : error)}`;
         note.classList.remove('hidden');
-        gRoot.innerHTML = '';
-        pRoot.innerHTML = '';
+        document.getElementById('summaryRoot').innerHTML = '';
       }
     }
 
-    function applyDate(){
-      const d = document.getElementById('datePicker').value;
-      const u = new URL(window.location.href);
-      u.searchParams.set('date', d);
-      window.history.replaceState({},'',u.toString());
+    function applyLast14(){
+      const until = localYMD();
+      document.getElementById('untilInput').value = until;
+      document.getElementById('sinceInput').value = shiftDate(until, -13);
+      document.getElementById('daysInput').value = '14';
       load();
     }
 
-    window.addEventListener('DOMContentLoaded', ()=>{
+    function applySingleDate(){
+      const until = localYMD();
+      document.getElementById('sinceInput').value = until;
+      document.getElementById('untilInput').value = until;
+      document.getElementById('daysInput').value = '1';
+      load();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
-      const d = params.get('date') || localYMD();
-      const inp = document.getElementById('datePicker');
-      inp.value = d;
-      inp.addEventListener('change', applyDate);
-      document.getElementById('todayBtn').addEventListener('click', ()=>{ inp.value = localYMD(); applyDate(); });
+      const until = params.get('until') || params.get('date') || localYMD();
+      const since = params.get('since') || (params.get('date') || shiftDate(until, -13));
+      const days = params.get('days') || '14';
+      document.getElementById('sinceInput').value = since;
+      document.getElementById('untilInput').value = until;
+      document.getElementById('daysInput').value = days;
+      document.getElementById('applyBtn').addEventListener('click', load);
+      document.getElementById('last14Btn').addEventListener('click', applyLast14);
+      document.getElementById('todayBtn').addEventListener('click', applySingleDate);
       load();
     });
   </script>
@@ -87,23 +247,27 @@
 <body>
   <header class="site-header">
     <div class="container">
-      <h1>Recommendations Reconciliation</h1>
+      <h1>Betting Recap</h1>
       <nav class="site-nav">
-        <a href="/">Cards</a>
-        <a href="/recommendations">Recommendations</a>
-        <a href="/reconciliation" aria-current="page">Recs Results</a>
+        <a href="/betting-card">Betting Card</a>
+        <a href="/betting-recap" aria-current="page">Betting Recap</a>
         <a href="/features">Data Features</a>
       </nav>
       <div class="controls">
-        <label>Date <input id="datePicker" type="date" /></label>
+        <label>Since <input id="sinceInput" type="date" /></label>
+        <label>Until <input id="untilInput" type="date" /></label>
+        <label>Days <input id="daysInput" type="number" min="1" max="90" step="1" value="14" /></label>
+        <button type="button" id="applyBtn">Apply</button>
+        <button type="button" id="last14Btn">Last 14</button>
         <button type="button" id="todayBtn">Today</button>
       </div>
     </div>
   </header>
   <main class="container">
     <div id="note" class="alert hidden"></div>
-    <div id="gamesRoot" class="mt-24"></div>
-    <div id="propsRoot" class="mt-24"></div>
+    <div id="summaryRoot" class="recap-grid mt-24"></div>
+    <div class="meta-line mt-24">Canonical recap source: <span class="pill">/api/betting-recap</span></div>
+    <div id="daysRoot" class="daily-list mt-24"></div>
   </main>
 </body>
 </html>

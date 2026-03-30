@@ -88,9 +88,9 @@ python -m nba_betting.cli recommendations --date 2025-10-17
 ```
 
 **Then open in browser:**
-- Main: http://localhost:5051/
-- Recommendations: http://localhost:5051/recommendations.html
-- Reconciliation: http://localhost:5051/reconciliation.html
+- Main: http://localhost:5051/betting-card
+- Recap: http://localhost:5051/betting-recap
+- Compatibility root: http://localhost:5051/
 
 ---
 

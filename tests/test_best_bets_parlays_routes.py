@@ -788,13 +788,118 @@ def test_recommendations_all_props_preserves_bucketed_why_reasons(tmp_path, monk
 def test_best_bets_page_routes_render():
     app_module.app.testing = True
     with app_module.app.test_client() as client:
+        betting_card = client.get("/betting-card?date=2026-03-19")
+        betting_recap = client.get("/betting-recap?since=2026-03-12&until=2026-03-19")
         games_page = client.get("/best-bets-parlays?date=2026-03-19")
         props_page = client.get("/props/best-bets-parlays?date=2026-03-19")
         props_recs = client.get("/props/recommendations?date=2026-03-19")
+        recommendations_page = client.get("/recommendations?date=2026-03-19")
+        reconciliation_page = client.get("/reconciliation?date=2026-03-19")
 
-    assert games_page.status_code == 200
-    assert props_page.status_code == 200
-    assert props_recs.status_code == 200
-    assert "Best Bets & Parlays" in games_page.get_data(as_text=True)
-    assert "Props - Best Bets & Parlays" in props_page.get_data(as_text=True)
-    assert "Props Recs" in props_recs.get_data(as_text=True)
+    assert betting_card.status_code == 200
+    assert "NBA Betting - Daily Betting Card" in betting_card.get_data(as_text=True)
+
+    assert betting_recap.status_code == 200
+    assert "Betting Recap" in betting_recap.get_data(as_text=True)
+
+    assert games_page.status_code == 302
+    assert "/betting-card?date=2026-03-19&section=games" in games_page.headers["Location"]
+
+    assert props_page.status_code == 302
+    assert "/betting-card?date=2026-03-19&section=props" in props_page.headers["Location"]
+
+    assert props_recs.status_code == 302
+    assert "/betting-card?date=2026-03-19&section=props" in props_recs.headers["Location"]
+
+    assert recommendations_page.status_code == 302
+    assert "/betting-card?date=2026-03-19" in recommendations_page.headers["Location"]
+
+    assert reconciliation_page.status_code == 302
+    assert "/betting-recap?date=2026-03-19" in reconciliation_page.headers["Location"]
+
+
+def test_api_betting_card_flattens_game_and_prop_plays(monkeypatch):
+    date_str = "2026-03-19"
+
+    def _fake_cards():
+        return app_module.jsonify(
+            {
+                "date": date_str,
+                "requested_date": date_str,
+                "lookahead_applied": False,
+                "games": [
+                    {
+                        "home_tri": "BOS",
+                        "away_tri": "MIA",
+                        "odds": {"commence_time": f"{date_str}T23:00:00Z"},
+                        "game_market_recommendations": [
+                            {"market": "ML", "recommendation_priority_score": 1.4, "edge": 0.08},
+                            {"market": "ATS", "recommendation_priority_score": 0.9, "edge": 0.05},
+                        ],
+                        "prop_recommendations": {
+                            "home": [
+                                {"player": "Star One", "recommendation_priority_score": 1.2, "ev": 0.11},
+                            ],
+                            "away": [
+                                {"player": "Star Two", "recommendation_priority_score": 0.7, "ev": 0.06},
+                            ],
+                        },
+                    }
+                ],
+            }
+        )
+
+    monkeypatch.setattr(app_module, "api_cards", _fake_cards)
+
+    app_module.app.testing = True
+    with app_module.app.test_client() as client:
+        resp = client.get(f"/api/betting-card?date={date_str}")
+        props_only = client.get(f"/api/betting-card?date={date_str}&section=props")
+
+    assert resp.status_code == 200
+    payload = resp.get_json()
+    assert payload["generated_from"] == "/api/cards"
+    assert payload["recap_endpoint"] == "/api/betting-recap"
+    assert payload["counts"]["games"] == 1
+    assert payload["counts"]["game_plays"] == 2
+    assert payload["counts"]["prop_plays"] == 2
+    assert payload["game_plays"][0]["market"] == "ML"
+    assert payload["game_plays"][0]["matchup"] == "MIA @ BOS"
+    assert payload["prop_plays"][0]["player"] == "Star One"
+    assert payload["prop_plays"][0]["team_side"] == "home"
+
+    assert props_only.status_code == 200
+    props_payload = props_only.get_json()
+    assert props_payload["counts"]["game_plays"] == 0
+    assert props_payload["counts"]["prop_plays"] == 2
+    assert props_payload["game_plays"] == []
+
+
+def test_api_betting_recap_uses_recommendations_recaps(monkeypatch):
+    monkeypatch.setattr(
+        app_module,
+        "_recommendations_recaps",
+        lambda: app_module.jsonify({"version": "recaps-v1", "items": [{"date": "2026-03-19"}]}),
+    )
+
+    app_module.app.testing = True
+    with app_module.app.test_client() as client:
+        resp = client.get("/api/betting-recap?days=7")
+
+    assert resp.status_code == 200
+    payload = resp.get_json()
+    assert payload["version"] == "recaps-v1"
+    assert payload["items"][0]["date"] == "2026-03-19"
+
+
+def test_duplicate_best_bets_aliases_redirect_to_betting_card():
+    app_module.app.testing = True
+    with app_module.app.test_client() as client:
+        games_alias = client.get("/api/games/best-bets-parlays?date=2026-03-19")
+        props_alias = client.get("/api/props-best-bets-parlays?date=2026-03-19")
+
+    assert games_alias.status_code == 302
+    assert "/api/betting-card?date=2026-03-19&section=games" in games_alias.headers["Location"]
+
+    assert props_alias.status_code == 302
+    assert "/api/betting-card?date=2026-03-19&section=props" in props_alias.headers["Location"]
