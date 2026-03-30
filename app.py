@@ -3308,6 +3308,7 @@ def _enforce_minimal_ui_allowlist():
             "/live-lens-accuracy",
             "/live-game-lens-accuracy",
             "/live-player-props-lens-accuracy",
+            "/live-player-props-audit",
             "/health",
             "/favicon.ico",
         }
@@ -3379,6 +3380,7 @@ def _enforce_minimal_ui_allowlist():
             "/api/live_lens_analytics",
             "/api/live_game_lens_analytics",
             "/api/live_player_props_lens_analytics",
+            "/api/live_player_props_projection_audit",
             "/api/download_live_lens_signals",
             "/api/upload_live_lens_signals",
             "/api/download_live_lens_projections",
@@ -5927,7 +5929,7 @@ def api_processed_recon_players():
 
 
 
-def _serve_cards_page(filename: str):
+def _serve_cards_page(filename: str, *, page_mode: str | None = None, title: str | None = None, heading: str | None = None, base_path: str | None = None):
     # Server-render the default date so the page never boots with a blank date input
     # (some browsers can reject programmatic input[type=date] assignment).
     try:
@@ -5968,6 +5970,28 @@ def _serve_cards_page(filename: str):
                 f'<input type="date" id="datePicker" value="{ymd}">',
             )
 
+        if filename == "cards.html":
+            if title:
+                html = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", html, count=1, flags=re.IGNORECASE | re.DOTALL)
+            if heading:
+                html = re.sub(r"<h1>.*?</h1>", f"<h1>{heading}</h1>", html, count=1, flags=re.IGNORECASE | re.DOTALL)
+            if page_mode:
+                html = re.sub(
+                    r'data-page-mode="[^"]*"',
+                    f'data-page-mode="{page_mode}"',
+                    html,
+                    count=1,
+                    flags=re.IGNORECASE,
+                )
+            if base_path is not None:
+                html = re.sub(
+                    r'data-cards-base-path="[^"]*"',
+                    f'data-cards-base-path="{base_path}"',
+                    html,
+                    count=1,
+                    flags=re.IGNORECASE,
+                )
+
         resp = _Resp(html, mimetype="text/html")
         resp.headers["Cache-Control"] = "no-store, max-age=0"
         return resp
@@ -5983,22 +6007,35 @@ def _serve_cards_page(filename: str):
 
 @app.route("/")
 def root():
-    return _serve_cards_page("cards.html")
-
-
-def _redirect_legacy_cards_route():
-    query = request.query_string.decode("utf-8", errors="ignore") if request.query_string else ""
-    return redirect(f"/{('?' + query) if query else ''}")
+    return _serve_cards_page(
+        "cards.html",
+        page_mode="pregame",
+        title="NBA Betting – Pregame",
+        heading="NBA Betting – Pregame",
+        base_path="/pregame",
+    )
 
 
 @app.route("/pregame")
 def route_pregame_cards():
-    return _redirect_legacy_cards_route()
+    return _serve_cards_page(
+        "cards.html",
+        page_mode="pregame",
+        title="NBA Betting – Pregame",
+        heading="NBA Betting – Pregame",
+        base_path="/pregame",
+    )
 
 
 @app.route("/live")
 def route_live_cards():
-    return _redirect_legacy_cards_route()
+    return _serve_cards_page(
+        "cards.html",
+        page_mode="live",
+        title="NBA Betting – Live",
+        heading="NBA Betting – Live",
+        base_path="/live",
+    )
 
 
 @app.route("/prop-ladders")
@@ -6260,6 +6297,11 @@ def route_live_game_lens_accuracy():
 @app.route("/live-player-props-lens-accuracy")
 def route_live_player_props_lens_accuracy():
     return send_from_directory(str(WEB_DIR), "live_player_props_lens_accuracy.html")
+
+
+@app.route("/live-player-props-audit")
+def route_live_player_props_audit():
+    return send_from_directory(str(WEB_DIR), "live_player_props_audit.html")
 
 
 @app.route("/health")
@@ -7112,17 +7154,16 @@ def _best_player_headshot_url(*, photo: Any = None, nba_player_id: Any = None, s
     source_nba_url = _nba_headshot_url(source_player_id)
     source_espn_url = _espn_headshot_url(source_player_id) or _espn_headshot_url(nba_player_id)
 
-    # Prefer ESPN headshots first because NBA CDN frequently serves generic silhouettes
-    # for players without a current portrait even when the URL itself resolves successfully.
+    if nba_url:
+        return nba_url
+
+    if photo_url:
+        return photo_url
+
     if source_espn_url:
         return source_espn_url
 
-    if photo_url:
-        if nba_url and source_nba_url and photo_url == source_nba_url and source_nba_url != nba_url:
-            return nba_url
-        return photo_url
-
-    return nba_url or source_nba_url
+    return source_nba_url
 
 def _default_us_slate_date_str() -> str:
     try:
@@ -10728,6 +10769,235 @@ def _best_bets_load_injury_snapshot(date_str: str) -> dict[str, dict[str, Any]]:
     return {"counts": counts, "impact": impact, "key_outs": key_outs}
 
 
+def _best_bets_pick_first_numeric(mapping: Any, *names: str) -> float | None:
+    if mapping is None:
+        return None
+    for name in names:
+        try:
+            value = mapping.get(name)  # type: ignore[attr-defined]
+        except Exception:
+            value = None
+        number = _safe_float(value)
+        if number is not None:
+            return float(number)
+    return None
+
+
+@lru_cache(maxsize=16)
+def _load_best_bets_props_team_scoring_context(date_str: str) -> dict[str, dict[str, Any]]:
+    path = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
+    if not path.exists():
+        try:
+            _maybe_fetch_remote_processed(path.name)
+        except Exception:
+            pass
+    df = _read_csv_if_exists(path)
+    out: dict[str, dict[str, Any]] = {}
+    if not isinstance(df, pd.DataFrame) or df is None or df.empty:
+        return out
+
+    for _, raw in df.iterrows():
+        team_key = (_get_tricode(raw.get("team")) or str(raw.get("team") or "").strip().upper())
+        if not team_key:
+            continue
+        entry = out.setdefault(
+            team_key,
+            {"points_sum": 0.0, "minutes_sum": 0.0, "players": 0, "players_with_points": 0},
+        )
+        entry["players"] = int(entry.get("players") or 0) + 1
+
+        pts_mean = _best_bets_pick_first_numeric(raw, "pts_mean", "pred_pts", "points_mean", "pred_points")
+        if pts_mean is not None and float(pts_mean) >= 0.0:
+            entry["points_sum"] = float(entry.get("points_sum") or 0.0) + float(pts_mean)
+            entry["players_with_points"] = int(entry.get("players_with_points") or 0) + 1
+
+        min_mean = _best_bets_pick_first_numeric(raw, "min_mean", "pred_min", "minutes_mean", "pred_minutes")
+        if min_mean is not None and float(min_mean) > 0.0:
+            entry["minutes_sum"] = float(entry.get("minutes_sum") or 0.0) + float(min_mean)
+
+    for team_key, entry in out.items():
+        minutes_sum = max(0.0, min(240.0, float(entry.get("minutes_sum") or 0.0)))
+        coverage = _best_bets_clamp01(minutes_sum / 240.0) if minutes_sum > 0.0 else 0.0
+        points_sum = max(0.0, float(entry.get("points_sum") or 0.0))
+        players_with_points = int(entry.get("players_with_points") or 0)
+
+        prop_team_total = None
+        if points_sum > 0.0:
+            if minutes_sum >= 120.0:
+                prop_team_total = float(points_sum / max(0.55, coverage))
+            else:
+                per_min = float(points_sum / max(1.0, minutes_sum)) if minutes_sum > 0.0 else 0.0
+                prop_team_total = float(points_sum + (per_min * max(0.0, 240.0 - minutes_sum) * 0.55))
+            prop_team_total = float(max(70.0, min(140.0, prop_team_total)))
+
+        blend_weight = max(0.0, min(0.60, (coverage - 0.45) / 0.55)) if coverage > 0.45 else 0.0
+        if players_with_points < 7:
+            blend_weight *= 0.6
+
+        entry["minutes_sum"] = minutes_sum
+        entry["minutes_coverage"] = round(float(coverage), 4)
+        entry["team_total_points"] = prop_team_total
+        entry["blend_weight"] = round(float(max(0.0, min(0.60, blend_weight))), 4)
+        entry["team"] = team_key
+
+    return out
+
+
+def _best_bets_adjust_matchup_total(
+    *,
+    raw_total: float | None,
+    raw_margin: float | None,
+    market_total: float | None,
+    home_prop_ctx: dict[str, Any] | None,
+    away_prop_ctx: dict[str, Any] | None,
+    home_off: float | None,
+    away_off: float | None,
+    home_def: float | None,
+    away_def: float | None,
+    league_off: float | None,
+    league_def: float | None,
+    home_recent_offense: float | None,
+    away_recent_offense: float | None,
+    home_recent_allowed: float | None,
+    away_recent_allowed: float | None,
+    league_recent_offense: float | None,
+    league_recent_allowed: float | None,
+    game_pace: float | None,
+    league_pace: float | None,
+) -> dict[str, float | None]:
+    home_base = None
+    away_base = None
+    if raw_total is not None and raw_margin is not None:
+        try:
+            home_base = 0.5 * (float(raw_total) + float(raw_margin))
+            away_base = 0.5 * (float(raw_total) - float(raw_margin))
+        except Exception:
+            home_base = None
+            away_base = None
+
+    home_prop_total = _safe_float((home_prop_ctx or {}).get("team_total_points")) if isinstance(home_prop_ctx, dict) else None
+    away_prop_total = _safe_float((away_prop_ctx or {}).get("team_total_points")) if isinstance(away_prop_ctx, dict) else None
+    home_prop_weight = _safe_float((home_prop_ctx or {}).get("blend_weight")) if isinstance(home_prop_ctx, dict) else None
+    away_prop_weight = _safe_float((away_prop_ctx or {}).get("blend_weight")) if isinstance(away_prop_ctx, dict) else None
+    home_prop_weight = 0.0 if home_prop_weight is None else float(max(0.0, min(0.60, home_prop_weight)))
+    away_prop_weight = 0.0 if away_prop_weight is None else float(max(0.0, min(0.60, away_prop_weight)))
+
+    home_prop_blend = home_base
+    if home_prop_total is not None:
+        if home_base is not None:
+            home_prop_blend = float((1.0 - home_prop_weight) * float(home_base) + home_prop_weight * float(home_prop_total))
+        else:
+            home_prop_blend = float(home_prop_total)
+
+    away_prop_blend = away_base
+    if away_prop_total is not None:
+        if away_base is not None:
+            away_prop_blend = float((1.0 - away_prop_weight) * float(away_base) + away_prop_weight * float(away_prop_total))
+        else:
+            away_prop_blend = float(away_prop_total)
+
+    prop_blended_total = raw_total
+    if home_prop_blend is not None and away_prop_blend is not None:
+        prop_blended_total = float(home_prop_blend + away_prop_blend)
+
+    prop_blended_margin = None
+    if home_prop_blend is not None and away_prop_blend is not None:
+        prop_blended_margin = float(home_prop_blend - away_prop_blend)
+
+    matchup_adjustment = 0.0
+    pace_gap = None
+    if game_pace is not None and league_pace is not None:
+        pace_gap = float(game_pace) - float(league_pace)
+        matchup_adjustment += 0.28 * float(pace_gap)
+    if home_off is not None and away_off is not None and league_off is not None:
+        matchup_adjustment += 0.10 * ((float(home_off) - float(league_off)) + (float(away_off) - float(league_off)))
+    if home_def is not None and away_def is not None and league_def is not None:
+        matchup_adjustment += 0.10 * ((float(home_def) - float(league_def)) + (float(away_def) - float(league_def)))
+    if home_recent_offense is not None and away_recent_offense is not None and league_recent_offense is not None:
+        matchup_adjustment += 0.06 * ((float(home_recent_offense) - float(league_recent_offense)) + (float(away_recent_offense) - float(league_recent_offense)))
+    if home_recent_allowed is not None and away_recent_allowed is not None and league_recent_allowed is not None:
+        matchup_adjustment += 0.06 * ((float(home_recent_allowed) - float(league_recent_allowed)) + (float(away_recent_allowed) - float(league_recent_allowed)))
+    matchup_adjustment = float(max(-8.0, min(8.0, matchup_adjustment)))
+
+    matchup_margin_adjustment = 0.0
+    if home_off is not None and away_off is not None:
+        matchup_margin_adjustment += 0.12 * (float(home_off) - float(away_off))
+    if home_def is not None and away_def is not None:
+        matchup_margin_adjustment += 0.10 * (float(away_def) - float(home_def))
+    if home_recent_offense is not None and away_recent_offense is not None:
+        matchup_margin_adjustment += 0.07 * (float(home_recent_offense) - float(away_recent_offense))
+    if home_recent_allowed is not None and away_recent_allowed is not None:
+        matchup_margin_adjustment += 0.07 * (float(away_recent_allowed) - float(home_recent_allowed))
+    matchup_margin_adjustment = float(max(-6.0, min(6.0, matchup_margin_adjustment)))
+
+    adjusted_margin = prop_blended_margin if prop_blended_margin is not None else raw_margin
+    if adjusted_margin is not None:
+        adjusted_margin = float(adjusted_margin) + float(matchup_margin_adjustment)
+        if raw_margin is not None:
+            adjusted_margin = float(max(float(raw_margin) - 7.0, min(float(raw_margin) + 7.0, float(adjusted_margin))))
+
+    adjusted_total = prop_blended_total
+    if adjusted_total is not None:
+        adjusted_total = float(adjusted_total) + float(matchup_adjustment)
+        if market_total is not None:
+            adjusted_total = float((0.90 * float(adjusted_total)) + (0.10 * float(market_total)))
+        if raw_total is not None:
+            adjusted_total = float(max(float(raw_total) - 12.0, min(float(raw_total) + 12.0, float(adjusted_total))))
+
+    home_adjusted_total = home_prop_blend
+    away_adjusted_total = away_prop_blend
+    if adjusted_total is not None and adjusted_margin is not None:
+        home_adjusted_total = float(0.5 * (float(adjusted_total) + float(adjusted_margin)))
+        away_adjusted_total = float(0.5 * (float(adjusted_total) - float(adjusted_margin)))
+
+    return {
+        "raw_margin": raw_margin,
+        "raw_total": raw_total,
+        "home_base_total": home_base,
+        "away_base_total": away_base,
+        "home_prop_total": home_prop_total,
+        "away_prop_total": away_prop_total,
+        "home_prop_blend": home_prop_blend,
+        "away_prop_blend": away_prop_blend,
+        "home_adjusted_total": home_adjusted_total,
+        "away_adjusted_total": away_adjusted_total,
+        "prop_blended_margin": prop_blended_margin,
+        "prop_blended_total": prop_blended_total,
+        "matchup_margin_adjustment": matchup_margin_adjustment,
+        "adjusted_margin": adjusted_margin,
+        "matchup_adjustment": matchup_adjustment,
+        "adjusted_total": adjusted_total,
+        "pace_gap": pace_gap,
+        "home_prop_weight": home_prop_weight,
+        "away_prop_weight": away_prop_weight,
+    }
+
+
+def _best_bets_margin_to_home_win_prob(
+    margin: float | None,
+    raw_home_win_prob: float | None = None,
+) -> float | None:
+    if margin is None and raw_home_win_prob is None:
+        return None
+
+    spread_prob = None
+    if margin is not None:
+        try:
+            spread_prob = 1.0 / (1.0 + math.exp(-float(margin) / 6.0))
+        except Exception:
+            spread_prob = None
+
+    out = spread_prob
+    if raw_home_win_prob is not None and spread_prob is not None:
+        out = (0.75 * float(raw_home_win_prob)) + (0.25 * float(spread_prob))
+    elif raw_home_win_prob is not None:
+        out = float(raw_home_win_prob)
+
+    if out is None:
+        return None
+    return float(max(0.03, min(0.97, float(out))))
+
+
 def _load_best_bets_game_context(date_str: str) -> dict[str, Any]:
     path = DATA_PROCESSED_DIR / f"predictions_{date_str}.csv"
     if not path.exists():
@@ -10745,6 +11015,7 @@ def _load_best_bets_game_context(date_str: str) -> dict[str, Any]:
     recent_offense_avgs, _recent_offense_ranks = _compute_team_offense_stats(date_str)
     allowed_avgs, _allowed_ranks = _compute_team_allowed_stats(date_str)
     team_advanced = _load_team_advanced_stats_frame(date_str)
+    props_team_scoring = _load_best_bets_props_team_scoring_context(date_str)
 
     advanced_by_team: dict[str, dict[str, float | None]] = {}
     league_advanced: dict[str, float | None] = {"pace": None, "off_rtg": None, "def_rtg": None}
@@ -10801,27 +11072,73 @@ def _load_best_bets_game_context(date_str: str) -> dict[str, Any]:
         except Exception:
             game_pace = None
 
-        total = _safe_float(r.get("totals") if r.get("totals") is not None else r.get("pred_total"))
-        if total is not None:
-            total_vals.append(float(total))
+        raw_margin = _safe_float(r.get("spread_margin") if r.get("spread_margin") is not None else r.get("pred_margin"))
+        raw_total = _safe_float(r.get("totals") if r.get("totals") is not None else r.get("pred_total"))
+        market_total = _safe_float(r.get("total"))
+        home_recent_offense = _safe_float(_best_bets_team_lookup(recent_offense_avgs, home_tri, home))
+        away_recent_offense = _safe_float(_best_bets_team_lookup(recent_offense_avgs, away_tri, away))
+        home_recent_allowed = _safe_float(_best_bets_team_lookup(recent_allowed_pts, home_tri, home))
+        away_recent_allowed = _safe_float(_best_bets_team_lookup(recent_allowed_pts, away_tri, away))
+        total_parts = _best_bets_adjust_matchup_total(
+            raw_total=raw_total,
+            raw_margin=raw_margin,
+            market_total=market_total,
+            home_prop_ctx=props_team_scoring.get(home_tri),
+            away_prop_ctx=props_team_scoring.get(away_tri),
+            home_off=_safe_float((home_adv or {}).get("off_rtg")),
+            away_off=_safe_float((away_adv or {}).get("off_rtg")),
+            home_def=_safe_float((home_adv or {}).get("def_rtg")),
+            away_def=_safe_float((away_adv or {}).get("def_rtg")),
+            league_off=_safe_float(league_advanced.get("off_rtg")),
+            league_def=_safe_float(league_advanced.get("def_rtg")),
+            home_recent_offense=home_recent_offense,
+            away_recent_offense=away_recent_offense,
+            home_recent_allowed=home_recent_allowed,
+            away_recent_allowed=away_recent_allowed,
+            league_recent_offense=league_recent_offense,
+            league_recent_allowed=league_recent_allowed,
+            game_pace=game_pace,
+            league_pace=_safe_float(league_advanced.get("pace")),
+        )
+        adjusted_total = _safe_float(total_parts.get("adjusted_total"))
+        adjusted_margin = _safe_float(total_parts.get("adjusted_margin"))
+        raw_home_win_prob = _safe_float(
+            r.get("home_win_prob_cal")
+            if r.get("home_win_prob_cal") is not None
+            else (r.get("home_win_prob") if r.get("home_win_prob") is not None else r.get("home_win_prob_iso"))
+        )
+        adjusted_home_win_prob = _best_bets_margin_to_home_win_prob(adjusted_margin, raw_home_win_prob)
+        if adjusted_total is not None:
+            total_vals.append(float(adjusted_total))
+        elif raw_total is not None:
+            total_vals.append(float(raw_total))
         ctx = {
             "home_team": home,
             "away_team": away,
             "home_tri": home_tri,
             "away_tri": away_tri,
-            "pred_margin": _safe_float(r.get("spread_margin") if r.get("spread_margin") is not None else r.get("pred_margin")),
-            "pred_total": total,
-            "home_win_prob": _safe_float(
-                r.get("home_win_prob_cal")
-                if r.get("home_win_prob_cal") is not None
-                else (r.get("home_win_prob") if r.get("home_win_prob") is not None else r.get("home_win_prob_iso"))
-            ),
+            "pred_margin": adjusted_margin if adjusted_margin is not None else raw_margin,
+            "pred_margin_raw": raw_margin,
+            "pred_margin_adjusted": adjusted_margin,
+            "pred_margin_prop_blend": _safe_float(total_parts.get("prop_blended_margin")),
+            "pred_margin_matchup_adjustment": _safe_float(total_parts.get("matchup_margin_adjustment")),
+            "pred_total": adjusted_total if adjusted_total is not None else raw_total,
+            "pred_total_raw": raw_total,
+            "pred_total_adjusted": adjusted_total,
+            "pred_total_prop_blend": _safe_float(total_parts.get("prop_blended_total")),
+            "pred_total_matchup_adjustment": _safe_float(total_parts.get("matchup_adjustment")),
+            "pred_total_pace_gap": _safe_float(total_parts.get("pace_gap")),
+            "home_pred_points": _safe_float(total_parts.get("home_adjusted_total")) if _safe_float(total_parts.get("home_adjusted_total")) is not None else (_safe_float(total_parts.get("home_prop_blend")) if _safe_float(total_parts.get("home_prop_blend")) is not None else _safe_float(total_parts.get("home_base_total"))),
+            "away_pred_points": _safe_float(total_parts.get("away_adjusted_total")) if _safe_float(total_parts.get("away_adjusted_total")) is not None else (_safe_float(total_parts.get("away_prop_blend")) if _safe_float(total_parts.get("away_prop_blend")) is not None else _safe_float(total_parts.get("away_base_total"))),
+            "home_win_prob": adjusted_home_win_prob if adjusted_home_win_prob is not None else raw_home_win_prob,
+            "home_win_prob_raw": raw_home_win_prob,
+            "home_win_prob_adjusted": adjusted_home_win_prob,
             "commence_time": r.get("commence_time") if r.get("commence_time") not in (None, "") else r.get("start_time"),
             "home_ml": _safe_float(r.get("home_ml")),
             "away_ml": _safe_float(r.get("away_ml")),
             "home_spread": _safe_float(r.get("home_spread")),
             "away_spread": _safe_float(r.get("away_spread")),
-            "market_total": _safe_float(r.get("total")),
+            "market_total": market_total,
             "league_pace": _safe_float(league_advanced.get("pace")),
             "league_off_rtg": _safe_float(league_advanced.get("off_rtg")),
             "league_def_rtg": _safe_float(league_advanced.get("def_rtg")),
@@ -10832,12 +11149,18 @@ def _load_best_bets_game_context(date_str: str) -> dict[str, Any]:
             "home_def_rtg": _safe_float((home_adv or {}).get("def_rtg")),
             "away_off_rtg": _safe_float((away_adv or {}).get("off_rtg")),
             "away_def_rtg": _safe_float((away_adv or {}).get("def_rtg")),
-            "home_recent_offense": _safe_float(_best_bets_team_lookup(recent_offense_avgs, home_tri, home)),
-            "away_recent_offense": _safe_float(_best_bets_team_lookup(recent_offense_avgs, away_tri, away)),
-            "home_recent_allowed_pts": _safe_float(_best_bets_team_lookup(recent_allowed_pts, home_tri, home)),
-            "away_recent_allowed_pts": _safe_float(_best_bets_team_lookup(recent_allowed_pts, away_tri, away)),
+            "home_recent_offense": home_recent_offense,
+            "away_recent_offense": away_recent_offense,
+            "home_recent_allowed_pts": home_recent_allowed,
+            "away_recent_allowed_pts": away_recent_allowed,
             "league_recent_offense": league_recent_offense,
             "league_recent_allowed_pts": league_recent_allowed,
+            "home_prop_points_sum": _safe_float((props_team_scoring.get(home_tri) or {}).get("points_sum")),
+            "away_prop_points_sum": _safe_float((props_team_scoring.get(away_tri) or {}).get("points_sum")),
+            "home_prop_minutes_coverage": _safe_float((props_team_scoring.get(home_tri) or {}).get("minutes_coverage")),
+            "away_prop_minutes_coverage": _safe_float((props_team_scoring.get(away_tri) or {}).get("minutes_coverage")),
+            "home_prop_blend_weight": _safe_float((props_team_scoring.get(home_tri) or {}).get("blend_weight")),
+            "away_prop_blend_weight": _safe_float((props_team_scoring.get(away_tri) or {}).get("blend_weight")),
         }
         for key in {
             (home.upper(), away.upper()),
@@ -11029,6 +11352,7 @@ def _best_bets_prop_history_context(
     opponent: Any,
     market: str,
     home_flag: bool | None,
+    line_value: Any = None,
 ) -> dict[str, Any]:
     df = _load_best_bets_player_logs_frame()
     if df is None or df.empty:
@@ -11054,14 +11378,29 @@ def _best_bets_prop_history_context(
         return {}
 
     hist = hist.sort_values("game_date", ascending=False).copy()
+    stat_series = _best_bets_player_log_stat_series(hist, market)
+    minutes_series = pd.to_numeric(hist.get("min"), errors="coerce") if "min" in hist.columns else pd.Series(index=hist.index, dtype=float)
+    played_mask = stat_series.notna()
+    if not minutes_series.empty:
+        played_mask = played_mask & (minutes_series.isna() | (minutes_series > 0))
+    hist = hist.loc[played_mask].copy()
+    if hist.empty:
+        return {}
+
+    hist["_stat_value"] = pd.to_numeric(stat_series.loc[hist.index], errors="coerce")
+    hist = hist[hist["_stat_value"].notna()].copy()
+    if hist.empty:
+        return {}
+
     recent10 = hist.head(10).copy()
+    recent5 = hist.head(5).copy()
     opp_hist = hist[hist["opp_tri"] == opponent_key].copy() if opponent_key else pd.DataFrame()
     venue_hist = hist[hist["is_home"] == bool(home_flag)].copy() if home_flag is not None else pd.DataFrame()
 
     def _avg(frame: pd.DataFrame) -> float | None:
         if frame is None or frame.empty:
             return None
-        series = _best_bets_player_log_stat_series(frame, market).dropna()
+        series = pd.to_numeric(frame.get("_stat_value"), errors="coerce").dropna()
         if series.empty:
             return None
         try:
@@ -11069,14 +11408,132 @@ def _best_bets_prop_history_context(
         except Exception:
             return None
 
+    def _mode(frame: pd.DataFrame) -> int | None:
+        if frame is None or frame.empty:
+            return None
+        series = pd.to_numeric(frame.get("_stat_value"), errors="coerce").dropna()
+        if series.empty:
+            return None
+        try:
+            rounded = series.round().astype(int)
+            modes = rounded.mode(dropna=True)
+            if modes.empty:
+                return None
+            return int(modes.iloc[0])
+        except Exception:
+            return None
+
+    def _hit(frame: pd.DataFrame, line: Any) -> dict[str, Any]:
+        line_num = _safe_float(line)
+        if frame is None or frame.empty or line_num is None:
+            return {"count": None, "games": 0, "rate": None, "threshold": None}
+        threshold = int(math.floor(float(line_num)) + 1)
+        series = pd.to_numeric(frame.get("_stat_value"), errors="coerce").dropna()
+        if series.empty:
+            return {"count": None, "games": 0, "rate": None, "threshold": threshold}
+        try:
+            hits = int((series >= threshold).sum())
+            games = int(len(series.index))
+            rate = float(hits) / float(games) if games > 0 else None
+            return {"count": hits, "games": games, "rate": rate, "threshold": threshold}
+        except Exception:
+            return {"count": None, "games": 0, "rate": None, "threshold": threshold}
+
     return {
         "opponent_avg": _avg(opp_hist),
         "opponent_games": int(len(opp_hist.index)) if not opp_hist.empty else 0,
         "venue_avg": _avg(venue_hist),
         "venue_games": int(len(venue_hist.index)) if not venue_hist.empty else 0,
+        "last5_avg": _avg(recent5),
+        "last5_games": int(len(recent5.index)) if not recent5.empty else 0,
         "last10_avg": _avg(recent10),
         "last10_games": int(len(recent10.index)) if not recent10.empty else 0,
+        "season_avg": _avg(hist),
+        "season_mode": _mode(hist),
+        "season_games": int(len(hist.index)) if not hist.empty else 0,
+        "season_hit": _hit(hist, line_value),
+        "last10_hit": _hit(recent10, line_value),
+        "last5_hit": _hit(recent5, line_value),
     }
+
+
+def _prop_ladder_benchmark_total(value: Any) -> int | None:
+    num = _safe_float(value)
+    if num is None:
+        return None
+    try:
+        return max(0, int(math.floor(float(num) + 0.5)))
+    except Exception:
+        return None
+
+
+def _prop_ladder_history_benchmarks(history_ctx: dict[str, Any] | None) -> list[dict[str, Any]]:
+    if not isinstance(history_ctx, dict):
+        return []
+    candidates = [
+        ("last5_avg", "L5 avg", history_ctx.get("last5_avg"), "recent"),
+        ("last10_avg", "L10 avg", history_ctx.get("last10_avg"), "recent"),
+        ("season_avg", "Season avg", history_ctx.get("season_avg"), "season"),
+        ("season_mode", "Season mode", history_ctx.get("season_mode"), "season"),
+    ]
+    opponent_avg = _safe_float(history_ctx.get("opponent_avg"))
+    opponent_games = int(history_ctx.get("opponent_games") or 0)
+    if opponent_avg is not None and opponent_games > 0:
+        candidates.append(("opponent_avg", f"Vs opp avg ({opponent_games})", opponent_avg, "opponent"))
+
+    out: list[dict[str, Any]] = []
+    seen_totals: set[tuple[str, int]] = set()
+    for key, label, raw_value, tone in candidates:
+        value_num = _safe_float(raw_value)
+        total = _prop_ladder_benchmark_total(raw_value)
+        if value_num is None or total is None:
+            continue
+        dedupe_key = (key, total)
+        if dedupe_key in seen_totals:
+            continue
+        seen_totals.add(dedupe_key)
+        out.append(
+            {
+                "key": key,
+                "label": label,
+                "value": float(value_num),
+                "total": int(total),
+                "tone": tone,
+            }
+        )
+    return out
+
+
+def _attach_prop_ladder_history_markers(
+    ladder_rows: object,
+    history_ctx: dict[str, Any] | None,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    benchmarks = _prop_ladder_history_benchmarks(history_ctx)
+    if not isinstance(ladder_rows, list):
+        return ([], benchmarks)
+
+    out: list[dict[str, Any]] = []
+    for ladder_row in ladder_rows:
+        if not isinstance(ladder_row, dict):
+            continue
+        row_copy = dict(ladder_row)
+        total_num = _coerce_prop_ladder_float(ladder_row.get("total"))
+        total_int = _prop_ladder_benchmark_total(total_num)
+        markers = []
+        if total_int is not None:
+            markers = [
+                {
+                    "key": benchmark.get("key"),
+                    "label": benchmark.get("label"),
+                    "tone": benchmark.get("tone"),
+                    "value": benchmark.get("value"),
+                }
+                for benchmark in benchmarks
+                if int(benchmark.get("total") or -1) == total_int
+            ]
+        row_copy["markers"] = markers
+        out.append(row_copy)
+    return (out, benchmarks)
 
 
 @lru_cache(maxsize=16)
@@ -11442,8 +11899,13 @@ def _decorate_game_best_bet_candidate(
     raw_line = _safe_float(row.get("line"))
     start_raw = row.get("date")
     if isinstance(ctx, dict):
-        pred_margin = pred_margin if pred_margin is not None else _safe_float(ctx.get("pred_margin"))
-        pred_total = pred_total if pred_total is not None else _safe_float(ctx.get("pred_total"))
+        if market == "TOTAL":
+            pred_total = _safe_float(ctx.get("pred_total_adjusted")) or _safe_float(ctx.get("pred_total")) or pred_total
+        elif market == "ATS":
+            pred_margin = _safe_float(ctx.get("pred_margin_adjusted")) or _safe_float(ctx.get("pred_margin")) or pred_margin
+        else:
+            pred_margin = pred_margin if pred_margin is not None else _safe_float(ctx.get("pred_margin"))
+            pred_total = pred_total if pred_total is not None else _safe_float(ctx.get("pred_total"))
         start_raw = ctx.get("commence_time") if ctx.get("commence_time") not in (None, "") else start_raw
 
     pick_line = raw_line
@@ -11463,8 +11925,8 @@ def _decorate_game_best_bet_candidate(
         if p_win is None and total_edge is not None:
             p_win = float(max(0.05, min(0.95, 0.5 + (float(total_edge) / 18.0))))
     elif market == "ML":
-        if p_win is None and isinstance(ctx, dict):
-            home_prob = _safe_float(ctx.get("home_win_prob"))
+        if isinstance(ctx, dict):
+            home_prob = _safe_float(ctx.get("home_win_prob_adjusted")) or _safe_float(ctx.get("home_win_prob"))
             if home_prob is not None:
                 p_win = float(home_prob if pick_home else (1.0 - home_prob))
 
@@ -11615,12 +12077,39 @@ def _decorate_game_best_bet_candidate(
     if market == "ATS" and spread_edge is not None:
         sim_reasons.append(f"The model makes {side} {float(spread_edge):+.1f} points better than this spread")
         sim_points += min(0.65, abs(float(spread_edge)) / 8.0)
+        if isinstance(ctx, dict):
+            raw_ctx_margin = _safe_float(ctx.get("pred_margin_raw"))
+            adjusted_ctx_margin = _safe_float(ctx.get("pred_margin_adjusted"))
+            if raw_ctx_margin is not None and adjusted_ctx_margin is not None and abs(float(adjusted_ctx_margin) - float(raw_ctx_margin)) >= 0.75:
+                toward_side = home if float(adjusted_ctx_margin) > float(raw_ctx_margin) else away
+                sim_reasons.append(
+                    f"Prop scoring and opponent matchup context shift the spread projection {abs(float(adjusted_ctx_margin) - float(raw_ctx_margin)):.1f} points toward {toward_side} versus the raw game model"
+                )
+                sim_points += min(0.14, abs(float(adjusted_ctx_margin) - float(raw_ctx_margin)) / 8.0)
     elif market == "TOTAL" and total_edge is not None and raw_line is not None and pred_total is not None:
         sim_reasons.append(f"The model total lands at {float(pred_total):.1f} against {float(raw_line):.1f}")
         sim_points += min(0.65, abs(float(total_edge)) / 10.0)
+        if isinstance(ctx, dict):
+            raw_ctx_total = _safe_float(ctx.get("pred_total_raw"))
+            adjusted_ctx_total = _safe_float(ctx.get("pred_total_adjusted"))
+            if raw_ctx_total is not None and adjusted_ctx_total is not None and abs(float(adjusted_ctx_total) - float(raw_ctx_total)) >= 1.0:
+                direction = "higher" if float(adjusted_ctx_total) > float(raw_ctx_total) else "lower"
+                sim_reasons.append(
+                    f"Prop scoring and opponent matchup context push the projection {abs(float(adjusted_ctx_total) - float(raw_ctx_total)):.1f} points {direction} than the raw game model"
+                )
+                sim_points += min(0.18, abs(float(adjusted_ctx_total) - float(raw_ctx_total)) / 12.0)
     elif market == "ML" and p_win is not None and implied_prob is not None:
         sim_reasons.append(f"Win probability grades at {float(p_win) * 100.0:.1f}% against {float(implied_prob) * 100.0:.1f}% implied")
         sim_points += min(0.65, max(0.0, float(p_win) - float(implied_prob)) / 0.12)
+        if isinstance(ctx, dict):
+            raw_home_prob = _safe_float(ctx.get("home_win_prob_raw"))
+            adjusted_home_prob = _safe_float(ctx.get("home_win_prob_adjusted"))
+            if raw_home_prob is not None and adjusted_home_prob is not None and abs(float(adjusted_home_prob) - float(raw_home_prob)) >= 0.02:
+                direction = home if float(adjusted_home_prob) > float(raw_home_prob) else away
+                sim_reasons.append(
+                    f"Prop scoring and opponent matchup context move win probability {abs(float(adjusted_home_prob) - float(raw_home_prob)) * 100.0:.1f} points toward {direction} versus the raw game model"
+                )
+                sim_points += min(0.12, abs(float(adjusted_home_prob) - float(raw_home_prob)) / 0.10)
 
     if p_win is not None and market != "ML":
         sim_reasons.append(f"The simulated cover rate is {float(p_win) * 100.0:.1f}%")
@@ -12135,6 +12624,33 @@ def _extend_recommendation_reason_payload(
         + list(payload.get("market_reasons") or [])
     )
 
+    if isinstance(source, dict):
+        for key in (
+            "basketball_priority_score",
+            "sim_support_score",
+            "value_support_score",
+            "recommendation_priority_score",
+            "pred_margin",
+            "pred_total",
+            "model_baseline",
+            "model_sd",
+            "p_win",
+            "implied_prob",
+            "prob_edge",
+            "ev",
+            "ev_pct",
+            "edge",
+            "display_pick",
+            "selection",
+            "matchup",
+            "top_play_explain",
+            "start_time_local",
+            "start_dt_local",
+        ):
+            value = source.get(key)
+            if value is not None:
+                payload[key] = value
+
     if not payload.get("basketball_summary") and payload.get("basketball_reasons"):
         payload["basketball_summary"] = "; ".join((payload.get("basketball_reasons") or [])[:2])
 
@@ -12166,6 +12682,8 @@ def _merge_recommendation_reason_fields(
             "sim_support_score",
             "value_support_score",
             "recommendation_priority_score",
+            "pred_margin",
+            "pred_total",
             "model_baseline",
             "model_sd",
             "p_win",
@@ -12268,6 +12786,168 @@ def _best_bets_ctx_for_matchup(
         if key in by_team and isinstance(by_team.get(key), dict):
             return by_team.get(key)
     return None
+
+
+def _live_pregame_prior_for_matchup(
+    game_context: dict[str, Any] | None,
+    *,
+    home: Any,
+    away: Any,
+) -> dict[str, Any] | None:
+    ctx = _best_bets_ctx_for_matchup(game_context, home=home, away=away)
+    if not isinstance(ctx, dict):
+        return None
+
+    out: dict[str, Any] = {}
+    for key in (
+        "home_team",
+        "away_team",
+        "home_tri",
+        "away_tri",
+        "pred_total",
+        "pred_total_raw",
+        "pred_total_adjusted",
+        "pred_total_prop_blend",
+        "pred_total_matchup_adjustment",
+        "pred_margin",
+        "pred_margin_raw",
+        "pred_margin_adjusted",
+        "pred_margin_prop_blend",
+        "pred_margin_matchup_adjustment",
+        "home_win_prob",
+        "home_win_prob_raw",
+        "home_win_prob_adjusted",
+        "home_pred_points",
+        "away_pred_points",
+        "market_total",
+        "commence_time",
+        "game_pace",
+        "league_pace",
+        "home_off_rtg",
+        "away_off_rtg",
+        "home_def_rtg",
+        "away_def_rtg",
+        "home_recent_offense",
+        "away_recent_offense",
+        "home_recent_allowed_pts",
+        "away_recent_allowed_pts",
+        "home_prop_minutes_coverage",
+        "away_prop_minutes_coverage",
+        "home_prop_blend_weight",
+        "away_prop_blend_weight",
+    ):
+        value = ctx.get(key)
+        if value is not None:
+            out[key] = value
+    return out or None
+
+
+def _live_team_pregame_prior_for_matchup(
+    game_context: dict[str, Any] | None,
+    *,
+    home: Any,
+    away: Any,
+    team: Any,
+) -> dict[str, Any] | None:
+    prior = _live_pregame_prior_for_matchup(game_context, home=home, away=away)
+    if not isinstance(prior, dict):
+        return None
+
+    team_key = (_get_tricode(str(team or "")) or str(team or "").strip().upper()) if team is not None else ""
+    home_key = (_get_tricode(str(prior.get("home_tri") or prior.get("home_team") or home or "")) or str(prior.get("home_tri") or prior.get("home_team") or home or "").strip().upper())
+    away_key = (_get_tricode(str(prior.get("away_tri") or prior.get("away_team") or away or "")) or str(prior.get("away_tri") or prior.get("away_team") or away or "").strip().upper())
+    if not team_key or team_key not in {home_key, away_key}:
+        return None
+
+    raw_total = _safe_float(prior.get("pred_total_raw"))
+    adjusted_total = _safe_float(prior.get("pred_total_adjusted"))
+    if adjusted_total is None:
+        adjusted_total = _safe_float(prior.get("pred_total"))
+    raw_margin = _safe_float(prior.get("pred_margin_raw"))
+    adjusted_margin = _safe_float(prior.get("pred_margin_adjusted"))
+    if adjusted_margin is None:
+        adjusted_margin = _safe_float(prior.get("pred_margin"))
+
+    raw_home_total = None
+    raw_away_total = None
+    if raw_total is not None and raw_margin is not None:
+        try:
+            raw_home_total = 0.5 * (float(raw_total) + float(raw_margin))
+            raw_away_total = 0.5 * (float(raw_total) - float(raw_margin))
+        except Exception:
+            raw_home_total = None
+            raw_away_total = None
+
+    if team_key == home_key:
+        team_side = "home"
+        team_points_adjusted = _safe_float(prior.get("home_pred_points"))
+        team_points_raw = raw_home_total
+        team_margin_raw = raw_margin
+        team_margin_adjusted = adjusted_margin
+    else:
+        team_side = "away"
+        team_points_adjusted = _safe_float(prior.get("away_pred_points"))
+        team_points_raw = raw_away_total
+        team_margin_raw = None if raw_margin is None else -float(raw_margin)
+        team_margin_adjusted = None if adjusted_margin is None else -float(adjusted_margin)
+
+    game_total_ratio = None
+    if adjusted_total is not None and raw_total is not None and float(raw_total) > 1e-6:
+        try:
+            game_total_ratio = float(max(0.88, min(1.12, float(adjusted_total) / float(raw_total))))
+        except Exception:
+            game_total_ratio = None
+
+    team_total_ratio = None
+    if team_points_adjusted is not None and team_points_raw is not None and float(team_points_raw) > 1e-6:
+        try:
+            team_total_ratio = float(max(0.85, min(1.18, float(team_points_adjusted) / float(team_points_raw))))
+        except Exception:
+            team_total_ratio = None
+
+    return {
+        "team_side": team_side,
+        "game_total_raw": raw_total,
+        "game_total_adjusted": adjusted_total,
+        "game_total_ratio": game_total_ratio,
+        "team_pred_points_raw": team_points_raw,
+        "team_pred_points_adjusted": team_points_adjusted,
+        "team_total_ratio": team_total_ratio,
+        "team_margin_raw": team_margin_raw,
+        "team_margin_adjusted": team_margin_adjusted,
+    }
+
+
+def _live_player_prop_pregame_multiplier(team_prior: dict[str, Any] | None, stat_key: Any) -> float | None:
+    if not isinstance(team_prior, dict):
+        return None
+    stat = _live_stat_key(stat_key)
+    team_ratio = _safe_float(team_prior.get("team_total_ratio"))
+    game_ratio = _safe_float(team_prior.get("game_total_ratio"))
+    if team_ratio is None and game_ratio is None:
+        return None
+
+    base = None
+    if stat == "pts":
+        base = team_ratio
+    elif stat == "ast" and team_ratio is not None:
+        base = 1.0 + 0.75 * (float(team_ratio) - 1.0)
+    elif stat == "threes" and team_ratio is not None:
+        base = 1.0 + 1.05 * (float(team_ratio) - 1.0)
+    elif stat == "pra" and team_ratio is not None:
+        base = 1.0 + 0.90 * (float(team_ratio) - 1.0)
+    elif stat == "reb" and game_ratio is not None:
+        base = 1.0 + 0.35 * (float(game_ratio) - 1.0)
+    elif stat == "tov" and team_ratio is not None:
+        base = 1.0 + 0.40 * (float(team_ratio) - 1.0)
+    elif stat in {"stl", "blk"} and game_ratio is not None:
+        base = 1.0 + 0.25 * (float(game_ratio) - 1.0)
+    if base is None:
+        return None
+    try:
+        return float(max(0.85, min(1.18, float(base))))
+    except Exception:
+        return None
 
 
 def _decorate_game_recommendation_payload(
@@ -12460,6 +13140,34 @@ def _build_cards_game_market_recommendations(
 ) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     source_rows = [row for row in (raw_rows or []) if isinstance(row, dict)]
+    pair_ctx = _best_bets_ctx_for_matchup(game_context, home=home_name, away=away_name)
+
+    if source_rows:
+        total_line = _safe_float(bet.get("total"))
+        adjusted_total = _safe_float((pair_ctx or {}).get("pred_total_adjusted")) if isinstance(pair_ctx, dict) else None
+        if adjusted_total is not None and total_line is not None:
+            total_side = "over" if float(adjusted_total) >= float(total_line) else "under"
+            total_ev = bet.get("over_ev") if total_side == "over" else bet.get("under_ev")
+            source_rows = [
+                row
+                for row in source_rows
+                if str(row.get("market") or "").strip().upper() not in {"TOTAL", "OU"}
+            ]
+            source_rows.append(
+                {
+                    "home": home_name,
+                    "away": away_name,
+                    "market": "TOTAL",
+                    "side": total_side,
+                    "line": total_line,
+                    "price": -110,
+                    "ev": total_ev,
+                    "edge": float(adjusted_total) - float(total_line),
+                    "pred_total": adjusted_total,
+                    "date": date_str,
+                    "source": "prop_adjusted_context",
+                }
+            )
 
     if not source_rows:
         home_spread = _safe_float(bet.get("home_spread"))
@@ -14904,6 +15612,12 @@ def api_cards():
         except Exception:
             game_market_recommendations = []
 
+        pregame_prior = _live_pregame_prior_for_matchup(
+            best_bets_game_context,
+            home=home_name or home_tri,
+            away=away_name or away_tri,
+        )
+
         try:
             rec_index = _build_boxscore_prop_recommendation_index(prop_recommendations)
             _apply_boxscore_prop_recommendation_markers(players_out.get("home") or [], home_tri, rec_index)
@@ -14941,6 +15655,11 @@ def api_cards():
             "prop_recommendations": prop_recommendations,
             "game_market_recommendations": game_market_recommendations,
         }
+        if isinstance(pregame_prior, dict):
+            sim_context = sim.get("context") if isinstance(sim.get("context"), dict) else {}
+            sim_context = dict(sim_context)
+            sim_context["pregame_prior"] = pregame_prior
+            sim["context"] = sim_context
         if missing_bits and not sim_error:
             game.setdefault("warnings", [])
             game["warnings"].append("Players with prop lines missing from SmartSim boxscore: " + " • ".join(missing_bits))
@@ -18307,6 +19026,8 @@ def _ll_canon_gid10(game_id: Any) -> str:
     except Exception:
         return ""
     digits = "".join([c for c in raw if c.isdigit()])
+    if digits and len(digits) < 10:
+        return digits.zfill(10)
     if len(digits) == 8:
         return "00" + digits
     if len(digits) == 9:
@@ -19198,6 +19919,272 @@ def api_live_player_props_lens_analytics():
                 }
             )
         )
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+def _ll_projection_ts(obj: dict[str, Any], idx: int) -> tuple[float, int]:
+    for key in ("received_at", "ts", "created_at"):
+        value = obj.get(key)
+        if not value:
+            continue
+        try:
+            dt = pd.to_datetime(str(value), errors="coerce", utc=True)
+            if pd.isna(dt):
+                continue
+            return float(dt.to_pydatetime().timestamp()), int(idx)
+        except Exception:
+            continue
+    return float(idx), int(idx)
+
+
+def _ll_projection_latest(objs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    groups: dict[tuple[Any, ...], tuple[int, dict[str, Any]]] = {}
+    for idx, obj in enumerate(objs or []):
+        if not isinstance(obj, dict):
+            continue
+        try:
+            if str(obj.get("market") or "").strip().lower() != "player_prop":
+                continue
+            gid = _ll_resolve_gid(obj, str(obj.get("date") or "")) or _ll_canon_gid10(obj.get("game_id_canon") or obj.get("game_id"))
+            if not gid:
+                continue
+            name_key = _norm_player_name(str(obj.get("name_key") or obj.get("player") or ""))
+            stat_key = _live_stat_key(obj.get("stat"))
+            if not name_key or not stat_key:
+                continue
+            key = (gid, name_key, stat_key)
+            cur = groups.get(key)
+            if cur is None or _ll_projection_ts(obj, idx) > _ll_projection_ts(cur[1], cur[0]):
+                groups[key] = (idx, obj)
+        except Exception:
+            continue
+    return [obj for _, obj in sorted(groups.values(), key=lambda item: _ll_projection_ts(item[1], item[0]))]
+
+
+def _ll_mae(values: pd.Series) -> float | None:
+    try:
+        clean = pd.to_numeric(values, errors="coerce").dropna()
+        if clean.empty:
+            return None
+        return float(clean.abs().mean())
+    except Exception:
+        return None
+
+
+def _ll_rmse(values: pd.Series) -> float | None:
+    try:
+        clean = pd.to_numeric(values, errors="coerce").dropna()
+        if clean.empty:
+            return None
+        return float(np.sqrt(np.mean(np.square(clean))))
+    except Exception:
+        return None
+
+
+def _ll_rate(series: pd.Series) -> float | None:
+    try:
+        clean = pd.to_numeric(series, errors="coerce").dropna()
+        if clean.empty:
+            return None
+        return float(clean.mean())
+    except Exception:
+        return None
+
+
+def _ll_projection_summary(df: pd.DataFrame) -> dict[str, Any]:
+    if df is None or df.empty:
+        return {
+            "n": 0,
+            "mae_proj": None,
+            "mae_raw": None,
+            "mae_adjusted": None,
+            "rmse_proj": None,
+            "rmse_raw": None,
+            "rmse_adjusted": None,
+            "adjusted_beats_raw_rate": None,
+            "proj_beats_adjusted_rate": None,
+            "mean_adjustment": None,
+            "mean_team_ratio": None,
+            "mean_game_ratio": None,
+        }
+
+    out = {
+        "n": int(len(df)),
+        "mae_proj": _ll_mae(df.get("err_proj", pd.Series(dtype=float))),
+        "mae_raw": _ll_mae(df.get("err_raw", pd.Series(dtype=float))),
+        "mae_adjusted": _ll_mae(df.get("err_adjusted", pd.Series(dtype=float))),
+        "rmse_proj": _ll_rmse(df.get("err_proj", pd.Series(dtype=float))),
+        "rmse_raw": _ll_rmse(df.get("err_raw", pd.Series(dtype=float))),
+        "rmse_adjusted": _ll_rmse(df.get("err_adjusted", pd.Series(dtype=float))),
+        "adjusted_beats_raw_rate": _ll_rate(df.get("adjusted_beats_raw", pd.Series(dtype=float))),
+        "proj_beats_adjusted_rate": _ll_rate(df.get("proj_beats_adjusted", pd.Series(dtype=float))),
+        "mean_adjustment": _number(df.get("adjustment_delta", pd.Series(dtype=float)).mean()) if "adjustment_delta" in df.columns else None,
+        "mean_team_ratio": _number(df.get("pregame_team_total_ratio", pd.Series(dtype=float)).mean()) if "pregame_team_total_ratio" in df.columns else None,
+        "mean_game_ratio": _number(df.get("pregame_game_total_ratio", pd.Series(dtype=float)).mean()) if "pregame_game_total_ratio" in df.columns else None,
+    }
+    return out
+
+
+def _ll_projection_rows_by_key(df: pd.DataFrame, key: str) -> list[dict[str, Any]]:
+    if df is None or df.empty or key not in df.columns:
+        return []
+    rows: list[dict[str, Any]] = []
+    try:
+        for value, grp in df.groupby(key, dropna=False):
+            label = str(value if value not in (None, "", "nan", "NaN") else "unknown")
+            rows.append({key: label, **_ll_projection_summary(grp)})
+        rows.sort(key=lambda row: (-(row.get("n") or 0), str(row.get(key) or "")))
+    except Exception:
+        return []
+    return rows
+
+
+@app.route("/api/live_player_props_projection_audit")
+def api_live_player_props_projection_audit():
+    try:
+        date_q = (request.args.get("date") or "").strip()
+        if date_q:
+            start = end = _ll_parse_ymd(date_q)
+            days = 1
+        else:
+            start, end, days = _ll_window_params(default_days=14)
+        if not start or not end:
+            return jsonify({"ok": False, "error": "invalid date window"}), 400
+        include_rows = _ll_arg_bool("include_rows", False)
+        max_rows = _ll_arg_int("max_rows", 1000, 100, 20000)
+
+        all_days: list[pd.DataFrame] = []
+        per_day: list[dict[str, Any]] = []
+        debug_days: list[dict[str, Any]] = []
+
+        d = start
+        while d <= end:
+            ds = d.isoformat()
+            proj_path = _live_lens_artifacts_dir() / f"live_lens_projections_{ds}.jsonl"
+            raw_rows = _ll_load_jsonl(proj_path)
+            latest_rows = _ll_projection_latest(raw_rows)
+            idx = _ll_build_recon_indexes(ds)
+            audit_rows: list[dict[str, Any]] = []
+            for obj in latest_rows:
+                try:
+                    gid = _ll_resolve_gid(obj, ds)
+                    if not gid:
+                        continue
+                    name_key = _norm_player_name(str(obj.get("name_key") or obj.get("player") or ""))
+                    stat_key = _live_stat_key(obj.get("stat"))
+                    actual = _ll_actual_prop(gid=gid, name_key=name_key, stat_key=stat_key, idx=idx)
+                    if actual is None:
+                        continue
+                    proj = _number(obj.get("proj"))
+                    sim_raw = _number(obj.get("sim_mu"))
+                    sim_adjusted = _number(obj.get("sim_mu_adjusted"))
+                    context = obj.get("context") if isinstance(obj.get("context"), dict) else {}
+                    if proj is None and sim_raw is None and sim_adjusted is None:
+                        continue
+                    entry = {
+                        "date": ds,
+                        "game_id": gid,
+                        "event_id": obj.get("event_id"),
+                        "home": obj.get("home"),
+                        "away": obj.get("away"),
+                        "player": obj.get("player"),
+                        "name_key": name_key,
+                        "team_tri": obj.get("team_tri"),
+                        "stat": stat_key,
+                        "line": _number(obj.get("line")),
+                        "actual": actual,
+                        "proj": proj,
+                        "sim_mu": sim_raw,
+                        "sim_mu_adjusted": sim_adjusted,
+                        "elapsed": _number(obj.get("elapsed")),
+                        "strength": _number(obj.get("strength")),
+                        "pregame_team_total_ratio": _number(context.get("pregame_team_total_ratio")),
+                        "pregame_game_total_ratio": _number(context.get("pregame_game_total_ratio")),
+                        "pregame_margin_blended": _number(context.get("pregame_margin_blended")),
+                        "pregame_stat_multiplier": _number(context.get("pregame_stat_multiplier")),
+                        "sim_vs_line": _number(context.get("sim_vs_line")),
+                        "sim_vs_line_adjusted": _number(context.get("sim_vs_line_adjusted")),
+                    }
+                    if proj is not None:
+                        entry["err_proj"] = float(proj) - float(actual)
+                    if sim_raw is not None:
+                        entry["err_raw"] = float(sim_raw) - float(actual)
+                    if sim_adjusted is not None:
+                        entry["err_adjusted"] = float(sim_adjusted) - float(actual)
+                    if sim_raw is not None and sim_adjusted is not None:
+                        entry["adjustment_delta"] = float(sim_adjusted) - float(sim_raw)
+                    if entry.get("err_adjusted") is not None and entry.get("err_raw") is not None:
+                        entry["adjusted_beats_raw"] = 1.0 if abs(float(entry["err_adjusted"])) < abs(float(entry["err_raw"])) else 0.0
+                    if entry.get("err_proj") is not None and entry.get("err_adjusted") is not None:
+                        entry["proj_beats_adjusted"] = 1.0 if abs(float(entry["err_proj"])) < abs(float(entry["err_adjusted"])) else 0.0
+                    elapsed = _number(entry.get("elapsed"))
+                    if elapsed is None:
+                        entry["elapsed_bucket"] = "unknown"
+                    elif elapsed < 12:
+                        entry["elapsed_bucket"] = "Q1"
+                    elif elapsed < 24:
+                        entry["elapsed_bucket"] = "Q2"
+                    elif elapsed < 36:
+                        entry["elapsed_bucket"] = "Q3"
+                    else:
+                        entry["elapsed_bucket"] = "Q4+"
+                    team_ratio = _number(entry.get("pregame_team_total_ratio"))
+                    if team_ratio is None:
+                        entry["team_ratio_bucket"] = "unknown"
+                    elif team_ratio < 0.97:
+                        entry["team_ratio_bucket"] = "downshift"
+                    elif team_ratio > 1.03:
+                        entry["team_ratio_bucket"] = "upshift"
+                    else:
+                        entry["team_ratio_bucket"] = "flat"
+                    audit_rows.append(entry)
+                except Exception:
+                    continue
+
+            df_day = pd.DataFrame(audit_rows)
+            if not df_day.empty:
+                all_days.append(df_day)
+            per_day.append({"date": ds, "summary": _ll_projection_summary(df_day)})
+            debug_days.append({
+                "date": ds,
+                "projection_path": str(proj_path),
+                "raw_rows": int(len(raw_rows)),
+                "latest_rows": int(len(latest_rows)),
+                "settled_rows": int(len(df_day)),
+            })
+            d = d + timedelta(days=1)
+
+        all_df = pd.concat(all_days, ignore_index=True) if all_days else pd.DataFrame()
+        history = None
+        if include_rows and not all_df.empty:
+            hist = all_df.copy()
+            hist = hist.sort_values(["date", "elapsed", "player", "stat"], ascending=[False, False, True, True])
+            hist = hist.head(int(max_rows))
+            history = {"rows": hist.to_dict(orient="records")}
+
+        payload = {
+            "ok": True,
+            "status": "ok" if not all_df.empty else "empty",
+            "meta": {
+                "start": start.isoformat(),
+                "end": end.isoformat(),
+                "days": int(days),
+                "include_rows": bool(include_rows),
+                "max_rows": int(max_rows),
+            },
+            "overall": _ll_projection_summary(all_df),
+            "by_stat": _ll_projection_rows_by_key(all_df, "stat"),
+            "by_elapsed_bucket": _ll_projection_rows_by_key(all_df, "elapsed_bucket"),
+            "by_team_ratio_bucket": _ll_projection_rows_by_key(all_df, "team_ratio_bucket"),
+            "per_day": per_day,
+            "history": history,
+            "debug": {"days": debug_days},
+            "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        }
+        if all_df.empty:
+            payload["message"] = "No settled live player-prop projection rows were available for the requested window."
+        return jsonify(_to_jsonable(payload))
     except Exception as e:  # noqa: BLE001
         return jsonify({"ok": False, "error": str(e)}), 500
 
@@ -26448,6 +27435,9 @@ def api_props_recommendations():
                 try:
                     t_tri = (str(team).strip().upper() if team else None)
                     o_tri = (_get_tricode(opponent) or str(opponent).strip().upper()) if opponent else None
+                    if not o_tri and isinstance(pp_row, dict):
+                        opp_raw = pp_row.get("opponent")
+                        o_tri = (_get_tricode(opp_raw) or str(opp_raw).strip().upper()) if opp_raw else None
                     opp_rank_obj = (opp_allowed_ranks.get(o_tri, {}) if isinstance(opp_allowed_ranks, dict) and o_tri else {})
                     team_injury_count = int(team_injury_counts_all.get(t_tri, 0)) if isinstance(team_injury_counts_all, dict) and t_tri else 0
                     team_key_outs_all = (team_key_outs_map_all.get(t_tri) if (isinstance(team_key_outs_map_all, dict) and t_tri) else None)
@@ -26591,6 +27581,23 @@ def api_props_recommendations():
                                 basketball_reasons.append(f"Rotation thinner with {team_injury_count} outs")
                         elif side_key == "UNDER" and b2b_flag and b2b_flag >= 1.0:
                             basketball_reasons.append("Back-to-back workload spot")
+
+                        has_matchup_reason = any(
+                            isinstance(reason, str)
+                            and (
+                                reason.startswith("Opponent matchup:")
+                                or reason.startswith("Pace spot:")
+                                or reason.startswith("Off/def matchup:")
+                            )
+                            for reason in basketball_reasons
+                        )
+                        if side_key == "UNDER" and not has_matchup_reason:
+                            if isinstance(opponent_rank, int):
+                                basketball_reasons.append(f"Opponent matchup: {market_label} allowance rank {opponent_rank}")
+                            elif game_pace is not None and league_pace is not None:
+                                basketball_reasons.append(f"Pace spot: {game_pace:.1f} possessions vs {league_pace:.1f} league average")
+                            elif team_off_rtg is not None and opp_def_rtg is not None:
+                                basketball_reasons.append(f"Off/def matchup: {t_tri} {team_off_rtg:.1f} ORtg vs {o_tri} {opp_def_rtg:.1f} DRtg")
 
                         if baseline_value is not None and line_value is not None:
                             baseline_delta = (baseline_value - line_value) if side_key == "OVER" else (line_value - baseline_value)
@@ -28927,6 +29934,16 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
                 )
                 fallback_headshot_url = _espn_headshot_url(player_id)
                 row_sim_count = int(active_market.get("simCount") or 0) if active_market.get("simCount") is not None else 0
+                history_ctx = _best_bets_prop_history_context(
+                    date_str=date_str,
+                    player_name=player_name,
+                    team_tri=team_tri,
+                    opponent=opponent_tri,
+                    market=market_filter,
+                    home_flag=(side == "home"),
+                    line_value=active_market.get("marketLine"),
+                )
+                ladder_rows_with_history, history_benchmarks = _attach_prop_ladder_history_markers(ladder_rows, history_ctx)
 
                 rows.append(
                     {
@@ -28952,11 +29969,13 @@ def _build_prop_ladders_payload_from_games(base_payload: dict[str, Any], date_st
                         "availableMarkets": available_markets,
                         "overLineCount": active_market.get("overLineCount"),
                         "overLineProb": _coerce_prop_ladder_float(active_market.get("overLineProb")),
-                        "ladder": ladder_rows,
+                        "ladder": ladder_rows_with_history,
                         "ladderShape": str(active_market.get("ladderShape") or "exact"),
                         "sourceFile": active_market.get("sourceFile"),
                         "sourceMode": source_mode,
                         "side": str(active_market.get("side") or "").strip().upper() or None,
+                        "history": history_ctx,
+                        "historyBenchmarks": history_benchmarks,
                     }
                 )
 
@@ -29241,6 +30260,22 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
         over_line_prob = _coerce_prop_ladder_float(active_market.get("overLineProb"))
         mean_value = _coerce_prop_ladder_float(active_market.get("mean"))
         sim_count = int(active_market.get("simCount") or 0) if active_market.get("simCount") is not None else 0
+        home_flag = None
+        try:
+            if str(team_tricode or "").strip().upper() and str(card.get("home_team") or "").strip().upper():
+                home_flag = str(team_tricode or "").strip().upper() == str(_get_tricode(card.get("home_team")) or card.get("home_team") or "").strip().upper()
+        except Exception:
+            home_flag = None
+        history_ctx = _best_bets_prop_history_context(
+            date_str=date_str,
+            player_name=player_name,
+            team_tri=team_tricode,
+            opponent=opponent,
+            market=market_filter,
+            home_flag=home_flag,
+            line_value=active_market.get("marketLine"),
+        )
+        ladder_rows_with_history, history_benchmarks = _attach_prop_ladder_history_markers(ladder_rows, history_ctx)
 
         rows.append(
             {
@@ -29265,11 +30300,13 @@ def _build_prop_ladders_payload(base_payload: dict[str, Any], date_str: str) -> 
                 "marketLinesByStat": market_lines,
                 "overLineCount": active_market.get("overLineCount"),
                 "overLineProb": over_line_prob,
-                "ladder": ladder_rows,
+                "ladder": ladder_rows_with_history,
                 "ladderShape": str(active_market.get("ladderShape") or "exact"),
                 "sourceFile": active_market.get("sourceFile"),
                 "sourceMode": source_mode,
                 "side": str(active_market.get("side") or "").strip().upper() or None,
+                "history": history_ctx,
+                "historyBenchmarks": history_benchmarks,
             }
         )
         if source_mode == "market":
@@ -30603,6 +31640,12 @@ def api_live_game():
             "period_totals_source": (oddsapi_period.get("source") if isinstance(oddsapi_period, dict) else None),
         },
     }
+    try:
+        pregame_prior = _live_pregame_prior_for_matchup(_load_best_bets_game_context(d), home=home_tri, away=away_tri)
+        if isinstance(pregame_prior, dict):
+            payload["pregame_prior"] = pregame_prior
+    except Exception:
+        pass
     _live_game_cache[cache_key] = (now, payload)
     return jsonify(payload)
 
@@ -31408,6 +32451,13 @@ def api_live_player_lens():
         except Exception:
             preds_idx = {}
 
+    best_bets_game_context: dict[str, Any] = {}
+    if d:
+        try:
+            best_bets_game_context = _load_best_bets_game_context(d)
+        except Exception:
+            best_bets_game_context = {}
+
     # Best-effort mapping to game_id + teams + clock/period
     games_map: dict[str, dict[str, Any]] = {}
     if d:
@@ -31757,6 +32807,29 @@ def api_live_player_lens():
             except Exception:
                 return None
 
+        game_pregame_prior = _live_pregame_prior_for_matchup(best_bets_game_context, home=home, away=away)
+        team_pregame_prior_by_team = {
+            str(tri or "").upper().strip(): _live_team_pregame_prior_for_matchup(best_bets_game_context, home=home, away=away, team=tri)
+            for tri in (home, away)
+            if str(tri or "").strip()
+        }
+
+        def _effective_team_margin_for_tri(team_tri: str | None) -> float | None:
+            live_margin = _team_margin_for_tri(team_tri)
+            prior_ctx = team_pregame_prior_by_team.get(str(team_tri or "").upper().strip()) if isinstance(team_pregame_prior_by_team, dict) else None
+            prior_margin = _safe_float((prior_ctx or {}).get("team_margin_adjusted"))
+            if prior_margin is None:
+                prior_margin = _safe_float((prior_ctx or {}).get("team_margin_raw"))
+            if live_margin is None:
+                return prior_margin
+            if prior_margin is None or elapsed_min is None:
+                return live_margin
+            try:
+                live_weight = float(max(0.20, min(1.0, float(elapsed_min) / 36.0)))
+                return float(live_weight * float(live_margin) + (1.0 - live_weight) * float(prior_margin))
+            except Exception:
+                return live_margin
+
         # Pull play-by-play actions once per game id to compute usage proxies (best-effort).
         usage_recent: dict[str, dict[str, Any]] = {}
         usage_game: dict[str, dict[str, Any]] = {}
@@ -31818,6 +32891,7 @@ def api_live_player_lens():
                     continue
                 nk = _norm_player_name(player)
                 pred_row = preds_idx.get((team, nk)) if preds_idx else None
+                team_pregame_prior = team_pregame_prior_by_team.get(team) if isinstance(team_pregame_prior_by_team, dict) else None
 
                 # Best-effort player_id + photo for UI (callouts).
                 espn_pid = None
@@ -31966,7 +33040,8 @@ def api_live_player_lens():
                             # Blowout risk: only cap starters late (avoid inflating bench without more data).
                             m = None
                             try:
-                                m = float(abs(int(margin))) if margin is not None else None
+                                script_margin = _effective_team_margin_for_tri(team)
+                                m = float(abs(float(script_margin))) if script_margin is not None else None
                             except Exception:
                                 m = None
                             if st is True and m is not None and m >= 18.0 and rem > 0 and float(elapsed_min) >= 30.0:
@@ -31975,7 +33050,7 @@ def api_live_player_lens():
                             # Game-script prior (v1): late-game margin affects star minutes.
                             # Leading big late -> starters sit more; trailing big late -> starters may extend.
                             try:
-                                tm = _team_margin_for_tri(team)
+                                tm = _effective_team_margin_for_tri(team)
                                 rem_min = float(max(0.0, 48.0 - float(elapsed_min)))
                                 if st is True and tm is not None and rem_min > 0 and float(elapsed_min) >= 36.0:
                                     a = float(abs(tm))
@@ -32170,12 +33245,23 @@ def api_live_player_lens():
                         line_used = line_live if line_live is not None else (float(line_pregame) if line_pregame is not None else None)
                         line_source = ("oddsapi" if line_live is not None else ("pregame" if line_pregame is not None else None))
                         sim_mu = _pred_val(pred_row, stat_key)
+                        pregame_stat_multiplier = _live_player_prop_pregame_multiplier(team_pregame_prior, stat_key)
+                        sim_mu_adjusted = None
+                        if sim_mu is not None:
+                            try:
+                                if pregame_stat_multiplier is not None and math.isfinite(float(pregame_stat_multiplier)):
+                                    sim_mu_adjusted = float(sim_mu) * float(pregame_stat_multiplier)
+                                else:
+                                    sim_mu_adjusted = float(sim_mu)
+                            except Exception:
+                                sim_mu_adjusted = None
+                        sim_mu_for_projection = sim_mu_adjusted if sim_mu_adjusted is not None else sim_mu
 
                         # Last-resort baseline: if we have no market line at all, use the model mean
                         # so we can still compute pace_vs_line and surface signals in the UI.
-                        if line_used is None and sim_mu is not None:
+                        if line_used is None and sim_mu_for_projection is not None:
                             try:
-                                mu0 = float(sim_mu)
+                                mu0 = float(sim_mu_for_projection)
                                 if math.isfinite(mu0):
                                     line_used = mu0
                                     if line_pregame is None:
@@ -32338,7 +33424,7 @@ def api_live_player_lens():
 
                                         # Game-script prior (v1): shrink team pace shifts slightly by margin late.
                                         try:
-                                            tm = _team_margin_for_tri(tri0)
+                                            tm = _effective_team_margin_for_tri(tri0)
                                             rem_min2 = float(max(0.0, 48.0 - float(elapsed_min)))
                                             if tm is not None and rem_min2 <= 6.0 and abs(float(tm)) >= 10.0:
                                                 # Leading tends to slow; trailing tends to speed.
@@ -32453,8 +33539,8 @@ def api_live_player_lens():
 
                                 # Stabilize early: blend toward a prior (sim mean preferred; else line).
                                 prior_total = None
-                                if sim_mu is not None:
-                                    prior_total = float(sim_mu)
+                                if sim_mu_for_projection is not None:
+                                    prior_total = float(sim_mu_for_projection)
                                 elif line_used is not None:
                                     prior_total = float(line_used)
 
@@ -32509,8 +33595,8 @@ def api_live_player_lens():
                             mean_for_prob = None
                             if pace_proj is not None and math.isfinite(float(pace_proj)):
                                 mean_for_prob = float(pace_proj)
-                            elif sim_mu is not None and math.isfinite(float(sim_mu)):
-                                mean_for_prob = float(sim_mu)
+                            elif sim_mu_for_projection is not None and math.isfinite(float(sim_mu_for_projection)):
+                                mean_for_prob = float(sim_mu_for_projection)
 
                             if (mean_for_prob is not None) and (line_used is not None) and (sim_sd is not None) and math.isfinite(float(sim_sd)) and float(sim_sd) > 1e-6:
                                 # Accuracy: the uncertainty about the *final* stat should shrink as minutes elapse.
@@ -32627,6 +33713,7 @@ def api_live_player_lens():
 
                         pace_vs_line = (pace_proj - float(line_used)) if (pace_proj is not None and line_used is not None) else None
                         sim_vs_line = (sim_mu - float(line_used)) if (sim_mu is not None and line_used is not None) else None
+                        sim_vs_line_adjusted = (sim_mu_for_projection - float(line_used)) if (sim_mu_for_projection is not None and line_used is not None) else None
 
                         lean = None
                         strength = None
@@ -32849,6 +33936,7 @@ def api_live_player_lens():
                             "stat": stat_key,
                             "actual": actual,
                             "sim_mu": sim_mu,
+                            "sim_mu_adjusted": sim_mu_adjusted,
                             "sim_sd": sim_sd,
                             "line": float(line_used) if line_used is not None else None,
                             "line_live": float(line_live) if line_live is not None else None,
@@ -32885,6 +33973,7 @@ def api_live_player_lens():
                             "pace_proj": pace_proj,
                             "pace_vs_line": pace_vs_line,
                             "sim_vs_line": sim_vs_line,
+                            "sim_vs_line_adjusted": sim_vs_line_adjusted,
                             "lean": lean,
                             "strength": strength,
                             "strength_sigma": strength_sigma,
@@ -32912,6 +34001,13 @@ def api_live_player_lens():
                             "fg3a_game": fg3a_game0,
                             "team_3a_recent": team_3a_recent0,
                             "team_3a_game": team_3a_game0,
+                            "pregame_team_total_raw": _safe_float((team_pregame_prior or {}).get("team_pred_points_raw")) if isinstance(team_pregame_prior, dict) else None,
+                            "pregame_team_total_adjusted": _safe_float((team_pregame_prior or {}).get("team_pred_points_adjusted")) if isinstance(team_pregame_prior, dict) else None,
+                            "pregame_team_total_ratio": _safe_float((team_pregame_prior or {}).get("team_total_ratio")) if isinstance(team_pregame_prior, dict) else None,
+                            "pregame_game_total_ratio": _safe_float((team_pregame_prior or {}).get("game_total_ratio")) if isinstance(team_pregame_prior, dict) else None,
+                            "pregame_margin_team": _safe_float((team_pregame_prior or {}).get("team_margin_adjusted")) if isinstance(team_pregame_prior, dict) else None,
+                            "pregame_margin_blended": _effective_team_margin_for_tri(team),
+                            "pregame_stat_multiplier": pregame_stat_multiplier,
                         })
                     except Exception:
                         continue
@@ -32943,6 +34039,7 @@ def api_live_player_lens():
             "game_id": gid,
             "home": home,
             "away": away,
+            "pregame_prior": game_pregame_prior,
             "status": {
                 "period": period,
                 "clock": clock,
@@ -37876,6 +38973,7 @@ def api_cron_live_lens_tick():
                                 "line_live_n": _safe_int(r0.get("line_live_n")),
                                 "pace_proj": _safe_float(r0.get("pace_proj")),
                                 "sim_mu": _safe_float(r0.get("sim_mu")),
+                                "sim_mu_adjusted": _safe_float(r0.get("sim_mu_adjusted")),
                                 "edge": _safe_float(edge),
                                 "edge_raw": _safe_float(edge),
                                 "edge_adj": _safe_float(edge),
@@ -37888,7 +38986,15 @@ def api_cron_live_lens_tick():
                                 "edge_sigma": _safe_float(r0.get("edge_sigma")),
                                 "context": {
                                     "sim_vs_line": _safe_float(r0.get("sim_vs_line")),
+                                    "sim_vs_line_adjusted": _safe_float(r0.get("sim_vs_line_adjusted")),
                                     "sim_sd": _safe_float(r0.get("sim_sd")),
+                                    "pregame_team_total_raw": _safe_float(r0.get("pregame_team_total_raw")),
+                                    "pregame_team_total_adjusted": _safe_float(r0.get("pregame_team_total_adjusted")),
+                                    "pregame_team_total_ratio": _safe_float(r0.get("pregame_team_total_ratio")),
+                                    "pregame_game_total_ratio": _safe_float(r0.get("pregame_game_total_ratio")),
+                                    "pregame_margin_team": _safe_float(r0.get("pregame_margin_team")),
+                                    "pregame_margin_blended": _safe_float(r0.get("pregame_margin_blended")),
+                                    "pregame_stat_multiplier": _safe_float(r0.get("pregame_stat_multiplier")),
                                     "exp_min": _safe_float(r0.get("exp_min")),
                                     "exp_min_eff": _safe_float(r0.get("exp_min_eff")),
                                     "exp_min_rot": _safe_float(r0.get("exp_min_rot")),
@@ -37967,6 +39073,7 @@ def api_cron_live_lens_tick():
                                 "line": _safe_float(r0.get("line")),
                                 "proj": _safe_float(r0.get("pace_proj")),
                                 "sim_mu": _safe_float(r0.get("sim_mu")),
+                                "sim_mu_adjusted": _safe_float(r0.get("sim_mu_adjusted")),
                                 "win_prob_over": _safe_float(r0.get("win_prob_over")),
                                 "win_prob_under": _safe_float(r0.get("win_prob_under")),
                                 "implied_prob_over": _safe_float(r0.get("implied_prob_over")),
@@ -37974,6 +39081,14 @@ def api_cron_live_lens_tick():
                                 "price_over": _safe_float(r0.get("price_over")),
                                 "price_under": _safe_float(r0.get("price_under")),
                                 "strength": _safe_float(strength),
+                                "context": {
+                                    "sim_vs_line": _safe_float(r0.get("sim_vs_line")),
+                                    "sim_vs_line_adjusted": _safe_float(r0.get("sim_vs_line_adjusted")),
+                                    "pregame_team_total_ratio": _safe_float(r0.get("pregame_team_total_ratio")),
+                                    "pregame_game_total_ratio": _safe_float(r0.get("pregame_game_total_ratio")),
+                                    "pregame_margin_blended": _safe_float(r0.get("pregame_margin_blended")),
+                                    "pregame_stat_multiplier": _safe_float(r0.get("pregame_stat_multiplier")),
+                                },
                                 "elapsed": float(elapsed_min) if elapsed_min is not None else None,
                                 "received_at": now,
                             }

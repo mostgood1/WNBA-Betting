@@ -239,51 +239,178 @@ def _write_props_fixture(processed, date_str: str) -> None:
         ]
     ).to_csv(processed / f"props_predictions_{date_str}.csv", index=False)
 
+
+def test_load_best_bets_game_context_blends_props_and_matchup(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+    date_str = "2026-03-30"
+
     pd.DataFrame(
         [
             {
                 "date": date_str,
-                "home_team": "BOS",
-                "visitor_team": "MIA",
-                "home_win_prob": 0.63,
-                "spread_margin": 5.8,
-                "totals": 227.0,
-                "commence_time": f"{date_str}T23:00:00Z",
-                "home_ml": -160.0,
-                "away_ml": 135.0,
-                "home_spread": -5.5,
-                "away_spread": 5.5,
-                "total": 224.5,
-            },
-            {
-                "date": date_str,
-                "home_team": "LAL",
-                "visitor_team": "PHX",
-                "home_win_prob": 0.54,
-                "spread_margin": 2.1,
+                "home_team": "Boston Celtics",
+                "visitor_team": "Miami Heat",
+                "home_win_prob": 0.61,
+                "spread_margin": 3.0,
                 "totals": 219.0,
-                "commence_time": f"{date_str}T23:45:00Z",
-                "home_ml": -125.0,
-                "away_ml": 105.0,
-                "home_spread": -2.0,
-                "away_spread": 2.0,
                 "total": 222.5,
-            },
+                "commence_time": f"{date_str}T23:00:00Z",
+            }
         ]
     ).to_csv(processed / f"predictions_{date_str}.csv", index=False)
 
-    (processed / f"injuries_counts_{date_str}.json").write_text(
-        json.dumps(
-            {
-                "date": date_str,
-                "team_counts": {"BOS": 2, "LAL": 0},
-                "players": [
-                    {"player": "Second Unit Wing", "team": "BOS", "status": "OUT"},
-                    {"player": "Reserve Guard", "team": "BOS", "status": "OUT"},
-                ],
-            }
+    pd.DataFrame(
+        [
+            {"team": "BOS", "player_name": "Jayson Tatum", "pts_mean": 28.0, "min_mean": 36.0},
+            {"team": "BOS", "player_name": "Jaylen Brown", "pts_mean": 24.0, "min_mean": 35.0},
+            {"team": "BOS", "player_name": "Kristaps Porzingis", "pts_mean": 20.0, "min_mean": 31.0},
+            {"team": "BOS", "player_name": "Derrick White", "pts_mean": 16.0, "min_mean": 33.0},
+            {"team": "BOS", "player_name": "Jrue Holiday", "pts_mean": 14.0, "min_mean": 32.0},
+            {"team": "BOS", "player_name": "Bench One", "pts_mean": 9.0, "min_mean": 24.0},
+            {"team": "BOS", "player_name": "Bench Two", "pts_mean": 7.0, "min_mean": 18.0},
+            {"team": "BOS", "player_name": "Bench Three", "pts_mean": 6.0, "min_mean": 16.0},
+            {"team": "MIA", "player_name": "Jimmy Butler", "pts_mean": 24.0, "min_mean": 35.0},
+            {"team": "MIA", "player_name": "Bam Adebayo", "pts_mean": 21.0, "min_mean": 35.0},
+            {"team": "MIA", "player_name": "Tyler Herro", "pts_mean": 22.0, "min_mean": 34.0},
+            {"team": "MIA", "player_name": "Terry Rozier", "pts_mean": 15.0, "min_mean": 31.0},
+            {"team": "MIA", "player_name": "Duncan Robinson", "pts_mean": 12.0, "min_mean": 29.0},
+            {"team": "MIA", "player_name": "Bench Four", "pts_mean": 8.0, "min_mean": 22.0},
+            {"team": "MIA", "player_name": "Bench Five", "pts_mean": 7.0, "min_mean": 17.0},
+            {"team": "MIA", "player_name": "Bench Six", "pts_mean": 6.0, "min_mean": 16.0},
+        ]
+    ).to_csv(processed / f"props_predictions_{date_str}.csv", index=False)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "_maybe_fetch_remote_processed", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(app_module, "_compute_team_offense_stats", lambda _date: ({"BOS": 119.5, "MIA": 114.0}, {}))
+    monkeypatch.setattr(
+        app_module,
+        "_compute_team_allowed_stats",
+        lambda _date: ({"BOS": {"pts": 109.0}, "MIA": {"pts": 116.0}}, {}),
+    )
+    monkeypatch.setattr(
+        app_module,
+        "_load_team_advanced_stats_frame",
+        lambda _date: pd.DataFrame(
+            [
+                {"team": "BOS", "pace": 100.6, "off_rtg": 121.8, "def_rtg": 109.2},
+                {"team": "MIA", "pace": 98.8, "off_rtg": 116.2, "def_rtg": 114.8},
+                {"team": "ATL", "pace": 101.0, "off_rtg": 116.0, "def_rtg": 118.0},
+                {"team": "ORL", "pace": 97.1, "off_rtg": 110.4, "def_rtg": 108.7},
+            ]
         ),
-        encoding="utf-8",
+    )
+
+    app_module._load_best_bets_props_team_scoring_context.cache_clear()
+    ctx = app_module._load_best_bets_game_context(date_str)
+    pair_ctx = (ctx.get("by_pair") or {}).get(("BOS", "MIA"))
+
+    assert isinstance(pair_ctx, dict)
+    assert pair_ctx["pred_margin_raw"] == 3.0
+    assert pair_ctx["pred_margin_adjusted"] is not None
+    assert pair_ctx["pred_margin_adjusted"] > pair_ctx["pred_margin_raw"]
+    assert pair_ctx["pred_total_raw"] == 219.0
+    assert pair_ctx["pred_total_adjusted"] is not None
+    assert pair_ctx["pred_total_adjusted"] > pair_ctx["pred_total_raw"]
+    assert pair_ctx["home_win_prob_adjusted"] is not None
+    assert pair_ctx["home_win_prob_adjusted"] > 0.61
+    assert pair_ctx["home_prop_minutes_coverage"] > 0.8
+    assert pair_ctx["away_prop_minutes_coverage"] > 0.8
+    assert pair_ctx["home_prop_blend_weight"] > 0.0
+    assert pair_ctx["away_prop_blend_weight"] > 0.0
+
+
+def test_decorate_game_best_bet_candidate_prefers_adjusted_total_context():
+    payload = app_module._decorate_game_best_bet_candidate(
+        {
+            "home": "Boston Celtics",
+            "away": "Miami Heat",
+            "market": "TOTAL",
+            "side": "Under",
+            "line": 224.5,
+            "pred_total": 218.0,
+            "date": "2026-03-30",
+        },
+        date_str="2026-03-30",
+        ctx={
+            "pred_total_raw": 218.0,
+            "pred_total_adjusted": 229.5,
+            "pred_total": 229.5,
+            "commence_time": "2026-03-30T23:00:00Z",
+        },
+        injury_snapshot={"counts": {}, "key_outs": {}},
+        slate_total_median=222.0,
+    )
+
+    assert payload is not None
+    assert payload["pred_total"] == 229.5
+    assert any("229.5" in reason for reason in (payload.get("sim_reasons") or []))
+    assert any(
+        "Prop scoring and opponent matchup context push the projection" in reason
+        for reason in (payload.get("sim_reasons") or [])
+    )
+
+
+def test_decorate_game_best_bet_candidate_prefers_adjusted_side_context():
+    ats_payload = app_module._decorate_game_best_bet_candidate(
+        {
+            "home": "Boston Celtics",
+            "away": "Miami Heat",
+            "market": "ATS",
+            "side": "Boston Celtics",
+            "line": -3.5,
+            "market_home_margin": 3.5,
+            "pred_margin": 2.0,
+            "price": -110.0,
+            "ev": 0.08,
+            "date": "2026-03-30",
+        },
+        date_str="2026-03-30",
+        ctx={
+            "pred_margin_raw": 2.0,
+            "pred_margin_adjusted": 6.4,
+            "pred_margin": 6.4,
+            "commence_time": "2026-03-30T23:00:00Z",
+        },
+        injury_snapshot={"counts": {}, "key_outs": {}},
+        slate_total_median=222.0,
+    )
+
+    assert ats_payload is not None
+    assert ats_payload["pred_margin"] == 6.4
+    assert any("+2.9" in reason for reason in (ats_payload.get("sim_reasons") or []))
+    assert any(
+        "Prop scoring and opponent matchup context shift the spread projection" in reason
+        for reason in (ats_payload.get("sim_reasons") or [])
+    )
+
+    ml_payload = app_module._decorate_game_best_bet_candidate(
+        {
+            "home": "Boston Celtics",
+            "away": "Miami Heat",
+            "market": "ML",
+            "side": "Boston Celtics",
+            "price": -120.0,
+            "date": "2026-03-30",
+        },
+        date_str="2026-03-30",
+        ctx={
+            "home_win_prob_raw": 0.58,
+            "home_win_prob_adjusted": 0.67,
+            "home_win_prob": 0.67,
+            "commence_time": "2026-03-30T23:00:00Z",
+        },
+        injury_snapshot={"counts": {}, "key_outs": {}},
+        slate_total_median=222.0,
+    )
+
+    assert ml_payload is not None
+    assert ml_payload["p_win"] == 0.67
+    assert any("67.0%" in reason for reason in (ml_payload.get("sim_reasons") or []))
+    assert any(
+        "Prop scoring and opponent matchup context move win probability" in reason
+        for reason in (ml_payload.get("sim_reasons") or [])
     )
 
 
@@ -484,14 +611,20 @@ def test_recommendations_all_games_builds_basketball_first_reason_buckets(tmp_pa
             "slate_total_median": 221.0,
             "by_pair": {
                 ("SAMPLE HOME", "SAMPLE AWAY"): {
-                    "pred_margin": 7.6,
+                    "pred_margin_raw": 7.6,
+                    "pred_margin_adjusted": 9.1,
+                    "pred_margin": 9.1,
                     "pred_total": 226.0,
+                    "home_win_prob_raw": 0.73,
+                    "home_win_prob_adjusted": 0.78,
                     "home_win_prob": 0.73,
                     "commence_time": f"{date_str}T23:00:00Z",
                 },
                 ("TOTALS HOME", "TOTALS AWAY"): {
                     "pred_margin": 1.2,
-                    "pred_total": 218.8,
+                    "pred_total_raw": 218.8,
+                    "pred_total_adjusted": 214.4,
+                    "pred_total": 214.4,
                     "home_win_prob": 0.58,
                     "commence_time": f"{date_str}T23:30:00Z",
                 },
@@ -525,6 +658,7 @@ def test_recommendations_all_games_builds_basketball_first_reason_buckets(tmp_pa
     assert payload["games"]
 
     ats = next(item for item in payload["games"] if item["market"] == "ATS")
+    total = next(item for item in payload["games"] if item["market"] == "TOTAL")
     assert ats["basketball_summary"]
     assert ats["basketball_reasons"]
     assert ats["model_reasons"]
@@ -534,6 +668,18 @@ def test_recommendations_all_games_builds_basketball_first_reason_buckets(tmp_pa
     assert any("depleted" in reason.lower() or "health profile" in reason.lower() for reason in ats["basketball_reasons"])
     assert any("model" in reason.lower() or "sim" in reason.lower() for reason in ats["model_reasons"])
     assert any("value" in reason.lower() or "price" in reason.lower() for reason in ats["market_reasons"])
+    assert ats["pred_margin"] == 9.1
+    assert any("+4.6" in reason for reason in (ats.get("sim_reasons") or []))
+    assert any(
+        "Prop scoring and opponent matchup context shift the spread projection" in reason
+        for reason in (ats.get("sim_reasons") or [])
+    )
+    assert total["pred_total"] == 214.4
+    assert any("214.4" in reason for reason in (total.get("sim_reasons") or []))
+    assert any(
+        "Prop scoring and opponent matchup context push the projection" in reason
+        for reason in (total.get("sim_reasons") or [])
+    )
 
 
 def test_recommendations_all_props_preserves_bucketed_why_reasons(tmp_path, monkeypatch):

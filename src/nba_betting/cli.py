@@ -7166,10 +7166,13 @@ def export_recommendations_cmd(
         d = pd.to_datetime(date_str).date()
     except Exception:
         console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
-    # Prefer NPU game predictions if available, else fall back to baseline predictions
+    # Prefer the calibrated daily predictions artifact. The daily update applies
+    # totals calibration to predictions_<date>.csv, while games_predictions_npu_<date>.csv
+    # may remain unadjusted. Falling back to the raw NPU file here can reintroduce
+    # systematic total bias into the recommendation export.
     pred_npu = paths.data_processed / f"games_predictions_npu_{date_str}.csv"
     pred = paths.data_processed / f"predictions_{date_str}.csv"
-    use_path = pred_npu if pred_npu.exists() else pred
+    use_path = pred if pred.exists() else pred_npu
     if not use_path.exists():
         console.print(f"Predictions not found: {use_path}", style="red"); return
     df = pd.read_csv(use_path)

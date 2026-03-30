@@ -46,6 +46,10 @@
     .table-wrap{overflow-x:auto}
 
     details > summary{cursor:pointer}
+    .mt-6{margin-top:6px}
+    .mt-10{margin-top:10px}
+    .mt-12{margin-top:12px}
+    .mt-14{margin-top:14px}
 
     @media (max-width:760px){
       .container{padding:0 10px;margin:12px auto}
@@ -66,6 +70,7 @@
       <a href="/accuracy-market">Market Accuracy</a> |
       <a href="/live-game-lens-accuracy">Live Game Lens Accuracy</a> |
       <a href="/live-player-props-lens-accuracy" aria-current="page">Live Player Props Lens Accuracy</a> |
+      <a href="/live-player-props-audit">Live Player Props Audit</a> |
       <button type="button" class="theme-toggle" id="themeToggle" title="Toggle light/dark">Toggle Theme</button>
     </div>
 
@@ -73,7 +78,7 @@
 
     <div class="card">
       <div class="muted-small">Aggregated settled <b>BET</b> performance from Live Lens signal logs + recon results (player props only).</div>
-      <div class="muted-small" style="margin-top:6px;">API: <span class="pill">/api/live_player_props_lens_analytics</span></div>
+      <div class="muted-small mt-6">API: <span class="pill">/api/live_player_props_lens_analytics</span></div>
 
       <form class="filters" id="filters" onsubmit="event.preventDefault(); refresh();">
         <label>Start (YYYY-MM-DD)
@@ -100,7 +105,7 @@
         <button type="submit" class="btn" id="refreshBtn">Refresh</button>
       </form>
 
-      <div id="status" class="muted-small" style="margin-top:10px;"></div>
+      <div id="status" class="muted-small mt-10"></div>
     </div>
 
     <div class="cards-summary">
@@ -133,10 +138,10 @@
       </table>
     </div>
 
-    <details class="card" style="margin-top:14px;" open>
+    <details class="card mt-14" open>
       <summary><b>Driver breakdowns</b> <span class="muted-small">(tags, tagsets, types)</span></summary>
 
-      <h2 style="margin-top:12px;">Driver Tags</h2>
+      <h2 class="mt-12">Driver Tags</h2>
       <div class="table-wrap"><table><thead><tr><th>Tag</th><th>N</th><th>Win%</th><th>ROI/u</th></tr></thead><tbody id="tbl_driver"></tbody></table></div>
 
       <h2>Tagsets (Combos)</h2>
@@ -153,9 +158,9 @@
 
     </details>
 
-    <details class="card" style="margin-top:14px;">
+    <details class="card mt-14">
       <summary><b>History (Settled Signals)</b> <span class="muted-small">Only included when “Include history rows” is checked.</span></summary>
-      <div class="table-wrap" style="margin-top:10px;">
+      <div class="table-wrap mt-10">
         <table>
           <thead>
             <tr>

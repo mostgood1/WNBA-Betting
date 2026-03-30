@@ -2253,6 +2253,64 @@ body.cards-app-shell .toggle-chip input {
   font-size: 12px;
 }
 
+.ladder-history-block {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.ladder-history-line {
+  color: rgba(230, 234, 239, 0.8);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.ladder-history-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ladder-history-chip,
+.ladder-row-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.ladder-history-chip span,
+.ladder-row-tag {
+  color: rgba(230, 234, 239, 0.78);
+}
+
+.ladder-history-chip strong {
+  font-size: 11px;
+  color: #f4f7fb;
+}
+
+.ladder-history-chip--recent,
+.ladder-row-tag--recent {
+  background: rgba(158, 208, 255, 0.08);
+  border-color: rgba(158, 208, 255, 0.24);
+}
+
+.ladder-history-chip--season,
+.ladder-row-tag--season {
+  background: rgba(158, 243, 212, 0.08);
+  border-color: rgba(158, 243, 212, 0.24);
+}
+
+.ladder-history-chip--opponent,
+.ladder-row-tag--opponent {
+  background: rgba(244, 191, 118, 0.08);
+  border-color: rgba(244, 191, 118, 0.24);
+}
+
 .ladder-market-lines {
   display: flex;
   flex-wrap: wrap;
@@ -2337,6 +2395,21 @@ body.cards-app-shell .toggle-chip input {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(230, 234, 239, 0.74);
+}
+
+.ladder-table-row--highlighted {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.ladder-total-cell {
+  display: grid;
+  gap: 4px;
+}
+
+.ladder-row-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 @media (max-width: 720px) {

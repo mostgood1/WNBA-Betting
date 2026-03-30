@@ -215,6 +215,27 @@
     return matchupKey(game?.away_tri, game?.home_tri);
   }
 
+  function findGameCardElement(cardTarget) {
+    const rawTarget = String(cardTarget || '').trim();
+    if (!rawTarget || !gridRoot) {
+      return null;
+    }
+    const byId = gridRoot.querySelector(`[data-card-id="${CSS.escape(rawTarget)}"]`);
+    if (byId) {
+      return byId;
+    }
+    return gridRoot.querySelector(`[data-matchup-key="${CSS.escape(rawTarget)}"]`);
+  }
+
+  function resolveStripCardTarget(item) {
+    const matchup = stripCardTarget(item);
+    if (!matchup) {
+      return '';
+    }
+    const matchedGame = safeArray(state.payload?.games).find((game) => gameMatchupKey(game) === matchup);
+    return matchedGame ? cardId(matchedGame) : matchup;
+  }
+
   function clampNumber(value, min, max) {
     return Math.min(max, Math.max(min, value));
   }
@@ -458,6 +479,16 @@
     return 1 / (1 + Math.exp(-(marginValue / scale)));
   }
 
+  function finiteFirst(...values) {
+    for (const value of values) {
+      const number = Number(value);
+      if (Number.isFinite(number)) {
+        return number;
+      }
+    }
+    return null;
+  }
+
   function getLiveState(game) {
     return state.liveStates.get(gameMatchupKey(game)) || null;
   }
@@ -485,9 +516,10 @@
     const elapsedMinutesRaw = liveElapsedMinutes(liveState);
     const elapsedMinutes = Number.isFinite(elapsedMinutesRaw) ? elapsedMinutesRaw : null;
     const remainingMinutes = Number.isFinite(elapsedMinutes) ? Math.max(0, 48 - Math.min(48, elapsedMinutes)) : null;
-    const pregameTotal = Number(score.total_mean);
-    const pregameMargin = Number(score.margin_mean);
-    const pregameHomeWin = Number(betting.p_home_win);
+    const pregamePrior = game?.sim?.context?.pregame_prior || {};
+    const pregameTotal = finiteFirst(pregamePrior?.pred_total_adjusted, pregamePrior?.pred_total, score.total_mean);
+    const pregameMargin = finiteFirst(pregamePrior?.pred_margin_adjusted, pregamePrior?.pred_margin, score.margin_mean);
+    const pregameHomeWin = finiteFirst(pregamePrior?.home_win_prob_adjusted, pregamePrior?.home_win_prob, betting.p_home_win);
     const lineTotal = Number(liveLines?.lines?.total);
     const homeSpread = Number(liveLines?.lines?.home_spread);
     const homeMl = Number(liveLines?.lines?.home_ml);
@@ -596,7 +628,8 @@
       const klass = Number.isFinite(totalGate) && elapsedForRate < totalGate
         ? 'WAIT'
         : classifyLens(Math.abs(edge), thresholds.total.watch, thresholds.total.bet);
-      totalSignal = buildSignal('total', 'G', klass, side, edge, lineTotal, projection, `Total ${fmtInteger(currentTotal)}`);
+      const priorDetail = Number.isFinite(pregameTotal) ? `Prior ${fmtNumber(pregameTotal, 1)}` : null;
+      totalSignal = buildSignal('total', 'G', klass, side, edge, lineTotal, projection, [priorDetail, `Total ${fmtInteger(currentTotal)}`].filter(Boolean).join(' · '));
       totalSignal.score = signalScore(Math.abs(edge), thresholds.total.bet);
     }
 
@@ -750,7 +783,8 @@
       const projection = pickHome ? projectedMargin : -projectedMargin;
       const line = pickHome ? homeSpread : -homeSpread;
       const klass = classifyLens(Math.abs(edge), thresholds.ats.watch, thresholds.ats.bet);
-      atsSignal = buildSignal('ats', 'ATS', klass, side, edge, line, projection, `Margin ${fmtSigned(projectedMargin, 1)}`);
+      const priorDetail = Number.isFinite(pregameMargin) ? `Prior ${fmtSigned(pregameMargin, 1)}` : null;
+      atsSignal = buildSignal('ats', 'ATS', klass, side, edge, line, projection, [priorDetail, `Margin ${fmtSigned(projectedMargin, 1)}`].filter(Boolean).join(' · '));
       atsSignal.score = signalScore(Math.abs(edge), thresholds.ats.bet);
     }
 
@@ -774,7 +808,8 @@
         const line = pickHome ? homeMl : awayMl;
         const projection = pickHome ? pHomeModel : (1 - pHomeModel);
         const klass = classifyLens(Math.abs(edge), thresholds.ml.watch, thresholds.ml.bet);
-        mlSignal = buildSignal('ml', 'ML', klass, side, edge, line, projection, `Model ${fmtPercent(projection, 0)}`);
+        const priorDetail = Number.isFinite(pregameHomeWin) ? `Prior ${fmtPercent(pickHome ? pregameHomeWin : (1 - pregameHomeWin), 0)}` : null;
+        mlSignal = buildSignal('ml', 'ML', klass, side, edge, line, projection, [priorDetail, `Model ${fmtPercent(projection, 0)}`].filter(Boolean).join(' · '));
         mlSignal.score = signalScore(Math.abs(edge), thresholds.ml.bet);
       }
     }
@@ -1233,13 +1268,20 @@
     if (mode === 'live') {
       const lineSource = String(item?.line_source || '').trim();
       const simValue = Number(item?.sim_mu);
+      const simAdjusted = Number(item?.sim_mu_adjusted);
       const liveLine = Number(item?.line);
+      const priorMult = Number(item?.pregame_stat_multiplier);
       const pieces = [];
       if (lineSource) {
         pieces.push(lineSource === 'oddsapi' ? 'Live OddsAPI' : titleCase(lineSource));
       }
-      if (Number.isFinite(simValue) && Number.isFinite(liveLine)) {
+      if (Number.isFinite(simAdjusted) && Number.isFinite(liveLine)) {
+        pieces.push(`Adj sim ${fmtNumber(simAdjusted, 1)} vs ${fmtNumber(liveLine, 1)}`);
+      } else if (Number.isFinite(simValue) && Number.isFinite(liveLine)) {
         pieces.push(`Sim ${fmtNumber(simValue, 1)} vs ${fmtNumber(liveLine, 1)}`);
+      }
+      if (Number.isFinite(priorMult) && Math.abs(priorMult - 1) >= 0.01) {
+        pieces.push(`Prior x${fmtNumber(priorMult, 2)}`);
       }
       return pieces.join(' · ') || 'Live player prop lens';
     }
@@ -1260,7 +1302,9 @@
     const actual = Number(item?.actual);
     const paceProj = Number(item?.pace_proj);
     const simValue = Number(item?.sim_mu);
+    const simAdjusted = Number(item?.sim_mu_adjusted);
     const line = Number(item?.line);
+    const teamRatio = Number(item?.pregame_team_total_ratio);
     const pieces = [];
     if (Number.isFinite(actual)) {
       pieces.push(`Actual ${fmtNumber(actual, 1)}`);
@@ -1268,11 +1312,17 @@
     if (Number.isFinite(paceProj)) {
       pieces.push(`Proj ${fmtNumber(paceProj, 1)}`);
     }
+    if (Number.isFinite(simAdjusted)) {
+      pieces.push(`Adj ${fmtNumber(simAdjusted, 1)}`);
+    }
     if (Number.isFinite(simValue)) {
       pieces.push(`Sim ${fmtNumber(simValue, 1)}`);
     }
     if (Number.isFinite(line) && Number.isFinite(paceProj)) {
       pieces.push(`Edge ${fmtSigned(paceProj - line, 1)}`);
+    }
+    if (Number.isFinite(teamRatio) && Math.abs(teamRatio - 1) >= 0.02) {
+      pieces.push(`Team ${fmtSigned((teamRatio - 1) * 100, 0)}%`);
     }
     return pieces.join(' · ');
   }
@@ -1497,7 +1547,7 @@
     if (Number.isFinite(paceEdge) && Math.abs(paceEdge) > 0.01) {
       return paceEdge >= 0 ? 'OVER' : 'UNDER';
     }
-    const simEdge = Number(item?.sim_vs_line);
+    const simEdge = finiteFirst(item?.sim_vs_line_adjusted, item?.sim_vs_line);
     if (Number.isFinite(simEdge) && Math.abs(simEdge) > 0.01) {
       return simEdge >= 0 ? 'OVER' : 'UNDER';
     }
@@ -1510,7 +1560,7 @@
     if (Number.isFinite(paceEdge)) {
       return Math.abs(paceEdge);
     }
-    const simEdge = Number(item?.sim_vs_line);
+    const simEdge = finiteFirst(item?.sim_vs_line_adjusted, item?.sim_vs_line);
     if (Number.isFinite(simEdge)) {
       return Math.abs(simEdge);
     }
@@ -1520,10 +1570,10 @@
 
   function livePropSortScore(item) {
     const paceProj = Number(item?.pace_proj);
-    const simValue = Number(item?.sim_mu);
+    const simValue = finiteFirst(item?.sim_mu_adjusted, item?.sim_mu);
     const line = Number(item?.line);
     const paceEdge = Number(item?.pace_vs_line);
-    const simEdge = Number(item?.sim_vs_line);
+    const simEdge = finiteFirst(item?.sim_vs_line_adjusted, item?.sim_vs_line);
     const strength = Number(item?.strength);
     const bettableScore = Number(item?.score_adj ?? item?.bettable_score);
     const evPct = Number(item?.ev_pct);
@@ -1574,8 +1624,8 @@
       if (sortKey === 'proj') {
         const projLeft = Number(left?.pace_proj);
         const projRight = Number(right?.pace_proj);
-        const leftEdge = Number(left?.pace_vs_line);
-        const rightEdge = Number(right?.pace_vs_line);
+        const leftEdge = finiteFirst(left?.pace_vs_line, left?.sim_vs_line_adjusted, left?.sim_vs_line);
+        const rightEdge = finiteFirst(right?.pace_vs_line, right?.sim_vs_line_adjusted, right?.sim_vs_line);
         return (Math.abs(rightEdge) - Math.abs(leftEdge)) || (projRight - projLeft);
       }
       if (sortKey === 'win') {
@@ -1584,8 +1634,8 @@
         return winRight - winLeft;
       }
       if (sortKey === 'live') {
-        const edgeLeft = Number(left?.pace_vs_line ?? ((Number(left?.pace_proj) - Number(left?.line)) || 0));
-        const edgeRight = Number(right?.pace_vs_line ?? ((Number(right?.pace_proj) - Number(right?.line)) || 0));
+        const edgeLeft = finiteFirst(left?.pace_vs_line, left?.sim_vs_line_adjusted, left?.sim_vs_line, ((Number(left?.pace_proj) - Number(left?.line)) || 0));
+        const edgeRight = finiteFirst(right?.pace_vs_line, right?.sim_vs_line_adjusted, right?.sim_vs_line, ((Number(right?.pace_proj) - Number(right?.line)) || 0));
         return Math.abs(edgeRight) - Math.abs(edgeLeft);
       }
       return (rightRank.hasPace - leftRank.hasPace)
@@ -1733,7 +1783,7 @@
       const price = Number(safeItem.price);
       const evPct = Number(safeItem.ev_pct);
       const winProb = Number(safeItem.probability ?? safeItem.prob_calib);
-      const cardTarget = stripCardTarget(safeItem);
+      const cardTarget = resolveStripCardTarget(safeItem);
       const actionLabel = mode === 'live'
         ? String(safeItem.klass || '').trim().toUpperCase()
         : String(safeItem.tier || '').trim().toUpperCase();
@@ -1835,7 +1885,7 @@
       const gameItems = safeArray(game?.rows)
         .filter((row) => row && row.player && row.team_tri)
         .filter((row) => row.line_source && row.line_source !== 'model')
-        .filter((row) => row.pace_proj != null || row.sim_mu != null || row.ev_side || row.lean)
+        .filter((row) => row.pace_proj != null || row.sim_mu_adjusted != null || row.sim_mu != null || row.ev_side || row.lean)
         .map((row) => {
           try {
             return {
@@ -1861,11 +1911,17 @@
               strength: row?.strength,
               score_adj: row?.bettable_score ?? row?.strength ?? row?.ev,
               sim_mu: row?.sim_mu,
+              sim_mu_adjusted: row?.sim_mu_adjusted,
               sim_vs_line: row?.sim_vs_line,
+              sim_vs_line_adjusted: row?.sim_vs_line_adjusted,
               lean: row?.lean,
               bettable_score: row?.bettable_score,
               line_live: row?.line_live,
               line_pregame: row?.line_pregame,
+              pregame_team_total_ratio: row?.pregame_team_total_ratio,
+              pregame_game_total_ratio: row?.pregame_game_total_ratio,
+              pregame_stat_multiplier: row?.pregame_stat_multiplier,
+              pregame_margin_blended: row?.pregame_margin_blended,
             };
           } catch (error) {
             reportPropsStripError('transform-row', error, String(row?.player || row?.stat || 'unknown-row'));
@@ -1935,11 +1991,71 @@
         state.propsStripPayload = payload;
       }
       renderPropsStrip();
+      if (mode === 'live' && state.payload && (state.payload.date || state.date) === dateValue) {
+        renderBoard();
+      }
     } catch (_error) {
       reportPropsStripError('load', _error, dateValue);
       state.propsStripPayload = null;
       clearPropsStrip();
     }
+  }
+
+  function livePropTeaserItems(game, limit = 2) {
+    const matchup = gameMatchupKey(game);
+    if (!matchup) {
+      return [];
+    }
+    const items = sortedPropsStripItems(safePropsStripItems(state.propsStripPayload?.items));
+    const matched = items.filter((item) => stripCardTarget(item) === matchup);
+    if (!Number.isFinite(Number(limit)) || Number(limit) <= 0) {
+      return matched;
+    }
+    return matched.slice(0, Number(limit));
+  }
+
+  function livePropTeaserText(item) {
+    const market = marketLabel(item?.market);
+    const side = livePropPrimarySide(item) || String(item?.side || '').trim().toUpperCase() || '--';
+    const line = Number(item?.line);
+    const projection = finiteFirst(item?.pace_proj, item?.sim_mu_adjusted, item?.sim_mu);
+    const edge = finiteFirst(item?.pace_vs_line, item?.sim_vs_line_adjusted, item?.sim_vs_line);
+    const parts = [
+      `${String(item?.player || 'Player').trim()} ${market} ${side} ${Number.isFinite(line) ? fmtNumber(line, 1) : '--'}`,
+    ];
+    if (Number.isFinite(projection)) {
+      parts.push(`Proj ${fmtNumber(projection, 1)}`);
+    }
+    if (Number.isFinite(edge)) {
+      parts.push(`Edge ${fmtSigned(edge, 1)}`);
+    }
+    return parts.join(' · ');
+  }
+
+  function renderLivePropTeaser(game) {
+    if (mode !== 'live') {
+      return '';
+    }
+    const liveState = getLiveState(game);
+    if (!hasStartedGame(liveState)) {
+      return '';
+    }
+    const items = livePropTeaserItems(game, 2);
+    if (!items.length) {
+      return '';
+    }
+    return `
+      <div class="cards-card-context">
+        <div class="cards-box-head">
+          <div class="cards-table-title"><strong>Live prop pulse</strong></div>
+          <button type="button" class="cards-filter-pill" data-open-card-tab="props" data-card-target="${escapeHtml(cardId(game))}">Open props</button>
+        </div>
+        <div class="cards-callout-copy">Top live prop edges for this matchup, using the same feed as the global strip.</div>
+        <div class="cards-source-meta">
+          ${items.map((item) => `<span class="cards-source-meta-pill is-soft">${escapeHtml(livePropTeaserText(item))}</span>`).join('')}
+        </div>
+      </div>
+    `;
   }
 
   function ensureBoardShell() {
@@ -2602,6 +2718,7 @@
                 ${safeArray(liveLens?.topSignals).slice(0, 4).map(renderLiveSignalChip).join('')}
               </div>`
             : ''}
+          ${renderLivePropTeaser(game)}
         </div>
         <div class="cards-panel-card">
           <div class="cards-box-head">
@@ -3126,6 +3243,7 @@
 
   function renderGameCard(game) {
     const id = cardId(game);
+    const matchup = gameMatchupKey(game);
     const activeTab = state.activeTabs.get(id) || 'game';
     const betting = game?.betting || {};
     const score = game?.sim?.score || {};
@@ -3144,7 +3262,7 @@
       ? `${simScoreLabel} · Total ${fmtNumber(score.total_mean, 1)} · Margin ${fmtSigned(score.margin_mean, 1)}`
       : `${simScoreLabel} · Total ${fmtNumber(score.total_mean, 1)} · Margin ${fmtSigned(score.margin_mean, 1)}`;
     return `
-      <article class="cards-game-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" data-card-id="${escapeHtml(id)}" id="game-card-${escapeHtml(id)}">
+      <article class="cards-game-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" data-card-id="${escapeHtml(id)}" data-matchup-key="${escapeHtml(matchup)}" id="game-card-${escapeHtml(id)}">
         <div class="cards-strip-head">
           <div class="cards-head-left">
             ${teamHeaderMarkup(game.away_tri, game.away_name)}
@@ -3293,6 +3411,19 @@
   }
 
   boardShell.addEventListener('click', (event) => {
+    const openCardTab = event.target.closest('[data-open-card-tab]');
+    if (openCardTab) {
+      const cardTarget = openCardTab.getAttribute('data-card-target') || '';
+      const tabKey = openCardTab.getAttribute('data-open-card-tab') || 'game';
+      state.activeTabs.set(cardTarget, tabKey);
+      renderBoard();
+      const card = findGameCardElement(cardTarget);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+
     const tabButton = event.target.closest('[data-card-tab]');
     if (tabButton) {
       const cardTarget = tabButton.getAttribute('data-card-target') || '';
@@ -3305,7 +3436,7 @@
     const jumpButton = event.target.closest('[data-jump-card]');
     if (jumpButton) {
       const cardTarget = jumpButton.getAttribute('data-jump-card') || '';
-      const card = gridRoot.querySelector(`[data-card-id="${CSS.escape(cardTarget)}"]`);
+      const card = findGameCardElement(cardTarget);
       if (card) {
         card.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
@@ -3414,7 +3545,7 @@
     const jumpButton = event.target.closest('[data-jump-card]');
     if (jumpButton) {
       const cardTarget = jumpButton.getAttribute('data-jump-card') || '';
-      const card = gridRoot.querySelector(`[data-card-id="${CSS.escape(cardTarget)}"]`);
+      const card = findGameCardElement(cardTarget);
       if (card) {
         card.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }

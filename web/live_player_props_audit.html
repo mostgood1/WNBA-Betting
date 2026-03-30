@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NBA Betting - Live Player Props Audit</title>
+  <meta name="description" content="Compare raw sim, adjusted sim, and live player-prop projections against final actuals." />
+  <link rel="icon" href="data:,">
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta name="color-scheme" content="dark light" />
+  <style>
+    :root{--bg:#080d1a;--card:#0d1426;--card2:#121b31;--text:#f5f7ff;--muted:#c3cee4;--border:#243356;--link:#b8d1ff;--pill-bg:#101a2e;--pill-br:#2a3a63;--badge-bg:#162247;--badge-br:#2a3a63}
+    body.light{--bg:#ffffff;--card:#f8fafc;--card2:#f1f5fb;--text:#0a1020;--muted:#475569;--border:#cbd5e1;--link:#1e3a8a;--pill-bg:#eef3fb;--pill-br:#94a3b8;--badge-bg:#e2e8f0;--badge-br:#94a3b8}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    .container{max-width:1180px;margin:24px auto;padding:0 16px}
+    a{color:var(--link)}
+    h1{margin:0 0 10px;font-size:24px}
+    h2{margin:18px 0 8px;font-size:18px}
+    .nav{font-size:14px;margin-bottom:10px}
+    .nav a{color:var(--link);text-decoration:none;margin-right:10px}
+    .nav button.theme-toggle{background:var(--pill-bg);color:var(--text);border:1px solid var(--pill-br);border-radius:6px;padding:6px 10px;cursor:pointer}
+    .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:14px;padding:12px;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+    .cards-summary{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0;align-items:stretch}
+    .card-summary{flex:1;min-width:260px}
+    .muted-small{font-size:12px;color:var(--muted)}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--badge-bg);border:1px solid var(--badge-br);font-size:12px}
+    form.filters{margin:10px 0 0;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+    form.filters label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+    form.filters input{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:13px;min-width:160px}
+    form.filters input[type="number"]{min-width:110px}
+    .row-inline{display:flex;gap:8px;align-items:center;height:34px}
+    .btn{background:var(--pill-bg);color:var(--text);border:1px solid var(--pill-br);border-radius:8px;padding:8px 12px;text-decoration:none;font-size:13px;cursor:pointer}
+    .kpis{display:grid;grid-template-columns:repeat(5, minmax(140px, 1fr));gap:10px}
+    .kpi{background:rgba(0,0,0,.08);border:1px solid var(--border);border-radius:12px;padding:10px}
+    .kpi .t{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+    .kpi .v{font-size:16px;font-weight:650;margin-top:4px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;vertical-align:top}
+    thead th{text-align:left;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+    tbody tr{border-top:1px solid var(--border)}
+    .table-wrap{overflow-x:auto}
+    details > summary{cursor:pointer}
+    .mt-6{margin-top:6px}
+    .mt-10{margin-top:10px}
+    .mt-14{margin-top:14px}
+    @media (max-width:760px){.container{padding:0 10px;margin:12px auto}h1{font-size:19px}.nav{font-size:12px;overflow-x:auto;white-space:nowrap;padding-bottom:4px}form.filters input{padding:5px 7px;font-size:12px;min-width:140px}.btn{padding:7px 10px;font-size:12px}th,td{padding:6px 4px}.kpis{grid-template-columns:repeat(2, minmax(120px, 1fr))}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <a href="/">Cards</a> |
+      <a href="/recommendations">Recommendations</a> |
+      <a href="/live-player-props-lens-accuracy">Live Player Props Lens Accuracy</a> |
+      <a href="/live-player-props-audit" aria-current="page">Live Player Props Audit</a> |
+      <button type="button" class="theme-toggle" id="themeToggle" title="Toggle light/dark">Toggle Theme</button>
+    </div>
+
+    <h1>NBA Betting - Live Player Props Audit</h1>
+
+    <div class="card">
+      <div class="muted-small">Compare raw sim, adjusted sim, and live projection quality against final player actuals from recon props.</div>
+      <div class="muted-small mt-6">API: <span class="pill">/api/live_player_props_projection_audit</span></div>
+
+      <form class="filters" id="filters" onsubmit="event.preventDefault(); refresh();">
+        <label>Start (YYYY-MM-DD)
+          <input id="start" type="date" />
+        </label>
+        <label>End (YYYY-MM-DD)
+          <input id="end" type="date" />
+        </label>
+        <label>Days (lookback)
+          <input id="days" type="number" min="1" max="120" step="1" value="14" />
+        </label>
+        <label>Include history rows
+          <div class="row-inline">
+            <input id="include_rows" type="checkbox" />
+            <span class="muted-small">(slower)</span>
+          </div>
+        </label>
+        <label>Max rows
+          <input id="max_rows" type="number" min="100" max="20000" step="100" value="1000" />
+        </label>
+        <button type="submit" class="btn">Refresh</button>
+      </form>
+
+      <div id="status" class="muted-small mt-10"></div>
+    </div>
+
+    <div class="cards-summary">
+      <div class="card card-summary">
+        <div class="muted-small">Overall audit</div>
+        <div class="kpis" id="kpis"></div>
+      </div>
+    </div>
+
+    <h2>By stat</h2>
+    <div class="table-wrap"><table><thead><tr><th>Stat</th><th>N</th><th>MAE Proj</th><th>MAE Adj</th><th>MAE Raw</th><th>Adj &lt; Raw</th><th>Proj &lt; Adj</th></tr></thead><tbody id="tbl_stat"></tbody></table></div>
+
+    <h2>By elapsed bucket</h2>
+    <div class="table-wrap"><table><thead><tr><th>Bucket</th><th>N</th><th>MAE Proj</th><th>MAE Adj</th><th>MAE Raw</th><th>Adj &lt; Raw</th><th>Proj &lt; Adj</th></tr></thead><tbody id="tbl_elapsed"></tbody></table></div>
+
+    <h2>By team prior bucket</h2>
+    <div class="table-wrap"><table><thead><tr><th>Bucket</th><th>N</th><th>MAE Proj</th><th>MAE Adj</th><th>MAE Raw</th><th>Mean Adj</th><th>Adj &lt; Raw</th></tr></thead><tbody id="tbl_ratio"></tbody></table></div>
+
+    <h2>Per day</h2>
+    <div class="table-wrap"><table><thead><tr><th>Date</th><th>N</th><th>MAE Proj</th><th>MAE Adj</th><th>MAE Raw</th><th>Status</th></tr></thead><tbody id="tbl_day"></tbody></table></div>
+
+    <details class="card mt-14">
+      <summary><b>History</b> <span class="muted-small">Only included when “Include history rows” is checked.</span></summary>
+      <div class="table-wrap mt-10"><table><thead><tr><th>Date</th><th>Game</th><th>Player</th><th>Stat</th><th>Actual</th><th>Proj</th><th>Adj Sim</th><th>Raw Sim</th><th>Err Proj</th><th>Err Adj</th><th>Err Raw</th><th>Elapsed</th><th>Prior x</th></tr></thead><tbody id="tbl_history"></tbody></table></div>
+    </details>
+  </div>
+
+  <script>
+    (function(){try{const body=document.body;const saved=localStorage.getItem('theme');if(saved==='light') body.classList.add('light');const t=document.getElementById('themeToggle');if(t){t.addEventListener('click',()=>{body.classList.toggle('light');localStorage.setItem('theme', body.classList.contains('light')?'light':'dark');});}}catch(_){}})();
+    const API_BASE=(()=>{try{const proto=String(window.location&&window.location.protocol||'');const origin=String(window.location&&window.location.origin||'');if(proto==='file:'||origin==='null'||!origin.startsWith('http')) return 'http://127.0.0.1:5051';return origin;}catch(_){return 'http://127.0.0.1:5051';}})();
+    function apiUrl(path){const s=String(path||'');if(!s) return API_BASE; if(/^https?:\/\//i.test(s)) return s; return API_BASE + (s.startsWith('/')?s:('/'+s));}
+    function esc(s){const str=String(s==null?'':s);return str.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c));}
+    function fmtNum(x,d){try{const v=Number(x); if(!Number.isFinite(v)) return '–'; return v.toFixed(Number.isFinite(Number(d))?Number(d):2);}catch(_){return '–';}}
+    function fmtPct01(x){try{const v=Number(x); if(!Number.isFinite(v)) return '–'; return (v*100).toFixed(1)+'%';}catch(_){return '–';}}
+    function setStatus(msg){const el=document.getElementById('status'); if(el) el.textContent=String(msg||'');}
+    function renderKpis(summary){const el=document.getElementById('kpis'); if(!el) return; const s=summary||{}; const items=[{t:'Rows',v:String(s.n??0)},{t:'MAE Proj',v:fmtNum(s.mae_proj,2)},{t:'MAE Adj',v:fmtNum(s.mae_adjusted,2)},{t:'MAE Raw',v:fmtNum(s.mae_raw,2)},{t:'Adj < Raw',v:fmtPct01(s.adjusted_beats_raw_rate)},{t:'Proj < Adj',v:fmtPct01(s.proj_beats_adjusted_rate)},{t:'Mean Adj',v:fmtNum(s.mean_adjustment,2)},{t:'Team Ratio',v:fmtNum(s.mean_team_ratio,3)},{t:'Game Ratio',v:fmtNum(s.mean_game_ratio,3)}]; el.innerHTML=items.map(it=>`<div class="kpi"><div class="t">${esc(it.t)}</div><div class="v">${esc(it.v)}</div></div>`).join('');}
+    function renderRows(id, rows, cols){const tb=document.getElementById(id); if(!tb) return; tb.innerHTML=''; (rows||[]).forEach(row=>{const tr=document.createElement('tr'); tr.innerHTML=cols.map(col=>`<td>${esc(col(row))}</td>`).join(''); tb.appendChild(tr);});}
+    async function refresh(){
+      const params=new URLSearchParams();
+      const start=document.getElementById('start')?.value||'';
+      const end=document.getElementById('end')?.value||'';
+      const days=document.getElementById('days')?.value||'14';
+      const includeRows=!!document.getElementById('include_rows')?.checked;
+      const maxRows=document.getElementById('max_rows')?.value||'1000';
+      if(start) params.set('start', start); if(end) params.set('end', end); if(!start && !end) params.set('days', days); params.set('include_rows', includeRows ? '1' : '0'); params.set('max_rows', maxRows);
+      setStatus('Loading audit report...');
+      try{
+        const res=await fetch(apiUrl(`/api/live_player_props_projection_audit?${params.toString()}`), {cache:'no-store'});
+        const js=await res.json();
+        if(!res.ok || !js?.ok){ throw new Error(String(js?.error || 'Failed to load report')); }
+        renderKpis(js.overall || {});
+        renderRows('tbl_stat', js.by_stat, [r=>r.stat, r=>r.n, r=>fmtNum(r.mae_proj,2), r=>fmtNum(r.mae_adjusted,2), r=>fmtNum(r.mae_raw,2), r=>fmtPct01(r.adjusted_beats_raw_rate), r=>fmtPct01(r.proj_beats_adjusted_rate)]);
+        renderRows('tbl_elapsed', js.by_elapsed_bucket, [r=>r.elapsed_bucket, r=>r.n, r=>fmtNum(r.mae_proj,2), r=>fmtNum(r.mae_adjusted,2), r=>fmtNum(r.mae_raw,2), r=>fmtPct01(r.adjusted_beats_raw_rate), r=>fmtPct01(r.proj_beats_adjusted_rate)]);
+        renderRows('tbl_ratio', js.by_team_ratio_bucket, [r=>r.team_ratio_bucket, r=>r.n, r=>fmtNum(r.mae_proj,2), r=>fmtNum(r.mae_adjusted,2), r=>fmtNum(r.mae_raw,2), r=>fmtNum(r.mean_adjustment,2), r=>fmtPct01(r.adjusted_beats_raw_rate)]);
+        renderRows('tbl_day', js.per_day, [r=>r.date, r=>r.summary?.n??0, r=>fmtNum(r.summary?.mae_proj,2), r=>fmtNum(r.summary?.mae_adjusted,2), r=>fmtNum(r.summary?.mae_raw,2), r=>(r.summary?.n??0)>0?'ok':'empty']);
+        renderRows('tbl_history', js.history?.rows || [], [r=>r.date, r=>`${r.away||''} @ ${r.home||''}`.trim(), r=>r.player, r=>r.stat, r=>fmtNum(r.actual,1), r=>fmtNum(r.proj,1), r=>fmtNum(r.sim_mu_adjusted,1), r=>fmtNum(r.sim_mu,1), r=>fmtNum(r.err_proj,1), r=>fmtNum(r.err_adjusted,1), r=>fmtNum(r.err_raw,1), r=>fmtNum(r.elapsed,1), r=>fmtNum(r.pregame_stat_multiplier,2)]);
+        const meta=js.meta||{};
+        setStatus(`${js.status === 'empty' ? 'Empty window' : 'Loaded'} · ${esc(meta.start||'')} to ${esc(meta.end||'')} · ${String(js.overall?.n ?? 0)} settled rows`);
+      }catch(err){ setStatus(String(err && err.message || err || 'Failed to load report')); }
+    }
+    refresh();
+  </script>
+</body>
+</html>

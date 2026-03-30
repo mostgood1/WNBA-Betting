@@ -585,3 +585,69 @@ def test_export_props_recommendations_excludes_nonpositive_edges(tmp_path, monke
 
     assert rows == 1
     assert exported["player"].tolist() == ["Jaylen Brown"]
+
+
+def test_export_recommendations_prefers_calibrated_predictions_over_npu(tmp_path, monkeypatch):
+    date_str = "2026-03-30"
+    data_root = tmp_path / "data"
+    processed = data_root / "processed"
+    processed.mkdir(parents=True)
+
+    pd.DataFrame(
+        [
+            {
+                "date": date_str,
+                "home_team": "Boston Celtics",
+                "visitor_team": "Miami Heat",
+                "home_win_prob": 0.61,
+                "pred_margin": 3.5,
+                "pred_total": 230.0,
+            }
+        ]
+    ).to_csv(processed / f"predictions_{date_str}.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "date": date_str,
+                "home_team": "Boston Celtics",
+                "visitor_team": "Miami Heat",
+                "home_win_prob": 0.61,
+                "pred_margin": 3.5,
+                "pred_total": 210.0,
+            }
+        ]
+    ).to_csv(processed / f"games_predictions_npu_{date_str}.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "date": date_str,
+                "home_team": "Boston Celtics",
+                "visitor_team": "Miami Heat",
+                "home_ml": -140,
+                "away_ml": 120,
+                "home_spread": -2.5,
+                "away_spread": 2.5,
+                "home_spread_price": -110,
+                "away_spread_price": -110,
+                "total": 224.5,
+                "total_over_price": -110,
+                "total_under_price": -110,
+            }
+        ]
+    ).to_csv(processed / f"game_odds_{date_str}.csv", index=False)
+
+    monkeypatch.setattr(
+        config_module,
+        "paths",
+        config_module.Paths(root=tmp_path, repo_data_root=data_root, data_root=data_root),
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(cli_module.cli, ["export-recommendations", "--date", date_str])
+
+    assert result.exit_code == 0
+    exported = pd.read_csv(processed / f"recommendations_{date_str}.csv")
+    total_row = exported[exported["market"] == "TOTAL"].iloc[0].to_dict()
+    assert total_row["pred_total"] == 230.0

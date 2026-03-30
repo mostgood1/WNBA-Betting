@@ -200,7 +200,34 @@ def test_api_cards_falls_back_to_predictions_when_smart_sim_missing(tmp_path, mo
     monkeypatch.setattr(app_module, "_load_props_recommendations_by_team", lambda _date: {})
     monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
     monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
-    monkeypatch.setattr(app_module, "_load_best_bets_game_context", lambda _date: {})
+    monkeypatch.setattr(
+        app_module,
+        "_load_best_bets_game_context",
+        lambda _date: {
+            "by_pair": {
+                ("PHX", "UTA"): {
+                    "home_team": "Phoenix Suns",
+                    "away_team": "Utah Jazz",
+                    "home_tri": "PHX",
+                    "away_tri": "UTA",
+                    "pred_total_raw": 229.85171222031929,
+                    "pred_total_adjusted": 232.4,
+                    "pred_total": 232.4,
+                    "pred_margin_raw": 5.150077403744712,
+                    "pred_margin_adjusted": 6.2,
+                    "pred_margin": 6.2,
+                    "home_win_prob_raw": 0.6090342803663917,
+                    "home_win_prob_adjusted": 0.651,
+                    "home_win_prob": 0.651,
+                    "home_pred_points": 119.3,
+                    "away_pred_points": 113.1,
+                    "market_total": 230.5,
+                    "commence_time": "2026-03-28T22:00:00Z",
+                }
+            },
+            "slate_total_median": 230.5,
+        },
+    )
     monkeypatch.setattr(app_module, "_load_best_bets_props_prediction_lookup", lambda _date: {})
     monkeypatch.setattr(app_module, "_best_bets_load_injury_snapshot", lambda _date: {})
     monkeypatch.setattr(app_module, "_load_cards_game_recommendations_index", lambda _date: {})
@@ -223,6 +250,9 @@ def test_api_cards_falls_back_to_predictions_when_smart_sim_missing(tmp_path, mo
     assert game["sim"]["mode"] == "prediction_fallback"
     assert game["sim"]["score"]["p_home_win"] == 0.6090342803663917
     assert game["sim"]["score"]["total_mean"] == 229.85171222031929
+    assert game["sim"]["context"]["pregame_prior"]["pred_total_adjusted"] == 232.4
+    assert game["sim"]["context"]["pregame_prior"]["pred_margin_adjusted"] == 6.2
+    assert game["sim"]["context"]["pregame_prior"]["home_win_prob_adjusted"] == 0.651
     assert "Using predictions fallback because SmartSim artifact is missing for this matchup." in (game.get("warnings") or [])
 
 
@@ -886,6 +916,177 @@ def test_live_oddsapi_player_props_maps_alternate_threes_lines(monkeypatch):
     assert meta["markets_requested"] == ["player_threes_alternate"]
     assert meta["lines"]["AUSTIN REAVES|threes"] == 1.5
     assert meta["prices"]["AUSTIN REAVES|threes"] == {"over": -120.0, "under": 100.0}
+
+
+def test_api_live_player_lens_blends_adjusted_pregame_prior_into_player_projection(monkeypatch):
+    nk = app_module._norm_player_name("Devin Booker")
+
+    monkeypatch.setattr(
+        app_module,
+        "_load_best_bets_game_context",
+        lambda _date: {
+            "by_pair": {
+                ("PHX", "UTA"): {
+                    "home_team": "Phoenix Suns",
+                    "away_team": "Utah Jazz",
+                    "home_tri": "PHX",
+                    "away_tri": "UTA",
+                    "pred_total_raw": 210.0,
+                    "pred_total_adjusted": 236.0,
+                    "pred_total": 236.0,
+                    "pred_margin_raw": 0.0,
+                    "pred_margin_adjusted": 8.0,
+                    "pred_margin": 8.0,
+                    "home_pred_points": 120.0,
+                    "away_pred_points": 116.0,
+                    "home_win_prob_adjusted": 0.69,
+                }
+            }
+        },
+    )
+    monkeypatch.setattr(
+        app_module,
+        "_live_build_scoreboard_games",
+        lambda _date: (
+            "espn",
+            [
+                {
+                    "espn_event_id": "evt-1",
+                    "game_id": "001",
+                    "home": "PHX",
+                    "away": "UTA",
+                    "period": 2,
+                    "clock": "06:00",
+                    "in_progress": True,
+                    "final": False,
+                    "home_pts": 55,
+                    "away_pts": 48,
+                }
+            ],
+        ),
+    )
+    monkeypatch.setattr(app_module, "_live_fetch_espn_summary", lambda _eid: {"ok": True})
+    monkeypatch.setattr(
+        app_module,
+        "_live_extract_player_boxscore_from_espn_summary",
+        lambda _summary: [
+            {
+                "team_tri": "PHX",
+                "player": "Devin Booker",
+                "player_id": 1626164,
+                "starter": True,
+                "mp": 12,
+                "pf": 1,
+                "pts": 10,
+                "reb": 2,
+                "ast": 3,
+                "threes_made": 2,
+                "stl": 1,
+                "blk": 0,
+                "tov": 1,
+            }
+        ],
+    )
+    monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {("PHX", nk, "pts"): 20.5})
+    monkeypatch.setattr(app_module, "_live_load_props_recommendations_line_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_live_load_props_predictions_index", lambda _date: {("PHX", nk): {"pred_pts": 20.0, "roll10_min": 36.0}})
+    monkeypatch.setattr(app_module, "_live_roster_pid_by_team_nk", lambda: {("PHX", nk): 1626164})
+    monkeypatch.setattr(app_module, "_live_oddsapi_player_props_for_game", lambda _date, _home, _away: {})
+    monkeypatch.setattr(app_module, "_live_load_smart_sim_by_game_id", lambda _date, _gid: {})
+    monkeypatch.setattr(app_module, "_live_fetch_pbp_actions", lambda _gid: [])
+    monkeypatch.setattr(app_module, "_live_append_snapshot", lambda *_args, **_kwargs: None)
+
+    app_module._live_player_lens_multi_cache.clear()
+
+    with app_module.app.test_request_context("/api/live_player_lens?date=2026-03-30&event_ids=evt-1"):
+        response = app_module.api_live_player_lens()
+
+    payload = response.get_json()
+    assert payload["ok"] is True
+    game = payload["games"][0]
+    assert game["pregame_prior"]["pred_total_adjusted"] == 236.0
+
+    pts_row = next(row for row in game["rows"] if row["player"] == "Devin Booker" and row["stat"] == "pts")
+    assert pts_row["sim_mu"] == 20.0
+    assert pts_row["sim_mu_adjusted"] > pts_row["sim_mu"]
+    assert pts_row["pregame_team_total_ratio"] > 1.0
+    assert pts_row["pregame_stat_multiplier"] > 1.0
+    assert pts_row["pace_proj"] > 26.0
+    assert pts_row["sim_vs_line_adjusted"] > pts_row["sim_vs_line"]
+    assert pts_row["pregame_margin_blended"] > 0.0
+
+
+def test_api_live_player_props_projection_audit_scores_adjusted_rows(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+
+    (processed / "live_lens_projections_2026-03-29.jsonl").write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    {
+                        "date": "2026-03-29",
+                        "market": "player_prop",
+                        "game_id": "0000000001",
+                        "home": "PHX",
+                        "away": "UTA",
+                        "player": "Devin Booker",
+                        "name_key": "Devin Booker",
+                        "team_tri": "PHX",
+                        "stat": "pts",
+                        "proj": 31.0,
+                        "sim_mu": 27.0,
+                        "sim_mu_adjusted": 29.5,
+                        "elapsed": 30.0,
+                        "strength": 4.2,
+                        "received_at": "2026-03-29T22:10:00Z",
+                        "context": {
+                            "pregame_team_total_ratio": 1.09,
+                            "pregame_game_total_ratio": 1.05,
+                            "pregame_margin_blended": 7.0,
+                            "pregame_stat_multiplier": 1.09,
+                            "sim_vs_line": 1.5,
+                            "sim_vs_line_adjusted": 4.0,
+                        },
+                    }
+                )
+            ]
+        ) + "\n",
+        encoding="utf-8",
+    )
+
+    pd.DataFrame(
+        [
+            {
+                "game_id": "0000000001",
+                "player_name": "Devin Booker",
+                "pts": 30,
+                "reb": 4,
+                "ast": 6,
+                "threes": 3,
+                "stl": 1,
+                "blk": 0,
+                "tov": 2,
+            }
+        ]
+    ).to_csv(processed / "recon_props_2026-03-29.csv", index=False)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setenv("NBA_LIVE_LENS_DIR", str(processed))
+
+    with app_module.app.test_client() as client:
+        resp = client.get("/api/live_player_props_projection_audit?date=2026-03-29")
+
+    assert resp.status_code == 200
+    payload = resp.get_json()
+    assert payload["ok"] is True
+    assert payload["overall"]["n"] == 1
+    assert payload["overall"]["mae_proj"] == 1.0
+    assert payload["overall"]["mae_adjusted"] == 0.5
+    assert payload["overall"]["mae_raw"] == 3.0
+    assert payload["overall"]["adjusted_beats_raw_rate"] == 1.0
+    assert payload["overall"]["proj_beats_adjusted_rate"] == 0.0
+    assert payload["by_stat"][0]["stat"] == "pts"
 
 
 def test_load_props_movement_callouts_exposes_player_id_photo_fallback(tmp_path, monkeypatch):

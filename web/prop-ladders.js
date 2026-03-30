@@ -61,6 +61,11 @@
     return Number.isFinite(number) ? `${(number * 100).toFixed(1)}%` : '--';
   }
 
+  function formatAvgValue(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number.toFixed(1) : '--';
+  }
+
   function formatOdds(value) {
     const number = Number(value);
     if (!Number.isFinite(number)) {
@@ -207,6 +212,52 @@
     `;
   }
 
+  function renderHistorySummary(row) {
+    const history = row && typeof row.history === 'object' ? row.history : {};
+    const benchmarks = Array.isArray(row.historyBenchmarks) ? row.historyBenchmarks : [];
+
+    function hitPart(label, entry) {
+      if (!entry || typeof entry !== 'object') return '';
+      const games = Number(entry.games);
+      const count = Number(entry.count);
+      const rate = Number(entry.rate);
+      if (!Number.isFinite(games) || games <= 0 || !Number.isFinite(count) || !Number.isFinite(rate)) {
+        return '';
+      }
+      return `${label} ${Math.round(count)}/${Math.round(games)} ${formatPercent(rate)}`;
+    }
+
+    const hitBits = [
+      hitPart('Season', history.season_hit),
+      hitPart('L10', history.last10_hit),
+      hitPart('L5', history.last5_hit),
+    ].filter(Boolean);
+
+    const benchmarkMarkup = benchmarks.length
+      ? `
+        <div class="ladder-history-row">
+          ${benchmarks.map((benchmark) => `
+            <span class="ladder-history-chip ladder-history-chip--${escapeHtml(benchmark.tone || 'season')}">
+              <span>${escapeHtml(benchmark.label || 'Benchmark')}</span>
+              <strong>${escapeHtml(formatAvgValue(benchmark.value))}</strong>
+            </span>
+          `).join('')}
+        </div>
+      `
+      : '';
+
+    if (!hitBits.length && !benchmarkMarkup) {
+      return '';
+    }
+
+    return `
+      <div class="ladder-history-block">
+        ${hitBits.length ? `<div class="ladder-history-line">Line hits: ${escapeHtml(hitBits.join(' • '))}</div>` : ''}
+        ${benchmarkMarkup}
+      </div>
+    `;
+  }
+
   function renderTeamSelector(payload) {
     const options = Array.isArray(payload.teamOptions) ? payload.teamOptions : [];
     teamInputEl.innerHTML = [
@@ -316,16 +367,28 @@
       ? `<img class="ladder-team-logo ladder-team-logo-primary" src="${escapeHtml(row.teamLogoUrl)}" alt="${escapeHtml(row.team || 'Team')} logo" loading="lazy" />`
       : `<div class="ladder-team-logo ladder-team-logo-primary ladder-team-logo-fallback">${escapeHtml(String((row.team || '?').slice(0, 1) || '?'))}</div>`;
     const headshot = renderHeadshotMedia(row.headshotUrl, row.playerName || 'Player', row.playerId || row.hitterId, row.fallbackHeadshotUrl, 'ladder-player-headshot', 'ladder-player-headshot ladder-player-headshot-fallback');
-    const ladderTableRows = ladderRows.map((ladderRow) => `
-      <tr>
-        <td>${escapeHtml(formatCount(ladderRow.total))}</td>
+    const historySummaryMarkup = renderHistorySummary(row);
+    const ladderTableRows = ladderRows.map((ladderRow) => {
+      const markers = Array.isArray(ladderRow.markers) ? ladderRow.markers : [];
+      const markerMarkup = markers.length
+        ? `<div class="ladder-row-tags">${markers.map((marker) => `<span class="ladder-row-tag ladder-row-tag--${escapeHtml(marker.tone || 'season')}">${escapeHtml(marker.label || 'Benchmark')}</span>`).join('')}</div>`
+        : '';
+      return `
+      <tr class="${markers.length ? 'ladder-table-row--highlighted' : ''}">
+        <td>
+          <div class="ladder-total-cell">
+            <strong>${escapeHtml(formatCount(ladderRow.total))}</strong>
+            ${markerMarkup}
+          </div>
+        </td>
         <td>${escapeHtml(formatCount(ladderRow.hitCount))}</td>
         <td>${escapeHtml(formatPercent(ladderRow.hitProb))}</td>
         <td>${escapeHtml(thresholdBookOdds(row, ladderRow.total))}</td>
         <td>${escapeHtml(formatCount(ladderRow.exactCount))}</td>
         <td>${escapeHtml(formatPercent(ladderRow.exactProb))}</td>
       </tr>
-    `).join('');
+    `;
+    }).join('');
 
     return `
       <article class="ladder-card">
@@ -351,6 +414,7 @@
           ${row.marketLine == null ? '' : `<span class="ladder-pill"><span>Market line</span><strong>${escapeHtml(formatNumber(row.marketLine, 1))}</strong></span>`}
           ${overLineText}
         </div>
+        ${historySummaryMarkup}
         ${renderAvailableMarketChips(row)}
         ${renderMarketLineChips(row)}
         ${isEstimated ? '<div class="ladder-empty">Exact ladder counts were not embedded in the SmartSim artifact for this date. This ladder is reconstructed from the same-day SmartSim mean and variance.</div>' : ''}
