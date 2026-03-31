@@ -3,12 +3,14 @@
   "team_counts": {
     "BKN": 1,
     "CHA": 1,
+    "DAL": 2,
+    "DET": 2,
     "HOU": 1,
-    "LAC": 2,
+    "LAC": 1,
     "MIL": 2,
     "ORL": 1,
-    "POR": 1,
-    "TOR": 1
+    "PHX": 1,
+    "POR": 1
   },
   "players": [
     {
@@ -32,8 +34,18 @@
       "status": "OUT"
     },
     {
+      "player": "Marvin Bagley III",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
       "player": "Michael Porter Jr.",
       "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Amir Coffey",
+      "team": "PHX",
       "status": "OUT"
     },
     {
@@ -42,8 +54,13 @@
       "status": "OUT"
     },
     {
-      "player": "Isaiah Jackson",
-      "team": "LAC",
+      "player": "Cade Cunningham",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Wendell Moore Jr.",
+      "team": "DET",
       "status": "OUT"
     },
     {
@@ -52,13 +69,13 @@
       "status": "OUT"
     },
     {
-      "player": "Tosan Evbuomwan",
-      "team": "CHA",
+      "player": "Dereck Lively II",
+      "team": "DAL",
       "status": "OUT"
     },
     {
-      "player": "Chucky Hepburn",
-      "team": "TOR",
+      "player": "Tosan Evbuomwan",
+      "team": "CHA",
       "status": "OUT"
     }
   ],

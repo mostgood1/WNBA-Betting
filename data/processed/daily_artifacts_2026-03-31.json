@@ -5,12 +5,12 @@
   "props_predictions_ok": true,
   "game_odds_ok": true,
   "props_snapshot_ok": true,
-  "props_snapshot_rows": 9092,
+  "props_snapshot_rows": 10077,
   "props_edges_ok": true,
-  "props_edges_rows": 884,
+  "props_edges_rows": 898,
   "props_recommendations_ok": true,
-  "props_recommendations_rows": 73,
-  "props_recommendations_play_rows": 54,
+  "props_recommendations_rows": 70,
+  "props_recommendations_play_rows": 58,
   "props_expected_teams": [
     "BKN",
     "CHA",
@@ -46,7 +46,7 @@
     "PHX"
   ],
   "slate_games": 7,
-  "smart_sim_count": 6,
+  "smart_sim_count": 7,
   "rotations_dir_exists": false,
   "rotations_expected_games_yesterday": 0,
   "rotations_have_games_yesterday": 0,
@@ -61,8 +61,7 @@
   "require_rotations_espn": false,
   "warnings": [],
   "missing": [
-    "props_predictions missing slate teams: PHX",
-    "smart_sim_2026-03-31_*.json (6/7)"
+    "props_predictions missing slate teams: PHX"
   ],
   "ok": false
 }
