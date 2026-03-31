@@ -789,6 +789,8 @@ def test_best_bets_page_routes_render():
     app_module.app.testing = True
     with app_module.app.test_client() as client:
         betting_card = client.get("/betting-card?date=2026-03-19")
+        pregame_page = client.get("/pregame?date=2026-03-19")
+        live_page = client.get("/live?date=2026-03-19")
         betting_recap = client.get("/betting-recap?since=2026-03-12&until=2026-03-19")
         games_page = client.get("/best-bets-parlays?date=2026-03-19")
         props_page = client.get("/props/best-bets-parlays?date=2026-03-19")
@@ -798,6 +800,12 @@ def test_best_bets_page_routes_render():
 
     assert betting_card.status_code == 200
     assert "NBA Betting - Daily Betting Card" in betting_card.get_data(as_text=True)
+
+    assert pregame_page.status_code == 302
+    assert "/betting-card?date=2026-03-19" in pregame_page.headers["Location"]
+
+    assert live_page.status_code == 302
+    assert "/betting-card?date=2026-03-19" in live_page.headers["Location"]
 
     assert betting_recap.status_code == 200
     assert "Betting Recap" in betting_recap.get_data(as_text=True)
@@ -903,3 +911,94 @@ def test_duplicate_best_bets_aliases_redirect_to_betting_card():
 
     assert props_alias.status_code == 302
     assert "/api/betting-card?date=2026-03-19&section=props" in props_alias.headers["Location"]
+
+
+def test_api_cards_omits_players_by_default_but_supports_matchup_detail(monkeypatch):
+    date_str = "2026-03-30"
+    payload = {
+        "home": "OKC",
+        "away": "DET",
+        "game_id": "DET@OKC",
+        "players": {
+            "home": [{"player_name": "Shai Gilgeous-Alexander", "pts_mean": 31.2}],
+            "away": [{"player_name": "Cade Cunningham", "pts_mean": 24.8}],
+        },
+        "score": {"home_mean": 118.5, "away_mean": 111.3, "total_mean": 229.8},
+        "market": {},
+        "periods": {},
+        "context": {},
+    }
+
+    monkeypatch.setattr(app_module, "_load_smart_sim_files_for_authoritative_slate", lambda _date: [])
+    monkeypatch.setattr(app_module, "_find_next_available_smart_sim_date", lambda *_args, **_kwargs: (None, []))
+    monkeypatch.setattr(
+        app_module,
+        "_load_game_odds_map",
+        lambda _date: {("OKC", "DET"): {"home_team": "Oklahoma City Thunder", "visitor_team": "Detroit Pistons", "commence_time": f"{date_str}T23:00:00Z"}},
+    )
+    monkeypatch.setattr(app_module, "_load_predictions_rows_map", lambda _date: {("OKC", "DET"): {}})
+    monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_props_recommendations_by_team", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_game_context", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_props_prediction_lookup", lambda _date: {})
+    monkeypatch.setattr(app_module, "_best_bets_load_injury_snapshot", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_game_recommendations_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_prop_snapshot_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_prop_recommendations_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_recon_props_lookup", lambda _date: ({}, {}))
+    monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
+    monkeypatch.setattr(app_module, "_build_fallback_smart_sim_object", lambda *_args, **_kwargs: dict(payload))
+    monkeypatch.setattr(app_module, "_sim_vs_line_prop_recommendations", lambda *args, **kwargs: {"home": [], "away": []})
+    monkeypatch.setattr(app_module, "_build_cards_game_market_recommendations", lambda *args, **kwargs: [])
+
+    app_module.app.testing = True
+    with app_module.app.test_client() as client:
+        base_resp = client.get(f"/api/cards?date={date_str}")
+        detail_resp = client.get(f"/api/cards?date={date_str}&away=DET&home=OKC&include_players=1")
+
+    assert base_resp.status_code == 200
+    assert detail_resp.status_code == 200
+
+    base_payload = base_resp.get_json()
+    detail_payload = detail_resp.get_json()
+    base_game = base_payload["games"][0]
+    detail_game = detail_payload["games"][0]
+
+    assert base_payload["players_included"] is False
+    assert base_game["sim"]["players_loaded"] is False
+    assert "players" not in base_game["sim"]
+    assert detail_payload["players_included"] is True
+    assert detail_game["sim"]["players_loaded"] is True
+    assert detail_game["sim"]["players"]["home"][0]["player_name"] == "Shai Gilgeous-Alexander"
+
+
+def test_api_cards_sim_detail_reads_snapshot(monkeypatch):
+    monkeypatch.setattr(
+        app_module,
+        "_load_cards_sim_detail_index",
+        lambda _date: {
+            ("OKC", "DET"): {
+                "players_summary": {"home": 1, "away": 1},
+                "players": {
+                    "home": [{"player_name": "Shai Gilgeous-Alexander"}],
+                    "away": [{"player_name": "Cade Cunningham"}],
+                },
+                "missing_prop_players": {"home": [], "away": []},
+                "injuries": {"home": [], "away": []},
+            }
+        },
+    )
+
+    app_module.app.testing = True
+    with app_module.app.test_client() as client:
+        resp = client.get("/api/cards/sim-detail?date=2026-03-30&away=DET&home=OKC")
+
+    assert resp.status_code == 200
+    payload = resp.get_json()
+    assert payload["players_included"] is True
+    assert payload["games"][0]["sim"]["players_loaded"] is True
+    assert payload["games"][0]["sim"]["players"]["home"][0]["player_name"] == "Shai Gilgeous-Alexander"

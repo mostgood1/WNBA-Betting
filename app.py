@@ -3339,6 +3339,7 @@ def _enforce_minimal_ui_allowlist():
         allowed_api = {
             "/api/status/props-refresh",
             "/api/cards",
+            "/api/cards/sim-detail",
             "/api/cards/props-strip",
             "/api/betting-card",
             "/api/betting-card/recap",
@@ -6065,29 +6066,23 @@ def _redirect_with_request_params(target: str, *, extra_params: dict[str, Any] |
 def root():
     return _serve_cards_page(
         "cards.html",
-        page_mode="pregame",
-        title="NBA Betting – Pregame",
-        heading="NBA Betting – Pregame",
-        base_path="/pregame",
+        page_mode="live",
+        title="NBA Betting - Daily Betting Card",
+        heading="NBA Betting - Daily Betting Card",
+        base_path="/betting-card",
     )
 
 
 @app.route("/pregame")
 def route_pregame_cards():
-    return _serve_cards_page(
-        "cards.html",
-        page_mode="pregame",
-        title="NBA Betting – Pregame",
-        heading="NBA Betting – Pregame",
-        base_path="/pregame",
-    )
+    return _redirect_with_request_params("/betting-card")
 
 
 @app.route("/betting-card")
 def route_betting_card():
     return _serve_cards_page(
         "cards.html",
-        page_mode="pregame",
+        page_mode="live",
         title="NBA Betting - Daily Betting Card",
         heading="NBA Betting - Daily Betting Card",
         base_path="/betting-card",
@@ -6096,13 +6091,7 @@ def route_betting_card():
 
 @app.route("/live")
 def route_live_cards():
-    return _serve_cards_page(
-        "cards.html",
-        page_mode="live",
-        title="NBA Betting – Live",
-        heading="NBA Betting – Live",
-        base_path="/live",
-    )
+    return _redirect_with_request_params("/betting-card")
 
 
 @app.route("/prop-ladders")
@@ -13294,6 +13283,55 @@ def _load_cards_prop_recommendations_index(date_str: str) -> dict[tuple[str, str
     return out
 
 
+def _load_cards_sim_detail_snapshot(date_str: str) -> dict[str, Any] | None:
+    path = DATA_PROCESSED_DIR / f"cards_sim_detail_{date_str}.json"
+    if not path.exists():
+        try:
+            _maybe_fetch_remote_processed(path.name)
+        except Exception:
+            pass
+    try:
+        if not path.exists():
+            return None
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _load_cards_sim_detail_index(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
+    payload = _load_cards_sim_detail_snapshot(date_str) or {}
+    games = payload.get("games") if isinstance(payload.get("games"), list) else []
+    out: dict[tuple[str, str], dict[str, Any]] = {}
+    for game in games:
+        if not isinstance(game, dict):
+            continue
+        home_tri = str(game.get("home_tri") or "").strip().upper()
+        away_tri = str(game.get("away_tri") or "").strip().upper()
+        if not home_tri or not away_tri:
+            continue
+        sim = game.get("sim") if isinstance(game.get("sim"), dict) else {}
+        players = sim.get("players") if isinstance(sim.get("players"), dict) else {"home": [], "away": []}
+        missing_prop_players = sim.get("missing_prop_players") if isinstance(sim.get("missing_prop_players"), dict) else {"home": [], "away": []}
+        injuries = sim.get("injuries") if isinstance(sim.get("injuries"), dict) else {"home": [], "away": []}
+        summary = sim.get("players_summary") if isinstance(sim.get("players_summary"), dict) else {}
+        out[(home_tri, away_tri)] = {
+            "players": {
+                "home": [row for row in (players.get("home") or []) if isinstance(row, dict)],
+                "away": [row for row in (players.get("away") or []) if isinstance(row, dict)],
+            },
+            "missing_prop_players": {
+                "home": [row for row in (missing_prop_players.get("home") or []) if isinstance(row, dict)],
+                "away": [row for row in (missing_prop_players.get("away") or []) if isinstance(row, dict)],
+            },
+            "injuries": {
+                "home": [row for row in (injuries.get("home") or []) if isinstance(row, dict)],
+                "away": [row for row in (injuries.get("away") or []) if isinstance(row, dict)],
+            },
+            "players_summary": dict(summary),
+        }
+    return out
+
+
 def _cards_recommendation_sort_key(row: dict[str, Any]) -> tuple[float, float, float, float]:
     if not isinstance(row, dict):
         return (0.0, 0.0, 0.0, 0.0)
@@ -14489,12 +14527,29 @@ def api_cards():
 
     Query params:
       - date: YYYY-MM-DD (required)
+      - include_players: 1/true/yes to include heavy per-player sim rows
+      - home / away: optional matchup filter when requesting one game
     """
     d = _parse_date_param(request)
     if not d:
         return jsonify({"error": "missing date"}), 400
 
+    def _is_truthy_arg(value: Any) -> bool:
+        return str(value or "").strip().lower() in {"1", "true", "yes", "on"}
+
+    def _normalize_team_arg(value: Any) -> str:
+        raw = str(value or "").strip()
+        if not raw:
+            return ""
+        try:
+            return str(_get_tricode(raw) or raw).strip().upper()
+        except Exception:
+            return raw.strip().upper()
+
     requested_date = d
+    include_players = _is_truthy_arg(request.args.get("include_players", request.args.get("includePlayers")))
+    requested_home_tri = _normalize_team_arg(request.args.get("home"))
+    requested_away_tri = _normalize_team_arg(request.args.get("away"))
     props_source = str(request.args.get("props_source", request.args.get("propsSource", "auto")) or "auto").strip().lower()
     if props_source not in {"auto", "snapshot", "runtime"}:
         props_source = "auto"
@@ -15320,6 +15375,10 @@ def api_cards():
 
     games: list[dict[str, Any]] = []
     for home_tri, away_tri in sorted(slate_matchups, key=_matchup_sort_key):
+        if requested_home_tri and home_tri != requested_home_tri:
+            continue
+        if requested_away_tri and away_tri != requested_away_tri:
+            continue
         fp = smart_sim_files_by_matchup.get((home_tri, away_tri))
         if fp is not None:
             try:
@@ -15633,11 +15692,21 @@ def api_cards():
             "periods": obj.get("periods"),
             "intervals": _itv,
             "intervals_1m": _itv1,
-            "players": players_out,
-            "missing_prop_players": missing_prop_players,
-            "injuries": injuries_payload,
+            "players_loaded": bool(include_players),
+            "players_summary": {
+                "home": int(len(players_out.get("home") or [])),
+                "away": int(len(players_out.get("away") or [])),
+                "missing_home": int(len(missing_prop_players.get("home") or [])),
+                "missing_away": int(len(missing_prop_players.get("away") or [])),
+                "injured_home": int(len(injuries_payload.get("home") or [])),
+                "injured_away": int(len(injuries_payload.get("away") or [])),
+            },
             "error": sim_error,
         }
+        if include_players:
+            sim["players"] = players_out
+            sim["missing_prop_players"] = missing_prop_players
+            sim["injuries"] = injuries_payload
 
         # Betting leans (EV uses odds prices if present)
         score = sim.get("score") or {}
@@ -15913,10 +15982,61 @@ def api_cards():
                 "date": d,
                 "requested_date": requested_date,
                 "lookahead_applied": bool(d != requested_date),
+                "players_included": bool(include_players),
                 "games": games,
             }
         )
     )
+
+
+@app.route("/api/cards/sim-detail")
+def api_cards_sim_detail():
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+
+    home_tri = str(_get_tricode(request.args.get("home")) or request.args.get("home") or "").strip().upper()
+    away_tri = str(_get_tricode(request.args.get("away")) or request.args.get("away") or "").strip().upper()
+    if not home_tri or not away_tri:
+        return jsonify({"error": "missing home/away"}), 400
+
+    detail_index = _load_cards_sim_detail_index(d)
+    detail = detail_index.get((home_tri, away_tri)) if isinstance(detail_index, dict) else None
+    if isinstance(detail, dict):
+        return jsonify(
+            _to_jsonable(
+                {
+                    "date": d,
+                    "requested_date": d,
+                    "players_included": True,
+                    "games": [
+                        {
+                            "home_tri": home_tri,
+                            "away_tri": away_tri,
+                            "sim": {
+                                "players_loaded": True,
+                                "players_summary": dict(detail.get("players_summary") or {}),
+                                "players": {
+                                    "home": [dict(row) for row in (detail.get("players", {}).get("home") or []) if isinstance(row, dict)],
+                                    "away": [dict(row) for row in (detail.get("players", {}).get("away") or []) if isinstance(row, dict)],
+                                },
+                                "missing_prop_players": {
+                                    "home": [dict(row) for row in (detail.get("missing_prop_players", {}).get("home") or []) if isinstance(row, dict)],
+                                    "away": [dict(row) for row in (detail.get("missing_prop_players", {}).get("away") or []) if isinstance(row, dict)],
+                                },
+                                "injuries": {
+                                    "home": [dict(row) for row in (detail.get("injuries", {}).get("home") or []) if isinstance(row, dict)],
+                                    "away": [dict(row) for row in (detail.get("injuries", {}).get("away") or []) if isinstance(row, dict)],
+                                },
+                            },
+                        }
+                    ],
+                }
+            )
+        )
+
+    with app.test_request_context(f"/api/cards?date={d}&home={home_tri}&away={away_tri}&include_players=1"):
+        return api_cards()
 
 
 @app.route("/api/cards/props-strip")

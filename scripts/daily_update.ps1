@@ -238,6 +238,7 @@ function Test-ManagedProcessedArtifactName {
     'predictions_',
     'recommendations_',
     'cards_props_snapshot_',
+    'cards_sim_detail_',
     'recon_games_',
     'recon_quarters_',
     'recon_props_',
@@ -3380,6 +3381,94 @@ try {
   }
 } catch {
   Write-Log ("smart-sim-date failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 7.25) Build cards sim detail snapshot artifact for lazy-loaded box score detail (non-fatal)
+try {
+  $skipCardsSimDetail = $env:DAILY_SKIP_CARDS_SIM_DETAIL
+  if ($null -ne $skipCardsSimDetail -and $skipCardsSimDetail -match '^(1|true|yes)$') {
+    Write-Log 'Skipping cards sim detail snapshot build (DAILY_SKIP_CARDS_SIM_DETAIL=1)'
+  } else {
+    $cardsSimDetailOut = Join-Path $RepoRoot ("data/processed/cards_sim_detail_{0}.json" -f $Date)
+    try { if (Test-Path $cardsSimDetailOut) { Remove-Item $cardsSimDetailOut -Force -ErrorAction SilentlyContinue } } catch { }
+    Write-Log ("Building cards sim detail snapshot for {0} -> {1}" -f $Date, $cardsSimDetailOut)
+
+    $tmpPyCardsSim = Join-Path $LogPath ("build_cards_sim_detail_{0}.py" -f $Stamp)
+    $pyCardsSim = @"
+import json
+import sys
+from pathlib import Path
+
+repo_root = Path(r"{REPO_PLACEHOLDER}")
+if str(repo_root) not in sys.path:
+  sys.path.insert(0, str(repo_root))
+
+import app
+
+date_str = r"{DATE_PLACEHOLDER}"
+out_path = Path(r"{OUT_PLACEHOLDER}")
+
+client = app.app.test_client()
+resp = client.get(f"/api/cards?date={date_str}&include_players=1&props_source=snapshot")
+try:
+  payload = resp.get_json() if resp is not None else None
+except Exception:
+  payload = None
+
+games_out = []
+if isinstance(payload, dict):
+  for game in (payload.get("games") or []):
+    if not isinstance(game, dict):
+      continue
+    sim = game.get("sim") if isinstance(game.get("sim"), dict) else {}
+    players = sim.get("players") if isinstance(sim.get("players"), dict) else {}
+    missing = sim.get("missing_prop_players") if isinstance(sim.get("missing_prop_players"), dict) else {}
+    injuries = sim.get("injuries") if isinstance(sim.get("injuries"), dict) else {}
+    summary = sim.get("players_summary") if isinstance(sim.get("players_summary"), dict) else {
+      "home": len(players.get("home") or []),
+      "away": len(players.get("away") or []),
+      "missing_home": len(missing.get("home") or []),
+      "missing_away": len(missing.get("away") or []),
+      "injured_home": len(injuries.get("home") or []),
+      "injured_away": len(injuries.get("away") or []),
+    }
+    games_out.append({
+      "home_tri": game.get("home_tri"),
+      "away_tri": game.get("away_tri"),
+      "sim": {
+        "players_summary": dict(summary),
+        "players": {
+          "home": [row for row in (players.get("home") or []) if isinstance(row, dict)],
+          "away": [row for row in (players.get("away") or []) if isinstance(row, dict)],
+        },
+        "missing_prop_players": {
+          "home": [row for row in (missing.get("home") or []) if isinstance(row, dict)],
+          "away": [row for row in (missing.get("away") or []) if isinstance(row, dict)],
+        },
+        "injuries": {
+          "home": [row for row in (injuries.get("home") or []) if isinstance(row, dict)],
+          "away": [row for row in (injuries.get("away") or []) if isinstance(row, dict)],
+        },
+      },
+    })
+
+out = {
+  "date": date_str,
+  "games": games_out,
+}
+out_path.parent.mkdir(parents=True, exist_ok=True)
+out_path.write_text(json.dumps(out, indent=2), encoding="utf-8")
+print("OK")
+"@
+    $pyCardsSim = $pyCardsSim.Replace('{DATE_PLACEHOLDER}', $Date)
+    $pyCardsSim = $pyCardsSim.Replace('{REPO_PLACEHOLDER}', $RepoRoot)
+    $pyCardsSim = $pyCardsSim.Replace('{OUT_PLACEHOLDER}', $cardsSimDetailOut)
+    Set-Content -Path $tmpPyCardsSim -Value $pyCardsSim -Encoding UTF8
+    $outCardsSim = & $Python $tmpPyCardsSim 2>&1 | Tee-Object -FilePath $LogFile -Append
+    if ($outCardsSim -match 'OK') { Write-Log ("Wrote {0}" -f $cardsSimDetailOut) } else { Write-Log ("Cards sim detail snapshot build returned: {0}" -f $outCardsSim) }
+  }
+} catch {
+  Write-Log ("Cards sim detail snapshot build failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
 # 8) End-to-end artifact validation (writes data/processed/daily_artifacts_<date>.json)

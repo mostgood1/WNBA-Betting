@@ -31,6 +31,8 @@
     payload: null,
     pollHandle: null,
     propDetails: new Map(),
+    simDetailCache: new Map(),
+    simDetailLoading: new Set(),
     propsStripPayload: null,
     propsStripDefaultCount: mode === 'live' ? 18 : 12,
     propsStripVisibleCount: mode === 'live' ? 18 : 12,
@@ -225,6 +227,80 @@
       return byId;
     }
     return gridRoot.querySelector(`[data-matchup-key="${CSS.escape(rawTarget)}"]`);
+  }
+
+  function findGameByCardId(cardTarget) {
+    const target = String(cardTarget || '').trim();
+    if (!target) {
+      return null;
+    }
+    return safeArray(state.payload?.games).find((game) => cardId(game) === target) || null;
+  }
+
+  function hasLoadedSimDetail(game) {
+    return Boolean(game?.sim?.players_loaded);
+  }
+
+  function mergeSimDetail(cardTarget, detailGame) {
+    const target = String(cardTarget || '').trim();
+    if (!target || !detailGame || !Array.isArray(state.payload?.games)) {
+      return;
+    }
+    const index = state.payload.games.findIndex((game) => cardId(game) === target);
+    if (index < 0) {
+      return;
+    }
+    const currentGame = state.payload.games[index] || {};
+    state.payload.games[index] = {
+      ...currentGame,
+      ...detailGame,
+      sim: {
+        ...(currentGame.sim || {}),
+        ...(detailGame.sim || {}),
+      },
+    };
+  }
+
+  async function ensureSimDetail(cardTarget) {
+    const target = String(cardTarget || '').trim();
+    if (!target) {
+      return;
+    }
+    const cached = state.simDetailCache.get(target);
+    if (cached) {
+      mergeSimDetail(target, cached);
+      return;
+    }
+    const game = findGameByCardId(target);
+    if (!game || hasLoadedSimDetail(game) || state.simDetailLoading.has(target)) {
+      return;
+    }
+    const away = String(game?.away_tri || '').trim().toUpperCase();
+    const home = String(game?.home_tri || '').trim().toUpperCase();
+    const dateValue = String(state.payload?.date || state.date || '').trim();
+    if (!away || !home || !dateValue) {
+      return;
+    }
+    state.simDetailLoading.add(target);
+    renderBoard();
+    try {
+      const params = new URLSearchParams({
+        date: dateValue,
+        away,
+        home,
+      });
+      const response = await fetch(`/api/cards/sim-detail?${params.toString()}`, { cache: 'no-store' });
+      const payload = await readApiJson(response, 'Failed to load game sim details.');
+      const detailGame = safeArray(payload?.games)[0] || null;
+      if (detailGame) {
+        state.simDetailCache.set(target, detailGame);
+        mergeSimDetail(target, detailGame);
+      }
+    } catch (_error) {
+    } finally {
+      state.simDetailLoading.delete(target);
+      renderBoard();
+    }
   }
 
   function resolveStripCardTarget(item) {
@@ -2909,6 +2985,21 @@
   }
 
   function renderBoxScorePanel(game) {
+    const detailLoaded = hasLoadedSimDetail(game);
+    const detailLoading = state.simDetailLoading.has(cardId(game));
+    if (!detailLoaded) {
+      const counts = game?.sim?.players_summary || {};
+      const totalRows = Number(counts.away || 0) + Number(counts.home || 0);
+      return `
+        <div class="cards-panel-card cards-box-panel">
+          <div class="cards-box-head">
+            <div class="cards-table-title"><strong>Sim box score</strong></div>
+            <span class="cards-chip">${escapeHtml(totalRows ? `${totalRows} projected rows` : 'On demand')}</span>
+          </div>
+          <div class="cards-callout-copy">${escapeHtml(detailLoading ? 'Loading per-player sim rows for this matchup.' : 'Per-player SmartSim rows load only when you open a game detail tab, so the main betting card stays fast.')}</div>
+        </div>
+      `;
+    }
     const liveState = getLiveState(game);
     const liveBoxscore = getLivePlayerBoxscore(game) || { away: [], home: [] };
     return `
@@ -3150,7 +3241,7 @@
 
   function renderPlayerRowTable(simRow) {
     if (!simRow) {
-      return '<div class="cards-empty">No sim row matched this player.</div>';
+      return '<div class="cards-empty">Load the game detail to view the full SmartSim player row for this pick.</div>';
     }
     return `
       <div class="cards-table-wrap">
@@ -3350,6 +3441,8 @@
       const response = await fetch(`/api/cards?date=${encodeURIComponent(state.date)}`, { cache: 'no-store' });
       const payload = await readApiJson(response, 'Failed to load game cards.');
       state.payload = payload;
+      state.simDetailCache.clear();
+      state.simDetailLoading.clear();
       const resolvedDate = payload.date || state.date;
       updateDateControls();
       renderHeaderMeta();
@@ -3417,6 +3510,9 @@
       const tabKey = openCardTab.getAttribute('data-open-card-tab') || 'game';
       state.activeTabs.set(cardTarget, tabKey);
       renderBoard();
+      if (tabKey === 'box' || tabKey === 'props') {
+        void ensureSimDetail(cardTarget);
+      }
       const card = findGameCardElement(cardTarget);
       if (card) {
         card.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3430,6 +3526,9 @@
       const tabKey = tabButton.getAttribute('data-card-tab') || 'game';
       state.activeTabs.set(cardTarget, tabKey);
       renderBoard();
+      if (tabKey === 'box' || tabKey === 'props') {
+        void ensureSimDetail(cardTarget);
+      }
       return;
     }
 
@@ -3449,6 +3548,9 @@
       const tabKey = marketTab.getAttribute('data-market-tab-target') || 'game';
       state.activeTabs.set(cardTarget, tabKey);
       renderBoard();
+      if (tabKey === 'box' || tabKey === 'props') {
+        void ensureSimDetail(cardTarget);
+      }
       return;
     }
 
@@ -3497,6 +3599,7 @@
         detail.selectedKey = propSelect.getAttribute('data-prop-select') || null;
         state.activeTabs.set(cardTarget, 'props');
         renderBoard();
+        void ensureSimDetail(cardTarget);
       }
     }
   });
