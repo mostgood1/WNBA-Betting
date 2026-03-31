@@ -18,11 +18,90 @@ import pandas as pd
 from pypdf import PdfReader
 
 from ..config import paths
+from ..roster_files import pick_rosters_file
 try:
     from ..teams import to_tricode as _to_tri
 except Exception:
     def _to_tri(x: str) -> str:
         return (x or '').strip().upper()
+
+
+def _season_for_date_str(date_str: str) -> str | None:
+    try:
+        d = datetime.strptime(str(date_str), "%Y-%m-%d")
+    except Exception:
+        return None
+    season_year = d.year if d.month >= 7 else (d.year - 1)
+    return f"{season_year}-{(season_year + 1) % 100:02d}"
+
+
+def _norm_player_name_key(name: str) -> str:
+    try:
+        s = str(name or "").strip().lower()
+    except Exception:
+        s = ""
+    if not s:
+        return ""
+    try:
+        import unicodedata as _ud
+
+        s = _ud.normalize("NFKD", s)
+        s = s.encode("ascii", "ignore").decode("ascii")
+    except Exception:
+        pass
+    s = re.sub(r"[^a-z0-9\s]", "", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    toks = [t for t in s.split(" ") if t and t not in {"jr", "sr", "ii", "iii", "iv", "v"}]
+    return " ".join(toks)
+
+
+def _roster_name_to_team_map(date_str: str | None) -> dict[str, str]:
+    season = _season_for_date_str(str(date_str or "").strip()) if date_str else None
+    roster_file = pick_rosters_file(paths.data_processed, season=season)
+    if roster_file is None or not roster_file.exists():
+        return {}
+
+    try:
+        rdf = pd.read_csv(roster_file)
+    except Exception:
+        return {}
+    if rdf is None or rdf.empty:
+        return {}
+
+    cols = {str(c).upper(): c for c in rdf.columns}
+    name_col = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+    team_col = cols.get("TEAM_ABBREVIATION")
+    if not name_col or not team_col:
+        return {}
+
+    out: dict[str, str] = {}
+    for _, row in rdf[[name_col, team_col]].dropna().iterrows():
+        key = _norm_player_name_key(row.get(name_col))
+        if not key:
+            continue
+        tri = str(_to_tri(str(row.get(team_col) or "")) or "").strip().upper()
+        if len(tri) == 3:
+            out[key] = tri
+    return out
+
+
+def _apply_roster_team_corrections(df: pd.DataFrame, *, date_str: str | None) -> pd.DataFrame:
+    if df is None or df.empty or "player" not in df.columns or "team" not in df.columns:
+        return df
+
+    roster_map = _roster_name_to_team_map(date_str)
+    if not roster_map:
+        return df
+
+    out = df.copy()
+    out["_player_key"] = out["player"].astype(str).map(_norm_player_name_key)
+    out["team"] = out["_player_key"].map(lambda key: roster_map.get(str(key) or "")).where(
+        out["_player_key"].astype(str).str.len() > 0,
+        other=None,
+    ).fillna(out["team"])
+    out["team"] = out["team"].astype(str).map(lambda value: str(_to_tri(str(value) or "") or "").strip().upper())
+    out = out[out["team"].astype(str).str.len() == 3].copy()
+    return out.drop(columns=["_player_key"], errors="ignore")
 
 # Robust team name -> abbreviation mapper (used by ESPN parser)
 def _map_team_name_to_abbr(team_name: str) -> str:
@@ -622,6 +701,7 @@ class NBAInjuryDatabase:
             infer_series = pd.Series(infer_vals, index=status_norm.index)
             status_norm = status_norm.where(~needs_infer, other=infer_series.fillna(""))
             combined["status"] = status_norm
+            combined = _apply_roster_team_corrections(combined, date_str=date_str)
             # De-duplicate by team/player/date (keep last = prefer newest scrape in file order)
             if "date" in combined.columns:
                 combined["_row"] = _np.arange(len(combined))
