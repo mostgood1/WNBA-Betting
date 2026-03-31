@@ -1,23 +1,21 @@
 {
   "date": "2026-03-30",
   "team_counts": {
-    "CHI": 1,
+    "ATL": 1,
+    "BOS": 1,
+    "CHI": 2,
     "CLE": 1,
     "DAL": 2,
     "DET": 1,
-    "LAL": 1,
-    "MEM": 2,
+    "MEM": 3,
+    "OKC": 1,
     "PHI": 1,
-    "PHX": 1,
+    "PHX": 2,
     "SAS": 2,
-    "UTA": 3
+    "UTA": 2,
+    "WAS": 1
   },
   "players": [
-    {
-      "player": "Marcus Smart",
-      "team": "LAL",
-      "status": "OUT"
-    },
     {
       "player": "Zach Collins",
       "team": "CHI",
@@ -29,8 +27,18 @@
       "status": "OUT"
     },
     {
-      "player": "Dillon Brooks",
+      "player": "Isaiah Hartenstein",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Grayson Allen",
       "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Marvin Bagley III",
+      "team": "DAL",
       "status": "OUT"
     },
     {
@@ -39,9 +47,9 @@
       "status": "OUT"
     },
     {
-      "player": "Caleb Martin",
-      "team": "DAL",
-      "status": "DOUBTFUL"
+      "player": "Amir Coffey",
+      "team": "PHX",
+      "status": "OUT"
     },
     {
       "player": "Santi Aldama",
@@ -59,13 +67,23 @@
       "status": "OUT"
     },
     {
-      "player": "Walker Kessler",
-      "team": "UTA",
+      "player": "Mac McClung",
+      "team": "CHI",
       "status": "OUT"
     },
     {
       "player": "Harrison Ingram",
       "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Ron Harper Jr.",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
+      "player": "Rayan Rupert",
+      "team": "MEM",
       "status": "OUT"
     },
     {
@@ -79,6 +97,11 @@
       "status": "OUT"
     },
     {
+      "player": "Alex Sarr",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
       "player": "Isaiah Collier",
       "team": "UTA",
       "status": "OUT"
@@ -86,6 +109,11 @@
     {
       "player": "David Jones Garcia",
       "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "RayJ Dennis",
+      "team": "ATL",
       "status": "OUT"
     }
   ],

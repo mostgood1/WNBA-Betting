@@ -1,9 +1,4 @@
 event_id,commence_time,home_team,away_team,has_odds
-2ba4ff0cef51aafdf9c5509533b14091,2026-03-30T23:10:00Z,Miami Heat,Philadelphia 76ers,True
-6faf1f26b1e369d008c889f78e15732b,2026-03-30T23:40:00Z,Atlanta Hawks,Boston Celtics,True
-99052db19c4b4026e439fcc94cd4f6e8,2026-03-31T00:10:00Z,San Antonio Spurs,Chicago Bulls,True
-7d18651bc9124e2b06c6ffbc3af06ee6,2026-03-31T00:10:00Z,Memphis Grizzlies,Phoenix Suns,True
-529b588f29593d9353dc633d814bc188,2026-03-31T00:40:00Z,Dallas Mavericks,Minnesota Timberwolves,True
-2d048fe85c2360eaad38501d77dd41e4,2026-03-31T01:10:00Z,Utah Jazz,Cleveland Cavaliers,True
-e3266348b9f8e04ffa8ca5bbe8e55265,2026-03-31T01:40:00Z,Oklahoma City Thunder,Detroit Pistons,True
-7bab999d0c94806e44c5de1d60333079,2026-03-31T02:10:00Z,Los Angeles Lakers,Washington Wizards,True
+2d048fe85c2360eaad38501d77dd41e4,2026-03-31T01:11:00Z,Utah Jazz,Cleveland Cavaliers,True
+e3266348b9f8e04ffa8ca5bbe8e55265,2026-03-31T01:43:00Z,Oklahoma City Thunder,Detroit Pistons,True
+7bab999d0c94806e44c5de1d60333079,2026-03-31T02:12:00Z,Los Angeles Lakers,Washington Wizards,True
