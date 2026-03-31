@@ -204,10 +204,10 @@ def _merge_pregame_expected_minutes_for_team(team_df: pd.DataFrame, *, date_str:
     out = team_df.copy()
     if "player_name" in out.columns:
         out["player_name"] = out["player_name"].astype(str).str.strip()
-    out["_pkey"] = out.get("player_name", "").map(_norm_player_key)
+    out["_pkey"] = _frame_series(out, "player_name", "").map(_norm_player_key)
 
-    pem_t["player_name"] = pem_t.get("player_name", "").astype(str).str.strip()
-    pem_t["_pkey"] = pem_t.get("player_name", "").map(_norm_player_key)
+    pem_t["player_name"] = _frame_series(pem_t, "player_name", "").astype(str).str.strip()
+    pem_t["_pkey"] = _frame_series(pem_t, "player_name", "").map(_norm_player_key)
 
     # Dedupe so mapping is stable.
     try:
@@ -1090,6 +1090,39 @@ def _boolish_series(values: Any, index: pd.Index) -> pd.Series:
     except Exception:
         pass
     return out.astype(bool)
+
+
+def _frame_series(frame: pd.DataFrame, column: str, default: Any = "", *, dtype: Any | None = object) -> pd.Series:
+    if not isinstance(frame, pd.DataFrame):
+        return pd.Series(dtype=(dtype if dtype is not None else object))
+
+    if column in frame.columns:
+        ser = frame[column]
+        try:
+            ser = ser.reindex(frame.index)
+        except Exception:
+            pass
+    else:
+        ser = pd.Series([default] * len(frame), index=frame.index)
+
+    if dtype is not None:
+        try:
+            ser = ser.astype(dtype)
+        except Exception:
+            pass
+    return ser
+
+
+def _frame_numeric_series(frame: pd.DataFrame, column: str, default: float = 0.0) -> pd.Series:
+    if not isinstance(frame, pd.DataFrame):
+        return pd.Series(dtype=float)
+    if column not in frame.columns:
+        return pd.Series([float(default)] * len(frame), index=frame.index, dtype=float)
+
+    values = pd.to_numeric(frame[column], errors="coerce")
+    if not isinstance(values, pd.Series):
+        values = pd.Series([values] * len(frame), index=frame.index)
+    return values.reindex(frame.index).fillna(float(default)).astype(float)
 
 
 def _first_minutes_signal(team_df: pd.DataFrame) -> pd.Series:
@@ -2667,7 +2700,7 @@ def _derive_sim_minutes(team_df: pd.DataFrame, *, date_str: str | None = None, t
         pri = _minutes_priors_from_player_logs(date_str=str(date_str), team_tri=str(team_tri), lookback_days=21)
         if pri:
             try:
-                pkeys = team_df.get("player_name", "").map(_norm_player_key)
+                pkeys = _frame_series(team_df, "player_name", "").map(_norm_player_key)
                 pri_m = pkeys.map(pri)
                 pri_m = pd.to_numeric(pri_m, errors="coerce").fillna(0.0).astype(float)
                 use = (seed <= 0.0) & (pri_m > 0.0)
@@ -2690,7 +2723,7 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
         return pd.DataFrame()
 
     out = team_df.copy()
-    out["_pkey"] = out.get("player_name", "").map(_norm_player_key)
+    out["_pkey"] = _frame_series(out, "player_name", "").map(_norm_player_key)
 
     # Minutes (rotation-based when available)
     if sim_minutes is not None and len(sim_minutes) == len(out):
@@ -2764,8 +2797,8 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
         if col in out.columns and pred_col in out.columns:
             out[col] = np.where(out[col] > 0.0, out[col], out[pred_col])
 
-    roll10_min = pd.to_numeric(out.get("roll10_min"), errors="coerce").fillna(0.0).astype(float)
-    roll5_min = pd.to_numeric(out.get("roll5_min"), errors="coerce").fillna(0.0).astype(float)
+    roll10_min = _frame_numeric_series(out, "roll10_min")
+    roll5_min = _frame_numeric_series(out, "roll5_min")
     split_ctx = _player_split_rate_context(str(date_str or ""), str(team_tri or "")) if date_str else pd.DataFrame()
     pos_ctx = _opponent_position_rate_context(str(date_str or "")) if date_str else pd.DataFrame()
     split_by_player: dict[str, pd.DataFrame] = {}
@@ -2899,7 +2932,7 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
 
     # Defensive baseline if we have no point priors at all (e.g., missing props + missing priors).
     try:
-        pts_pm = pd.to_numeric(out.get("_prior_pts_pm"), errors="coerce").fillna(0.0).astype(float)
+        pts_pm = _frame_numeric_series(out, "_prior_pts_pm")
         if float(pts_pm.sum()) <= 0:
             out["_prior_pts_pm"] = np.where(sim_min > 0, 0.55, 0.0)  # ~20 pts per 36
     except Exception:
@@ -2913,8 +2946,8 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
     # players with nonzero attempt priors (inflated statlines / implausible distributions).
     active = sim_min > 0.5
 
-    pts_pm = pd.to_numeric(out.get("_prior_pts_pm"), errors="coerce").fillna(0.0).astype(float)
-    threes_pm = pd.to_numeric(out.get("_prior_threes_pm"), errors="coerce").fillna(0.0).astype(float)
+    pts_pm = _frame_numeric_series(out, "_prior_pts_pm")
+    threes_pm = _frame_numeric_series(out, "_prior_threes_pm")
 
     # Player-level attempt priors: infer from predicted points + threes with conservative assumptions.
     # These are *fallbacks* only for rows that have 0/NaN priors.
@@ -2933,10 +2966,10 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
         fg3a_fallback = (threes_pm / 0.35).clip(lower=0.0, upper=0.65)
         fta_fallback = (0.18 * fga_fallback).clip(lower=0.0, upper=0.35)
 
-    fga = pd.to_numeric(out.get("_prior_fga_pm"), errors="coerce").fillna(0.0).astype(float)
+    fga = _frame_numeric_series(out, "_prior_fga_pm")
     out["_prior_fga_pm"] = np.where(active & (fga <= 0.0), fga_fallback, fga)
 
-    fg3a = pd.to_numeric(out.get("_prior_threes_att_pm"), errors="coerce").fillna(0.0).astype(float)
+    fg3a = _frame_numeric_series(out, "_prior_threes_att_pm")
     out["_prior_threes_att_pm"] = np.where(active & (fg3a <= 0.0), fg3a_fallback, fg3a)
 
     # Ensure 3PA is not an impossible share of total FGA.
@@ -2948,48 +2981,48 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
     except Exception:
         pass
 
-    fgm = pd.to_numeric(out.get("_prior_fgm_pm"), errors="coerce").fillna(0.0).astype(float)
-    fga_now = pd.to_numeric(out.get("_prior_fga_pm"), errors="coerce").fillna(0.0).astype(float)
+    fgm = _frame_numeric_series(out, "_prior_fgm_pm")
+    fga_now = _frame_numeric_series(out, "_prior_fga_pm")
     out["_prior_fgm_pm"] = np.where(active & (fgm <= 0.0), 0.46 * fga_now, fgm)
 
-    fg3m = pd.to_numeric(out.get("_prior_threes_pm"), errors="coerce").fillna(0.0).astype(float)
-    fg3a_now = pd.to_numeric(out.get("_prior_threes_att_pm"), errors="coerce").fillna(0.0).astype(float)
+    fg3m = _frame_numeric_series(out, "_prior_threes_pm")
+    fg3a_now = _frame_numeric_series(out, "_prior_threes_att_pm")
     out["_prior_threes_pm"] = np.where(active & (fg3m <= 0.0), 0.35 * fg3a_now, fg3m)
 
-    fta = pd.to_numeric(out.get("_prior_fta_pm"), errors="coerce").fillna(0.0).astype(float)
+    fta = _frame_numeric_series(out, "_prior_fta_pm")
     out["_prior_fta_pm"] = np.where(active & (fta <= 0.0), fta_fallback, fta)
 
-    ftm = pd.to_numeric(out.get("_prior_ftm_pm"), errors="coerce").fillna(0.0).astype(float)
-    fta_now = pd.to_numeric(out.get("_prior_fta_pm"), errors="coerce").fillna(0.0).astype(float)
+    ftm = _frame_numeric_series(out, "_prior_ftm_pm")
+    fta_now = _frame_numeric_series(out, "_prior_fta_pm")
     out["_prior_ftm_pm"] = np.where(active & (ftm <= 0.0), 0.76 * fta_now, ftm)
 
     # Team-level safety net: if *everyone* is missing attempts, apply a conservative baseline.
-    fga_final = pd.to_numeric(out.get("_prior_fga_pm"), errors="coerce").fillna(0.0).astype(float)
+    fga_final = _frame_numeric_series(out, "_prior_fga_pm")
     if float((fga_final * sim_min).sum()) <= 0:
         out["_prior_fga_pm"] = np.where(sim_min > 0, 0.55, 0.0)
         fga_final = pd.to_numeric(out["_prior_fga_pm"], errors="coerce").fillna(0.0).astype(float)
 
-    fg3a_final = pd.to_numeric(out.get("_prior_threes_att_pm"), errors="coerce").fillna(0.0).astype(float)
+    fg3a_final = _frame_numeric_series(out, "_prior_threes_att_pm")
     if float((fg3a_final * sim_min).sum()) <= 0:
         out["_prior_threes_att_pm"] = 0.36 * fga_final
 
-    fgm_final = pd.to_numeric(out.get("_prior_fgm_pm"), errors="coerce").fillna(0.0).astype(float)
+    fgm_final = _frame_numeric_series(out, "_prior_fgm_pm")
     if float((fgm_final * sim_min).sum()) <= 0:
         out["_prior_fgm_pm"] = 0.46 * fga_final
 
-    fg3m_final = pd.to_numeric(out.get("_prior_threes_pm"), errors="coerce").fillna(0.0).astype(float)
+    fg3m_final = _frame_numeric_series(out, "_prior_threes_pm")
     if float((fg3m_final * sim_min).sum()) <= 0:
         out["_prior_threes_pm"] = 0.35 * pd.to_numeric(out["_prior_threes_att_pm"], errors="coerce").fillna(0.0).astype(float)
 
-    fta_final = pd.to_numeric(out.get("_prior_fta_pm"), errors="coerce").fillna(0.0).astype(float)
+    fta_final = _frame_numeric_series(out, "_prior_fta_pm")
     if float((fta_final * sim_min).sum()) <= 0:
         out["_prior_fta_pm"] = 0.18 * fga_final
 
-    ftm_final = pd.to_numeric(out.get("_prior_ftm_pm"), errors="coerce").fillna(0.0).astype(float)
+    ftm_final = _frame_numeric_series(out, "_prior_ftm_pm")
     if float((ftm_final * sim_min).sum()) <= 0:
         out["_prior_ftm_pm"] = 0.76 * pd.to_numeric(out["_prior_fta_pm"], errors="coerce").fillna(0.0).astype(float)
 
-    pf = pd.to_numeric(out.get("_prior_pf_pm"), errors="coerce").fillna(0.0).astype(float)
+    pf = _frame_numeric_series(out, "_prior_pf_pm")
     if float(pf.sum()) <= 0:
         out["_prior_pf_pm"] = 0.085  # ~3.0 PF per 36
 
@@ -3268,7 +3301,7 @@ def simulate_smart_game(
         t = str(team_tri or "").strip().upper()
         ban = excluded_map.get(t)
         if ban:
-            out["_pkey"] = out.get("player_name", "").map(_norm_player_key)
+            out["_pkey"] = _frame_series(out, "player_name", "").map(_norm_player_key)
             out = out[~out["_pkey"].astype(str).str.upper().isin(ban)].drop(columns=["_pkey"], errors="ignore")
         return out
 
