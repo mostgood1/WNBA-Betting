@@ -14579,6 +14579,7 @@ def api_cards():
     cards_game_recommendations_index = _load_cards_game_recommendations_index(d)
     cards_prop_snapshot_index = _load_cards_prop_snapshot_index(d)
     cards_prop_recommendations_index = _load_cards_prop_recommendations_index(d)
+    cards_sim_detail_index = _load_cards_sim_detail_index(d)
 
     props_recs_source_lookup: dict[tuple[str, str], dict[str, Any]] = {}
     try:
@@ -15406,6 +15407,8 @@ def api_cards():
         if not home_tri or not away_tri:
             continue
 
+        sim_detail_snapshot = cards_sim_detail_index.get((home_tri, away_tri)) if isinstance(cards_sim_detail_index, dict) else None
+
         odds = odds_map.get((home_tri, away_tri)) or {}
         home_name = str(odds.get("home_team") or home_tri)
         away_name = str(odds.get("visitor_team") or away_tri)
@@ -15624,6 +15627,36 @@ def api_cards():
             "away": _injury_list_for_team(away_tri),
         }
 
+        snapshot_players_summary = None
+        if isinstance(sim_detail_snapshot, dict):
+            try:
+                snapshot_players = sim_detail_snapshot.get("players") if isinstance(sim_detail_snapshot.get("players"), dict) else {}
+                snapshot_missing = sim_detail_snapshot.get("missing_prop_players") if isinstance(sim_detail_snapshot.get("missing_prop_players"), dict) else {}
+                snapshot_injuries = sim_detail_snapshot.get("injuries") if isinstance(sim_detail_snapshot.get("injuries"), dict) else {}
+                snapshot_summary = sim_detail_snapshot.get("players_summary") if isinstance(sim_detail_snapshot.get("players_summary"), dict) else {}
+
+                current_player_rows = int(len(players_out.get("home") or [])) + int(len(players_out.get("away") or []))
+                snapshot_player_rows = int(len(snapshot_players.get("home") or [])) + int(len(snapshot_players.get("away") or []))
+
+                if snapshot_player_rows > current_player_rows:
+                    players_out = {
+                        "home": [dict(row) for row in (snapshot_players.get("home") or []) if isinstance(row, dict)],
+                        "away": [dict(row) for row in (snapshot_players.get("away") or []) if isinstance(row, dict)],
+                    }
+                    missing_prop_players = {
+                        "home": [dict(row) for row in (snapshot_missing.get("home") or []) if isinstance(row, dict)],
+                        "away": [dict(row) for row in (snapshot_missing.get("away") or []) if isinstance(row, dict)],
+                    }
+                    injuries_payload = {
+                        "home": [dict(row) for row in (snapshot_injuries.get("home") or []) if isinstance(row, dict)],
+                        "away": [dict(row) for row in (snapshot_injuries.get("away") or []) if isinstance(row, dict)],
+                    }
+
+                if isinstance(snapshot_summary, dict) and snapshot_summary:
+                    snapshot_players_summary = dict(snapshot_summary)
+            except Exception:
+                snapshot_players_summary = None
+
         def _fallback_intervals_1m(total_mean: Optional[float]) -> dict[str, Any]:
             tm = 0.0 if total_mean is None else float(total_mean)
             # Build a simple 48-minute regulation ladder. This is a last-resort visualization
@@ -15693,7 +15726,7 @@ def api_cards():
             "intervals": _itv,
             "intervals_1m": _itv1,
             "players_loaded": bool(include_players),
-            "players_summary": {
+            "players_summary": snapshot_players_summary or {
                 "home": int(len(players_out.get("home") or [])),
                 "away": int(len(players_out.get("away") or [])),
                 "missing_home": int(len(missing_prop_players.get("home") or [])),

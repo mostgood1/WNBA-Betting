@@ -1002,3 +1002,69 @@ def test_api_cards_sim_detail_reads_snapshot(monkeypatch):
     assert payload["players_included"] is True
     assert payload["games"][0]["sim"]["players_loaded"] is True
     assert payload["games"][0]["sim"]["players"]["home"][0]["player_name"] == "Shai Gilgeous-Alexander"
+
+
+def test_api_cards_uses_sim_detail_snapshot_for_summary_when_raw_players_missing(monkeypatch):
+    date_str = "2026-03-31"
+    payload = {
+        "home": "ORL",
+        "away": "PHX",
+        "game_id": "PHX@ORL",
+        "players": {"home": [], "away": []},
+        "score": {"home_mean": 111.0, "away_mean": 109.0, "total_mean": 220.0},
+        "market": {},
+        "periods": {},
+        "context": {"fallback_reason": "missing_smart_sim"},
+        "error": "missing_smart_sim",
+    }
+
+    monkeypatch.setattr(app_module, "_load_smart_sim_files_for_authoritative_slate", lambda _date: [])
+    monkeypatch.setattr(app_module, "_find_next_available_smart_sim_date", lambda *_args, **_kwargs: (None, []))
+    monkeypatch.setattr(
+        app_module,
+        "_load_game_odds_map",
+        lambda _date: {("ORL", "PHX"): {"home_team": "Orlando Magic", "visitor_team": "Phoenix Suns", "commence_time": f"{date_str}T23:00:00Z"}},
+    )
+    monkeypatch.setattr(app_module, "_load_predictions_rows_map", lambda _date: {("ORL", "PHX"): {}})
+    monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_props_recommendations_by_team", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_game_context", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_props_prediction_lookup", lambda _date: {})
+    monkeypatch.setattr(app_module, "_best_bets_load_injury_snapshot", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_game_recommendations_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_prop_snapshot_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_prop_recommendations_index", lambda _date: {})
+    monkeypatch.setattr(
+        app_module,
+        "_load_cards_sim_detail_index",
+        lambda _date: {
+            ("ORL", "PHX"): {
+                "players_summary": {"home": 9, "away": 6, "missing_home": 2, "missing_away": 0, "injured_home": 0, "injured_away": 0},
+                "players": {"home": [{"player_name": "Paolo Banchero"}], "away": [{"player_name": "Devin Booker"}]},
+                "missing_prop_players": {"home": [{"player_name": "Jalen Suggs"}], "away": []},
+                "injuries": {"home": [], "away": []},
+            }
+        },
+    )
+    monkeypatch.setattr(app_module, "_load_recon_props_lookup", lambda _date: ({}, {}))
+    monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
+    monkeypatch.setattr(app_module, "_build_fallback_smart_sim_object", lambda *_args, **_kwargs: dict(payload))
+    monkeypatch.setattr(app_module, "_sim_vs_line_prop_recommendations", lambda *args, **kwargs: {"home": [], "away": []})
+    monkeypatch.setattr(app_module, "_build_cards_game_market_recommendations", lambda *args, **kwargs: [])
+
+    app_module.app.testing = True
+    with app_module.app.test_client() as client:
+        base_resp = client.get(f"/api/cards?date={date_str}")
+        detail_resp = client.get(f"/api/cards?date={date_str}&home=ORL&away=PHX&include_players=1")
+
+    base_game = base_resp.get_json()["games"][0]
+    detail_game = detail_resp.get_json()["games"][0]
+
+    assert base_game["sim"]["players_summary"]["home"] == 9
+    assert base_game["sim"]["players_summary"]["away"] == 6
+    assert detail_game["sim"]["players"]["home"][0]["player_name"] == "Paolo Banchero"
+    assert detail_game["sim"]["players"]["away"][0]["player_name"] == "Devin Booker"
