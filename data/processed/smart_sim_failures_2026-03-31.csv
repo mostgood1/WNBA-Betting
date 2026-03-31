@@ -1,2 +1,2 @@
 home,away,error
-ORL,PHX,'numpy.float64' object has no attribute 'fillna'
+ORL,PHX,'str' object has no attribute 'map'

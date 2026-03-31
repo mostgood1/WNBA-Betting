@@ -1,0 +1,67 @@
+{
+  "date": "2026-03-31",
+  "team_counts": {
+    "BKN": 1,
+    "CHA": 1,
+    "HOU": 1,
+    "LAC": 2,
+    "MIL": 2,
+    "ORL": 1,
+    "POR": 1,
+    "TOR": 1
+  },
+  "players": [
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Giannis Antetokounmpo",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jerami Grant",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Michael Porter Jr.",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevin Porter Jr.",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Jackson",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Anthony Black",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Tosan Evbuomwan",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Chucky Hepburn",
+      "team": "TOR",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
