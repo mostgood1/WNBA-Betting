@@ -25,6 +25,7 @@
     boardInitialized: false,
     date: '',
     filter: 'all',
+    liveDataLoading: false,
     liveGameLens: new Map(),
     livePlayerBoxscores: new Map(),
     liveStates: new Map(),
@@ -229,6 +230,18 @@
     return gridRoot.querySelector(`[data-matchup-key="${CSS.escape(rawTarget)}"]`);
   }
 
+  function findScoreboardItemElement(cardTarget) {
+    const rawTarget = String(cardTarget || '').trim();
+    if (!rawTarget || !scoreboardRoot) {
+      return null;
+    }
+    const byId = scoreboardRoot.querySelector(`[data-card-id="${CSS.escape(rawTarget)}"]`);
+    if (byId) {
+      return byId;
+    }
+    return scoreboardRoot.querySelector(`[data-matchup-key="${CSS.escape(rawTarget)}"]`);
+  }
+
   function findGameByCardId(cardTarget) {
     const target = String(cardTarget || '').trim();
     if (!target) {
@@ -239,6 +252,20 @@
 
   function hasLoadedSimDetail(game) {
     return Boolean(game?.sim?.players_loaded);
+  }
+
+  function sameSlate(nextGames, currentGames) {
+    const left = safeArray(currentGames);
+    const right = safeArray(nextGames);
+    if (left.length !== right.length) {
+      return false;
+    }
+    for (let index = 0; index < left.length; index += 1) {
+      if (cardId(left[index]) !== cardId(right[index])) {
+        return false;
+      }
+    }
+    return true;
   }
 
   function mergeSimDetail(cardTarget, detailGame) {
@@ -261,6 +288,12 @@
     };
   }
 
+  function reapplyCachedSimDetails() {
+    state.simDetailCache.forEach((detailGame, target) => {
+      mergeSimDetail(target, detailGame);
+    });
+  }
+
   async function ensureSimDetail(cardTarget) {
     const target = String(cardTarget || '').trim();
     if (!target) {
@@ -269,6 +302,7 @@
     const cached = state.simDetailCache.get(target);
     if (cached) {
       mergeSimDetail(target, cached);
+      renderGameCardByTarget(target);
       return;
     }
     const game = findGameByCardId(target);
@@ -282,7 +316,7 @@
       return;
     }
     state.simDetailLoading.add(target);
-    renderBoard();
+    renderGameCardByTarget(target);
     try {
       const params = new URLSearchParams({
         date: dateValue,
@@ -299,7 +333,7 @@
     } catch (_error) {
     } finally {
       state.simDetailLoading.delete(target);
-      renderBoard();
+      renderGameCardByTarget(target);
     }
   }
 
@@ -938,10 +972,12 @@
   }
 
   async function loadLiveGameLens(dateValue, games) {
+    state.liveDataLoading = true;
     state.liveGameLens = new Map();
     state.livePlayerBoxscores = new Map();
     state.liveStates = new Map();
     if (mode !== 'live') {
+      state.liveDataLoading = false;
       return;
     }
     try {
@@ -1037,6 +1073,8 @@
       });
     } catch (_error) {
       state.liveGameLens = new Map();
+    } finally {
+      state.liveDataLoading = false;
     }
   }
 
@@ -2696,7 +2734,7 @@
       ].filter(Boolean)[0] || 'Waiting for a live edge.' : 'Pregame betting board ready')
       : 'Pregame betting board ready';
     return `
-      <a class="cards-strip-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" href="#game-card-${encodeURIComponent(id)}">
+      <a class="cards-strip-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" data-card-id="${escapeHtml(id)}" data-matchup-key="${escapeHtml(gameMatchupKey(game))}" href="#game-card-${encodeURIComponent(id)}">
         <div class="cards-strip-head">
           <span>${escapeHtml(compactHeaderText)}</span>
           <span>${escapeHtml(compactDetailText)}</span>
@@ -3348,9 +3386,11 @@
     const liveScoreLabel = mode === 'live' && hasStarted
       ? `Live score ${game.away_tri} ${fmtInteger(awayScore)} - ${fmtInteger(homeScore)} ${game.home_tri}`
       : simScoreLabel;
-    const scoreMetaPrimary = liveScoreLabel;
-    const scoreMetaSecondary = mode === 'live'
-      ? `${simScoreLabel} · Total ${fmtNumber(score.total_mean, 1)} · Margin ${fmtSigned(score.margin_mean, 1)}`
+    const liveDataPending = mode === 'live' && state.liveDataLoading && !liveState;
+    const liveLensPending = mode === 'live' && state.liveDataLoading && !liveLens;
+    const scoreMetaPrimary = liveDataPending ? 'Loading live box...' : liveScoreLabel;
+    const scoreMetaSecondary = liveLensPending
+      ? 'Loading live lens...'
       : `${simScoreLabel} · Total ${fmtNumber(score.total_mean, 1)} · Margin ${fmtSigned(score.margin_mean, 1)}`;
     return `
       <article class="cards-game-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" data-card-id="${escapeHtml(id)}" data-matchup-key="${escapeHtml(matchup)}" id="game-card-${escapeHtml(id)}">
@@ -3412,6 +3452,83 @@
     `;
   }
 
+  function createElementFromMarkup(markup) {
+    const template = document.createElement('template');
+    template.innerHTML = String(markup || '').trim();
+    return template.content.firstElementChild;
+  }
+
+  function syncMarkupCollection(container, items, renderItem, options = {}) {
+    if (!container) {
+      return;
+    }
+    const keyFromItem = options.keyFromItem || ((item) => cardId(item));
+    const keyFromElement = options.keyFromElement || ((element) => String(element?.dataset?.cardId || '').trim());
+    const existingByKey = new Map(
+      Array.from(container.children)
+        .map((element) => [keyFromElement(element), element])
+        .filter(([key]) => key)
+    );
+    const fragment = document.createDocumentFragment();
+    items.forEach((item) => {
+      const nextElement = createElementFromMarkup(renderItem(item));
+      if (!nextElement) {
+        return;
+      }
+      const key = String(keyFromItem(item) || '').trim();
+      const currentElement = key ? existingByKey.get(key) : null;
+      if (key) {
+        existingByKey.delete(key);
+      }
+      if (currentElement && currentElement.isEqualNode(nextElement)) {
+        fragment.appendChild(currentElement);
+        return;
+      }
+      fragment.appendChild(nextElement);
+    });
+    container.replaceChildren(fragment);
+  }
+
+  function syncRenderedBoard() {
+    const games = sortGamesForDisplay(state.payload?.games);
+    const filteredGames = sortGamesForDisplay(games.filter((game) => matchesFilter(game, state.filter)));
+    const { scoreboardEl, gridEl } = ensureBoardShell();
+    if (!games.length || !filteredGames.length || !state.boardInitialized) {
+      renderBoard();
+      return;
+    }
+    syncMarkupCollection(scoreboardEl, filteredGames, renderScoreboardItem, {
+      keyFromItem: (game) => cardId(game),
+      keyFromElement: (element) => String(element?.dataset?.cardId || '').trim(),
+    });
+    syncMarkupCollection(gridEl, filteredGames, renderGameCard, {
+      keyFromItem: (game) => cardId(game),
+      keyFromElement: (element) => String(element?.dataset?.cardId || '').trim(),
+    });
+  }
+
+  function renderGameCardByTarget(cardTarget) {
+    const game = findGameByCardId(cardTarget);
+    const cardElement = findGameCardElement(cardTarget);
+    if (!game || !cardElement) {
+      return;
+    }
+    const nextElement = createElementFromMarkup(renderGameCard(game));
+    if (!nextElement) {
+      return;
+    }
+    if (!cardElement.isEqualNode(nextElement)) {
+      cardElement.replaceWith(nextElement);
+    }
+    const scoreboardElement = findScoreboardItemElement(cardTarget);
+    if (scoreboardElement) {
+      const nextScoreboardElement = createElementFromMarkup(renderScoreboardItem(game));
+      if (nextScoreboardElement && !scoreboardElement.isEqualNode(nextScoreboardElement)) {
+        scoreboardElement.replaceWith(nextScoreboardElement);
+      }
+    }
+  }
+
   function renderBoard() {
     const games = sortGamesForDisplay(state.payload?.games);
     const filteredGames = sortGamesForDisplay(games.filter((game) => matchesFilter(game, state.filter)));
@@ -3440,10 +3557,23 @@
     try {
       const response = await fetch(`/api/cards?date=${encodeURIComponent(state.date)}`, { cache: 'no-store' });
       const payload = await readApiJson(response, 'Failed to load game cards.');
-      state.payload = payload;
-      state.simDetailCache.clear();
-      state.simDetailLoading.clear();
+      const previousDate = String(state.payload?.date || state.date || '');
+      const previousGames = safeArray(state.payload?.games);
+      const nextDate = String(payload?.date || state.date || '');
+      const nextGames = safeArray(payload?.games);
+      const slateUnchanged = previousDate === nextDate && sameSlate(nextGames, previousGames);
+      state.payload = {
+        ...payload,
+        games: nextGames,
+      };
+      if (slateUnchanged) {
+        reapplyCachedSimDetails();
+      } else {
+        state.simDetailCache.clear();
+        state.simDetailLoading.clear();
+      }
       const resolvedDate = payload.date || state.date;
+      state.liveDataLoading = mode === 'live';
       updateDateControls();
       renderHeaderMeta();
       renderSourceMeta();
@@ -3453,22 +3583,31 @@
       } else {
         showNote('', 'info');
       }
-      renderBoard();
+      if (!silent || !slateUnchanged || !state.boardInitialized) {
+        renderBoard();
+      }
 
       void loadPropsStrip(resolvedDate, { silent, games: payload.games || [] });
       if (mode === 'live') {
         void loadLiveGameLens(resolvedDate, payload.games || []).then(() => {
           if ((state.payload?.date || state.date) === resolvedDate) {
             renderSourceMeta();
-            renderBoard();
+            if (silent && slateUnchanged && state.boardInitialized) {
+              syncRenderedBoard();
+            } else {
+              renderBoard();
+            }
           }
         });
+      } else {
+        state.liveDataLoading = false;
       }
     } catch (error) {
       state.payload = null;
       state.propsStripPayload = null;
       clearPropsStrip();
       state.boardInitialized = false;
+      state.liveDataLoading = false;
       if (headerMeta) {
         headerMeta.textContent = 'Failed to load slate.';
       }
