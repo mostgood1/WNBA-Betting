@@ -256,6 +256,50 @@ def test_api_cards_falls_back_to_predictions_when_smart_sim_missing(tmp_path, mo
     assert "Using predictions fallback because SmartSim artifact is missing for this matchup." in (game.get("warnings") or [])
 
 
+def test_load_smart_sim_files_for_date_prefers_repo_copy_over_active_data_root(tmp_path, monkeypatch):
+    repo_processed = tmp_path / "repo" / "data" / "processed"
+    active_processed = tmp_path / "active" / "data" / "processed"
+    repo_processed.mkdir(parents=True)
+    active_processed.mkdir(parents=True)
+
+    repo_file = repo_processed / "smart_sim_2026-04-01_HOU_MIL.json"
+    active_file = active_processed / "smart_sim_2026-04-01_HOU_MIL.json"
+    repo_file.write_text(json.dumps({"home": "HOU", "away": "MIL", "source": "repo"}), encoding="utf-8")
+    active_file.write_text(json.dumps({"home": "HOU", "away": "MIL", "source": "active"}), encoding="utf-8")
+
+    monkeypatch.setattr(app_module, "REPO_DATA_PROCESSED_DIR", repo_processed)
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", active_processed)
+
+    files = app_module._load_smart_sim_files_for_date("2026-04-01")
+
+    assert files == [repo_file]
+
+
+def test_load_cards_sim_detail_snapshot_prefers_repo_copy_over_active_data_root(tmp_path, monkeypatch):
+    repo_processed = tmp_path / "repo" / "data" / "processed"
+    active_processed = tmp_path / "active" / "data" / "processed"
+    repo_processed.mkdir(parents=True)
+    active_processed.mkdir(parents=True)
+
+    fname = "cards_sim_detail_2026-04-01.json"
+    (repo_processed / fname).write_text(
+        json.dumps({"games": [{"home_tri": "HOU", "away_tri": "MIL", "sim": {"players_summary": {"home": 15}}}]}),
+        encoding="utf-8",
+    )
+    (active_processed / fname).write_text(
+        json.dumps({"games": [{"home_tri": "HOU", "away_tri": "MIL", "sim": {"players_summary": {"home": 1}}}]}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(app_module, "REPO_DATA_PROCESSED_DIR", repo_processed)
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", active_processed)
+    monkeypatch.setattr(app_module, "_maybe_fetch_remote_processed", lambda _name: None)
+
+    payload = app_module._load_cards_sim_detail_snapshot("2026-04-01")
+
+    assert payload == {"games": [{"home_tri": "HOU", "away_tri": "MIL", "sim": {"players_summary": {"home": 15}}}]}
+
+
 def test_api_prop_ladders_requests_players_from_api_cards(monkeypatch):
     observed: dict[str, str | None] = {"include_players": None}
 

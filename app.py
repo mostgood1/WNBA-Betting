@@ -101,6 +101,9 @@ DATA_DIR = _DATA_ROOT_P
 DATA_RAW_DIR = DATA_DIR / "raw"
 DATA_PROCESSED_DIR = DATA_DIR / "processed"
 DATA_OVERRIDES_DIR = DATA_DIR / "overrides"
+REPO_DATA_DIR = BASE_DIR / "data"
+REPO_DATA_PROCESSED_DIR = REPO_DATA_DIR / "processed"
+REPO_DATA_OVERRIDES_DIR = REPO_DATA_DIR / "overrides"
 
 CRON_META_PATH = DATA_PROCESSED_DIR / ".cron_meta.json"
 PLAYER_ID_CACHE_PATH = DATA_PROCESSED_DIR / "player_ids.csv"
@@ -10083,10 +10086,46 @@ def _safe_float(x: Any) -> float | None:
         return None
 
 
+def _processed_path_candidates(fname: str, *, prefer_repo: bool = False) -> list[Path]:
+    try:
+        raw_name = str(fname or "").strip()
+        if not raw_name or "/" in raw_name or "\\" in raw_name or ".." in raw_name:
+            return []
+        primary = REPO_DATA_PROCESSED_DIR if prefer_repo else DATA_PROCESSED_DIR
+        secondary = DATA_PROCESSED_DIR if prefer_repo else REPO_DATA_PROCESSED_DIR
+        candidates: list[Path] = []
+        seen: set[str] = set()
+        for root in (primary, secondary):
+            try:
+                path = root / raw_name
+                key = str(path)
+                if key in seen:
+                    continue
+                seen.add(key)
+                candidates.append(path)
+            except Exception:
+                continue
+        return candidates
+    except Exception:
+        return []
+
+
 def _load_smart_sim_files_for_date(date_str: str, prefix: str | None = None) -> list[Path]:
     try:
         pref = str(prefix or os.environ.get("SMART_SIM_PREFIX") or "smart_sim").strip() or "smart_sim"
-        return sorted(DATA_PROCESSED_DIR.glob(f"{pref}_{date_str}_*.json"))
+        patterns: list[Path] = []
+        seen_names: set[str] = set()
+        for root in (REPO_DATA_PROCESSED_DIR, DATA_PROCESSED_DIR):
+            try:
+                for path in sorted(root.glob(f"{pref}_{date_str}_*.json")):
+                    name = str(path.name or "")
+                    if not name or name in seen_names:
+                        continue
+                    seen_names.add(name)
+                    patterns.append(path)
+            except Exception:
+                continue
+        return patterns
     except Exception:
         return []
 
@@ -13284,16 +13323,19 @@ def _load_cards_prop_recommendations_index(date_str: str) -> dict[tuple[str, str
 
 
 def _load_cards_sim_detail_snapshot(date_str: str) -> dict[str, Any] | None:
-    path = DATA_PROCESSED_DIR / f"cards_sim_detail_{date_str}.json"
-    if not path.exists():
+    fname = f"cards_sim_detail_{date_str}.json"
+    candidates = _processed_path_candidates(fname, prefer_repo=True)
+    path = candidates[0] if candidates else (DATA_PROCESSED_DIR / fname)
+    if not any(candidate.exists() for candidate in candidates):
         try:
-            _maybe_fetch_remote_processed(path.name)
+            _maybe_fetch_remote_processed(fname)
         except Exception:
             pass
     try:
-        if not path.exists():
-            return None
-        return json.loads(path.read_text(encoding="utf-8"))
+        for candidate in _processed_path_candidates(fname, prefer_repo=True):
+            if candidate.exists():
+                return json.loads(candidate.read_text(encoding="utf-8"))
+        return None
     except Exception:
         return None
 
