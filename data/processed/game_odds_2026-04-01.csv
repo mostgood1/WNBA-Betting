@@ -1,0 +1,6 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-04-01,2026-04-02T00:10:00Z,Chicago Bulls,Indiana Pacers,-171.9182204468759,171.9182204468759,-4.5,4.5,,,242.5,-104.42967884828349,104.42967884828353,2,2,2,1,oddsapi_consensus
+2026-04-01,2026-04-02T02:10:00Z,Golden State Warriors,San Antonio Spurs,499.97449296362646,-499.97449296362635,11.5,-11.5,,,227.5,102.19058050383353,-102.19058050383349,5,5,3,2,oddsapi_consensus
+2026-04-01,2026-04-01T23:40:00Z,Miami Heat,Boston Celtics,180.18381735988962,-180.1838173598896,5.5,-5.5,,,228.5,-100.0,-100.0,5,5,3,3,oddsapi_consensus
+2026-04-01,2026-04-02T01:10:00Z,Utah Jazz,Denver Nuggets,1085.8083119966138,-1085.8083119966138,17.0,-17.0,,,248.5,-101.52798419434922,101.52798419434922,4,3,2,4,oddsapi_consensus
+2026-04-01,2026-04-01T23:10:00Z,Washington Wizards,Philadelphia 76ers,766.8341708542713,-766.8341708542724,15.5,-15.5,,,237.5,100.28978279388342,-100.28978279388339,3,3,3,3,oddsapi_consensus
