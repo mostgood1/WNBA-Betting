@@ -3511,6 +3511,7 @@ try {
   }
 } catch {
   Write-Log ("Daily artifact validation block failed: {0}" -f $_.Exception.Message)
+  throw
 }
 
 # 8.1) Player availability audits (fail loudly)

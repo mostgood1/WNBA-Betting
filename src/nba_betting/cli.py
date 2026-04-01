@@ -252,6 +252,213 @@ def _league_status_player_maps_for_date(
 
     return roster_name_to_tri, excluded_by_team, allowed_by_team
 
+
+def _smart_sim_injuries_excluded_map_for_date(
+    ds: str,
+    *,
+    props_df: pd.DataFrame | None = None,
+) -> dict[str, set[str]]:
+    out: dict[str, set[str]] = {}
+
+    def _norm_player_key(x: Any) -> str:
+        return str(normalize_player_name_key(x, case="upper") or "").strip().upper()
+
+    def _add(tri: str, name: str) -> None:
+        t = str(tri or "").strip().upper()
+        if not t:
+            return
+        k = _norm_player_key(name)
+        if not k:
+            return
+        out.setdefault(t, set()).add(k)
+
+    ds_s = str(ds).strip()
+
+    try:
+        cutoff_dt = pd.to_datetime(ds_s, errors="coerce")
+        cutoff = cutoff_dt if pd.notna(cutoff_dt) else None
+    except Exception:
+        cutoff = None
+
+    recency_days = 30
+    try:
+        fresh_cutoff = (cutoff - pd.Timedelta(days=int(recency_days))) if cutoff is not None else None
+    except Exception:
+        fresh_cutoff = None
+
+    roster_name_to_tri: dict[str, str] = {}
+    ls_allowed: dict[str, set[str]] = {}
+    try:
+        roster_name_to_tri, ls_excluded, ls_allowed = _league_status_player_maps_for_date(ds_s)
+        for tri, names in ls_excluded.items():
+            for name_key in names:
+                if tri and name_key:
+                    out.setdefault(str(tri).strip().upper(), set()).add(str(name_key).strip().upper())
+    except Exception:
+        roster_name_to_tri = {}
+        ls_allowed = {}
+
+    if not roster_name_to_tri:
+        try:
+            dts = pd.to_datetime(ds_s, errors="coerce")
+            season_start = None
+            if not pd.isna(dts):
+                season_start = int(dts.year) if int(dts.month) >= 7 else int(dts.year) - 1
+            candidates: list[Path] = []
+            if season_start is not None:
+                label = f"{int(season_start)}-{str(int(season_start) + 1)[-2:]}"
+                candidates.append(paths.data_processed / f"rosters_{label}.csv")
+                candidates.append(paths.data_processed / f"rosters_{int(season_start)}.csv")
+            candidates.extend(sorted(paths.data_processed.glob("rosters_*.csv")))
+
+            seen: set[str] = set()
+            for fp in candidates:
+                sp = str(fp)
+                if sp in seen:
+                    continue
+                seen.add(sp)
+                if not fp.exists():
+                    continue
+                rdf = pd.read_csv(fp)
+                if rdf is None or rdf.empty:
+                    continue
+                cols = {c.upper(): c for c in rdf.columns}
+                tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM") or cols.get("TEAM_TRI")
+                ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+                if not (tcol and ncol):
+                    continue
+                tmp = rdf[[tcol, ncol]].dropna().copy()
+                tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                tmp[ncol] = tmp[ncol].astype(str)
+                for _, rr in tmp.iterrows():
+                    nk = _norm_player_key(rr.get(ncol))
+                    if not nk:
+                        continue
+                    tri = str(rr.get(tcol) or "").strip().upper()
+                    if len(tri) != 3:
+                        tri = str(to_tricode(tri) or "").strip().upper()
+                    if tri:
+                        roster_name_to_tri.setdefault(nk, tri)
+                if roster_name_to_tri:
+                    break
+        except Exception:
+            pass
+
+    try:
+        p = paths.data_processed / f"injuries_excluded_{ds_s}.csv"
+        if p.exists():
+            df = pd.read_csv(p)
+            if df is not None and not df.empty:
+                try:
+                    if "date" in df.columns:
+                        df = df.copy()
+                        df["date"] = pd.to_datetime(df["date"], errors="coerce")
+                        df = df[df["date"].notna()].copy()
+                        if cutoff is not None:
+                            df = df[df["date"] <= cutoff].copy()
+                        if fresh_cutoff is not None:
+                            st = df.get("status", "").astype(str).str.upper().str.strip() if "status" in df.columns else pd.Series([""] * len(df))
+                            inj = df.get("injury", "").astype(str).str.upper().str.strip() if "injury" in df.columns else pd.Series([""] * len(df))
+                            is_season = st.str.contains("SEASON", na=False) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
+                            is_season = is_season | inj.str.contains("OUT FOR SEASON", na=False) | inj.str.contains("SEASON-ENDING", na=False) | inj.str.contains("INDEFINITE", na=False)
+                            df = df[(df["date"] >= fresh_cutoff) | is_season].copy()
+                except Exception:
+                    pass
+
+                try:
+                    if "status" in df.columns:
+                        excl = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
+                        st = df["status"].astype(str).str.upper().str.strip()
+                        season_out = (st.str.contains("SEASON", na=False) & st.str.contains("OUT", na=False)) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
+                        df = df[st.isin(excl) | season_out].copy()
+                except Exception:
+                    pass
+
+                tcol = "team_tri" if "team_tri" in df.columns else ("team" if "team" in df.columns else None)
+                ncol = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
+                if tcol and ncol:
+                    for _, r in df[[tcol, ncol]].dropna().iterrows():
+                        _add(str(r.get(tcol) or ""), str(r.get(ncol) or ""))
+    except Exception:
+        pass
+
+    try:
+        raw = paths.data_raw / "injuries.csv"
+        if raw.exists():
+            df = pd.read_csv(raw)
+            if df is not None and not df.empty:
+                if "date" in df.columns:
+                    df = df.copy()
+                    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+                    df = df[df["date"].notna()].copy()
+                    if cutoff is not None:
+                        df = df[df["date"] <= cutoff].copy()
+                    try:
+                        if fresh_cutoff is not None:
+                            st0 = df.get("status", "").astype(str).str.upper().str.strip() if "status" in df.columns else pd.Series([""] * len(df))
+                            season_out0 = (st0.str.contains("SEASON", na=False) & st0.str.contains("OUT", na=False)) | st0.str.contains("INDEFINITE", na=False) | st0.str.contains("SEASON-ENDING", na=False)
+                            df = df[(df["date"] >= fresh_cutoff) | season_out0].copy()
+                    except Exception:
+                        pass
+                    try:
+                        df = df.sort_values(["date"]).copy()
+                        grp_cols = [c for c in ["player", "team"] if c in df.columns]
+                        if grp_cols:
+                            df = df.groupby(grp_cols, as_index=False).tail(1).copy()
+                    except Exception:
+                        pass
+                status_col = "status" if "status" in df.columns else ("injury_status" if "injury_status" in df.columns else None)
+                name_col = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
+                team_col = "team" if "team" in df.columns else ("team_tri" if "team_tri" in df.columns else None)
+                if status_col and name_col and team_col:
+                    excl = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
+                    st = df[status_col].astype(str).str.upper().str.strip()
+                    season_out = (st.str.contains("SEASON", na=False) & st.str.contains("OUT", na=False)) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
+                    df = df[st.isin(excl) | season_out].copy()
+                    for _, r in df[[team_col, name_col]].dropna().iterrows():
+                        nm = str(r.get(name_col) or "")
+                        nk = _norm_player_key(nm)
+                        tri = str(r.get(team_col) or "")
+                        if nk and (nk in roster_name_to_tri):
+                            tri = roster_name_to_tri.get(nk) or tri
+                        _add(str(tri or ""), nm)
+    except Exception:
+        pass
+
+    try:
+        if isinstance(props_df, pd.DataFrame) and (not props_df.empty):
+            if "team" in props_df.columns and "player_name" in props_df.columns:
+                tmp = props_df[["team", "player_name"] + (["playing_today"] if "playing_today" in props_df.columns else [])].copy()
+                tmp["team"] = tmp["team"].astype(str).str.strip().str.upper()
+                tmp["player_name"] = tmp["player_name"].astype(str).str.strip()
+                if "playing_today" in tmp.columns:
+                    tmp = tmp[_truthy_mask(tmp["playing_today"]).reindex(tmp.index, fill_value=False)].copy()
+                tmp = tmp[tmp["player_name"].ne("")].copy()
+                for _, rr in tmp.iterrows():
+                    tri = str(to_tricode(rr.get("team")) or rr.get("team") or "").strip().upper()
+                    if not tri:
+                        continue
+                    k = _norm_player_key(rr.get("player_name"))
+                    if not k:
+                        continue
+                    if tri in out and k in out[tri]:
+                        out[tri].discard(k)
+    except Exception:
+        pass
+
+    try:
+        for tri, names in (ls_allowed or {}).items():
+            t = str(tri or "").strip().upper()
+            if not t or t not in out:
+                continue
+            out[t].difference_update(set(str(x or "").strip().upper() for x in names if str(x or "").strip()))
+            if not out[t]:
+                out.pop(t, None)
+    except Exception:
+        pass
+
+    return out
+
 # --- Calibration config helpers ---
 def _load_player_calib_overrides():
     """Load per-stat player calibration overrides from processed config JSON.
@@ -497,160 +704,7 @@ def smart_sim_cmd(
         except Exception:
             pass
 
-    def _injuries_excluded_map_for_date(ds: str) -> dict[str, set[str]]:
-        """Return TEAM_TRI -> {PLAYER_KEY} for players excluded due to injury.
-
-        Uses data/processed/injuries_excluded_<date>.csv (written by predict-props) when present,
-        and unions same-day OUT/DOUBTFUL/SUSPENDED/INACTIVE/REST from data/raw/injuries.csv.
-        """
-        out: dict[str, set[str]] = {}
-        try:
-            from .player_priors import _norm_player_key  # type: ignore
-        except Exception:
-            def _norm_player_key(x):
-                return str(x or "").strip().upper()
-
-        def _add(tri: str, name: str) -> None:
-            t = str(tri or "").strip().upper()
-            if not t:
-                return
-            k = str(_norm_player_key(name) or "").strip().upper()
-            if not k:
-                return
-            out.setdefault(t, set()).add(k)
-
-        ds_s = str(ds).strip()
-
-        # Roster map to guard against injury-feed team mismatches.
-        # Prefer league_status_<date>.csv when available; otherwise fall back to season rosters.
-        roster_name_to_tri: dict[str, str] = {}
-        try:
-            fp = paths.data_processed / f"league_status_{ds_s}.csv"
-            if fp.exists():
-                rdf = pd.read_csv(fp)
-                if rdf is not None and not rdf.empty:
-                    cols = {c.upper(): c for c in rdf.columns}
-                    tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM") or cols.get("TEAM_TRI")
-                    ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
-                    if tcol and ncol:
-                        tmp = rdf[[tcol, ncol]].dropna().copy()
-                        tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
-                        tmp[ncol] = tmp[ncol].astype(str)
-                        for _, rr in tmp.iterrows():
-                            nk = str(_norm_player_key(rr.get(ncol)) or "").strip().upper()
-                            if not nk:
-                                continue
-                            tri = str(rr.get(tcol) or "").strip().upper()
-                            if len(tri) != 3:
-                                tri = str(to_tricode(tri) or "").strip().upper()
-                            if tri:
-                                roster_name_to_tri.setdefault(nk, tri)
-        except Exception:
-            roster_name_to_tri = {}
-
-        if not roster_name_to_tri:
-            try:
-                dts = pd.to_datetime(ds_s, errors="coerce")
-                season_start = None
-                if not pd.isna(dts):
-                    season_start = int(dts.year) if int(dts.month) >= 7 else int(dts.year) - 1
-                candidates: list[Path] = []
-                if season_start is not None:
-                    label = f"{int(season_start)}-{str(int(season_start) + 1)[-2:]}"
-                    candidates.append(paths.data_processed / f"rosters_{label}.csv")
-                    candidates.append(paths.data_processed / f"rosters_{int(season_start)}.csv")
-                candidates.extend(sorted(paths.data_processed.glob("rosters_*.csv")))
-
-                seen: set[str] = set()
-                for fp in candidates:
-                    sp = str(fp)
-                    if sp in seen:
-                        continue
-                    seen.add(sp)
-                    if not fp.exists():
-                        continue
-                    rdf = pd.read_csv(fp)
-                    if rdf is None or rdf.empty:
-                        continue
-                    cols = {c.upper(): c for c in rdf.columns}
-                    tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM") or cols.get("TEAM_TRI")
-                    ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
-                    if not (tcol and ncol):
-                        continue
-                    tmp = rdf[[tcol, ncol]].dropna().copy()
-                    tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
-                    tmp[ncol] = tmp[ncol].astype(str)
-                    for _, rr in tmp.iterrows():
-                        nk = str(_norm_player_key(rr.get(ncol)) or "").strip().upper()
-                        if not nk:
-                            continue
-                        tri = str(rr.get(tcol) or "").strip().upper()
-                        if len(tri) != 3:
-                            tri = str(to_tricode(tri) or "").strip().upper()
-                        if tri:
-                            roster_name_to_tri.setdefault(nk, tri)
-                    if roster_name_to_tri:
-                        break
-            except Exception:
-                pass
-
-        try:
-            p = paths.data_processed / f"injuries_excluded_{ds_s}.csv"
-            if p.exists():
-                df = pd.read_csv(p)
-                if df is not None and not df.empty:
-                    tcol = "team_tri" if "team_tri" in df.columns else ("team" if "team" in df.columns else None)
-                    ncol = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
-                    if tcol and ncol:
-                        for _, r in df[[tcol, ncol]].dropna().iterrows():
-                            _add(str(r.get(tcol) or ""), str(r.get(ncol) or ""))
-        except Exception:
-            pass
-
-        try:
-            raw = paths.data_raw / "injuries.csv"
-            if not raw.exists():
-                return out
-            df = pd.read_csv(raw)
-            if df is None or df.empty:
-                return out
-            # Use latest status up to cutoff date (not only same-day rows).
-            cutoff = pd.to_datetime(ds_s, errors="coerce")
-            if "date" in df.columns:
-                df = df.copy()
-                df["date"] = pd.to_datetime(df["date"], errors="coerce")
-                df = df[df["date"].notna()].copy()
-                if not pd.isna(cutoff):
-                    df = df[df["date"] <= cutoff].copy()
-                try:
-                    df = df.sort_values(["date"]).copy()
-                    grp_cols = [c for c in ["player", "team"] if c in df.columns]
-                    if grp_cols:
-                        df = df.groupby(grp_cols, as_index=False).tail(1).copy()
-                except Exception:
-                    pass
-            status_col = "status" if "status" in df.columns else ("injury_status" if "injury_status" in df.columns else None)
-            name_col = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
-            team_col = "team" if "team" in df.columns else ("team_tri" if "team_tri" in df.columns else None)
-            if not (status_col and name_col and team_col):
-                return out
-            EXCL = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
-            st = df[status_col].astype(str).str.upper().str.strip()
-            # Also treat season-long/indefinite outs as exclusions.
-            season_out = (st.str.contains("SEASON", na=False) & st.str.contains("OUT", na=False)) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
-            df = df[st.isin(EXCL) | season_out].copy()
-            for _, r in df[[team_col, name_col]].dropna().iterrows():
-                nm = str(r.get(name_col) or "")
-                nk = str(_norm_player_key(nm) or "").strip().upper()
-                tri = str(r.get(team_col) or "")
-                if nk and (nk in roster_name_to_tri):
-                    tri = roster_name_to_tri.get(nk) or tri
-                _add(str(tri or ""), nm)
-        except Exception:
-            pass
-        return out
-
-    excluded_map = _injuries_excluded_map_for_date(date_str)
+    excluded_map = _smart_sim_injuries_excluded_map_for_date(date_str, props_df=props_df)
     home_outs = int(max(0, min(5, len(excluded_map.get(home_tri, set())))))
     away_outs = int(max(0, min(5, len(excluded_map.get(away_tri, set())))))
     excluded_game = {
@@ -1226,223 +1280,7 @@ def _smart_sim_run_date(
         return {"date": date_str, "wrote": 0, "skipped": 0, "failures": 0, "reason": f"missing_props:{props_path}"}
     props_df = pd.read_csv(props_path)
 
-    # Injury exclusions for this date (produced by predict-props when available).
-    # IMPORTANT: apply a recency window to avoid stale OUT labels persisting forever,
-    # and allowlist players marked as playing_today in props_predictions.
-    def _injuries_excluded_map_for_date(ds: str, props_df: pd.DataFrame | None = None) -> dict[str, set[str]]:
-        out: dict[str, set[str]] = {}
-        try:
-            from .player_priors import _norm_player_key  # type: ignore
-        except Exception:
-            def _norm_player_key(x):
-                return str(x or "").strip().upper()
-
-        def _add(tri: str, name: str) -> None:
-            t = str(tri or "").strip().upper()
-            if not t:
-                return
-            k = str(_norm_player_key(name) or "").strip().upper()
-            if not k:
-                return
-            out.setdefault(t, set()).add(k)
-
-        ds_s = str(ds).strip()
-
-        try:
-            cutoff_dt = pd.to_datetime(ds_s, errors="coerce")
-            cutoff = cutoff_dt if pd.notna(cutoff_dt) else None
-        except Exception:
-            cutoff = None
-
-        recency_days = 30
-        try:
-            fresh_cutoff = (cutoff - pd.Timedelta(days=int(recency_days))) if cutoff is not None else None
-        except Exception:
-            fresh_cutoff = None
-
-        roster_name_to_tri: dict[str, str] = {}
-        ls_allowed: dict[str, set[str]] = {}
-        try:
-            roster_name_to_tri, ls_excluded, ls_allowed = _league_status_player_maps_for_date(ds_s)
-            for tri, names in ls_excluded.items():
-                for name_key in names:
-                    if tri and name_key:
-                        out.setdefault(str(tri).strip().upper(), set()).add(str(name_key).strip().upper())
-        except Exception:
-            roster_name_to_tri = {}
-            ls_allowed = {}
-
-        if not roster_name_to_tri:
-            try:
-                dts = pd.to_datetime(ds_s, errors="coerce")
-                season_start = None
-                if not pd.isna(dts):
-                    season_start = int(dts.year) if int(dts.month) >= 7 else int(dts.year) - 1
-                candidates: list[Path] = []
-                if season_start is not None:
-                    label = f"{int(season_start)}-{str(int(season_start) + 1)[-2:]}"
-                    candidates.append(paths.data_processed / f"rosters_{label}.csv")
-                    candidates.append(paths.data_processed / f"rosters_{int(season_start)}.csv")
-                candidates.extend(sorted(paths.data_processed.glob("rosters_*.csv")))
-
-                seen: set[str] = set()
-                for fp in candidates:
-                    sp = str(fp)
-                    if sp in seen:
-                        continue
-                    seen.add(sp)
-                    if not fp.exists():
-                        continue
-                    rdf = pd.read_csv(fp)
-                    if rdf is None or rdf.empty:
-                        continue
-                    cols = {c.upper(): c for c in rdf.columns}
-                    tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM") or cols.get("TEAM_TRI")
-                    ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
-                    if not (tcol and ncol):
-                        continue
-                    tmp = rdf[[tcol, ncol]].dropna().copy()
-                    tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
-                    tmp[ncol] = tmp[ncol].astype(str)
-                    for _, rr in tmp.iterrows():
-                        nk = str(_norm_player_key(rr.get(ncol)) or "").strip().upper()
-                        if not nk:
-                            continue
-                        tri = str(rr.get(tcol) or "").strip().upper()
-                        if len(tri) != 3:
-                            tri = str(to_tricode(tri) or "").strip().upper()
-                        if tri:
-                            roster_name_to_tri.setdefault(nk, tri)
-                    if roster_name_to_tri:
-                        break
-            except Exception:
-                pass
-
-        try:
-            p = paths.data_processed / f"injuries_excluded_{ds_s}.csv"
-            if p.exists():
-                df = pd.read_csv(p)
-                if df is not None and not df.empty:
-                    # Recency filter: only keep recent rows unless season/indefinite.
-                    try:
-                        if "date" in df.columns:
-                            df = df.copy()
-                            df["date"] = pd.to_datetime(df["date"], errors="coerce")
-                            df = df[df["date"].notna()].copy()
-                            if cutoff is not None:
-                                df = df[df["date"] <= cutoff].copy()
-                            if fresh_cutoff is not None:
-                                st = df.get("status", "").astype(str).str.upper().str.strip() if "status" in df.columns else pd.Series([""] * len(df))
-                                inj = df.get("injury", "").astype(str).str.upper().str.strip() if "injury" in df.columns else pd.Series([""] * len(df))
-                                is_season = st.str.contains("SEASON", na=False) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
-                                is_season = is_season | inj.str.contains("OUT FOR SEASON", na=False) | inj.str.contains("SEASON-ENDING", na=False) | inj.str.contains("INDEFINITE", na=False)
-                                df = df[(df["date"] >= fresh_cutoff) | is_season].copy()
-                    except Exception:
-                        pass
-
-                    # Status filter if present
-                    try:
-                        if "status" in df.columns:
-                            EXCL = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
-                            st = df["status"].astype(str).str.upper().str.strip()
-                            season_out = (st.str.contains("SEASON", na=False) & st.str.contains("OUT", na=False)) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
-                            df = df[st.isin(EXCL) | season_out].copy()
-                    except Exception:
-                        pass
-
-                    tcol = "team_tri" if "team_tri" in df.columns else ("team" if "team" in df.columns else None)
-                    ncol = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
-                    if tcol and ncol:
-                        for _, r in df[[tcol, ncol]].dropna().iterrows():
-                            _add(str(r.get(tcol) or ""), str(r.get(ncol) or ""))
-        except Exception:
-            pass
-
-        try:
-            raw = paths.data_raw / "injuries.csv"
-            if not raw.exists():
-                return out
-            df = pd.read_csv(raw)
-            if df is None or df.empty:
-                return out
-            # Use latest status up to cutoff date (not only same-day rows).
-            if "date" in df.columns:
-                df = df.copy()
-                df["date"] = pd.to_datetime(df["date"], errors="coerce")
-                df = df[df["date"].notna()].copy()
-                if cutoff is not None:
-                    df = df[df["date"] <= cutoff].copy()
-                # Recency window to prevent stale OUTs from persisting forever.
-                try:
-                    if fresh_cutoff is not None:
-                        st0 = df.get("status", "").astype(str).str.upper().str.strip() if "status" in df.columns else pd.Series([""] * len(df))
-                        season_out0 = (st0.str.contains("SEASON", na=False) & st0.str.contains("OUT", na=False)) | st0.str.contains("INDEFINITE", na=False) | st0.str.contains("SEASON-ENDING", na=False)
-                        df = df[(df["date"] >= fresh_cutoff) | season_out0].copy()
-                except Exception:
-                    pass
-                try:
-                    df = df.sort_values(["date"]).copy()
-                    grp_cols = [c for c in ["player", "team"] if c in df.columns]
-                    if grp_cols:
-                        df = df.groupby(grp_cols, as_index=False).tail(1).copy()
-                except Exception:
-                    pass
-            status_col = "status" if "status" in df.columns else ("injury_status" if "injury_status" in df.columns else None)
-            name_col = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
-            team_col = "team" if "team" in df.columns else ("team_tri" if "team_tri" in df.columns else None)
-            if not (status_col and name_col and team_col):
-                return out
-            EXCL = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
-            st = df[status_col].astype(str).str.upper().str.strip()
-            season_out = (st.str.contains("SEASON", na=False) & st.str.contains("OUT", na=False)) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
-            df = df[st.isin(EXCL) | season_out].copy()
-            for _, r in df[[team_col, name_col]].dropna().iterrows():
-                nm = str(r.get(name_col) or "")
-                nk = str(_norm_player_key(nm) or "").strip().upper()
-                tri = str(r.get(team_col) or "")
-                if nk and (nk in roster_name_to_tri):
-                    tri = roster_name_to_tri.get(nk) or tri
-                _add(str(tri or ""), nm)
-        except Exception:
-            pass
-
-        # Hard allowlist: if a player is in props_predictions and marked playing_today,
-        # they should not be excluded by stale injury rows.
-        try:
-            if isinstance(props_df, pd.DataFrame) and (not props_df.empty):
-                if "team" in props_df.columns and "player_name" in props_df.columns:
-                    tmp = props_df[["team", "player_name"] + (["playing_today"] if "playing_today" in props_df.columns else [])].copy()
-                    tmp["team"] = tmp["team"].astype(str).str.strip().str.upper()
-                    tmp["player_name"] = tmp["player_name"].astype(str).str.strip()
-                    if "playing_today" in tmp.columns:
-                        pt = tmp["playing_today"].astype(str).str.lower().str.strip()
-                        tmp = tmp[~pt.isin(["false", "0", "no", "n"])].copy()
-                    tmp = tmp[tmp["player_name"].ne("")].copy()
-                    for _, rr in tmp.iterrows():
-                        tri = str(to_tricode(rr.get("team")) or rr.get("team") or "").strip().upper()
-                        if not tri:
-                            continue
-                        k = str(_norm_player_key(rr.get("player_name")) or "").strip().upper()
-                        if not k:
-                            continue
-                        if tri in out and k in out[tri]:
-                            out[tri].discard(k)
-        except Exception:
-            pass
-
-        try:
-            for tri, names in (ls_allowed or {}).items():
-                t = str(tri or "").strip().upper()
-                if not t or t not in out:
-                    continue
-                out[t].difference_update(set(str(x or "").strip().upper() for x in names if str(x or "").strip()))
-                if not out[t]:
-                    out.pop(t, None)
-        except Exception:
-            pass
-        return out
-
-    excluded_map = _injuries_excluded_map_for_date(date_str, props_df=props_df)
+    excluded_map = _smart_sim_injuries_excluded_map_for_date(date_str, props_df=props_df)
 
     odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
     odds_df = None

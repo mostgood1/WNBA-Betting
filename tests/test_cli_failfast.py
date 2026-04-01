@@ -138,6 +138,58 @@ def test_predict_props_keeps_league_status_active_players_despite_stale_injuries
     assert written.iloc[0]["team"] == "PHX"
 
 
+def test_smart_sim_exclusion_helper_keeps_playing_today_players(tmp_path, monkeypatch):
+    date_str = "2026-03-31"
+    data_root = tmp_path / "data"
+    processed = data_root / "processed"
+    raw = data_root / "raw"
+    processed.mkdir(parents=True)
+    raw.mkdir(parents=True)
+
+    pd.DataFrame(
+        [
+            {
+                "player_id": 1626164,
+                "player_name": "Devin Booker",
+                "team": "PHX",
+                "team_on_slate": True,
+                "playing_today": True,
+            }
+        ]
+    ).to_csv(processed / f"league_status_{date_str}.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "team": "PHI",
+                "player": "Devin Booker",
+                "status": "OUT",
+                "injury": "Out",
+                "date": "2026-03-01",
+            }
+        ]
+    ).to_csv(raw / "injuries.csv", index=False)
+
+    test_paths = config_module.Paths(root=tmp_path, repo_data_root=data_root, data_root=data_root)
+    monkeypatch.setattr(config_module, "paths", test_paths)
+    monkeypatch.setattr(cli_module, "paths", test_paths)
+
+    excluded = cli_module._smart_sim_injuries_excluded_map_for_date(
+        date_str,
+        props_df=pd.DataFrame(
+            [
+                {
+                    "team": "PHX",
+                    "player_name": "Devin Booker",
+                    "playing_today": True,
+                }
+            ]
+        ),
+    )
+
+    assert excluded.get("PHX", set()) == set()
+
+
 def test_predict_games_npu_uses_odds_events_fallback(tmp_path, monkeypatch):
     date_str = "2026-03-12"
     data_root = tmp_path / "data"
