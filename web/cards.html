@@ -5,54 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NBA Betting - Game Cards</title>
   <link rel="stylesheet" href="/web/styles.css?v=20260324-1" />
-  <link rel="stylesheet" href="/web/cards-parity.css?v=20260328-2" />
+  <link rel="stylesheet" href="/web/cards-parity.css?v=20260401-1" />
 </head>
 <body data-page-mode="live" data-cards-base-path="/" class="cards-body cards-app-shell">
   <div class="site-chrome">
     <main class="site-main">
       <div class="cards-shell cards-page-shell">
         <header class="cards-header">
-          <div class="cards-title-block">
-            <div class="cards-title-row">
-              <h1>NBA Game Cards</h1>
-              <span class="cards-nav-pill is-active" id="cardsDateBadge">Loading</span>
-            </div>
-            <p class="cards-header-meta" id="cardsHeaderMeta">Loading slate...</p>
+          <div class="cards-title-row">
+            <h1>NBA Game Cards</h1>
+            <div class="cards-header-meta" id="cardsHeaderMeta">Loading slate...</div>
           </div>
         </header>
 
         <section class="cards-control-card" aria-label="Slate controls">
           <form id="controls" class="cards-date-form" onsubmit="return false;">
-            <a class="cards-nav-pill" id="cardsPrevDateLink" href="/">Prev</a>
+            <a class="cards-nav-pill" id="cardsPrevDateLink" href="/" rel="prev">Prev</a>
             <span class="cards-nav-pill cards-form-pill" aria-hidden="true">Date</span>
             <input type="date" id="datePicker" aria-label="Select slate date" title="Select slate date" />
-            <button type="button" id="applyBtn" class="cards-nav-pill is-active">Load</button>
-            <a class="cards-nav-pill" id="cardsNextDateLink" href="/">Next</a>
+            <button type="button" id="applyBtn">Load</button>
+            <a class="cards-nav-pill" id="cardsNextDateLink" href="/" rel="next">Next</a>
             <a class="cards-nav-pill" href="/prop-ladders">Prop Ladders</a>
             <a class="cards-nav-pill" href="/betting-recap">Recap</a>
             <a class="cards-nav-pill" href="/live-player-props-audit">Live Prop Audit</a>
-            <button type="button" id="todayBtn" class="cards-nav-pill">Today</button>
           </form>
-          <div class="cards-source-meta" id="cardsSourceMeta">
-            <span class="cards-source-meta-pill">Loading metadata...</span>
+
+          <div class="cards-toolbar-rail">
+            <div class="cards-source-meta" id="cardsSourceMeta">Loading slate...</div>
+            <div class="cards-filters" id="cardsFilters" aria-label="Slate filters"></div>
           </div>
         </section>
 
-        <section class="cards-toolbar" aria-label="Slate tools">
-          <div class="cards-filters" id="cardsFilters" aria-label="Slate filters"></div>
-        </section>
         <div id="note" class="alert hidden"></div>
+
         <section class="cards-scoreboard" id="cardsScoreboard" aria-label="Games">
           <div class="cards-loading-strip">Loading scoreboard...</div>
         </section>
+
         <main class="cards-grid" id="cardsGrid" aria-live="polite">
           <div class="cards-loading-state">Loading cards...</div>
         </main>
-        <section id="cardsPropsStrip" class="cards-props-strip-shell hidden" aria-live="polite"></section>
       </div>
     </main>
   </div>
 
-  <script src="/web/cards-parity.js?v=20260328-3"></script>
+  <script src="/web/cards-parity.js?v=20260401-2"></script>
 </body>
 </html>

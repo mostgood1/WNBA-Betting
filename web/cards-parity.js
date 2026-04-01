@@ -9,11 +9,9 @@
   const mode = document.body?.dataset?.pageMode === 'live' ? 'live' : 'pregame';
   const datePicker = document.getElementById('datePicker');
   const applyBtn = document.getElementById('applyBtn');
-  const todayBtn = document.getElementById('todayBtn');
   const prevDateLink = document.getElementById('cardsPrevDateLink');
   const nextDateLink = document.getElementById('cardsNextDateLink');
   const headerMeta = document.getElementById('cardsHeaderMeta');
-  const dateBadge = document.getElementById('cardsDateBadge');
   const sourceMeta = document.getElementById('cardsSourceMeta');
   const filtersEl = document.getElementById('cardsFilters');
   const propsStripEl = document.getElementById('cardsPropsStrip');
@@ -220,6 +218,10 @@
       .split(/[_\s]+/)
       .map((part) => part ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : '')
       .join(' ');
+  }
+
+  function currentBoardDate() {
+    return String(state.payload?.date || state.date || getLocalDateISO());
   }
 
   function marketLabel(value) {
@@ -1224,6 +1226,9 @@
   }
 
   function setLoading() {
+    if (sourceMeta) {
+      sourceMeta.innerHTML = '<span>Loading slate...</span>';
+    }
     scoreboardRoot.innerHTML = '<div class="cards-loading-strip">Loading scoreboard...</div>';
     gridRoot.innerHTML = '<div class="cards-loading-state">Loading cards...</div>';
     state.boardInitialized = false;
@@ -1352,30 +1357,39 @@
     };
   }
 
-  function sourceMetaPill(label, variant) {
-    return `<span class="cards-source-meta-pill${variant ? ` is-${escapeHtml(variant)}` : ''}">${escapeHtml(label)}</span>`;
-  }
-
   function buildFilters(games) {
     const counts = slateCounts(games);
     return [
-      { key: 'all', label: `All ${games.length}` },
-      { key: 'official', label: `Official ${counts.officialCount}` },
-      { key: 'props', label: `Props ${counts.propsCount}` },
-      { key: 'live', label: `Live ${counts.liveCount}` },
-      { key: 'final', label: `Final ${counts.finalCount}` },
+      { key: 'all', label: 'All', count: games.length },
+      { key: 'official', label: 'Official', count: counts.officialCount },
+      { key: 'props', label: 'Props', count: counts.propsCount },
+      { key: 'live', label: 'Live', count: counts.liveCount },
+      { key: 'final', label: 'Final', count: counts.finalCount },
     ];
+  }
+
+  function payloadLookaheadText() {
+    if (state.payload?.lookahead_applied && state.payload?.requested_date && state.payload?.date && state.payload.date !== state.payload.requested_date) {
+      return `No slate for ${state.payload.requested_date}; showing next available board from ${state.payload.date}.`;
+    }
+    return '';
   }
 
   function renderHeaderMeta() {
     const games = safeArray(state.payload?.games);
     const counts = slateCounts(games);
-    if (dateBadge) {
-      dateBadge.textContent = state.payload?.date || state.date || getLocalDateISO();
-    }
+    const boardDate = currentBoardDate();
     if (headerMeta) {
-      headerMeta.textContent = `${games.length} games on the slate | ${counts.officialCount} with official plays`;
+      const headline = `${games.length} games · ${counts.upcomingCount} upcoming · ${counts.liveCount} live · ${counts.officialCount} official`;
+      const lookaheadText = payloadLookaheadText();
+      headerMeta.textContent = lookaheadText
+        ? `${headline} · ${lookaheadText}`
+        : headline;
     }
+  }
+
+  function sourceMetaPill(label, variant) {
+    return `<span class="cards-source-meta-pill${variant ? ` is-${escapeHtml(variant)}` : ''}">${escapeHtml(label)}</span>`;
   }
 
   function renderSourceMeta() {
@@ -1385,11 +1399,9 @@
     const games = safeArray(state.payload?.games);
     const counts = slateCounts(games);
     const pills = [
-      sourceMetaPill(`${games.length} games`),
-      sourceMetaPill(`${counts.upcomingCount} upcoming`),
-      sourceMetaPill(`${counts.officialCount} with official plays`),
-      sourceMetaPill(mode === 'live' ? '30s refresh' : 'Pregame board', mode === 'live' ? 'live' : 'soft'),
-      sourceMetaPill(`${counts.propsCount} with props`, counts.propsCount ? 'accent' : 'soft'),
+      sourceMetaPill(currentBoardDate()),
+      sourceMetaPill(mode === 'live' ? 'Live board' : 'Pregame board', mode === 'live' ? 'live' : 'soft'),
+      sourceMetaPill(`${counts.propsCount} props-ready games`, counts.propsCount ? 'accent' : 'soft'),
     ];
     if (state.payload?.lookahead_applied) {
       pills.push(sourceMetaPill('Showing next available slate', 'warn'));
@@ -1405,10 +1417,16 @@
     filtersEl.innerHTML = buildFilters(games)
       .map((filter) => `
         <button type="button" class="cards-filter-pill ${filter.key === state.filter ? 'is-active' : ''}" data-filter-key="${escapeHtml(filter.key)}">
-          ${escapeHtml(filter.label)}
+          ${escapeHtml(`${filter.label} ${filter.count}`)}
         </button>
       `)
       .join('');
+  }
+
+  function applySlateFilter(filterKey) {
+    state.filter = String(filterKey || 'all');
+    renderFilters();
+    renderBoard();
   }
 
   function setPropsStripLoading() {
@@ -2424,6 +2442,23 @@
       .slice(0, 3);
   }
 
+  function propBucketSummary(game) {
+    const rows = allPropRows(game);
+    const official = rows.filter((row) => row.bucket === 'official').length;
+    const playable = rows.filter((row) => row.bucket !== 'official').length;
+    if (!official && !playable) {
+      return 'No props';
+    }
+    const parts = [];
+    if (official) {
+      parts.push(`${official} official`);
+    }
+    if (playable) {
+      parts.push(`${playable} playable`);
+    }
+    return parts.join(' · ');
+  }
+
   function playableBoardMarkup(game) {
     const id = cardId(game);
     const gameRows = playableMarketRows(game);
@@ -2915,14 +2950,6 @@
             <span class="cards-chip">${escapeHtml(marketCountSummary(game) || 'Market board')}</span>
           </div>
           <ul class="cards-callout-list">${officialCardRows(game)}</ul>
-          <div class="cards-card-context">
-            <div class="cards-table-title"><strong>Props board</strong></div>
-            <div class="cards-callout-copy">Official and playable prop lanes now live under the Props tab, matching the MLB card flow.</div>
-            <div class="cards-source-meta">
-              <span class="cards-source-meta-pill is-soft">${escapeHtml(`${officialPropRows(game).length} official props`)}</span>
-              <span class="cards-source-meta-pill is-soft">${escapeHtml(`${allPropRows(game).filter((row) => row.bucket !== 'official').length} playable props`)}</span>
-            </div>
-          </div>
         </div>
       </div>
     `;
@@ -3337,8 +3364,6 @@
   function renderLensDetailPairs(selected, simRow) {
     const metricValue = simRow ? simRow[`${selected.market}_mean`] : null;
     const pairs = [
-      { label: 'Team side', value: selected.teamTri },
-      { label: 'Selection', value: `${selected.side} ${fmtNumber(selected.line, 1)}` },
       { label: 'Odds', value: `${fmtAmerican(selected.price)} ${selected.book || ''}`.trim() },
       { label: 'EV', value: fmtPercentValue(selected.evPct) },
       { label: 'Win prob', value: fmtPercent(selected.pWin, 0) },
@@ -3406,8 +3431,8 @@
       <div class="cards-lens-head">
         <div>
           <div class="cards-lens-label">Prop lens</div>
-          <div class="cards-lens-main">${escapeHtml(selected.player)} - ${escapeHtml(selected.marketLabel)}</div>
-          <div class="cards-subcopy">${escapeHtml(selected.teamTri)} · ${escapeHtml(selected.side)} ${fmtNumber(selected.line, 1)} · ${escapeHtml(selected.matchup || `${game.away_tri} at ${game.home_tri}`)}</div>
+          <div class="cards-lens-main">${escapeHtml(selected.player)} · ${escapeHtml(selected.marketLabel)} ${escapeHtml(selected.side)} ${fmtNumber(selected.line, 1)}</div>
+          <div class="cards-subcopy">${escapeHtml(selected.teamTri)} · ${escapeHtml(selected.matchup || `${game.away_tri} at ${game.home_tri}`)}</div>
         </div>
         <span class="cards-lens-badge ${selected.bucket === 'official' ? '' : 'is-live'}">${selected.bucket === 'official' ? 'Official' : 'Playable'}</span>
       </div>
@@ -3422,20 +3447,19 @@
         <div class="cards-panel-card cards-prop-stack">
           <div class="cards-table-title">Ladders</div>
           <a class="cards-game-link" href="/prop-ladders?date=${encodeURIComponent(state.date)}&team=${encodeURIComponent(selected.teamTri)}&player=${encodeURIComponent(selected.player)}&market=${encodeURIComponent(selected.market)}">Open full ${escapeHtml(selected.marketLabel)} ladders board</a>
-          <div class="cards-callout-copy">Use the ladders board to inspect alternate rungs and over/under dispersion for this player and stat.</div>
+          <div class="cards-callout-copy">Inspect alternate rungs and O/U dispersion for this prop.</div>
         </div>
       </div>
     `;
   }
 
   function renderPropsPanel(game) {
-    const rows = allPropRows(game);
     return `
       <div class="cards-props-grid">
         <div class="cards-panel-card">
           <div class="cards-box-head">
             <div class="cards-table-title"><strong>Props board</strong></div>
-            <span class="cards-chip">${rows.length} total rows</span>
+            <span class="cards-chip">${escapeHtml(propBucketSummary(game))}</span>
           </div>
           <div class="cards-prop-filter-shell">${renderPropFilters(game)}</div>
           <div class="cards-prop-groups">${renderPropGroups(game)}</div>
@@ -3470,10 +3494,16 @@
     return `
       <article class="cards-game-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" data-card-id="${escapeHtml(id)}" data-matchup-key="${escapeHtml(matchup)}" id="game-card-${escapeHtml(id)}">
         <div class="cards-strip-head">
-          <div class="cards-head-left">
-            ${teamHeaderMarkup(game.away_tri, game.away_name)}
+          <div class="cards-head-left cards-head-matchup">
+            <div class="cards-head-team">
+              ${teamHeaderMarkup(game.away_tri, game.away_name)}
+              <div class="cards-head-team-score">${fmtNumber(awayScore, mode === 'live' ? 0 : 1)}</div>
+            </div>
             <span class="cards-score-divider">@</span>
-            ${teamHeaderMarkup(game.home_tri, game.home_name)}
+            <div class="cards-head-team">
+              ${teamHeaderMarkup(game.home_tri, game.home_name)}
+              <div class="cards-head-team-score">${fmtNumber(homeScore, mode === 'live' ? 0 : 1)}</div>
+            </div>
           </div>
           <div class="cards-status-cluster">
             <div class="cards-game-time-row">
@@ -3487,21 +3517,10 @@
         </div>
 
         <div class="cards-score-ribbon">
-          <div class="cards-score-side">
-            <div class="cards-score-label">Away</div>
-            <div class="cards-score-number">${fmtNumber(awayScore, mode === 'live' ? 0 : 1)}</div>
-            <strong>${escapeHtml(game.away_tri)}</strong>
-          </div>
-          <div class="cards-score-divider">at</div>
-          <div class="cards-score-side">
-            <div class="cards-score-label">Home</div>
-            <div class="cards-score-number">${fmtNumber(homeScore, mode === 'live' ? 0 : 1)}</div>
-            <strong>${escapeHtml(game.home_tri)}</strong>
-          </div>
           <div class="cards-score-meta">
             <div class="cards-live-line">${escapeHtml(scoreMetaPrimary)}</div>
             <div class="cards-sim-line">${escapeHtml(scoreMetaSecondary)}</div>
-            <div class="cards-mini-copy">${escapeHtml(game.away_name || game.away_tri)} at ${escapeHtml(game.home_name || game.home_tri)}</div>
+            <div class="cards-mini-copy">${escapeHtml(mode === 'live' && hasStarted ? (liveState?.status || 'Live game lens active') : 'Pregame betting board ready')}</div>
           </div>
         </div>
 
@@ -3694,6 +3713,9 @@
       if (headerMeta) {
         headerMeta.textContent = 'Failed to load slate.';
       }
+      if (sourceMeta) {
+        sourceMeta.innerHTML = `<span>${escapeHtml(error?.message || 'Failed to load slate metadata.')}</span>`;
+      }
       scoreboardRoot.innerHTML = '<div class="cards-loading-strip">Failed to load scoreboard.</div>';
       gridRoot.innerHTML = `<div class="cards-empty-state">${escapeHtml(error?.message || 'Failed to load slate.')}</div>`;
       showNote(error?.message || 'Failed to load slate.', 'warning');
@@ -3882,19 +3904,10 @@
     if (!button) {
       return;
     }
-    state.filter = button.getAttribute('data-filter-key') || 'all';
-    renderFilters();
-    renderBoard();
+    applySlateFilter(button.getAttribute('data-filter-key') || 'all');
   });
 
   applyBtn?.addEventListener('click', applyAndLoad);
-  todayBtn?.addEventListener('click', () => {
-    const today = getLocalDateISO();
-    if (datePicker) {
-      datePicker.value = today;
-    }
-    applyAndLoad();
-  });
 
   const initialDate = new URLSearchParams(window.location.search).get('date') || getLocalDateISO();
   state.date = initialDate;
@@ -3902,6 +3915,7 @@
     datePicker.value = initialDate;
   }
   syncFromControls();
+
   setupPolling();
   loadBoard({ silent: false });
 })();
