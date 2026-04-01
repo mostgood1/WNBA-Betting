@@ -97,6 +97,46 @@
     throw new Error(extractApiErrorText(rawText, fallbackMessage));
   }
 
+  function waitFor(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  function isRetryableApiError(error) {
+    const message = String(error?.message || '').toLowerCase();
+    if (!message) {
+      return false;
+    }
+    return (
+      message.includes('server returned html instead of json')
+      || message.includes('failed to fetch')
+      || message.includes('networkerror')
+      || message.includes('load failed')
+      || message.includes('network request failed')
+      || message.includes('timeout')
+    );
+  }
+
+  async function fetchApiJson(url, fallbackMessage, options = {}) {
+    const retries = Math.max(0, Number(options?.retries) || 0);
+    const retryDelayMs = Math.max(100, Number(options?.retryDelayMs) || 700);
+    let lastError = null;
+
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+      try {
+        const response = await fetch(url, { cache: 'no-store' });
+        return await readApiJson(response, fallbackMessage);
+      } catch (error) {
+        lastError = error;
+        if (attempt >= retries || !isRetryableApiError(error)) {
+          throw error;
+        }
+        await waitFor(retryDelayMs * (attempt + 1));
+      }
+    }
+
+    throw lastError || new Error(fallbackMessage);
+  }
+
   function fmtNumber(value, digits = 1) {
     const number = Number(value);
     return Number.isFinite(number) ? number.toFixed(digits) : '--';
@@ -971,18 +1011,22 @@
     };
   }
 
-  async function loadLiveGameLens(dateValue, games) {
+  async function loadLiveGameLens(dateValue, games, options = {}) {
+    const silent = Boolean(options?.silent);
     state.liveDataLoading = true;
-    state.liveGameLens = new Map();
-    state.livePlayerBoxscores = new Map();
-    state.liveStates = new Map();
     if (mode !== 'live') {
       state.liveDataLoading = false;
       return;
     }
+    const nextLiveGameLens = new Map();
+    const nextLivePlayerBoxscores = new Map();
+    const nextLiveStates = new Map();
     try {
-      const liveStateResponse = await fetch(`/api/live_state?date=${encodeURIComponent(dateValue)}`, { cache: 'no-store' });
-      const liveStatePayload = await readApiJson(liveStateResponse, 'Failed to load live state.');
+      const liveStatePayload = await fetchApiJson(
+        `/api/live_state?date=${encodeURIComponent(dateValue)}`,
+        'Failed to load live state.',
+        { retries: silent ? 2 : 1 }
+      );
 
       const payloadGames = safeArray(games);
       const liveStateMap = new Map();
@@ -990,7 +1034,7 @@
         const key = matchupKey(item?.away, item?.home);
         if (key) {
           liveStateMap.set(key, item);
-          state.liveStates.set(key, item);
+          nextLiveStates.set(key, item);
         }
       });
 
@@ -1013,16 +1057,26 @@
       let liveBoxscorePayload = null;
 
       if (eventIds.length) {
-        const [linesResponse, pbpResponse, tuningResponse, boxscoreResponse] = await Promise.all([
-          fetch(`/api/live_lines?date=${encodeURIComponent(dateValue)}&event_ids=${encodeURIComponent(eventIds.join(','))}&include_period_totals=1`, { cache: 'no-store' }),
-          fetch(`/api/live_pbp_stats?date=${encodeURIComponent(dateValue)}&event_ids=${encodeURIComponent(eventIds.join(','))}`, { cache: 'no-store' }),
-          fetch('/api/live_lens_tuning?ttl=300', { cache: 'no-store' }),
-          fetch(`/api/live_player_boxscore?event_ids=${encodeURIComponent(eventIds.join(','))}`, { cache: 'no-store' }),
+        const [linesPayload, pbpPayload, tuningPayload, boxscorePayload] = await Promise.all([
+          fetchApiJson(
+            `/api/live_lines?date=${encodeURIComponent(dateValue)}&event_ids=${encodeURIComponent(eventIds.join(','))}&include_period_totals=1`,
+            'Failed to load live lines.',
+            { retries: silent ? 2 : 1 }
+          ),
+          fetchApiJson(
+            `/api/live_pbp_stats?date=${encodeURIComponent(dateValue)}&event_ids=${encodeURIComponent(eventIds.join(','))}`,
+            'Failed to load live PBP stats.',
+            { retries: silent ? 2 : 1 }
+          ),
+          fetchApiJson('/api/live_lens_tuning?ttl=300', 'Failed to load live lens tuning.', { retries: 1 }),
+          fetchApiJson(
+            `/api/live_player_boxscore?event_ids=${encodeURIComponent(eventIds.join(','))}`,
+            'Failed to load live player boxscore.',
+            { retries: silent ? 2 : 1 }
+          ),
         ]);
-        const linesPayload = await readApiJson(linesResponse, 'Failed to load live lines.');
-        const pbpPayload = await readApiJson(pbpResponse, 'Failed to load live PBP stats.');
-        tuning = tuningResponse.ok ? await readApiJson(tuningResponse, 'Failed to load live lens tuning.') : null;
-        liveBoxscorePayload = boxscoreResponse.ok ? await readApiJson(boxscoreResponse, 'Failed to load live player boxscore.') : null;
+        tuning = tuningPayload || null;
+        liveBoxscorePayload = boxscorePayload || null;
 
         safeArray(linesPayload?.games).forEach((item) => {
           const eventId = String(item?.event_id || '').trim();
@@ -1057,7 +1111,7 @@
           });
           grouped.away.sort((left, right) => (Number(right?.mp || 0) - Number(left?.mp || 0)) || (Number(right?.pts || 0) - Number(left?.pts || 0)));
           grouped.home.sort((left, right) => (Number(right?.mp || 0) - Number(left?.mp || 0)) || (Number(right?.pts || 0) - Number(left?.pts || 0)));
-          state.livePlayerBoxscores.set(matchup, grouped);
+          nextLivePlayerBoxscores.set(matchup, grouped);
         });
       }
 
@@ -1068,11 +1122,19 @@
         const lens = computeLiveGameLens(game, liveState, liveLines, pbpStats, tuning);
         const key = gameMatchupKey(game);
         if (key && lens) {
-          state.liveGameLens.set(key, lens);
+          nextLiveGameLens.set(key, lens);
         }
       });
-    } catch (_error) {
-      state.liveGameLens = new Map();
+      state.liveGameLens = nextLiveGameLens;
+      state.livePlayerBoxscores = nextLivePlayerBoxscores;
+      state.liveStates = nextLiveStates;
+    } catch (error) {
+      if (!silent) {
+        state.liveGameLens = new Map();
+        state.livePlayerBoxscores = new Map();
+        state.liveStates = new Map();
+      }
+      showNote(error?.message || 'Failed to refresh live signals.', 'warning');
     } finally {
       state.liveDataLoading = false;
     }
@@ -2059,6 +2121,7 @@
   async function loadPropsStrip(dateValue, options = {}) {
     const silent = Boolean(options?.silent);
     const games = safeArray(options?.games || state.payload?.games);
+    const previousPropsStripPayload = state.propsStripPayload;
     if (!propsStripEl) {
       return;
     }
@@ -2067,8 +2130,11 @@
     }
     try {
       if (mode === 'live') {
-        const liveStateResponse = await fetch(`/api/live_state?date=${encodeURIComponent(dateValue)}`, { cache: 'no-store' });
-        const liveStatePayload = await readApiJson(liveStateResponse, 'Failed to load live state for player props.');
+        const liveStatePayload = await fetchApiJson(
+          `/api/live_state?date=${encodeURIComponent(dateValue)}`,
+          'Failed to load live state for player props.',
+          { retries: silent ? 2 : 1 }
+        );
         const liveGames = safeArray(liveStatePayload?.games)
           .filter((game) => Boolean(game?.in_progress) && !Boolean(game?.final));
         const eventIds = liveGames
@@ -2085,31 +2151,40 @@
         const lensQuery = eventIds.length
           ? `/api/live_player_lens?date=${encodeURIComponent(dateValue)}&event_ids=${encodeURIComponent(eventIds.join(','))}`
           : `/api/live_player_lens?date=${encodeURIComponent(dateValue)}`;
-        const response = await fetch(lensQuery, { cache: 'no-store' });
-        const payload = await readApiJson(response, 'Failed to load live player props.');
+        const payload = await fetchApiJson(lensQuery, 'Failed to load live player props.', { retries: silent ? 2 : 1 });
         let transformed = transformLiveStripPayload(payload, dateValue);
 
         if ((!safeArray(transformed?.items).length) && eventIds.length && games.length) {
-          const boxscoreResponse = await fetch(`/api/live_player_boxscore?event_ids=${encodeURIComponent(eventIds.join(','))}`, { cache: 'no-store' });
-          const boxscorePayload = await readApiJson(boxscoreResponse, 'Failed to load live player boxscore.');
-          if (boxscoreResponse.ok) {
-            transformed = buildLiveBoxscoreSimFallback(boxscorePayload, games, liveStatePayload, dateValue);
-          }
+          const boxscorePayload = await fetchApiJson(
+            `/api/live_player_boxscore?event_ids=${encodeURIComponent(eventIds.join(','))}`,
+            'Failed to load live player boxscore.',
+            { retries: silent ? 2 : 1 }
+          );
+          transformed = buildLiveBoxscoreSimFallback(boxscorePayload, games, liveStatePayload, dateValue);
         }
 
         state.propsStripPayload = transformed;
         state.propsStripVisibleCount = Number(state.propsStripDefaultCount) || 18;
       } else {
-        const response = await fetch(`/api/cards/props-strip?date=${encodeURIComponent(dateValue)}`, { cache: 'no-store' });
-        const payload = await readApiJson(response, 'Failed to load prop strip.');
+        const payload = await fetchApiJson(
+          `/api/cards/props-strip?date=${encodeURIComponent(dateValue)}`,
+          'Failed to load prop strip.',
+          { retries: silent ? 2 : 1 }
+        );
         state.propsStripPayload = payload;
       }
       renderPropsStrip();
       if (mode === 'live' && state.payload && (state.payload.date || state.date) === dateValue) {
         renderBoard();
       }
-    } catch (_error) {
-      reportPropsStripError('load', _error, dateValue);
+    } catch (error) {
+      reportPropsStripError('load', error, dateValue);
+      if (silent && previousPropsStripPayload) {
+        state.propsStripPayload = previousPropsStripPayload;
+        renderPropsStrip();
+        showNote(error?.message || 'Failed to refresh player props.', 'warning');
+        return;
+      }
       state.propsStripPayload = null;
       clearPropsStrip();
     }
@@ -3555,8 +3630,11 @@
       setLoading();
     }
     try {
-      const response = await fetch(`/api/cards?date=${encodeURIComponent(state.date)}`, { cache: 'no-store' });
-      const payload = await readApiJson(response, 'Failed to load game cards.');
+      const payload = await fetchApiJson(
+        `/api/cards?date=${encodeURIComponent(state.date)}`,
+        'Failed to load game cards.',
+        { retries: silent ? 2 : 1 }
+      );
       const previousDate = String(state.payload?.date || state.date || '');
       const previousGames = safeArray(state.payload?.games);
       const nextDate = String(payload?.date || state.date || '');
@@ -3589,7 +3667,7 @@
 
       void loadPropsStrip(resolvedDate, { silent, games: payload.games || [] });
       if (mode === 'live') {
-        void loadLiveGameLens(resolvedDate, payload.games || []).then(() => {
+        void loadLiveGameLens(resolvedDate, payload.games || [], { silent }).then(() => {
           if ((state.payload?.date || state.date) === resolvedDate) {
             renderSourceMeta();
             if (silent && slateUnchanged && state.boardInitialized) {
@@ -3603,6 +3681,11 @@
         state.liveDataLoading = false;
       }
     } catch (error) {
+      if (silent && state.payload && state.boardInitialized) {
+        state.liveDataLoading = false;
+        showNote(error?.message || 'Failed to refresh slate.', 'warning');
+        return;
+      }
       state.payload = null;
       state.propsStripPayload = null;
       clearPropsStrip();
