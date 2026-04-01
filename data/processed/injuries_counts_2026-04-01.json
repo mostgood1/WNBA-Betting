@@ -1,0 +1,83 @@
+{
+  "date": "2026-04-01",
+  "team_counts": {
+    "CHI": 1,
+    "GSW": 1,
+    "IND": 1,
+    "MEM": 2,
+    "PHI": 1,
+    "SAC": 1,
+    "SAS": 2,
+    "UTA": 3,
+    "WAS": 1
+  },
+  "players": [
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Collins",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaren Jackson Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Trae Young",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Drew Eubanks",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Scotty Pippen Jr.",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Walker Kessler",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Harrison Ingram",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Johni Broome",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Collier",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Johnny Furphy",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "David Jones Garcia",
+      "team": "SAS",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
