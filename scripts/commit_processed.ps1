@@ -149,6 +149,7 @@ $allowedPrefixes = @(
     "props_edges_",
     "props_predictions_",
     "props_recommendations_",
+    "cards_sim_detail_",
     # Daily tuning dataset for Player Live Lens
     "live_player_lens_tuning_",
     # SmartSim per-game distributions (JSON) for UI/diagnostics

@@ -100,6 +100,27 @@ def _count_csv_data_rows(path: Path) -> int:
         return 0
 
 
+def _count_cards_sim_detail_games(path: Path) -> int:
+    try:
+        if not path.exists() or path.stat().st_size <= 0:
+            return 0
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        games = payload.get("games") if isinstance(payload, dict) else None
+        if not isinstance(games, list):
+            return 0
+        count = 0
+        for game in games:
+            if not isinstance(game, dict):
+                continue
+            home_tri = str(game.get("home_tri") or "").strip().upper()
+            away_tri = str(game.get("away_tri") or "").strip().upper()
+            if home_tri and away_tri:
+                count += 1
+        return count
+    except Exception:
+        return 0
+
+
 def _parse_obj(value: object) -> object:
     if isinstance(value, (list, dict)):
         return value
@@ -239,6 +260,7 @@ def main() -> int:
     odds = proc / f"game_odds_{date_str}.csv"
     props_edges = proc / f"props_edges_{date_str}.csv"
     props_recs = proc / f"props_recommendations_{date_str}.csv"
+    cards_sim_detail = proc / f"cards_sim_detail_{date_str}.json"
     props_snapshot = repo_root / "data" / "raw" / f"odds_nba_player_props_{date_str}.csv"
 
     pred_rows = _count_csv_data_rows(pred)
@@ -247,6 +269,7 @@ def main() -> int:
     props_edges_rows = _count_csv_data_rows(props_edges)
     props_recs_rows = _count_csv_data_rows(props_recs)
     props_recs_play_rows = _count_props_recommendation_play_rows(props_recs)
+    cards_sim_detail_games = _count_cards_sim_detail_games(cards_sim_detail)
     props_expected_teams, props_present_teams, props_missing_teams = _props_team_coverage(proc, date_str)
 
     slate_games: int | None = None
@@ -379,6 +402,10 @@ def main() -> int:
 
     if args.require_smartsim and slate_games is not None and slate_games > 0 and smart_count < max(1, slate_games):
         missing.append(f"smart_sim_{date_str}_*.json ({smart_count}/{slate_games})")
+    if args.require_smartsim and slate_games is not None and slate_games > 0 and cards_sim_detail_games < max(1, slate_games):
+        missing.append(f"cards_sim_detail_{date_str}.json ({cards_sim_detail_games}/{slate_games})")
+    elif smart_count > 0 and cards_sim_detail_games <= 0:
+        warnings.append(f"cards sim detail snapshot missing or empty: {cards_sim_detail.name}")
 
     cov = None
     if rot_expected is None:
@@ -413,6 +440,8 @@ def main() -> int:
         "props_recommendations_ok": props_recs_rows > 0,
         "props_recommendations_rows": props_recs_rows,
         "props_recommendations_play_rows": props_recs_play_rows,
+        "cards_sim_detail_ok": cards_sim_detail_games > 0,
+        "cards_sim_detail_games": cards_sim_detail_games,
         "props_expected_teams": props_expected_teams,
         "props_present_teams": props_present_teams,
         "props_missing_teams": props_missing_teams,
