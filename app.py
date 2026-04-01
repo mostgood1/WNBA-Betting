@@ -30761,7 +30761,11 @@ def api_prop_ladders():
     if not d:
         return jsonify({"error": "missing date"}), 400
     try:
-        base_response = api_cards()
+        cards_args = request.args.to_dict(flat=False)
+        cards_args["include_players"] = ["1"]
+        cards_query = urlencode(cards_args, doseq=True)
+        with app.test_request_context(f"/api/cards?{cards_query}"):
+            base_response = api_cards()
         if isinstance(base_response, tuple):
             response_obj = base_response[0]
             status_code = int(base_response[1]) if len(base_response) > 1 else 200

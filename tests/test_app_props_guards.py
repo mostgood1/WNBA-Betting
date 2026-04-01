@@ -256,6 +256,26 @@ def test_api_cards_falls_back_to_predictions_when_smart_sim_missing(tmp_path, mo
     assert "Using predictions fallback because SmartSim artifact is missing for this matchup." in (game.get("warnings") or [])
 
 
+def test_api_prop_ladders_requests_players_from_api_cards(monkeypatch):
+    observed: dict[str, str | None] = {"include_players": None}
+
+    def _fake_api_cards():
+        observed["include_players"] = app_module.request.args.get("include_players")
+        return app_module.jsonify({"games": []})
+
+    monkeypatch.setattr(app_module, "api_cards", _fake_api_cards)
+
+    with app_module.app.test_request_context("/api/prop-ladders?date=2026-04-01"):
+        response = app_module.api_prop_ladders()
+
+    payload = response.get_json()
+
+    assert response.status_code == 200
+    assert observed["include_players"] == "1"
+    assert payload["date"] == "2026-04-01"
+    assert payload["rows"] == []
+
+
 def test_api_cards_prefers_cards_props_snapshot_over_runtime_recompute(tmp_path, monkeypatch):
     processed = tmp_path / "data" / "processed"
     processed.mkdir(parents=True)
