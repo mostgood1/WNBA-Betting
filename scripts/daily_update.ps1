@@ -3834,7 +3834,21 @@ if (-not $GitPush) {
           $FinalGitPushSucceeded = $true
           Write-Log 'Git: final push succeeded'
         } else {
-          Write-Log ("Git: final push failed (exit={0})" -f $rcFinalPush)
+          Write-Log ("Git: final push failed (exit={0}); attempting pull --rebase origin main then retry" -f $rcFinalPush)
+          Remove-StaleGitLock
+          $rcFinalPull = Invoke-LoggedNativeCommand -FilePath 'git' -ArgumentList @('pull', '--rebase', 'origin', 'main')
+          if ($rcFinalPull -ne 0) {
+            Write-Log ("Git: final pull --rebase failed (exit={0})" -f $rcFinalPull)
+          } else {
+            Remove-StaleGitLock
+            $rcFinalPushRetry = Invoke-LoggedNativeCommand -FilePath 'git' -ArgumentList @('push', 'origin', 'HEAD:main')
+            if ($rcFinalPushRetry -eq 0) {
+              $FinalGitPushSucceeded = $true
+              Write-Log 'Git: final push succeeded after rebase retry'
+            } else {
+              Write-Log ("Git: final push retry failed (exit={0})" -f $rcFinalPushRetry)
+            }
+          }
         }
       } catch {
         Write-Log ("Git: final push failed: {0}" -f $_.Exception.Message)
