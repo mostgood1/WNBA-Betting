@@ -4,7 +4,6 @@
     "CHA": 1,
     "DET": 1,
     "LAC": 1,
-    "LAL": 1,
     "NOP": 1,
     "PHX": 1,
     "POR": 1
@@ -36,44 +35,11 @@
       "status": "OUT"
     },
     {
-      "player": "Kobe Bufkin",
-      "team": "LAL",
-      "status": "OUT"
-    },
-    {
       "player": "Tosan Evbuomwan",
       "team": "CHA",
       "status": "OUT"
     }
   ],
-  "team_key_outs": {
-    "LAC": [
-      "Bradley Beal"
-    ],
-    "POR": [
-      "Jerami Grant"
-    ],
-    "PHX": [
-      "Amir Coffey"
-    ],
-    "DET": [
-      "Cade Cunningham"
-    ],
-    "NOP": [
-      "Bryce McGowens"
-    ],
-    "LAL": [
-      "Kobe Bufkin"
-    ],
-    "CHA": [
-      "Tosan Evbuomwan"
-    ]
-  },
-  "team_impact": {
-    "POR": 28.527272727272727,
-    "PHX": 5.771428571428572,
-    "DET": 40.050000000000004,
-    "NOP": 16.0,
-    "LAL": 1.375
-  }
+  "team_key_outs": {},
+  "team_impact": {}
 }
