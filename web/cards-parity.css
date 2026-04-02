@@ -973,36 +973,48 @@ body.cards-app-shell .toggle-chip input {
   font-size: 13px;
 }
 
-.cards-props-strip-sort {
+.cards-props-strip-controls {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.cards-props-strip-filters {
-  display: grid;
+  align-items: center;
   gap: 12px;
-  margin-top: 12px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
 }
 
 .cards-props-strip-filter-group {
-  display: grid;
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  flex: 0 0 auto;
 }
 
 .cards-props-strip-filter-title {
   color: var(--cards-text-soft);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .cards-props-strip-filter-pills {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.cards-props-strip-shell .cards-filter-pill {
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cards-props-strip-shell .cards-source-meta-pill {
+  min-height: 26px;
+  padding: 0 10px;
+  font-size: 11px;
 }
 
 .cards-props-strip-grid {
@@ -2519,6 +2531,49 @@ body.cards-app-shell .toggle-chip input {
   .cards-source-meta {
     justify-content: flex-start;
   }
+
+  .cards-strip-head {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .cards-head-left,
+  .cards-head-matchup,
+  .cards-status-cluster,
+  .cards-score-meta {
+    width: 100%;
+  }
+
+  .cards-head-matchup {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .cards-head-team {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 220px;
+  }
+
+  .cards-status-cluster {
+    justify-content: flex-start;
+  }
+
+  .cards-market-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cards-props-strip-controls {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  .cards-props-strip-filter-group {
+    flex-wrap: wrap;
+  }
+
+  .cards-props-strip-filter-pills {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 720px) {
@@ -2647,9 +2702,9 @@ body.cards-app-shell .toggle-chip input {
   }
 
   .cards-score-ribbon {
-    margin: 0 16px;
-    padding: 14px;
-    gap: 12px;
+    margin: 0;
+    padding: 10px 11px;
+    gap: 8px;
   }
 
   .cards-score-side,
@@ -2676,6 +2731,7 @@ body.cards-app-shell .toggle-chip input {
 
   .cards-market-grid,
   .cards-market-row--tiles,
+  .cards-market-row,
   .cards-mini-metrics,
   .cards-box-totals,
   .ladders-summary-grid,
@@ -2715,6 +2771,76 @@ body.cards-app-shell .toggle-chip input {
     font-size: 16px;
   }
 
+  .cards-props-strip-shell {
+    gap: 10px;
+    padding: 12px 12px 14px;
+  }
+
+  .cards-props-strip-headline h2 {
+    font-size: clamp(18px, 7vw, 24px);
+  }
+
+  .cards-props-strip-headline p {
+    font-size: 12px;
+  }
+
+  .cards-props-strip-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .cards-props-strip-filter-group {
+    display: grid;
+    gap: 6px;
+  }
+
+  .cards-props-strip-filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .cards-props-strip-shell .cards-filter-pill {
+    min-height: 26px;
+    padding: 0 9px;
+    font-size: 10px;
+  }
+
+  .cards-head-team {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .cards-head-team-score {
+    font-size: 18px;
+  }
+
+  .cards-team-code {
+    font-size: 17px;
+  }
+
+  .cards-team-name {
+    font-size: 11px;
+  }
+
+  .cards-status-cluster {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .cards-start-time,
+  .cards-game-link,
+  .cards-subcopy,
+  .cards-callout-copy,
+  .cards-panel-copy,
+  .cards-market-sub,
+  .cards-mini-copy,
+  .cards-live-line,
+  .cards-sim-line {
+    font-size: 10px;
+  }
+
   .cards-prop-list {
     grid-template-columns: 1fr;
   }
@@ -2741,6 +2867,11 @@ body.cards-app-shell .toggle-chip input {
     border-radius: 22px;
   }
 
+  .cards-game-card {
+    padding: 10px;
+    gap: 10px;
+  }
+
   .cards-title-row {
     gap: 10px;
   }
@@ -2756,6 +2887,55 @@ body.cards-app-shell .toggle-chip input {
   .cards-nav-pill,
   .cards-tab {
     flex-basis: 100%;
+  }
+
+  .cards-market-tile {
+    min-height: 0;
+    padding: 8px;
+  }
+
+  .cards-tabs {
+    width: 100%;
+  }
+
+  .cards-tab {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+
+  .cards-header-meta {
+    white-space: normal;
+  }
+
+  .cards-props-strip-card {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .cards-props-strip-card__top,
+  .cards-props-strip-card__identity {
+    display: grid;
+    justify-content: flex-start;
+  }
+
+  .cards-props-strip-card__media {
+    width: 46px;
+    height: 46px;
+  }
+
+  .cards-props-strip-card__photo,
+  .cards-props-strip-card__photo.is-fallback {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+  }
+
+  .cards-props-strip-card__name {
+    font-size: 16px;
+  }
+
+  .cards-props-strip-card__play {
+    font-size: 14px;
   }
 
   .cards-score-number,

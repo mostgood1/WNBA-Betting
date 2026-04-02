@@ -66,6 +66,9 @@
     if (raw.startsWith('<')) {
       return `${fallbackMessage} Server returned HTML instead of JSON.`;
     }
+    if (raw.startsWith('{') || raw.startsWith('[')) {
+      return fallbackMessage;
+    }
     return raw.slice(0, 240);
   }
 
@@ -81,11 +84,10 @@
     }
 
     if (!response.ok) {
-      throw new Error(
-        payload?.error
-        || payload?.message
-        || extractApiErrorText(rawText, fallbackMessage)
-      );
+      const payloadMessage = payload && typeof payload === 'object'
+        ? (payload.error || payload.message || payload.detail)
+        : null;
+      throw new Error(payloadMessage || extractApiErrorText(rawText, fallbackMessage));
     }
 
     if (payload !== null) {
@@ -2040,20 +2042,26 @@
       const activeFilters = state.propsStripFilters || {};
       const canShowMore = mode === 'live' && visibleItems.length < filteredItems.length;
       const renderedItems = visibleItems.map(renderPropsStripItem).filter(Boolean);
+      const controlsMarkup = [
+        sortOptions.length
+          ? renderPropsStripFilterGroup('Sort', sortOptions, state.propsStripSort, 'data-strip-sort', (option) => option.label)
+          : '',
+        mode === 'live'
+          ? renderPropsStripFilterGroup('Prop', [{ key: 'all', label: 'All props' }, ...filterOptions.markets.map((market) => ({ key: market, label: marketLabel(market) }))], activeFilters.market || 'all', 'data-strip-market')
+          : '',
+        mode === 'live'
+          ? renderPropsStripFilterGroup('Side', [{ key: 'all', label: 'All sides' }, { key: 'OVER', label: 'Over' }, { key: 'UNDER', label: 'Under' }], activeFilters.side || 'all', 'data-strip-side')
+          : '',
+        mode === 'live'
+          ? renderPropsStripFilterGroup('Game', [{ key: 'all', label: 'All games' }, ...filterOptions.games.map((gameKey) => ({ key: gameKey, label: gameKey.replace('@', ' @ ') }))], activeFilters.game || 'all', 'data-strip-game')
+          : '',
+      ].filter(Boolean).join('');
       propsStripEl.classList.remove('hidden');
       propsStripEl.innerHTML = `
         <div class="cards-props-strip-headline">
           <div>
             <h2>${escapeHtml(String(payload?.title || (mode === 'live' ? 'Live player props' : 'Pregame prop movement')))}</h2>
             <p>${escapeHtml(String(payload?.subtitle || ''))}</p>
-            ${sortOptions.length ? `<div class="cards-props-strip-sort">${sortOptions.map((option) => `<button type="button" class="cards-filter-pill ${state.propsStripSort === option.key ? 'is-active' : ''}" data-strip-sort="${escapeHtml(option.key)}">${escapeHtml(option.label)}</button>`).join('')}</div>` : ''}
-            ${mode === 'live' ? `
-              <div class="cards-props-strip-filters">
-                ${renderPropsStripFilterGroup('Prop', [{ key: 'all', label: 'All props' }, ...filterOptions.markets.map((market) => ({ key: market, label: marketLabel(market) }))], activeFilters.market || 'all', 'data-strip-market')}
-                ${renderPropsStripFilterGroup('Side', [{ key: 'all', label: 'All sides' }, { key: 'OVER', label: 'Over' }, { key: 'UNDER', label: 'Under' }], activeFilters.side || 'all', 'data-strip-side')}
-                ${renderPropsStripFilterGroup('Game', [{ key: 'all', label: 'All games' }, ...filterOptions.games.map((gameKey) => ({ key: gameKey, label: gameKey.replace('@', ' @ ') }))], activeFilters.game || 'all', 'data-strip-game')}
-              </div>
-            ` : ''}
           </div>
           <div class="cards-strip-pills">
             <span class="cards-source-meta-pill ${mode === 'live' ? 'is-live' : 'is-soft'}">${escapeHtml(String(renderedItems.length))} shown</span>
@@ -2062,6 +2070,7 @@
             <span class="cards-source-meta-pill">${escapeHtml(String(payload?.date || state.date || ''))}</span>
           </div>
         </div>
+        ${controlsMarkup ? `<div class="cards-props-strip-controls">${controlsMarkup}</div>` : ''}
         <div class="cards-props-strip-grid">${renderedItems.length ? renderedItems.join('') : `<div class="cards-props-strip-empty">No player props are available right now.</div>`}</div>
         ${canShowMore ? `<div class="cards-props-strip-actions"><button type="button" class="cards-filter-pill" data-strip-show-more="1">Show more</button></div>` : ''}
       `;
