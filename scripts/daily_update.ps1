@@ -684,23 +684,33 @@ function Invoke-LoggedNativeCommand {
     [string[]]$ArgumentList = @()
   )
 
-  $ErrorActionPreference = 'Continue'
-  $nativePrefSupported = $false
-  $nativePrefPrevious = $null
+  $stdoutPath = [System.IO.Path]::GetTempFileName()
+  $stderrPath = [System.IO.Path]::GetTempFileName()
+  $exitCode = 0
   try {
-    $nativePrefVar = Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue
-    if ($null -ne $nativePrefVar) {
-      $nativePrefSupported = $true
-      $nativePrefPrevious = [bool]$nativePrefVar.Value
-      Set-Variable -Name PSNativeCommandUseErrorActionPreference -Scope Local -Value $false
+    $process = Start-Process -FilePath $FilePath `
+      -ArgumentList $ArgumentList `
+      -NoNewWindow `
+      -Wait `
+      -PassThru `
+      -RedirectStandardOutput $stdoutPath `
+      -RedirectStandardError $stderrPath `
+      -ErrorAction Stop
+
+    if (Test-Path $stdoutPath) {
+      Get-Content -Path $stdoutPath -ErrorAction SilentlyContinue | Tee-Object -FilePath $LogFile -Append | Out-Host
     }
-    & $FilePath @ArgumentList 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Host
-    $exitCode = $LASTEXITCODE
+
+    if (Test-Path $stderrPath) {
+      Get-Content -Path $stderrPath -ErrorAction SilentlyContinue | Tee-Object -FilePath $LogFile -Append | Out-Host
+    }
+
+    if ($null -ne $process) {
+      $exitCode = [int]$process.ExitCode
+    }
   } finally {
-    if ($nativePrefSupported) {
-      Set-Variable -Name PSNativeCommandUseErrorActionPreference -Scope Local -Value $nativePrefPrevious
-    }
-    $ErrorActionPreference = 'Stop'
+    Remove-Item -Path $stdoutPath -ErrorAction SilentlyContinue
+    Remove-Item -Path $stderrPath -ErrorAction SilentlyContinue
   }
 
   if ($null -eq $exitCode) {
