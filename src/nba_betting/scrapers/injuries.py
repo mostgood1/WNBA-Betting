@@ -85,6 +85,137 @@ def _roster_name_to_team_map(date_str: str | None) -> dict[str, str]:
     return out
 
 
+_NOISY_PLAYER_TOKENS = frozenset(
+    {
+        "MANAGEMENT",
+        "SORENESS",
+        "SPRAIN",
+        "STRAIN",
+        "RECOVERY",
+        "RECONDITIONING",
+        "CONTUSION",
+        "INFLAMMATION",
+        "SPASMS",
+        "ILLNESS",
+        "FRACTURE",
+        "SURGERY",
+        "STRESS",
+        "REACTION",
+        "MAINTENANCE",
+        "TENDINITIS",
+        "SWELLING",
+        "IMPINGEMENT",
+        "IRRITATION",
+        "AVAILABLE",
+    }
+)
+
+
+def _short_name_key_from_norm(name_key: str) -> str:
+    parts = [part for part in str(name_key or "").strip().upper().split() if part]
+    if not parts:
+        return ""
+    return f"{parts[-1]}{parts[0][0]}"
+
+
+def _roster_player_indexes(date_str: str | None) -> tuple[dict[tuple[str, str], str], dict[str, str], dict[str, dict[str, set[str]]]]:
+    season = _season_for_date_str(str(date_str or "").strip()) if date_str else None
+    roster_file = pick_rosters_file(paths.data_processed, season=season)
+    if roster_file is None or not roster_file.exists():
+        return {}, {}, {}
+
+    try:
+        rdf = pd.read_csv(roster_file)
+    except Exception:
+        return {}, {}, {}
+    if rdf is None or rdf.empty:
+        return {}, {}, {}
+
+    cols = {str(c).upper(): c for c in rdf.columns}
+    name_col = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+    team_col = cols.get("TEAM_ABBREVIATION")
+    if not name_col or not team_col:
+        return {}, {}, {}
+
+    exact_by_team: dict[tuple[str, str], str] = {}
+    exact_any_candidates: dict[str, set[str]] = {}
+    short_by_team: dict[str, dict[str, set[str]]] = {}
+
+    for _, row in rdf[[name_col, team_col]].dropna().iterrows():
+        canonical = str(row.get(name_col) or "").strip()
+        name_key = _norm_player_name_key(canonical)
+        tri = str(_to_tri(str(row.get(team_col) or "")) or "").strip().upper()
+        if not canonical or not name_key or len(tri) != 3:
+            continue
+        exact_by_team[(tri, name_key)] = canonical
+        exact_any_candidates.setdefault(name_key, set()).add(canonical)
+        short_key = _short_name_key_from_norm(name_key)
+        if short_key:
+            short_by_team.setdefault(tri, {}).setdefault(short_key, set()).add(canonical)
+
+    exact_any_unique = {
+        key: next(iter(values))
+        for key, values in exact_any_candidates.items()
+        if len(values) == 1
+    }
+    return exact_by_team, exact_any_unique, short_by_team
+
+
+def _looks_noisy_player_name(raw_name: str, name_key: str) -> bool:
+    raw_upper = str(raw_name or "").upper()
+    tokens = [token for token in str(name_key or "").upper().split() if token]
+    if any(token in _NOISY_PLAYER_TOKENS for token in tokens):
+        return True
+    if any(marker in raw_upper for marker in ["G LEAGUE", "TWO- WAY", "TWO WAY", "ON ASSIGNMENT", "RETURN TO COMPETITION", "NOT WITH TEAM"]):
+        return True
+    if raw_upper.count(",") >= 1 or raw_upper.count(";") >= 1:
+        return True
+    return False
+
+
+def _clean_injury_player_names(df: pd.DataFrame, *, date_str: str | None) -> pd.DataFrame:
+    if df is None or df.empty or "player" not in df.columns or "team" not in df.columns:
+        return df
+
+    exact_by_team, exact_any_unique, short_by_team = _roster_player_indexes(date_str)
+    if not exact_by_team and not exact_any_unique and not short_by_team:
+        return df
+
+    out = df.copy()
+    keep_mask: list[bool] = []
+    cleaned_players: list[str] = []
+    for _, row in out.iterrows():
+        raw_player = str(row.get("player") or "").strip()
+        team_tri = str(_to_tri(str(row.get("team") or "")) or "").strip().upper()
+        name_key = _norm_player_name_key(raw_player)
+        canonical = exact_by_team.get((team_tri, name_key)) if name_key and team_tri else None
+        if canonical is None and name_key:
+            canonical = exact_any_unique.get(name_key)
+        if canonical:
+            cleaned_players.append(canonical)
+            keep_mask.append(True)
+            continue
+
+        noisy = _looks_noisy_player_name(raw_player, name_key)
+        short_key = _short_name_key_from_norm(name_key)
+        candidates = short_by_team.get(team_tri, {}).get(short_key, set()) if short_key and team_tri else set()
+        if noisy and len(candidates) == 1:
+            cleaned_players.append(next(iter(candidates)))
+            keep_mask.append(True)
+            continue
+        if noisy:
+            cleaned_players.append(raw_player)
+            keep_mask.append(False)
+            continue
+
+        cleaned_players.append(raw_player)
+        keep_mask.append(True)
+
+    out["player"] = cleaned_players
+    out = out[pd.Series(keep_mask, index=out.index)].copy()
+    return out
+
+
 def _apply_roster_team_corrections(df: pd.DataFrame, *, date_str: str | None) -> pd.DataFrame:
     if df is None or df.empty or "player" not in df.columns or "team" not in df.columns:
         return df
@@ -701,6 +832,7 @@ class NBAInjuryDatabase:
             infer_series = pd.Series(infer_vals, index=status_norm.index)
             status_norm = status_norm.where(~needs_infer, other=infer_series.fillna(""))
             combined["status"] = status_norm
+            combined = _clean_injury_player_names(combined, date_str=date_str)
             combined = _apply_roster_team_corrections(combined, date_str=date_str)
             # De-duplicate by team/player/date (keep last = prefer newest scrape in file order)
             if "date" in combined.columns:
