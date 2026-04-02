@@ -13,7 +13,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 201587,Nicolas Batum,LAC,,True,True
 201599,DeAndre Jordan,NOP,,True,True
 201935,James Harden,CLE,,True,True
-201939,Stephen Curry,GSW,,True,True
+201939,Stephen Curry,GSW,OUT,True,False
 201942,DeMar DeRozan,SAC,,False,False
 201950,Jrue Holiday,POR,,True,True
 202066,Garrett Temple,TOR,,False,False
@@ -25,7 +25,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 202695,Kawhi Leonard,LAC,,True,True
 202696,Nikola Vučević,BOS,,False,False
 202699,Tobias Harris,DET,,True,True
-202710,Jimmy Butler III,GSW,,True,True
+202710,Jimmy Butler III,GSW,OUT,True,False
 203076,Anthony Davis,WAS,,False,False
 203078,Bradley Beal,LAC,OUT,True,False
 203081,Damian Lillard,POR,,True,True
@@ -104,7 +104,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1628374,Lauri Markkanen,UTA,,False,False
 1628378,Donovan Mitchell,CLE,,True,True
 1628379,Luke Kennard,LAL,,True,True
-1628380,Zach Collins,CHI,,False,False
+1628380,Zach Collins,CHI,OUT,False,False
 1628381,John Collins,LAC,,True,True
 1628384,OG Anunoby,NYK,,False,False
 1628386,Jarrett Allen,CLE,,True,True
@@ -218,7 +218,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630198,Isaiah Joe,OKC,,True,True
 1630200,Tre Jones,CHI,,False,False
 1630202,Payton Pritchard,BOS,,False,False
-1630208,Nick Richards,CHI,,False,False
+1630208,Nick Richards,CHI,QUESTIONABLE,False,False
 1630214,Xavier Tillman,CHA,,True,True
 1630217,Desmond Bane,ORL,,False,False
 1630224,Jalen Green,PHX,,True,True
@@ -310,7 +310,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1631117,Walker Kessler,UTA,,False,False
 1631119,Jaylin Williams,OKC,,True,True
 1631120,JD Davison,HOU,,False,False
-1631121,Bryce McGowens,NOP,OUT,True,False
+1631121,Bryce McGowens,NOP,,True,True
 1631124,Julian Strawther,DEN,,False,False
 1631126,Caleb Love,POR,,True,True
 1631127,Harrison Ingram,SAS,,True,True
@@ -522,7 +522,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1642949,Yanic Konan Niederhäuser,LAC,,True,True
 1642950,Lachlan Olbrich,CHI,,False,False
 1642954,Will Richard,GSW,,True,True
-1642959,Chris Youngblood,POR,,True,True
+1642959,Chris Youngblood,POR,QUESTIONABLE,True,True
 1642962,Drake Powell,BKN,,False,False
 1642964,Brooks Barnhizer,OKC,,True,True
 1643007,Taelon Peter,IND,,False,False

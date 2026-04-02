@@ -3,12 +3,22 @@
   "team_counts": {
     "CHA": 1,
     "DET": 1,
+    "GSW": 2,
     "LAC": 1,
-    "NOP": 1,
     "PHX": 1,
     "POR": 1
   },
   "players": [
+    {
+      "player": "Stephen Curry",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
     {
       "player": "Bradley Beal",
       "team": "LAC",
@@ -27,11 +37,6 @@
     {
       "player": "Cade Cunningham",
       "team": "DET",
-      "status": "OUT"
-    },
-    {
-      "player": "Bryce McGowens",
-      "team": "NOP",
       "status": "OUT"
     },
     {
