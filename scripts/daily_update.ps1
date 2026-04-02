@@ -2570,6 +2570,7 @@ if inj_path.exists():
 
 if ban_pairs or ban_short_pairs or ban_names or ban_short_names:
   pdf = pdf.copy()
+  original_pdf = pdf.copy()
   pdf["_pkey"] = pdf.get("player_name").astype(str).map(_norm_player_name)
   pdf["_skey"] = pdf.get("player_name").astype(str).map(_short_player_key)
   # props_predictions 'team' is expected to be a 3-letter tricode.
@@ -2582,6 +2583,28 @@ if ban_pairs or ban_short_pairs or ban_names or ban_short_names:
   bad_name_only = pdf["_pkey"].isin(ban_names) | pdf["_skey"].isin(ban_short_names)
   mask = ~(bad_pair | bad_short_pair | bad_name_only)
   pdf = pdf[mask].drop(columns=["_pkey","_skey","_tri"], errors="ignore")
+  try:
+    if "team" in original_pdf.columns:
+      before_teams = {
+        str(t).strip().upper()
+        for t in original_pdf["team"].dropna().astype(str).tolist()
+        if str(t).strip()
+      }
+      after_teams = {
+        str(t).strip().upper()
+        for t in pdf["team"].dropna().astype(str).tolist()
+        if str(t).strip()
+      }
+      missing_teams = sorted(before_teams - after_teams)
+      if missing_teams:
+        restore_rows = original_pdf[
+          original_pdf["team"].astype(str).str.upper().isin(missing_teams)
+        ].copy()
+        if not restore_rows.empty:
+          pdf = pd.concat([pdf, restore_rows], ignore_index=True)
+          print("RESTORED_TEAMS:" + ",".join(missing_teams))
+  except Exception:
+    pass
 after = len(pdf)
 pdf.to_csv(preds_path, index=False)
 print(f"FILTERED:{before}->{after}")
