@@ -372,12 +372,21 @@ def main() -> int:
         # Best-effort: do not fail daily artifacts validation.
         pass
 
+    props_team_gap_is_publish_blocking = bool(
+        props_missing_teams
+        and not (props_snapshot_rows > 0 and props_edges_rows > 0 and props_recs_rows > 0)
+    )
+
     if pred_rows <= 0:
         missing.append(pred.name)
     if props_rows <= 0:
         missing.append(props.name)
-    elif props_missing_teams:
+    elif props_team_gap_is_publish_blocking:
         missing.append(f"props_predictions missing slate teams: {', '.join(props_missing_teams)}")
+    elif props_missing_teams:
+        warnings.append(
+            f"props_predictions missing slate teams but downstream props artifacts are present: {', '.join(props_missing_teams)}"
+        )
 
     if args.require_props_lines and props_rows > 0 and props_snapshot_rows > 0:
         if props_edges_rows <= 0:
