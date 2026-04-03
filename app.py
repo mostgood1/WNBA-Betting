@@ -3321,12 +3321,17 @@ def _enforce_minimal_ui_allowlist():
         if p in allowed_exact:
             return None
 
+        if re.fullmatch(r"/season/\d+/betting-card/?", p):
+            return None
+
         # Static frontend assets (tight allowlist)
         if p.startswith("/web/"):
             allowed_web_exact = {
                 "/web/styles.css",
                 "/web/cards-parity.css",
                 "/web/cards-parity.js",
+                "/web/betting-card-v2.css",
+                "/web/betting-card-v2.js",
                 "/web/prop-ladders.js",
                 "/web/app.js",
             }
@@ -3342,6 +3347,7 @@ def _enforce_minimal_ui_allowlist():
         allowed_api = {
             "/api/status/props-refresh",
             "/api/cards",
+            "/api/cards-v2",
             "/api/cards/sim-detail",
             "/api/cards/props-strip",
             "/api/betting-card",
@@ -3401,6 +3407,9 @@ def _enforce_minimal_ui_allowlist():
             "/api/live_player_lens",
         }
         if p in allowed_api:
+            return None
+
+        if re.fullmatch(r"/api/season/\d+/betting-card(?:/day/\d{4}-\d{2}-\d{2})?/?", p):
             return None
 
         # JSON sub-views share the /recommendations route
@@ -6065,6 +6074,1368 @@ def _redirect_with_request_params(target: str, *, extra_params: dict[str, Any] |
     return redirect(f"{target}?{query}" if query else target)
 
 
+@lru_cache(maxsize=1)
+def _betting_card_v2_team_assets() -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
+    fp = WEB_DIR / "assets" / "teams_nba.json"
+    try:
+        rows = json.loads(fp.read_text(encoding="utf-8"))
+    except Exception:
+        rows = []
+    if not isinstance(rows, list):
+        return out
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        tri = str(row.get("tricode") or "").strip().upper()
+        if not tri:
+            continue
+        out[tri] = {
+            "id": _safe_int(row.get("id")),
+            "name": str(row.get("name") or tri).strip(),
+        }
+    return out
+
+
+def _betting_card_v2_team_meta(team_tri: Any, team_name: Any = None) -> dict[str, Any]:
+    tri = str(_get_tricode(str(team_tri or "")) or str(team_tri or "")).strip().upper()
+    assets = _betting_card_v2_team_assets().get(tri) or {}
+    team_id = _safe_int(assets.get("id"))
+    if team_id is None:
+        try:
+            team_id = _get_team_id(tri)
+        except Exception:
+            team_id = None
+    name = str(team_name or assets.get("name") or tri or "Team").strip()
+    logo = f"/web/assets/logos/{tri}.svg" if tri else None
+    if team_id:
+        logo = f"https://cdn.nba.com/logos/nba/{int(team_id)}/primary/L/logo.svg"
+    return {
+        "id": team_id,
+        "abbr": tri or None,
+        "name": name,
+        "logo": logo,
+    }
+
+
+def _betting_card_v2_start_time(game_date: Any) -> str:
+    text = str(game_date or "").strip()
+    if not text:
+        return ""
+    try:
+        dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        return dt.astimezone().strftime("%I:%M %p").lstrip("0")
+    except Exception:
+        return ""
+
+
+def _betting_card_v2_status(game: dict[str, Any]) -> dict[str, str]:
+    live = game.get("live_status") if isinstance(game.get("live_status"), dict) else {}
+    status_text = str(live.get("status") or "").strip()
+    if bool(live.get("is_live")):
+        return {"abstract": "Live", "detailed": status_text or "Live"}
+    if bool(live.get("is_final")):
+        return {"abstract": "Final", "detailed": status_text or "Final"}
+    if status_text:
+        return {"abstract": "Preview", "detailed": status_text}
+    return {"abstract": "Preview", "detailed": "Scheduled"}
+
+
+def _betting_card_v2_prediction_row(game: dict[str, Any]) -> dict[str, Any]:
+    sim = game.get("sim") if isinstance(game.get("sim"), dict) else {}
+    score = sim.get("score") if isinstance(sim.get("score"), dict) else {}
+    return {
+        "home_win_prob": _safe_float(score.get("p_home_win")) if score else _safe_float((game.get("betting") or {}).get("p_home_win")) if isinstance(game.get("betting"), dict) else None,
+        "away_win_prob": _safe_float(score.get("p_away_win")) if score else _safe_float((game.get("betting") or {}).get("p_away_win")) if isinstance(game.get("betting"), dict) else None,
+        "tie_prob": None,
+        "away_runs_mean": _safe_float(score.get("away_mean")),
+        "home_runs_mean": _safe_float(score.get("home_mean")),
+        "total_runs_dist": (score.get("total_q") if isinstance(score.get("total_q"), dict) else None),
+        "run_margin_dist": (score.get("margin_q") if isinstance(score.get("margin_q"), dict) else None),
+        "samples": _safe_int(sim.get("n_sims")),
+    }
+
+
+def _betting_card_v2_game_lines(game: dict[str, Any]) -> dict[str, Any]:
+    odds = game.get("odds") if isinstance(game.get("odds"), dict) else {}
+    return {
+        "moneyline": {
+            "away": _safe_float(odds.get("away_ml")),
+            "home": _safe_float(odds.get("home_ml")),
+        },
+        "spread": {
+            "away": _safe_float(odds.get("away_spread")),
+            "home": _safe_float(odds.get("home_spread")),
+            "awayPrice": _safe_float(odds.get("away_spread_price")),
+            "homePrice": _safe_float(odds.get("home_spread_price")),
+        },
+        "total": {
+            "line": _safe_float(odds.get("total")),
+            "over": _safe_float(odds.get("total_over_price")),
+            "under": _safe_float(odds.get("total_under_price")),
+        },
+        "bookmaker": str(odds.get("bookmaker") or "").strip() or None,
+        "commenceTime": str(odds.get("commence_time") or "").strip() or None,
+    }
+
+
+def _betting_card_v2_game_markets(game: dict[str, Any], section: str) -> dict[str, Any]:
+    game_recs = [row for row in (game.get("game_market_recommendations") or []) if isinstance(row, dict)]
+    prop_map = game.get("prop_recommendations") if isinstance(game.get("prop_recommendations"), dict) else {}
+    player_props: list[dict[str, Any]] = []
+    for side in ("away", "home"):
+        for row in (prop_map.get(side) or []):
+            if isinstance(row, dict):
+                item = dict(row)
+                item.setdefault("team_side", side)
+                player_props.append(item)
+
+    totals = next((dict(row) for row in game_recs if str(row.get("market") or "").strip().upper() in {"OU", "TOTAL", "TOTALS"}), None)
+    ml = next((dict(row) for row in game_recs if str(row.get("market") or "").strip().upper() in {"ML", "MONEYLINE"}), None)
+    spreads = next((dict(row) for row in game_recs if str(row.get("market") or "").strip().upper() in {"ATS", "SPREAD", "SPREADS"}), None)
+
+    if section == "games":
+        player_props = []
+    elif section == "props":
+        totals = None
+        ml = None
+        spreads = None
+
+    return {
+        "totals": totals,
+        "ml": ml,
+        "spreads": spreads,
+        "pitcherProps": [],
+        "hitterProps": [],
+        "playerProps": player_props,
+        "extraPitcherProps": [],
+        "extraHitterProps": [],
+        "extraPlayerProps": player_props[1:],
+    }
+
+
+def _betting_card_v2_card(game: dict[str, Any], date_str: str, section: str) -> dict[str, Any]:
+    away = _betting_card_v2_team_meta(game.get("away_tri"), game.get("away_name"))
+    home = _betting_card_v2_team_meta(game.get("home_tri"), game.get("home_name"))
+    odds = game.get("odds") if isinstance(game.get("odds"), dict) else {}
+    game_date = str(odds.get("commence_time") or "").strip()
+    game_pk = _safe_int((game.get("sim") or {}).get("game_id") if isinstance(game.get("sim"), dict) else None)
+    markets = _betting_card_v2_game_markets(game, section)
+    card = {
+        "gamePk": game_pk,
+        "gameType": "NBA",
+        "gameDate": game_date or None,
+        "startTime": _betting_card_v2_start_time(game_date),
+        "officialDate": date_str,
+        "status": _betting_card_v2_status(game),
+        "away": away,
+        "home": home,
+        "probable": {"away": None, "home": None},
+        "predictions": {
+            "full": _betting_card_v2_prediction_row(game),
+            "first1": None,
+            "first3": None,
+            "first5": None,
+        },
+        "markets": markets,
+        "trackedGameLines": _betting_card_v2_game_lines(game),
+    }
+    card["flags"] = {
+        "hasAnyRecommendations": bool(markets.get("totals") or markets.get("ml") or markets.get("spreads") or markets.get("playerProps")),
+        "hasPitcherProps": False,
+        "hasHitterProps": False,
+        "hasPlayerProps": bool(markets.get("playerProps")),
+    }
+    return card
+
+
+def _betting_card_v2_nav(date_str: str) -> dict[str, Any]:
+    try:
+        d = datetime.strptime(date_str, "%Y-%m-%d")
+        season = d.year if d.month >= 7 else d.year - 1
+        return {
+            "season": int(season),
+            "minDate": None,
+            "maxDate": None,
+            "prevDate": (d - timedelta(days=1)).strftime("%Y-%m-%d"),
+            "nextDate": (d + timedelta(days=1)).strftime("%Y-%m-%d"),
+        }
+    except Exception:
+        return {
+            "season": None,
+            "minDate": None,
+            "maxDate": None,
+            "prevDate": None,
+            "nextDate": None,
+        }
+
+
+def _betting_card_v2_market_availability(cards: list[dict[str, Any]]) -> dict[str, Any]:
+    game_lines = sum(1 for card in cards if isinstance((((card.get("trackedGameLines") or {}).get("moneyline")) or {}), dict) and any(v is not None for v in (((card.get("trackedGameLines") or {}).get("moneyline")) or {}).values()))
+    player_props = sum(1 for card in cards if bool((((card.get("markets") or {}).get("playerProps")) or [])))
+    return {
+        "gameLines": {"availableGames": game_lines, "path": "/api/cards", "status": "ok" if game_lines else "warning"},
+        "pitcherProps": {"availableGames": 0, "path": None, "status": "not_applicable"},
+        "hitterProps": {"availableGames": 0, "path": None, "status": "not_applicable"},
+        "playerProps": {"availableGames": player_props, "path": "/api/cards", "status": "ok" if player_props else "warning"},
+        "warnings": [],
+    }
+
+
+def _betting_card_v2_lineup_health(cards: list[dict[str, Any]]) -> dict[str, Any]:
+    team_count = sum(1 for card in cards for _side in ("away", "home"))
+    return {
+        "exists": False,
+        "path": None,
+        "status": "unknown",
+        "projectedTeams": team_count,
+        "adjustedTeams": 0,
+        "partialTeams": 0,
+        "fallbackPoolTeams": 0,
+    }
+
+
+def _betting_card_v2_workflow(cards: list[dict[str, Any]]) -> dict[str, Any]:
+    sims = [
+        _safe_int(((card.get("predictions") or {}).get("full") or {}).get("samples"))
+        for card in cards
+    ]
+    sims = [int(v) for v in sims if v is not None]
+    return {
+        "exists": bool(cards),
+        "path": None,
+        "status": "ok" if cards else "warning",
+        "simsPerGame": int(sims[0]) if sims else 0,
+        "warningCount": 0,
+        "errorCount": 0,
+        "warnings": [],
+        "errors": [],
+    }
+
+
+def _betting_card_payload_v2(cards_payload: dict[str, Any], section: str) -> dict[str, Any]:
+    date_str = str(cards_payload.get("date") or cards_payload.get("requested_date") or "").strip()
+    source_games = [game for game in (cards_payload.get("games") or []) if isinstance(game, dict)]
+    cards = [_betting_card_v2_card(game, date_str, section) for game in source_games]
+    nav = _betting_card_v2_nav(date_str)
+    view_mode = "legacy_daily" if cards else "schedule_only"
+    return _to_jsonable(
+        {
+            "date": date_str,
+            "hasSampleData": bool(cards),
+            "view": {
+                "mode": view_mode,
+                "season": nav.get("season"),
+                "profile": None,
+            },
+            "nav": nav,
+            "sources": {
+                "mode": view_mode,
+                "locked_policy": None,
+                "game_summary": "/api/cards",
+                "sim_dir": None,
+                "snapshot_dir": None,
+                "lineups": None,
+                "ops_report": None,
+                "oddsapi_game_lines": "/api/cards",
+                "oddsapi_pitcher_props": None,
+                "oddsapi_hitter_props": None,
+                "season_manifest": None,
+                "season_report": None,
+                "season_betting_manifest": None,
+                "season_card": "/api/betting-card?format=v2",
+            },
+            "marketAvailability": _betting_card_v2_market_availability(cards),
+            "lineupHealth": _betting_card_v2_lineup_health(cards),
+            "workflow": _betting_card_v2_workflow(cards),
+            "cards": cards,
+        }
+    )
+
+
+def _season_betting_card_candidate_dates(season: int, requested_date: str | None = None) -> list[str]:
+    season_prefix = f"{int(season):04d}-"
+    date_re = re.compile(r"(\d{4}-\d{2}-\d{2})")
+    patterns = (
+        "predictions_*.csv",
+        "recommendations_*.csv",
+        "best_edges_games_*.csv",
+        "props_recommendations_*.csv",
+        "recon_games_*.csv",
+        "recon_props_*.csv",
+    )
+    seen: set[str] = set()
+    for pattern in patterns:
+        try:
+            matches = list(DATA_PROCESSED_DIR.glob(pattern))
+        except Exception:
+            matches = []
+        for fp in matches:
+            match = date_re.search(fp.stem)
+            if not match:
+                continue
+            date_str = str(match.group(1) or "").strip()
+            if date_str.startswith(season_prefix):
+                seen.add(date_str)
+    if requested_date and str(requested_date).startswith(season_prefix):
+        seen.add(str(requested_date))
+    return sorted(seen)
+
+
+def _season_betting_card_fetch_cards_payload(date_str: str) -> dict[str, Any] | None:
+    try:
+        with app.test_request_context(f"/api/cards?date={date_str}"):
+            payload, status_code = _response_json_value(api_cards())
+        if status_code and status_code >= 400:
+            return None
+        if not isinstance(payload, dict):
+            return None
+        return payload
+    except Exception:
+        return None
+
+
+def _season_betting_card_fetch_recaps_payload(since: str, until: str) -> dict[str, Any] | None:
+    try:
+        with app.test_request_context(f"/api/betting-card/recap?since={since}&until={until}"):
+            payload, status_code = _response_json_value(_recommendations_recaps())
+        if status_code and status_code >= 400:
+            return None
+        if not isinstance(payload, dict):
+            return None
+        return payload
+    except Exception:
+        return None
+
+
+def _season_betting_card_market_bucket(value: Any) -> str:
+    market = str(value or "").strip().lower()
+    if market in {"ml", "moneyline"}:
+        return "ml"
+    if market in {"ou", "total", "totals"}:
+        return "totals"
+    if market in {"ats", "spread", "spreads"}:
+        return "spreads"
+    return "player_props"
+
+
+def _season_betting_card_market_label(bucket: str, prop_key: str | None = None) -> str:
+    labels = {
+        "ml": "Moneyline",
+        "totals": "Totals",
+        "spreads": "Spread",
+        "player_props": "Player prop",
+    }
+    if bucket != "player_props":
+        return labels.get(bucket, "Pick")
+    prop = str(prop_key or "").strip().lower()
+    return {
+        "pts": "Points",
+        "reb": "Rebounds",
+        "ast": "Assists",
+        "threes": "3PM",
+        "pra": "PRA",
+        "pr": "PR",
+        "pa": "PA",
+        "ra": "RA",
+        "stl": "Steals",
+        "blk": "Blocks",
+        "tov": "Turnovers",
+    }.get(prop, labels["player_props"])
+
+
+def _season_betting_card_market_family_label(bucket: str) -> str:
+    return {
+        "ml": "Game market",
+        "totals": "Game total",
+        "spreads": "Game spread",
+        "player_props": "Player prop",
+    }.get(str(bucket or "").strip().lower(), "Official card")
+
+
+def _season_betting_card_effective_prop_row(row: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(row, dict):
+        return {}
+
+    def _is_blank(value: Any) -> bool:
+        return value is None or value == ""
+
+    best = row.get("best") if isinstance(row.get("best"), dict) else None
+    if isinstance(best, dict):
+        merged = dict(best)
+        for key, value in row.items():
+            if key not in merged or _is_blank(merged.get(key)):
+                merged[key] = value
+        return merged
+    top_play = row.get("top_play") if isinstance(row.get("top_play"), dict) else None
+    if isinstance(top_play, dict):
+        merged = dict(top_play)
+        for key, value in row.items():
+            if key not in merged or _is_blank(merged.get(key)):
+                merged[key] = value
+        return merged
+    return dict(row)
+
+
+def _season_betting_card_allowed_stat_value(values: dict[str, Any], market_key: str) -> float | None:
+    if not isinstance(values, dict):
+        return None
+    market = str(market_key or "").strip().lower()
+    direct = _safe_float(values.get(market))
+    if direct is not None:
+        return direct
+    combos = {
+        "pra": ("pts", "reb", "ast"),
+        "pr": ("pts", "reb"),
+        "pa": ("pts", "ast"),
+        "ra": ("reb", "ast"),
+        "stocks": ("stl", "blk"),
+    }
+    parts = combos.get(market)
+    if not parts:
+        return None
+    nums = [_safe_float(values.get(part)) for part in parts]
+    if any(num is None for num in nums):
+        return None
+    return float(sum(float(num) for num in nums if num is not None))
+
+
+def _season_betting_card_allowed_rank_value(values: dict[str, Any], market_key: str) -> int | None:
+    if not isinstance(values, dict):
+        return None
+    market = str(market_key or "").strip().lower()
+    direct = _safe_int(values.get(market))
+    if direct is not None:
+        return direct
+    combos = {
+        "pra": ("pts", "reb", "ast"),
+        "pr": ("pts", "reb"),
+        "pa": ("pts", "ast"),
+        "ra": ("reb", "ast"),
+        "stocks": ("stl", "blk"),
+    }
+    parts = combos.get(market)
+    if not parts:
+        return None
+    nums = [_safe_float(values.get(part)) for part in parts]
+    clean = [float(num) for num in nums if num is not None]
+    if len(clean) != len(parts):
+        return None
+    try:
+        return int(round(sum(clean) / len(clean)))
+    except Exception:
+        return None
+
+
+@lru_cache(maxsize=64)
+def _season_betting_card_roster_positions(date_str: str) -> pd.DataFrame:
+    try:
+        from nba_betting.sim.smart_sim import _season_roster_positions as _smart_sim_roster_positions  # type: ignore
+
+        df = _smart_sim_roster_positions(str(date_str or ""))
+        return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
+
+
+@lru_cache(maxsize=64)
+def _season_betting_card_opp_position_rates(date_str: str) -> pd.DataFrame:
+    try:
+        from nba_betting.sim.smart_sim import _opponent_position_rate_context as _smart_sim_opp_position_rate_context  # type: ignore
+
+        df = _smart_sim_opp_position_rate_context(str(date_str or ""))
+        return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
+
+
+@lru_cache(maxsize=64)
+def _season_betting_card_expected_minutes_frame(date_str: str) -> pd.DataFrame:
+    try:
+        from nba_betting.sim.smart_sim import _load_pregame_expected_minutes as _smart_sim_load_pregame_expected_minutes  # type: ignore
+
+        df = _smart_sim_load_pregame_expected_minutes(str(date_str or ""))
+        return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
+
+
+def _season_betting_card_player_position(date_str: str, player_name: str, team_tri: str, player_id: Any = None) -> str | None:
+    roster = _season_betting_card_roster_positions(date_str)
+    if roster is None or roster.empty:
+        return None
+    team_key = str(team_tri or "").strip().upper()
+    player_key = _norm_player_name(player_name)
+    pid_val = _safe_int(player_id)
+    try:
+        if pid_val is not None and "player_id" in roster.columns:
+            match = roster[pd.to_numeric(roster["player_id"], errors="coerce") == float(pid_val)]
+            if team_key and "team" in match.columns:
+                match = match[match["team"].astype(str).str.upper().str.strip() == team_key]
+            if not match.empty:
+                pos = str(match.iloc[0].get("position") or "").strip().upper()
+                return pos or None
+        match = roster.copy()
+        if team_key and "team" in match.columns:
+            match = match[match["team"].astype(str).str.upper().str.strip() == team_key]
+        if player_key and "_pkey" in match.columns:
+            match = match[match["_pkey"].astype(str).str.upper().str.strip() == player_key]
+        if not match.empty:
+            pos = str(match.iloc[0].get("position") or "").strip().upper()
+            return pos or None
+    except Exception:
+        return None
+    return None
+
+
+def _season_betting_card_expected_minutes(date_str: str, player_name: str, team_tri: str, player_id: Any = None) -> float | None:
+    mins = _season_betting_card_expected_minutes_frame(date_str)
+    team_key = str(team_tri or "").strip().upper()
+    player_key = _norm_player_name(player_name)
+    pid_val = _safe_int(player_id)
+    try:
+        if isinstance(mins, pd.DataFrame) and not mins.empty:
+            match = mins.copy()
+            if pid_val is not None and "player_id" in match.columns:
+                pid_match = match[pd.to_numeric(match["player_id"], errors="coerce") == float(pid_val)]
+                if team_key and "team_tri" in pid_match.columns:
+                    pid_match = pid_match[pid_match["team_tri"].astype(str).str.upper().str.strip() == team_key]
+                if not pid_match.empty:
+                    minute_val = _safe_float(pid_match.iloc[0].get("exp_min_mean"))
+                    if minute_val is not None and minute_val > 0:
+                        return minute_val
+            if team_key and "team_tri" in match.columns:
+                match = match[match["team_tri"].astype(str).str.upper().str.strip() == team_key]
+            if player_key and "player_name" in match.columns:
+                match = match[match["player_name"].astype(str).map(_norm_player_name) == player_key]
+            if not match.empty:
+                minute_val = _safe_float(match.iloc[0].get("exp_min_mean"))
+                if minute_val is not None and minute_val > 0:
+                    return minute_val
+    except Exception:
+        pass
+
+    logs = _load_best_bets_player_logs_frame()
+    if logs is None or logs.empty:
+        return None
+    try:
+        end = pd.to_datetime(str(date_str or ""), errors="coerce")
+        if pd.isna(end):
+            return None
+        subset = logs[(logs["player_key"] == player_key) & (logs["team_abbr"] == team_key)].copy()
+        subset = subset[subset["game_date"].notna() & (subset["game_date"] < end)].copy()
+        if subset.empty:
+            return None
+        mins_series = pd.to_numeric(subset["min"], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna().head(10)
+        if mins_series.empty:
+            return None
+        return float(mins_series.mean())
+    except Exception:
+        return None
+
+
+def _season_betting_card_position_rate_value(row: dict[str, Any], market_key: str) -> float | None:
+    if not isinstance(row, dict):
+        return None
+    market = str(market_key or "").strip().lower()
+    direct = _safe_float(row.get(f"_{market}_pm"))
+    if direct is not None:
+        return direct
+    combos = {
+        "pra": ("pts", "reb", "ast"),
+        "pr": ("pts", "reb"),
+        "pa": ("pts", "ast"),
+        "ra": ("reb", "ast"),
+        "stocks": ("stl", "blk"),
+    }
+    parts = combos.get(market)
+    if not parts:
+        return None
+    nums = [_safe_float(row.get(f"_{part}_pm")) for part in parts]
+    if any(num is None for num in nums):
+        return None
+    return float(sum(float(num) for num in nums if num is not None))
+
+
+def _season_betting_card_position_context(
+    date_str: str,
+    opponent_tri: str | None,
+    position: str | None,
+    market_key: str,
+    expected_minutes: float | None,
+) -> dict[str, Any]:
+    empty = {
+        "position": str(position or "").strip().upper() or None,
+        "position_allowed_avg": None,
+        "position_allowed_rank": None,
+        "position_allowed_rate": None,
+        "position_games": None,
+        "position_minutes_basis": expected_minutes,
+    }
+    opp_key = str(opponent_tri or "").strip().upper()
+    pos_key = str(position or "").strip().upper()
+    if not opp_key or pos_key not in {"G", "F", "C"}:
+        return empty
+    ctx = _season_betting_card_opp_position_rates(date_str)
+    if ctx is None or ctx.empty:
+        return empty
+    try:
+        pos_df = ctx[ctx["_pos"].astype(str).str.upper().str.strip() == pos_key].copy()
+        if pos_df.empty:
+            return empty
+        pos_df["_rate"] = pos_df.apply(lambda row: _season_betting_card_position_rate_value(row.to_dict(), market_key), axis=1)
+        pos_df = pos_df[pos_df["_rate"].notna()].copy()
+        if pos_df.empty:
+            return empty
+        pos_df = pos_df.sort_values("_rate", ascending=True).reset_index(drop=True)
+        pos_df["_rank"] = np.arange(1, len(pos_df) + 1)
+        match = pos_df[pos_df["_opp"].astype(str).str.upper().str.strip() == opp_key]
+        if match.empty:
+            return empty
+        match_row = match.iloc[0].to_dict()
+        rate_val = _safe_float(match_row.get("_rate"))
+        est_avg = None
+        if rate_val is not None and expected_minutes is not None and expected_minutes > 0:
+            est_avg = float(rate_val) * float(expected_minutes)
+        return {
+            "position": pos_key,
+            "position_allowed_avg": est_avg,
+            "position_allowed_rank": _safe_int(match_row.get("_rank")),
+            "position_allowed_rate": rate_val,
+            "position_games": _safe_int(match_row.get("_n")),
+            "position_minutes_basis": expected_minutes,
+        }
+    except Exception:
+        return empty
+
+
+def _season_betting_card_prop_context(
+    *,
+    date_str: str,
+    player_name: str,
+    team_tri: str,
+    opponent_tri: str | None,
+    market_key: str,
+    side: str | None,
+    line_value: float | None,
+    home_flag: bool | None,
+    matchup_ctx: dict[str, Any] | None,
+    source_row: dict[str, Any],
+    player_id: Any = None,
+) -> dict[str, Any]:
+    history_ctx = _best_bets_prop_history_context(
+        date_str=date_str,
+        player_name=player_name,
+        team_tri=team_tri,
+        opponent=opponent_tri,
+        market=market_key,
+        home_flag=home_flag,
+        line_value=line_value,
+    )
+    allowed_values, allowed_ranks = _compute_team_allowed_stats(date_str, days_back=21)
+    opponent_key = str(opponent_tri or "").strip().upper()
+    opp_allowed_avg = _season_betting_card_allowed_stat_value(allowed_values.get(opponent_key, {}), market_key)
+    opp_allowed_rank = _season_betting_card_allowed_rank_value(allowed_ranks.get(opponent_key, {}), market_key)
+    player_position = _season_betting_card_player_position(date_str, player_name, team_tri, player_id=player_id)
+    expected_minutes = _season_betting_card_expected_minutes(date_str, player_name, team_tri, player_id=player_id)
+    position_ctx = _season_betting_card_position_context(date_str, opponent_tri, player_position, market_key, expected_minutes)
+
+    league_def = _safe_float((matchup_ctx or {}).get("league_def_rtg"))
+    opp_def = None
+    own_off = None
+    opp_recent_allowed = None
+    if isinstance(matchup_ctx, dict):
+        if str(matchup_ctx.get("home_tri") or "").strip().upper() == team_tri:
+            own_off = _safe_float(matchup_ctx.get("home_off_rtg"))
+            opp_def = _safe_float(matchup_ctx.get("away_def_rtg"))
+            opp_recent_allowed = _safe_float(matchup_ctx.get("away_recent_allowed_pts"))
+        elif str(matchup_ctx.get("away_tri") or "").strip().upper() == team_tri:
+            own_off = _safe_float(matchup_ctx.get("away_off_rtg"))
+            opp_def = _safe_float(matchup_ctx.get("home_def_rtg"))
+            opp_recent_allowed = _safe_float(matchup_ctx.get("home_recent_allowed_pts"))
+
+    baseline = _safe_float(source_row.get("model_baseline"))
+    if baseline is None:
+        baseline = _safe_float(source_row.get("sim_mu"))
+    p_win = _safe_float(source_row.get("p_win"))
+    prob_edge = _safe_float(source_row.get("prob_edge"))
+    ev_pct = _safe_float(source_row.get("ev_pct"))
+    consensus = _safe_float(source_row.get("top_play_consensus"))
+    line_adv = _safe_float(source_row.get("top_play_line_adv"))
+    opponent_vs_line = None
+    if opp_allowed_avg is not None and line_value is not None:
+        try:
+            opponent_vs_line = float(opp_allowed_avg) - float(line_value)
+            if str(side or "").strip().upper() == "UNDER":
+                opponent_vs_line = float(line_value) - float(opp_allowed_avg)
+        except Exception:
+            opponent_vs_line = None
+
+    return {
+        "history": history_ctx,
+        "matchup": {
+            "opponent_allowed_avg": opp_allowed_avg,
+            "opponent_allowed_rank": opp_allowed_rank,
+            "opponent_recent_allowed": opp_recent_allowed,
+            "opponent_def_rtg": opp_def,
+            "league_def_rtg": league_def,
+            "team_off_rtg": own_off,
+            "opponent_vs_line": opponent_vs_line,
+            "window_days": 21,
+            "position": position_ctx.get("position"),
+            "position_allowed_avg": position_ctx.get("position_allowed_avg"),
+            "position_allowed_rank": position_ctx.get("position_allowed_rank"),
+            "position_allowed_rate": position_ctx.get("position_allowed_rate"),
+            "position_games": position_ctx.get("position_games"),
+            "position_minutes_basis": position_ctx.get("position_minutes_basis"),
+        },
+        "model": {
+            "baseline": baseline,
+            "win_prob": p_win,
+            "prob_edge": prob_edge,
+            "ev_pct": ev_pct,
+            "consensus": consensus,
+            "line_adv": line_adv,
+            "line": line_value,
+        },
+    }
+
+
+def _season_betting_card_prop_summary(
+    *,
+    opponent_tri: str | None,
+    market_label: str,
+    line_value: float | None,
+    insights: dict[str, Any],
+) -> str | None:
+    history = insights.get("history") if isinstance(insights.get("history"), dict) else {}
+    matchup = insights.get("matchup") if isinstance(insights.get("matchup"), dict) else {}
+    model = insights.get("model") if isinstance(insights.get("model"), dict) else {}
+    parts: list[str] = []
+    baseline = _safe_float(model.get("baseline"))
+    if baseline is not None and line_value is not None:
+        parts.append(f"Model {baseline:.1f} vs {line_value:.1f}")
+    for key, label in (("last5_avg", "L5"), ("last10_avg", "L10"), ("season_avg", "Season")):
+        value = _safe_float(history.get(key))
+        if value is not None:
+            parts.append(f"{label} {value:.1f}")
+    opponent_avg = _safe_float(history.get("opponent_avg"))
+    opponent_games = int(history.get("opponent_games") or 0)
+    if opponent_avg is not None and opponent_games > 0:
+        parts.append(f"vs {opponent_tri or 'opp'} {opponent_avg:.1f} in {opponent_games}")
+    opp_allowed_avg = _safe_float(matchup.get("opponent_allowed_avg"))
+    if opp_allowed_avg is not None:
+        rank = _safe_int(matchup.get("opponent_allowed_rank"))
+        parts.append(f"{opponent_tri or 'Opp'} allow {opp_allowed_avg:.1f} {market_label.lower()}{f' ({rank}/30)' if rank is not None else ''}")
+    position = str(matchup.get("position") or "").strip().upper()
+    position_avg = _safe_float(matchup.get("position_allowed_avg"))
+    position_rank = _safe_int(matchup.get("position_allowed_rank"))
+    if position and position_avg is not None:
+        parts.append(f"vs {position}s {position_avg:.1f}{f' ({position_rank}/30)' if position_rank is not None else ''}")
+    return " | ".join(parts[:6]) if parts else None
+
+
+def _season_betting_card_selection_key(row: dict[str, Any], home_tri: str, away_tri: str, home_name: str, away_name: str) -> str:
+    raw = str(row.get("selection") or row.get("side") or "").strip()
+    if not raw:
+        return ""
+    raw_key = raw.lower()
+    home_keys = {"home", home_tri.lower(), home_name.lower()}
+    away_keys = {"away", away_tri.lower(), away_name.lower()}
+    if raw_key in home_keys:
+        return "home"
+    if raw_key in away_keys:
+        return "away"
+    if raw_key in {"over", "under"}:
+        return raw_key
+    return raw_key
+
+
+def _season_betting_card_display_pick(row: dict[str, Any], bucket: str, home_tri: str, away_tri: str, home_name: str, away_name: str) -> str:
+    for key in ("display_pick", "label", "pick_label"):
+        text = str(row.get(key) or "").strip()
+        if text:
+            return text
+
+    selection = _season_betting_card_selection_key(row, home_tri, away_tri, home_name, away_name)
+    line = _safe_float(row.get("market_line"))
+    if line is None:
+        line = _safe_float(row.get("line"))
+    market = _season_betting_card_market_label(bucket, str(row.get("market") or ""))
+    if bucket == "ml":
+        team = home_tri if selection == "home" else away_tri if selection == "away" else selection.upper()
+        return f"{team or 'Team'} ML"
+    if bucket == "totals":
+        side = selection.upper() if selection in {"over", "under"} else "TOTAL"
+        return f"{side} {line:.1f}" if line is not None else side
+    if bucket == "spreads":
+        team = home_tri if selection == "home" else away_tri if selection == "away" else selection.upper()
+        if line is None:
+            return f"{team or 'Team'} Spread"
+        sign_line = f"{line:+.1f}" if not float(line).is_integer() else f"{int(line):+d}"
+        return f"{team or 'Team'} {sign_line}"
+    player = str(row.get("player") or row.get("player_name") or "Player").strip()
+    side = selection.upper() if selection in {"over", "under"} else selection.title()
+    if line is None:
+        return f"{player} {market}"
+    shown_line = f"{line:.1f}" if not float(line).is_integer() else f"{int(line)}"
+    return f"{player} {side} {shown_line} {market}".strip()
+
+
+def _season_betting_card_settlement(row: dict[str, Any]) -> dict[str, Any] | None:
+    existing = row.get("settlement") if isinstance(row.get("settlement"), dict) else {}
+    result = str(existing.get("result") or row.get("result") or "").strip().lower()
+    actual = existing.get("actual") if existing.get("actual") is not None else row.get("actual")
+    profit_u = _safe_float(existing.get("profit_u"))
+    if profit_u is None:
+        profit_u = _safe_float(existing.get("profit_units"))
+    if profit_u is None:
+        profit_u = _safe_float(row.get("profit_u"))
+    if profit_u is None:
+        profit_u = _safe_float(row.get("profit_units"))
+    if profit_u is None:
+        price = _safe_float(row.get("odds"))
+        if price is None:
+            price = _safe_float(row.get("price"))
+        if price is not None:
+            profit_u = _ll_profit_units(float(price), result)
+    if result not in {"win", "loss", "push"} and actual is None and profit_u is None:
+        return None
+    return {
+        "result": result if result in {"win", "loss", "push"} else "pending",
+        "actual": actual,
+        "profit_u": profit_u,
+    }
+
+
+def _season_betting_card_normalize_row(
+    row: dict[str, Any],
+    home_tri: str,
+    away_tri: str,
+    home_name: str,
+    away_name: str,
+    team_side: str | None = None,
+    date_str: str | None = None,
+    matchup_ctx: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    source_row = row if isinstance(row, dict) else {}
+    effective_row = _season_betting_card_effective_prop_row(source_row)
+    market_source = effective_row.get("market") if effective_row.get("market") is not None else source_row.get("market")
+    bucket = _season_betting_card_market_bucket(market_source)
+    market_key = str(market_source or "").strip().lower()
+    line_value = _safe_float(effective_row.get("market_line")) if effective_row.get("market_line") is not None else _safe_float(effective_row.get("line"))
+    odds_value = _safe_float(effective_row.get("odds")) if effective_row.get("odds") is not None else _safe_float(effective_row.get("price"))
+    model_prob = _safe_float(effective_row.get("prob_calib")) if effective_row.get("prob_calib") is not None else _safe_float(effective_row.get("probability")) if effective_row.get("probability") is not None else _safe_float(effective_row.get("win_prob"))
+    reason_arrays: list[str] = []
+    for key in ("reasons", "basketball_reasons", "market_reasons", "model_reasons", "top_play_reasons", "sim_reasons"):
+        values = effective_row.get(key)
+        if not isinstance(values, list):
+            continue
+        for item in values:
+            text = str(item or "").strip()
+            if text and text not in reason_arrays:
+                reason_arrays.append(text)
+    player_name = str(effective_row.get("player") or effective_row.get("player_name") or source_row.get("player") or source_row.get("player_name") or "").strip() or None
+    player_id = effective_row.get("player_id") if effective_row.get("player_id") is not None else source_row.get("player_id")
+    selection = _season_betting_card_selection_key(effective_row, home_tri, away_tri, home_name, away_name)
+    side = str(effective_row.get("side") or selection or "").strip().upper() or None
+    team_tri = home_tri if team_side == "home" else away_tri if team_side == "away" else str(effective_row.get("team") or effective_row.get("team_tri") or "").strip().upper() or None
+    opponent_tri = away_tri if team_tri == home_tri else home_tri if team_tri == away_tri else None
+    home_flag = True if team_tri == home_tri and team_tri else False if team_tri == away_tri and team_tri else None
+    prop_insights = None
+    if bucket == "player_props" and date_str and player_name and team_tri and market_key:
+        prop_insights = _season_betting_card_prop_context(
+            date_str=date_str,
+            player_name=player_name,
+            team_tri=team_tri,
+            opponent_tri=opponent_tri,
+            market_key=market_key,
+            side=side,
+            line_value=line_value,
+            home_flag=home_flag,
+            matchup_ctx=matchup_ctx,
+            source_row=effective_row,
+            player_id=player_id,
+        )
+    reason_summary = str(
+        effective_row.get("basketball_summary")
+        or effective_row.get("reason_summary")
+        or effective_row.get("why_explain")
+        or source_row.get("reason_summary")
+        or source_row.get("why_explain")
+        or ""
+    ).strip() or None
+    if bucket == "player_props" and prop_insights:
+        reason_summary = _season_betting_card_prop_summary(
+            opponent_tri=opponent_tri,
+            market_label=_season_betting_card_market_label(bucket, market_key),
+            line_value=line_value,
+            insights=prop_insights,
+        ) or reason_summary
+    return {
+        "market": bucket,
+        "market_key": market_key,
+        "market_label": _season_betting_card_market_label(bucket, market_key),
+        "market_family_label": _season_betting_card_market_family_label(bucket),
+        "selection": selection,
+        "display_pick": _season_betting_card_display_pick(effective_row, bucket, home_tri, away_tri, home_name, away_name),
+        "market_line": line_value,
+        "odds": odds_value,
+        "edge": _safe_float(effective_row.get("edge")),
+        "ev": _safe_float(effective_row.get("ev")),
+        "ev_pct": _safe_float(effective_row.get("ev_pct")),
+        "model_prob": model_prob,
+        "player_name": player_name,
+        "player_id": _safe_int(player_id),
+        "team_side": team_side or None,
+        "team_tri": team_tri,
+        "opponent_tri": opponent_tri,
+        "reason_summary": reason_summary,
+        "reasons": reason_arrays,
+        "basketball_reasons": [str(item).strip() for item in (effective_row.get("basketball_reasons") or []) if str(item).strip()] if isinstance(effective_row.get("basketball_reasons"), list) else [],
+        "market_reasons": [str(item).strip() for item in (effective_row.get("market_reasons") or []) if str(item).strip()] if isinstance(effective_row.get("market_reasons"), list) else [],
+        "model_reasons": [str(item).strip() for item in (effective_row.get("model_reasons") or []) if str(item).strip()] if isinstance(effective_row.get("model_reasons"), list) else [],
+        "top_play_reasons": [str(item).strip() for item in (effective_row.get("top_play_reasons") or []) if str(item).strip()] if isinstance(effective_row.get("top_play_reasons"), list) else [],
+        "insights": prop_insights,
+        "settlement": _season_betting_card_settlement(effective_row),
+    }
+
+
+def _season_betting_card_result_stats(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    wins = 0
+    losses = 0
+    pushes = 0
+    stake_u = 0.0
+    profit_u = 0.0
+    settled = 0
+    for row in rows:
+        settlement = row.get("settlement") if isinstance(row.get("settlement"), dict) else None
+        result = str((settlement or {}).get("result") or "").strip().lower()
+        if result not in {"win", "loss", "push"}:
+            continue
+        settled += 1
+        stake_u += 1.0
+        if result == "win":
+            wins += 1
+        elif result == "loss":
+            losses += 1
+        else:
+            pushes += 1
+        profit_val = _safe_float((settlement or {}).get("profit_u"))
+        if profit_val is not None:
+            profit_u += float(profit_val)
+    return {
+        "n": settled,
+        "wins": wins,
+        "losses": losses,
+        "pushes": pushes,
+        "stake_u": round(stake_u, 3),
+        "profit_u": round(profit_u, 3),
+        "roi": round(profit_u / stake_u, 4) if stake_u > 0 else None,
+    }
+
+
+def _season_betting_card_merge_stats(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    out = {"n": 0, "wins": 0, "losses": 0, "pushes": 0, "stake_u": 0.0, "profit_u": 0.0}
+    for row in rows:
+        out["n"] += int(row.get("n") or 0)
+        out["wins"] += int(row.get("wins") or 0)
+        out["losses"] += int(row.get("losses") or 0)
+        out["pushes"] += int(row.get("pushes") or 0)
+        out["stake_u"] += float(row.get("stake_u") or 0.0)
+        out["profit_u"] += float(row.get("profit_u") or 0.0)
+    out["stake_u"] = round(out["stake_u"], 3)
+    out["profit_u"] = round(out["profit_u"], 3)
+    out["roi"] = round(out["profit_u"] / out["stake_u"], 4) if out["stake_u"] > 0 else None
+    return out
+
+
+def _season_betting_card_selected_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
+    counts = {"combined": 0, "totals": 0, "ml": 0, "spreads": 0, "player_props": 0}
+    for row in rows:
+        bucket = str(row.get("market") or "").strip().lower()
+        counts["combined"] += 1
+        if bucket in counts:
+            counts[bucket] += 1
+        else:
+            counts["player_props"] += 1
+    return counts
+
+
+def _season_betting_card_matchup(game: dict[str, Any], status: dict[str, str]) -> dict[str, Any]:
+    live = game.get("live_status") if isinstance(game.get("live_status"), dict) else {}
+    score = live.get("score") if isinstance(live.get("score"), dict) else {}
+    away_score = _safe_int(score.get("away"))
+    if away_score is None:
+        away_score = _safe_int(live.get("away_score"))
+    home_score = _safe_int(score.get("home"))
+    if home_score is None:
+        home_score = _safe_int(live.get("home_score"))
+    return {
+        "isLive": bool(live.get("is_live")),
+        "isFinal": bool(live.get("is_final")),
+        "displayState": str(status.get("detailed") or status.get("abstract") or "").strip(),
+        "score": {
+            "away": away_score,
+            "home": home_score,
+        },
+    }
+
+
+def _season_betting_card_bucket_to_results(bucket: dict[str, Any] | None) -> dict[str, Any]:
+    row = bucket if isinstance(bucket, dict) else {}
+    n = int(row.get("resolved") or 0)
+    stake_u = float(row.get("stake_total") or 0.0)
+    profit_u = float(row.get("profit_total") or 0.0)
+    return {
+        "n": n,
+        "wins": int(row.get("wins") or 0),
+        "losses": int(row.get("losses") or 0),
+        "pushes": int(row.get("pushes") or 0),
+        "stake_u": round(stake_u, 3),
+        "profit_u": round(profit_u, 3),
+        "roi": round(profit_u / stake_u, 4) if stake_u > 0 else None,
+    }
+
+
+def _season_betting_card_day_row_from_recap(item: dict[str, Any]) -> dict[str, Any]:
+    games = item.get("games") if isinstance(item.get("games"), dict) else {}
+    props = item.get("props") if isinstance(item.get("props"), dict) else {}
+    game_picks = [row for row in (games.get("picks") or []) if isinstance(row, dict)]
+    prop_picks = [row for row in (props.get("picks") or []) if isinstance(row, dict)]
+    selected_counts = {
+        "combined": len(game_picks) + len(prop_picks),
+        "totals": 0,
+        "ml": 0,
+        "spreads": 0,
+        "player_props": len(prop_picks),
+    }
+    for row in game_picks:
+        market = str(row.get("market") or "").strip().upper()
+        if market in {"ML", "MONEYLINE"}:
+            selected_counts["ml"] += 1
+        elif market in {"TOTAL", "TOTALS", "OU"}:
+            selected_counts["totals"] += 1
+        elif market in {"ATS", "SPREAD", "SPREADS"}:
+            selected_counts["spreads"] += 1
+
+    combined = _season_betting_card_merge_stats(
+        [
+            _season_betting_card_bucket_to_results((games.get("buckets") or {}).get("Overall") if isinstance(games.get("buckets"), dict) else None),
+            _season_betting_card_bucket_to_results((props.get("buckets") or {}).get("Overall") if isinstance(props.get("buckets"), dict) else None),
+        ]
+    )
+    unresolved_n = max(0, int(selected_counts["combined"] - int(combined.get("n") or 0)))
+    date_str = str(item.get("date") or "").strip()
+    return {
+        "date": date_str,
+        "month": date_str[:7] if len(date_str) >= 7 else "",
+        "selected_counts": selected_counts,
+        "results": {"combined": combined},
+        "unresolved_n": unresolved_n,
+    }
+
+
+def _season_betting_card_day_payload(season: int, date_str: str, profile: str) -> dict[str, Any] | None:
+    cards_payload = _season_betting_card_fetch_cards_payload(date_str)
+    if not isinstance(cards_payload, dict):
+        return None
+
+    games_out: list[dict[str, Any]] = []
+    all_rows: list[dict[str, Any]] = []
+    source_games = [game for game in (cards_payload.get("games") or []) if isinstance(game, dict)]
+    game_context = _load_best_bets_game_context(date_str)
+
+    for index, game in enumerate(source_games):
+        home_tri = str(game.get("home_tri") or "").strip().upper()
+        away_tri = str(game.get("away_tri") or "").strip().upper()
+        home_name = str(game.get("home_name") or home_tri or "Home").strip()
+        away_name = str(game.get("away_name") or away_tri or "Away").strip()
+        matchup_ctx = _best_bets_ctx_for_matchup(game_context, home=home_name, away=away_name)
+        away = _betting_card_v2_team_meta(away_tri, away_name)
+        home = _betting_card_v2_team_meta(home_tri, home_name)
+        odds = game.get("odds") if isinstance(game.get("odds"), dict) else {}
+        game_date = str(odds.get("commence_time") or "").strip()
+        status = _betting_card_v2_status(game)
+        official_rows: list[dict[str, Any]] = []
+
+        for raw_row in (game.get("game_market_recommendations") or []):
+            if isinstance(raw_row, dict):
+                official_rows.append(_season_betting_card_normalize_row(raw_row, home_tri, away_tri, home_name, away_name, date_str=date_str, matchup_ctx=matchup_ctx))
+
+        prop_map = game.get("prop_recommendations") if isinstance(game.get("prop_recommendations"), dict) else {}
+        for team_side in ("away", "home"):
+            for raw_row in (prop_map.get(team_side) or []):
+                if isinstance(raw_row, dict):
+                    official_rows.append(
+                        _season_betting_card_normalize_row(
+                            raw_row,
+                            home_tri,
+                            away_tri,
+                            home_name,
+                            away_name,
+                            team_side=team_side,
+                            date_str=date_str,
+                            matchup_ctx=matchup_ctx,
+                        )
+                    )
+
+        all_rows.extend(official_rows)
+        market_groups = {
+            "totals": next((row for row in official_rows if str(row.get("market")) == "totals"), None),
+            "ml": next((row for row in official_rows if str(row.get("market")) == "ml"), None),
+            "spreads": next((row for row in official_rows if str(row.get("market")) == "spreads"), None),
+            "playerProps": [row for row in official_rows if str(row.get("market")) == "player_props"],
+        }
+        game_pk = _safe_int((game.get("sim") or {}).get("game_id") if isinstance(game.get("sim"), dict) else None)
+        if game_pk is None:
+            game_pk = index + 1
+        games_out.append(
+            {
+                "game_pk": game_pk,
+                "game_date": game_date or None,
+                "start_time": _betting_card_v2_start_time(game_date),
+                "away": away,
+                "home": home,
+                "status": status,
+                "matchup": _season_betting_card_matchup(game, status),
+                "betting": {
+                    "officialRows": official_rows,
+                    "markets": market_groups,
+                    "results": {
+                        "combined": _season_betting_card_result_stats(official_rows),
+                    },
+                },
+            }
+        )
+
+    results = _season_betting_card_result_stats(all_rows)
+    unresolved_n = max(0, int(len(all_rows) - int(results.get("n") or 0)))
+    return _to_jsonable(
+        {
+            "season": int(season),
+            "date": date_str,
+            "profile": profile,
+            "source_kind": "api_cards_v2",
+            "cap_profile": profile,
+            "cards_url": f"/betting-card?date={date_str}",
+            "games": games_out,
+            "results": {
+                "combined": results,
+            },
+            "selected_counts": _season_betting_card_selected_counts(all_rows),
+            "summary": {
+                "unresolved_n": unresolved_n,
+            },
+            "unresolved_n": unresolved_n,
+        }
+    )
+
+
+def _season_betting_card_manifest(season: int, profile: str, requested_date: str | None = None) -> dict[str, Any]:
+    until_date = str(requested_date or _default_us_slate_date_str()).strip()
+    since_date = f"{int(season):04d}-01-01"
+    recap_payload = _season_betting_card_fetch_recaps_payload(since_date, until_date)
+    if isinstance(recap_payload, dict):
+        recap_items = [item for item in (recap_payload.get("items") or []) if isinstance(item, dict)]
+        if recap_items:
+            day_rows = [_season_betting_card_day_row_from_recap(item) for item in recap_items]
+            day_rows.sort(key=lambda row: str(row.get("date") or ""))
+            month_counts: dict[str, int] = {}
+            result_rows: list[dict[str, Any]] = []
+            total_counts = {"combined": 0, "totals": 0, "ml": 0, "spreads": 0, "player_props": 0}
+            unresolved_total = 0
+            day_profits: list[tuple[str, float]] = []
+
+            for day in day_rows:
+                month_key = str(day.get("month") or "")
+                if month_key:
+                    month_counts[month_key] = month_counts.get(month_key, 0) + 1
+                counts = day.get("selected_counts") if isinstance(day.get("selected_counts"), dict) else {}
+                for key in total_counts:
+                    total_counts[key] += int(counts.get(key) or 0)
+                unresolved_n = int(day.get("unresolved_n") or 0)
+                unresolved_total += unresolved_n
+                combined = ((day.get("results") or {}).get("combined")) if isinstance(day.get("results"), dict) else {}
+                if isinstance(combined, dict):
+                    result_rows.append(combined)
+                    day_profits.append((str(day.get("date") or ""), float(combined.get("profit_u") or 0.0)))
+
+            merged = _season_betting_card_merge_stats(result_rows)
+            mean_u = None
+            median_u = None
+            best_day = {}
+            worst_day = {}
+            if day_profits:
+                profits_only = [profit for _, profit in day_profits]
+                mean_u = round(sum(profits_only) / len(profits_only), 3)
+                sorted_profits = sorted(profits_only)
+                mid = len(sorted_profits) // 2
+                median_val = sorted_profits[mid] if len(sorted_profits) % 2 else (sorted_profits[mid - 1] + sorted_profits[mid]) / 2.0
+                median_u = round(median_val, 3)
+                best_date, best_profit = max(day_profits, key=lambda item: item[1])
+                worst_date, worst_profit = min(day_profits, key=lambda item: item[1])
+                best_day = {"date": best_date, "profit_u": round(best_profit, 3)}
+                worst_day = {"date": worst_date, "profit_u": round(worst_profit, 3)}
+
+            first_date = day_rows[0].get("date") if day_rows else None
+            last_date = day_rows[-1].get("date") if day_rows else None
+            months = [{"month": month, "days": count} for month, count in sorted(month_counts.items())]
+            return _to_jsonable(
+                {
+                    "season": int(season),
+                    "profile": profile,
+                    "available_profiles": ["retuned"],
+                    "meta": {
+                        "first_date": first_date,
+                        "last_date": last_date,
+                        "partial": False,
+                    },
+                    "summary": {
+                        "cards": len(day_rows),
+                        "results": {"combined": merged},
+                        "combined": merged,
+                        "daily": {
+                            "mean_u": mean_u,
+                            "median_u": median_u,
+                            "best_day": best_day,
+                            "worst_day": worst_day,
+                        },
+                        "selected_counts": total_counts,
+                        "settled_recommendations": int(merged.get("n") or 0),
+                        "unresolved_recommendations": unresolved_total,
+                    },
+                    "months": months,
+                    "days": day_rows,
+                }
+            )
+
+    days_full: list[dict[str, Any]] = []
+    for date_str in _season_betting_card_candidate_dates(season, requested_date=requested_date):
+        day_payload = _season_betting_card_day_payload(season, date_str, profile)
+        if isinstance(day_payload, dict):
+            days_full.append(day_payload)
+
+    day_rows: list[dict[str, Any]] = []
+    month_counts: dict[str, int] = {}
+    result_rows: list[dict[str, Any]] = []
+    total_counts = {"combined": 0, "totals": 0, "ml": 0, "spreads": 0, "player_props": 0}
+    unresolved_total = 0
+    day_profits: list[tuple[str, float]] = []
+
+    for day in days_full:
+        date_str = str(day.get("date") or "").strip()
+        month_key = date_str[:7] if len(date_str) >= 7 else ""
+        if month_key:
+            month_counts[month_key] = month_counts.get(month_key, 0) + 1
+        counts = day.get("selected_counts") if isinstance(day.get("selected_counts"), dict) else {}
+        for key in total_counts:
+            total_counts[key] += int(counts.get(key) or 0)
+        unresolved_n = int(day.get("unresolved_n") or ((day.get("summary") or {}).get("unresolved_n") if isinstance(day.get("summary"), dict) else 0) or 0)
+        unresolved_total += unresolved_n
+        combined = ((day.get("results") or {}).get("combined")) if isinstance(day.get("results"), dict) else {}
+        if isinstance(combined, dict):
+            result_rows.append(combined)
+            day_profits.append((date_str, float(combined.get("profit_u") or 0.0)))
+        day_rows.append(
+            {
+                "date": date_str,
+                "month": month_key,
+                "selected_counts": counts,
+                "results": {"combined": combined},
+                "unresolved_n": unresolved_n,
+            }
+        )
+
+    merged = _season_betting_card_merge_stats(result_rows)
+    mean_u = None
+    median_u = None
+    best_day = {}
+    worst_day = {}
+    if day_profits:
+        profits_only = [profit for _, profit in day_profits]
+        mean_u = round(sum(profits_only) / len(profits_only), 3)
+        sorted_profits = sorted(profits_only)
+        mid = len(sorted_profits) // 2
+        if len(sorted_profits) % 2:
+            median_val = sorted_profits[mid]
+        else:
+            median_val = (sorted_profits[mid - 1] + sorted_profits[mid]) / 2.0
+        median_u = round(median_val, 3)
+        best_date, best_profit = max(day_profits, key=lambda item: item[1])
+        worst_date, worst_profit = min(day_profits, key=lambda item: item[1])
+        best_day = {"date": best_date, "profit_u": round(best_profit, 3)}
+        worst_day = {"date": worst_date, "profit_u": round(worst_profit, 3)}
+
+    first_date = day_rows[0]["date"] if day_rows else None
+    last_date = day_rows[-1]["date"] if day_rows else None
+    months = [{"month": month, "days": count} for month, count in sorted(month_counts.items())]
+    return _to_jsonable(
+        {
+            "season": int(season),
+            "profile": profile,
+            "available_profiles": ["retuned"],
+            "meta": {
+                "first_date": first_date,
+                "last_date": last_date,
+                "partial": False,
+            },
+            "summary": {
+                "cards": len(day_rows),
+                "results": {"combined": merged},
+                "combined": merged,
+                "daily": {
+                    "mean_u": mean_u,
+                    "median_u": median_u,
+                    "best_day": best_day,
+                    "worst_day": worst_day,
+                },
+                "selected_counts": total_counts,
+                "settled_recommendations": int(merged.get("n") or 0),
+                "unresolved_recommendations": unresolved_total,
+            },
+            "months": months,
+            "days": day_rows,
+        }
+    )
+
+
+@app.route("/api/cards-v2")
+def api_cards_v2():
+    section = str(request.args.get("section") or "all").strip().lower() or "all"
+    if section not in {"all", "games", "props"}:
+        return jsonify(
+            {
+                "error": "unknown cards-v2 section",
+                "section": section,
+                "allowed": ["all", "games", "props"],
+            }
+        ), 400
+
+    cards_payload, status_code = _response_json_value(api_cards())
+    if status_code and status_code >= 400:
+        return jsonify(_to_jsonable(cards_payload or {"error": "failed to build cards-v2"})), status_code
+    if not isinstance(cards_payload, dict):
+        return jsonify({"error": "failed to build cards-v2"}), 500
+    return jsonify(_betting_card_payload_v2(cards_payload, section))
+
+
+@app.route("/api/season/<int:season>/betting-card")
+def api_season_betting_card_manifest(season: int):
+    profile = str(request.args.get("profile") or "retuned").strip().lower() or "retuned"
+    requested_date = str(request.args.get("date") or "").strip() or None
+    return jsonify(_season_betting_card_manifest(season, profile, requested_date=requested_date))
+
+
+@app.route("/api/season/<int:season>/betting-card/day/<date_str>")
+def api_season_betting_card_day(season: int, date_str: str):
+    profile = str(request.args.get("profile") or "retuned").strip().lower() or "retuned"
+    day_payload = _season_betting_card_day_payload(season, date_str, profile)
+    if not isinstance(day_payload, dict):
+        return jsonify({"error": "day not found", "date": date_str, "season": season}), 404
+    return jsonify(day_payload)
+
+
 @app.route("/")
 def root():
     return _serve_cards_page(
@@ -6100,6 +7471,11 @@ def route_live_cards():
 @app.route("/prop-ladders")
 def route_prop_ladders():
     return _serve_cards_page("prop-ladders.html")
+
+
+@app.route("/season/<int:season>/betting-card")
+def route_season_betting_card(season: int):
+    return send_from_directory(str(WEB_DIR), "season_betting_card.html")
 
 
 @app.route("/web/")
@@ -11578,37 +12954,43 @@ def _best_bets_prop_history_context(
     if not player_key:
         return {}
 
-    hist = df[df["player_key"] == player_key].copy()
-    if hist.empty:
+    all_hist = df[df["player_key"] == player_key].copy()
+    if all_hist.empty:
         return {}
+    cutoff = pd.to_datetime(date_str, errors="coerce")
+    if pd.notna(cutoff):
+        all_hist = all_hist[all_hist["game_date"] < cutoff].copy()
+    if all_hist.empty:
+        return {}
+
+    all_hist = all_hist.sort_values("game_date", ascending=False).copy()
+    all_stat_series = _best_bets_player_log_stat_series(all_hist, market)
+    all_minutes_series = pd.to_numeric(all_hist.get("min"), errors="coerce") if "min" in all_hist.columns else pd.Series(index=all_hist.index, dtype=float)
+    all_played_mask = all_stat_series.notna()
+    if not all_minutes_series.empty:
+        all_played_mask = all_played_mask & (all_minutes_series.isna() | (all_minutes_series > 0))
+    all_hist = all_hist.loc[all_played_mask].copy()
+    if all_hist.empty:
+        return {}
+    all_hist["_stat_value"] = pd.to_numeric(all_stat_series.loc[all_hist.index], errors="coerce")
+    all_hist = all_hist[all_hist["_stat_value"].notna()].copy()
+    if all_hist.empty:
+        return {}
+
+    hist = all_hist.copy()
     if team_key:
         team_hist = hist[hist["team_abbr"] == team_key].copy()
         if not team_hist.empty:
             hist = team_hist
-    cutoff = pd.to_datetime(date_str, errors="coerce")
-    if pd.notna(cutoff):
-        hist = hist[hist["game_date"] < cutoff].copy()
     if hist.empty:
         return {}
 
     hist = hist.sort_values("game_date", ascending=False).copy()
-    stat_series = _best_bets_player_log_stat_series(hist, market)
-    minutes_series = pd.to_numeric(hist.get("min"), errors="coerce") if "min" in hist.columns else pd.Series(index=hist.index, dtype=float)
-    played_mask = stat_series.notna()
-    if not minutes_series.empty:
-        played_mask = played_mask & (minutes_series.isna() | (minutes_series > 0))
-    hist = hist.loc[played_mask].copy()
-    if hist.empty:
-        return {}
-
-    hist["_stat_value"] = pd.to_numeric(stat_series.loc[hist.index], errors="coerce")
-    hist = hist[hist["_stat_value"].notna()].copy()
-    if hist.empty:
-        return {}
 
     recent10 = hist.head(10).copy()
     recent5 = hist.head(5).copy()
     opp_hist = hist[hist["opp_tri"] == opponent_key].copy() if opponent_key else pd.DataFrame()
+    career_opp_hist = all_hist[all_hist["opp_tri"] == opponent_key].copy() if opponent_key else pd.DataFrame()
     venue_hist = hist[hist["is_home"] == bool(home_flag)].copy() if home_flag is not None else pd.DataFrame()
 
     def _avg(frame: pd.DataFrame) -> float | None:
@@ -11656,8 +13038,13 @@ def _best_bets_prop_history_context(
     return {
         "opponent_avg": _avg(opp_hist),
         "opponent_games": int(len(opp_hist.index)) if not opp_hist.empty else 0,
+        "opponent_hit": _hit(opp_hist, line_value),
+        "career_opponent_avg": _avg(career_opp_hist),
+        "career_opponent_games": int(len(career_opp_hist.index)) if not career_opp_hist.empty else 0,
+        "career_opponent_hit": _hit(career_opp_hist, line_value),
         "venue_avg": _avg(venue_hist),
         "venue_games": int(len(venue_hist.index)) if not venue_hist.empty else 0,
+        "venue_hit": _hit(venue_hist, line_value),
         "last5_avg": _avg(recent5),
         "last5_games": int(len(recent5.index)) if not recent5.empty else 0,
         "last10_avg": _avg(recent10),

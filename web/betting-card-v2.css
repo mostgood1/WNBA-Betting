@@ -1,0 +1,620 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap");
+
+:root {
+  --cards-bg: #08131f;
+  --cards-surface: rgba(11, 23, 37, 0.9);
+  --cards-surface-strong: rgba(15, 30, 47, 0.96);
+  --cards-line: rgba(132, 166, 196, 0.16);
+  --cards-line-strong: rgba(132, 166, 196, 0.3);
+  --cards-text: #edf4fb;
+  --cards-text-soft: #bfd0df;
+  --cards-text-dim: #93a9bc;
+  --cards-accent: #4ecdc4;
+  --cards-accent-strong: #9af3de;
+  --cards-warm: #ffbf69;
+  --cards-danger: #ff6b6b;
+  --cards-success: #68e0a2;
+  --cards-shadow: 0 20px 55px rgba(0, 0, 0, 0.36);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body.cards-body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--cards-text);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  line-height: 1.45;
+  background:
+    radial-gradient(circle at top left, rgba(78, 205, 196, 0.14), transparent 28%),
+    radial-gradient(circle at top right, rgba(255, 191, 105, 0.12), transparent 22%),
+    linear-gradient(180deg, #06111b 0%, #08131f 45%, #07101a 100%);
+}
+
+a {
+  color: inherit;
+}
+
+.cards-nav-pill,
+.cards-filter-pill,
+.cards-loading-state,
+.cards-empty-state,
+.season-metric-card,
+.season-day-rail,
+.season-breakdown-panel,
+.season-game-card,
+.season-breakdown-card {
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.cards-nav-pill,
+.cards-filter-pill,
+.cards-chip,
+.season-day-pill,
+.season-game-live-pill,
+.season-ticket-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.cards-nav-pill,
+.cards-filter-pill {
+  border: 1px solid var(--cards-line-strong);
+  background: rgba(4, 12, 20, 0.72);
+  color: var(--cards-text-soft);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cards-nav-pill:hover,
+.cards-nav-pill:focus-visible,
+.cards-filter-pill:hover,
+.cards-filter-pill:focus-visible {
+  border-color: rgba(154, 243, 222, 0.36);
+  color: var(--cards-text);
+}
+
+.cards-nav-pill.is-active,
+.cards-filter-pill.is-active {
+  color: var(--cards-bg);
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--cards-accent-strong), var(--cards-warm));
+}
+
+.cards-nav-pill.is-partial {
+  border-color: rgba(255, 191, 105, 0.45);
+  background: rgba(255, 191, 105, 0.16);
+  color: #ffd79c;
+}
+
+.cards-chip,
+.season-day-pill,
+.season-game-live-pill,
+.season-ticket-pill {
+  border: 1px solid rgba(132, 166, 196, 0.18);
+  background: rgba(10, 21, 34, 0.88);
+  color: var(--cards-text-soft);
+}
+
+.cards-loading-state,
+.cards-empty-state,
+.season-empty-copy {
+  border: 1px dashed rgba(132, 166, 196, 0.28);
+  border-radius: 18px;
+  padding: 20px;
+  background: rgba(6, 14, 23, 0.66);
+  color: var(--cards-text-soft);
+}
+
+.season-body {
+  min-height: 100vh;
+}
+
+.season-shell {
+  width: min(1480px, calc(100vw - 40px));
+  margin: 0 auto;
+  padding: 36px 0 56px;
+}
+
+.season-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.season-title-block {
+  display: grid;
+  gap: 8px;
+}
+
+.season-kicker {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cards-accent-strong);
+}
+
+.season-title-row,
+.season-day-head,
+.season-panel-head,
+.season-game-head,
+.betting-card-mobile-head,
+.season-day-row,
+.season-team-line,
+.season-header-actions,
+.season-day-actions,
+.season-rail-head {
+  display: flex;
+  gap: 12px;
+}
+
+.season-title-row,
+.season-header-actions,
+.season-day-actions {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.season-title-row h1,
+.season-day-head h2 {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1;
+}
+
+.season-header-meta,
+.season-day-meta,
+.season-inline-note,
+.season-game-subcopy,
+.season-game-time,
+.season-betting-cell-sub,
+.betting-card-mobile-label {
+  color: var(--cards-text-soft);
+}
+
+.season-months,
+.season-game-live-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.season-summary-grid,
+.season-day-metrics,
+.season-stat-grid,
+.betting-card-mobile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.season-summary-grid {
+  margin-bottom: 20px;
+}
+
+.season-metric-card,
+.season-day-rail,
+.season-breakdown-panel,
+.season-game-card,
+.season-breakdown-card {
+  border: 1px solid var(--cards-line);
+  background: linear-gradient(180deg, rgba(8, 18, 29, 0.96), rgba(7, 15, 24, 0.94));
+  box-shadow: var(--cards-shadow);
+}
+
+.season-metric-card,
+.season-breakdown-card,
+.betting-card-mobile-entry {
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.season-metric-label,
+.season-score-label,
+.betting-card-mobile-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cards-text-dim);
+}
+
+.season-metric-value,
+.season-score-main,
+.betting-card-mobile-value,
+.season-betting-cell-main,
+.betting-card-mobile-pick,
+.season-breakdown-title,
+.season-panel-title,
+.season-rail-title {
+  font-weight: 800;
+}
+
+.season-metric-value,
+.season-score-main {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.season-metric-sub {
+  font-size: 13px;
+  color: var(--cards-text-soft);
+}
+
+.season-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.season-day-rail,
+.season-main,
+.season-games,
+.betting-card-mobile-list {
+  display: grid;
+  gap: 14px;
+}
+
+.season-day-rail,
+.season-breakdown-panel,
+.season-game-card {
+  border-radius: 22px;
+  padding: 20px;
+}
+
+.season-day-rail {
+  position: sticky;
+  top: 18px;
+}
+
+.season-day-list {
+  display: grid;
+  gap: 10px;
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.season-day-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.season-day-list::-webkit-scrollbar-track {
+  background: rgba(6, 14, 23, 0.5);
+  border-radius: 999px;
+}
+
+.season-day-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(154, 243, 222, 0.35), rgba(255, 191, 105, 0.35));
+  border-radius: 999px;
+}
+
+.season-day-entry {
+  display: grid;
+  gap: 6px;
+}
+
+.season-day-button {
+  width: 100%;
+  appearance: none;
+  border: 1px solid rgba(132, 166, 196, 0.16);
+  border-radius: 16px;
+  background: rgba(6, 14, 23, 0.7);
+  color: inherit;
+  cursor: pointer;
+  padding: 14px;
+  text-align: left;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.season-day-button:hover,
+.season-day-button:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(154, 243, 222, 0.32);
+  background: rgba(9, 20, 33, 0.94);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+}
+
+.season-day-button.is-active {
+  border-color: rgba(255, 191, 105, 0.52);
+  background: linear-gradient(135deg, rgba(255, 191, 105, 0.18), rgba(78, 205, 196, 0.14));
+}
+
+.season-day-primary,
+.season-team-code {
+  font-weight: 800;
+}
+
+.season-day-stamp {
+  display: grid;
+  gap: 2px;
+}
+
+.season-day-dow {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cards-accent-strong);
+}
+
+.season-day-secondary,
+.season-betting-cell-sub,
+.season-inline-note,
+.season-game-subcopy,
+.season-game-time {
+  font-size: 13px;
+}
+
+.season-pick-detail {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.season-pick-summary {
+  color: var(--cards-text-soft);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.season-detail-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.season-detail-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(132, 166, 196, 0.18);
+  background: rgba(9, 19, 31, 0.9);
+  color: var(--cards-text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.season-detail-chip.is-good {
+  border-color: rgba(104, 224, 162, 0.28);
+  background: rgba(104, 224, 162, 0.12);
+  color: #d9ffea;
+}
+
+.season-detail-chip.is-bad {
+  border-color: rgba(255, 107, 107, 0.28);
+  background: rgba(255, 107, 107, 0.12);
+  color: #ffe0e0;
+}
+
+.season-detail-chip.is-warn {
+  border-color: rgba(255, 191, 105, 0.3);
+  background: rgba(255, 191, 105, 0.12);
+  color: #ffe2b7;
+}
+
+.season-detail-chip-label {
+  color: var(--cards-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.season-detail-group-label {
+  color: var(--cards-text-dim);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.season-detail-writeup {
+  display: grid;
+  gap: 5px;
+  padding-top: 2px;
+}
+
+.season-detail-paragraph {
+  margin: 0;
+  color: var(--cards-text-soft);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.season-detail-lines {
+  display: grid;
+  gap: 3px;
+}
+
+.season-detail-line {
+  color: var(--cards-text-soft);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.season-day-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.season-day-pill.is-official {
+  border-color: rgba(154, 243, 222, 0.24);
+  background: rgba(154, 243, 222, 0.1);
+  color: #baf9ea;
+}
+
+.season-day-pill.is-empty {
+  border-color: rgba(255, 191, 105, 0.28);
+  background: rgba(255, 191, 105, 0.14);
+  color: #ffd79c;
+}
+
+.season-day-head,
+.season-panel-head,
+.season-game-head {
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.season-team-line {
+  align-items: baseline;
+}
+
+.season-team-name {
+  color: var(--cards-text-soft);
+}
+
+.season-scorebox {
+  min-width: 160px;
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid rgba(132, 166, 196, 0.16);
+  background: rgba(6, 14, 23, 0.72);
+}
+
+.season-game-live-pill {
+  min-height: 26px;
+  padding: 0 10px;
+}
+
+.season-game-betting-shell,
+.season-game-matchup,
+.season-game-card,
+.season-main {
+  display: grid;
+  gap: 14px;
+}
+
+.season-breakdown-title {
+  font-size: 16px;
+}
+
+.season-calibration-table-wrap {
+  overflow-x: auto;
+}
+
+.season-calibration-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.season-calibration-table th,
+.season-calibration-table td {
+  padding: 12px 10px;
+  border-top: 1px solid rgba(132, 166, 196, 0.12);
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.season-calibration-table th {
+  color: var(--cards-text-dim);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.season-ticket-pill.is-win {
+  border-color: rgba(49, 163, 84, 0.72);
+  background: rgba(24, 99, 58, 0.95);
+  color: #ecfff3;
+}
+
+.season-ticket-pill.is-loss {
+  border-color: rgba(198, 40, 40, 0.72);
+  background: rgba(122, 22, 22, 0.95);
+  color: #fff1f1;
+}
+
+.betting-card-mobile-list {
+  display: none;
+}
+
+.betting-card-mobile-entry {
+  border: 1px solid rgba(132, 166, 196, 0.14);
+  background: rgba(6, 14, 23, 0.75);
+}
+
+.betting-card-mobile-head {
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.betting-card-mobile-grid {
+  margin-bottom: 12px;
+}
+
+.betting-card-mobile-pick {
+  margin-bottom: 6px;
+}
+
+.season-error {
+  border-style: solid;
+  border-color: rgba(255, 107, 107, 0.35);
+}
+
+@media (max-width: 1080px) {
+  .season-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .season-day-rail {
+    position: static;
+    order: 2;
+  }
+
+  .season-day-list {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .season-shell {
+    width: min(100vw - 16px, 1480px);
+    padding: 18px 0 32px;
+  }
+
+  .season-header {
+    flex-direction: column;
+    margin-bottom: 18px;
+  }
+
+  .season-breakdown-panel,
+  .season-day-rail,
+  .season-game-card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .season-calibration-table-wrap {
+    display: none;
+  }
+
+  .betting-card-mobile-list {
+    display: grid;
+    gap: 12px;
+  }
+}

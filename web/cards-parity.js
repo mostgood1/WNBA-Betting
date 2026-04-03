@@ -11,6 +11,7 @@
   const applyBtn = document.getElementById('applyBtn');
   const prevDateLink = document.getElementById('cardsPrevDateLink');
   const nextDateLink = document.getElementById('cardsNextDateLink');
+  const seasonBettingCardLink = document.getElementById('cardsSeasonBettingCardLink');
   const headerMeta = document.getElementById('cardsHeaderMeta');
   const sourceMeta = document.getElementById('cardsSourceMeta');
   const filtersEl = document.getElementById('cardsFilters');
@@ -2283,11 +2284,15 @@
     const basePath = document.body?.dataset?.cardsBasePath || '/';
     const previousDate = shiftISODate(state.date, -1);
     const nextDate = shiftISODate(state.date, 1);
+    const seasonYear = Number(String(state.date || getLocalDateISO()).slice(0, 4)) || Number(new Date().getFullYear());
     if (prevDateLink) {
       prevDateLink.href = `${basePath}?date=${encodeURIComponent(previousDate)}`;
     }
     if (nextDateLink) {
       nextDateLink.href = `${basePath}?date=${encodeURIComponent(nextDate)}`;
+    }
+    if (seasonBettingCardLink) {
+      seasonBettingCardLink.href = `/season/${encodeURIComponent(seasonYear)}/betting-card?date=${encodeURIComponent(state.date || getLocalDateISO())}&profile=retuned`;
     }
   }
 

@@ -912,6 +912,73 @@ def _player_split_rate_context(date_str: str, team_tri: str, lookback_days: int 
     return ctx[keep_out].copy()
 
 
+@lru_cache(maxsize=256)
+def _player_career_opponent_rate_context(date_str: str, lookback_days: int = 720) -> pd.DataFrame:
+    logs = _load_player_logs_processed()
+    if logs is None or logs.empty:
+        return pd.DataFrame()
+
+    end = pd.to_datetime(str(date_str or ""), errors="coerce")
+    if pd.isna(end):
+        return pd.DataFrame()
+
+    name_col = "PLAYER_NAME" if "PLAYER_NAME" in logs.columns else ("player_name" if "player_name" in logs.columns else None)
+    date_col = "GAME_DATE" if "GAME_DATE" in logs.columns else None
+    min_col = "MIN" if "MIN" in logs.columns else ("min" if "min" in logs.columns else None)
+    if not name_col or not date_col or not min_col:
+        return pd.DataFrame()
+
+    stat_cols = {
+        "pts": "PTS",
+        "reb": "REB",
+        "ast": "AST",
+        "threes": "FG3M",
+        "stl": "STL",
+        "blk": "BLK",
+        "tov": "TOV",
+    }
+
+    keep_cols = [name_col, date_col, min_col]
+    if "MATCHUP" in logs.columns:
+        keep_cols.append("MATCHUP")
+    for col in stat_cols.values():
+        if col in logs.columns:
+            keep_cols.append(col)
+
+    ctx = logs[keep_cols].copy()
+    ctx[date_col] = pd.to_datetime(ctx[date_col], errors="coerce")
+    start = end - pd.Timedelta(days=int(max(120, lookback_days)))
+    ctx = ctx[(ctx[date_col].notna()) & (ctx[date_col] >= start) & (ctx[date_col] < end)].copy()
+    if ctx.empty:
+        return pd.DataFrame()
+
+    ctx["_pkey"] = ctx[name_col].map(_norm_player_key)
+    ctx["_min"] = ctx[min_col].map(_parse_min_to_float)
+    ctx = ctx[np.isfinite(ctx["_min"]) & (ctx["_min"] > 0.0)].copy()
+    if ctx.empty:
+        return pd.DataFrame()
+
+    if "MATCHUP" in ctx.columns:
+        ctx["_opp"] = ctx["MATCHUP"].map(_matchup_opponent)
+    else:
+        ctx["_opp"] = ""
+    ctx["_opp"] = ctx["_opp"].astype(str).str.upper().str.strip()
+    ctx = ctx[ctx["_opp"].ne("")].copy()
+    if ctx.empty:
+        return pd.DataFrame()
+
+    for stat, col in stat_cols.items():
+        if col in ctx.columns:
+            vals = pd.to_numeric(ctx[col], errors="coerce").fillna(0.0).astype(float)
+        else:
+            vals = pd.Series([0.0] * len(ctx), index=ctx.index, dtype=float)
+        ctx[f"_{stat}_pm"] = vals / ctx["_min"].where(ctx["_min"] > 0.0, other=np.nan)
+        ctx[f"_{stat}_pm"] = ctx[f"_{stat}_pm"].replace([np.inf, -np.inf], np.nan)
+
+    keep_out = ["_pkey", "_opp", "_min"] + [f"_{stat}_pm" for stat in stat_cols]
+    return ctx[keep_out].copy()
+
+
 @lru_cache(maxsize=128)
 def _opponent_position_rate_context(date_str: str, lookback_days: int = 120) -> pd.DataFrame:
     box = _load_boxscores_history_processed()
@@ -2800,11 +2867,16 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
     roll10_min = _frame_numeric_series(out, "roll10_min")
     roll5_min = _frame_numeric_series(out, "roll5_min")
     split_ctx = _player_split_rate_context(str(date_str or ""), str(team_tri or "")) if date_str else pd.DataFrame()
+    career_opp_ctx = _player_career_opponent_rate_context(str(date_str or "")) if date_str else pd.DataFrame()
     pos_ctx = _opponent_position_rate_context(str(date_str or "")) if date_str else pd.DataFrame()
     split_by_player: dict[str, pd.DataFrame] = {}
     if split_ctx is not None and not split_ctx.empty and "_pkey" in split_ctx.columns:
         for player_key, group in split_ctx.groupby("_pkey"):
             split_by_player[str(player_key)] = group.copy()
+    career_opp_by_player: dict[str, pd.DataFrame] = {}
+    if career_opp_ctx is not None and not career_opp_ctx.empty and "_pkey" in career_opp_ctx.columns:
+        for player_key, group in career_opp_ctx.groupby("_pkey"):
+            career_opp_by_player[str(player_key)] = group.copy()
     pos_lookup: dict[tuple[str, str], dict[str, float]] = {}
     if pos_ctx is not None and not pos_ctx.empty:
         for _, row in pos_ctx.iterrows():
@@ -2878,6 +2950,7 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
 
             player_key = str(out.at[idx, "_pkey"] or "").strip().upper()
             player_logs = split_by_player.get(player_key)
+            player_career_opp_logs = career_opp_by_player.get(player_key)
             mult = 1.0
             if player_logs is not None and not player_logs.empty:
                 opp_key = str(opp_series.loc[idx] or "").strip().upper()
@@ -2894,6 +2967,21 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
                                 max_games=5,
                                 lo=lo,
                                 hi=hi,
+                            )
+
+                if opp_key and player_career_opp_logs is not None and not player_career_opp_logs.empty:
+                    career_opp_rows = player_career_opp_logs[player_career_opp_logs["_opp"] == opp_key]
+                    if not career_opp_rows.empty:
+                        career_opp_rate = pd.to_numeric(career_opp_rows.get(f"_{stat}_pm"), errors="coerce").dropna()
+                        if not career_opp_rate.empty:
+                            mult *= _bounded_split_multiplier(
+                                anchor,
+                                float(career_opp_rate.mean()),
+                                int(len(career_opp_rows)),
+                                min_games=3,
+                                max_games=12,
+                                lo=max(lo, 0.94),
+                                hi=min(hi, 1.06),
                             )
 
                 venue_rows = player_logs[player_logs["_home"] == bool(home_series.loc[idx])]

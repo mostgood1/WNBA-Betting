@@ -797,6 +797,7 @@ def test_best_bets_page_routes_render():
         props_recs = client.get("/props/recommendations?date=2026-03-19")
         recommendations_page = client.get("/recommendations?date=2026-03-19")
         reconciliation_page = client.get("/reconciliation?date=2026-03-19")
+        season_betting_card_page = client.get("/season/2026/betting-card?date=2026-03-19&profile=retuned")
 
     assert betting_card.status_code == 200
     assert "NBA Betting - Daily Betting Card" in betting_card.get_data(as_text=True)
@@ -824,6 +825,9 @@ def test_best_bets_page_routes_render():
 
     assert reconciliation_page.status_code == 302
     assert "/betting-recap?date=2026-03-19" in reconciliation_page.headers["Location"]
+
+    assert season_betting_card_page.status_code == 200
+    assert "NBA Official Betting Card" in season_betting_card_page.get_data(as_text=True)
 
 
 def test_api_betting_card_flattens_game_and_prop_plays(monkeypatch):
@@ -898,6 +902,172 @@ def test_api_betting_recap_uses_recommendations_recaps(monkeypatch):
     payload = resp.get_json()
     assert payload["version"] == "recaps-v1"
     assert payload["items"][0]["date"] == "2026-03-19"
+
+
+def test_api_cards_v2_matches_mlb_betting_v2_shape(monkeypatch):
+    date_str = "2026-03-19"
+
+    def _fake_cards():
+        return app_module.jsonify(
+            {
+                "date": date_str,
+                "requested_date": date_str,
+                "lookahead_applied": False,
+                "games": [
+                    {
+                        "home_tri": "BOS",
+                        "away_tri": "MIA",
+                        "home_name": "Boston Celtics",
+                        "away_name": "Miami Heat",
+                        "odds": {
+                            "commence_time": f"{date_str}T23:00:00Z",
+                            "home_ml": -160,
+                            "away_ml": 140,
+                            "home_spread": -4.5,
+                            "away_spread": 4.5,
+                            "total": 221.5,
+                        },
+                        "sim": {
+                            "game_id": 123456,
+                            "n_sims": 5000,
+                            "score": {
+                                "home_mean": 114.2,
+                                "away_mean": 108.7,
+                                "p_home_win": 0.633,
+                                "p_away_win": 0.367,
+                                "total_q": {"p50": 222.0},
+                                "margin_q": {"p50": 5.0},
+                            },
+                        },
+                        "game_market_recommendations": [
+                            {"market": "ML", "recommendation_priority_score": 1.4, "edge": 0.08, "display_pick": "Boston Celtics ML"},
+                            {"market": "ATS", "recommendation_priority_score": 0.9, "edge": 0.05, "display_pick": "Miami Heat +4.5"},
+                            {"market": "OU", "recommendation_priority_score": 0.8, "edge": 0.04, "display_pick": "Over 221.5"},
+                        ],
+                        "prop_recommendations": {
+                            "home": [
+                                {"player": "Star One", "recommendation_priority_score": 1.2, "ev": 0.11},
+                            ],
+                            "away": [
+                                {"player": "Star Two", "recommendation_priority_score": 0.7, "ev": 0.06},
+                            ],
+                        },
+                    }
+                ],
+            }
+        )
+
+    monkeypatch.setattr(app_module, "api_cards", _fake_cards)
+
+    app_module.app.testing = True
+    with app_module.app.test_client() as client:
+        resp = client.get(f"/api/cards-v2?date={date_str}")
+
+    assert resp.status_code == 200
+    payload = resp.get_json()
+    assert payload["date"] == date_str
+    assert payload["view"]["mode"] == "legacy_daily"
+    assert isinstance(payload["cards"], list)
+    assert len(payload["cards"]) == 1
+
+    card = payload["cards"][0]
+    assert card["gamePk"] == 123456
+    assert card["away"]["abbr"] == "MIA"
+    assert card["home"]["abbr"] == "BOS"
+    assert card["predictions"]["full"]["home_win_prob"] == 0.633
+    assert card["markets"]["ml"]["market"] == "ML"
+    assert card["markets"]["spreads"]["market"] == "ATS"
+    assert card["markets"]["totals"]["market"] == "OU"
+    assert len(card["markets"]["playerProps"]) == 2
+    assert card["flags"]["hasAnyRecommendations"] is True
+    assert card["flags"]["hasPlayerProps"] is True
+
+
+def test_api_season_betting_card_manifest_and_day(monkeypatch):
+    date_str = "2026-03-19"
+
+    def _fake_cards():
+        return app_module.jsonify(
+            {
+                "date": date_str,
+                "requested_date": date_str,
+                "games": [
+                    {
+                        "home_tri": "BOS",
+                        "away_tri": "MIA",
+                        "home_name": "Boston Celtics",
+                        "away_name": "Miami Heat",
+                        "odds": {
+                            "commence_time": f"{date_str}T23:00:00Z",
+                        },
+                        "sim": {
+                            "game_id": 123456,
+                        },
+                        "game_market_recommendations": [
+                            {
+                                "market": "ML",
+                                "selection": "home",
+                                "display_pick": "BOS ML",
+                                "price": -115,
+                                "edge": 0.04,
+                                "result": "win",
+                                "actual": 1,
+                            },
+                            {
+                                "market": "ATS",
+                                "selection": "away",
+                                "display_pick": "MIA +4.5",
+                                "line": 4.5,
+                                "price": -110,
+                                "edge": 0.03,
+                                "result": "loss",
+                            },
+                        ],
+                        "prop_recommendations": {
+                            "home": [
+                                {
+                                    "market": "pts",
+                                    "player": "Star One",
+                                    "selection": "over",
+                                    "display_pick": "Star One OVER 24.5 Points",
+                                    "line": 24.5,
+                                    "price": -105,
+                                    "edge": 0.05,
+                                    "result": "push",
+                                    "actual": 24.5,
+                                },
+                            ],
+                            "away": [],
+                        },
+                    }
+                ],
+            }
+        )
+
+    monkeypatch.setattr(app_module, "api_cards", _fake_cards)
+    monkeypatch.setattr(app_module, "_season_betting_card_fetch_recaps_payload", lambda since, until: None)
+    monkeypatch.setattr(app_module, "_season_betting_card_candidate_dates", lambda season, requested_date=None: [date_str])
+
+    app_module.app.testing = True
+    with app_module.app.test_client() as client:
+        manifest_resp = client.get(f"/api/season/2026/betting-card?date={date_str}&profile=retuned")
+        day_resp = client.get(f"/api/season/2026/betting-card/day/{date_str}?profile=retuned")
+
+    assert manifest_resp.status_code == 200
+    manifest = manifest_resp.get_json()
+    assert manifest["season"] == 2026
+    assert manifest["profile"] == "retuned"
+    assert manifest["summary"]["cards"] == 1
+    assert manifest["summary"]["selected_counts"]["combined"] == 3
+    assert manifest["days"][0]["date"] == date_str
+
+    assert day_resp.status_code == 200
+    day = day_resp.get_json()
+    assert day["date"] == date_str
+    assert day["selected_counts"]["combined"] == 3
+    assert len(day["games"]) == 1
+    assert len(day["games"][0]["betting"]["officialRows"]) == 3
+    assert day["games"][0]["betting"]["officialRows"][0]["display_pick"] == "BOS ML"
 
 
 def test_duplicate_best_bets_aliases_redirect_to_betting_card():
