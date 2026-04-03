@@ -14793,12 +14793,13 @@ def _build_cards_game_market_recommendations(
     injury_snapshot: dict[str, dict[str, Any]],
     slate_total_median: float | None,
     raw_rows: list[dict[str, Any]] | None,
+    allow_pregame_updates: bool = True,
 ) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     source_rows = [row for row in (raw_rows or []) if isinstance(row, dict)]
     pair_ctx = _best_bets_ctx_for_matchup(game_context, home=home_name, away=away_name)
 
-    if source_rows:
+    if source_rows and allow_pregame_updates:
         total_line = _safe_float(bet.get("total"))
         adjusted_total = _safe_float((pair_ctx or {}).get("pred_total_adjusted")) if isinstance(pair_ctx, dict) else None
         if adjusted_total is not None and total_line is not None:
@@ -14826,6 +14827,8 @@ def _build_cards_game_market_recommendations(
             )
 
     if not source_rows:
+        if not allow_pregame_updates:
+            return []
         home_spread = _safe_float(bet.get("home_spread"))
         total_line = _safe_float(bet.get("total"))
         fallback_rows = [
@@ -14980,6 +14983,143 @@ def _apply_cards_prop_recommendation_buckets(
         else:
             row["card_bucket"] = "playable"
             row["card_rank"] = idx - official_limit
+
+
+def _build_cards_prop_recommendations_from_source(
+    props_recs_by_team: dict[str, list[dict[str, Any]]],
+    *,
+    home_tri: str,
+    away_tri: str,
+) -> dict[str, list[dict[str, Any]]]:
+    out: dict[str, list[dict[str, Any]]] = {"home": [], "away": []}
+
+    for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
+        rows: list[dict[str, Any]] = []
+        for source_row in (props_recs_by_team.get(team_tri) or []):
+            if not isinstance(source_row, dict):
+                continue
+            best = source_row.get("top_play") if isinstance(source_row.get("top_play"), dict) else None
+            if not isinstance(best, dict):
+                continue
+
+            player_name = str(source_row.get("player") or best.get("player") or best.get("player_name") or "").strip()
+            if not player_name:
+                continue
+
+            top_play_reasons = [
+                str(item).strip()
+                for item in (source_row.get("top_play_reasons") or [])
+                if str(item).strip()
+            ] if isinstance(source_row.get("top_play_reasons"), list) else []
+
+            best_row = dict(best)
+            best_row.setdefault("player", player_name)
+            best_row.setdefault("player_name", player_name)
+            best_row.setdefault("team", team_tri)
+            if top_play_reasons and not isinstance(best_row.get("reasons"), list):
+                best_row["reasons"] = list(top_play_reasons)
+
+            picks = [dict(pick) for pick in (source_row.get("plays") or []) if isinstance(pick, dict)]
+            for pick in picks:
+                pick.setdefault("player", player_name)
+                pick.setdefault("player_name", player_name)
+                pick.setdefault("team", team_tri)
+                if top_play_reasons and not isinstance(pick.get("reasons"), list):
+                    pick["reasons"] = list(top_play_reasons)
+
+            ev_pct = _safe_float(best_row.get("ev_pct"))
+            if ev_pct is None:
+                ev = _safe_float(best_row.get("ev"))
+                if ev is not None:
+                    ev_pct = float(ev) * 100.0
+
+            recommendation_priority_score = _safe_float(source_row.get("recommendation_priority_score"))
+            if recommendation_priority_score is None:
+                recommendation_priority_score = ev_pct
+            if recommendation_priority_score is None:
+                recommendation_priority_score = _safe_float(best_row.get("edge"))
+
+            rows.append(
+                {
+                    "player": player_name,
+                    "team": team_tri,
+                    "best": best_row,
+                    "picks": picks,
+                    "top_play_reasons": list(top_play_reasons),
+                    "why_explain": str(source_row.get("top_play_explain") or "").strip() or None,
+                    "top_play_baseline": _safe_float(source_row.get("top_play_baseline")),
+                    "top_play_consensus": _safe_float(source_row.get("top_play_consensus")),
+                    "top_play_line_adv": _safe_float(source_row.get("top_play_line_adv")),
+                    "recommendation_priority_score": recommendation_priority_score,
+                    "source": "props_recommendations",
+                }
+            )
+
+        rows.sort(key=_cards_recommendation_sort_key, reverse=True)
+        out[side_key] = rows
+
+    return out
+
+
+def _cards_started_matchups_index(date_str: str, now_local: datetime | None = None) -> dict[tuple[str, str], dict[str, Any]]:
+    now_local = now_local if isinstance(now_local, datetime) else _best_bets_local_now_naive()
+    try:
+        if str(date_str or "") != now_local.date().isoformat():
+            return {}
+    except Exception:
+        return {}
+
+    try:
+        _source, games = _live_build_scoreboard_games(date_str)
+    except Exception:
+        return {}
+
+    out: dict[tuple[str, str], dict[str, Any]] = {}
+    for game in (games or []):
+        if not isinstance(game, dict):
+            continue
+        home_tri = str(game.get("home") or "").strip().upper()
+        away_tri = str(game.get("away") or "").strip().upper()
+        if not home_tri or not away_tri:
+            continue
+        out[(home_tri, away_tri)] = {
+            "in_progress": bool(game.get("in_progress")),
+            "final": bool(game.get("final")),
+            "status": str(game.get("status") or "").strip() or None,
+        }
+    return out
+
+
+def _cards_matchup_has_started(
+    date_str: str,
+    *,
+    home_tri: str,
+    away_tri: str,
+    commence_time: Any,
+    started_matchups: dict[tuple[str, str], dict[str, Any]] | None,
+    now_local: datetime | None = None,
+) -> bool:
+    now_local = now_local if isinstance(now_local, datetime) else _best_bets_local_now_naive()
+    try:
+        requested_date = datetime.strptime(str(date_str or ""), "%Y-%m-%d").date()
+        local_date = now_local.date()
+        if requested_date < local_date:
+            return True
+        if requested_date > local_date:
+            return False
+    except Exception:
+        pass
+
+    status = (started_matchups or {}).get((str(home_tri or "").upper(), str(away_tri or "").upper()))
+    if isinstance(status, dict):
+        if bool(status.get("in_progress")) or bool(status.get("final")):
+            return True
+        return False
+
+    start_dt_local = _best_bets_local_start_dt(commence_time)
+    if isinstance(start_dt_local, datetime):
+        return start_dt_local <= now_local
+    return False
 
 
 def _build_games_best_bets_and_parlays(
@@ -16012,6 +16152,8 @@ def api_cards():
     cards_prop_snapshot_index = _load_cards_prop_snapshot_index(d)
     cards_prop_recommendations_index = _load_cards_prop_recommendations_index(d)
     cards_sim_detail_index = _load_cards_sim_detail_index(d)
+    now_local = _best_bets_local_now_naive()
+    started_matchups = _cards_started_matchups_index(d, now_local)
 
     props_recs_source_lookup: dict[tuple[str, str], dict[str, Any]] = {}
     try:
@@ -16844,6 +16986,14 @@ def api_cards():
         odds = odds_map.get((home_tri, away_tri)) or {}
         home_name = str(odds.get("home_team") or home_tri)
         away_name = str(odds.get("visitor_team") or away_tri)
+        game_started = _cards_matchup_has_started(
+            d,
+            home_tri=home_tri,
+            away_tri=away_tri,
+            commence_time=odds.get("commence_time") or (prediction_rows_map.get((home_tri, away_tri)) or {}).get("commence_time"),
+            started_matchups=started_matchups,
+            now_local=now_local,
+        )
 
         # Attach injury/status context onto sim player rows via props_predictions
         players = obj.get("players") if isinstance(obj.get("players"), dict) else {"home": [], "away": []}
@@ -17249,6 +17399,12 @@ def api_cards():
                 "home": [dict(row) for row in (prop_recommendations_snapshot.get("home") or []) if isinstance(row, dict)],
                 "away": [dict(row) for row in (prop_recommendations_snapshot.get("away") or []) if isinstance(row, dict)],
             }
+        elif game_started and props_source != "runtime":
+            prop_recommendations = _build_cards_prop_recommendations_from_source(
+                props_recs_by_team,
+                home_tri=home_tri,
+                away_tri=away_tri,
+            )
         else:
             prop_recommendations = _sim_vs_line_prop_recommendations(
                 players_out,
@@ -17328,6 +17484,7 @@ def api_cards():
                 injury_snapshot=best_bets_injury_snapshot,
                 slate_total_median=best_bets_slate_total_median,
                 raw_rows=cards_game_recommendations_index.get((home_tri, away_tri)) or [],
+                allow_pregame_updates=not game_started,
             )
         except Exception:
             game_market_recommendations = []
@@ -17374,6 +17531,7 @@ def api_cards():
             "betting": bet,
             "prop_recommendations": prop_recommendations,
             "game_market_recommendations": game_market_recommendations,
+            "plays_locked": bool(game_started),
         }
         if isinstance(pregame_prior, dict):
             sim_context = sim.get("context") if isinstance(sim.get("context"), dict) else {}
