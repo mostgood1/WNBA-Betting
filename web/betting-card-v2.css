@@ -602,6 +602,37 @@ a {
     margin-bottom: 18px;
   }
 
+  .season-title-row,
+  .season-header-actions,
+  .season-day-actions,
+  .season-day-head,
+  .season-game-head {
+    width: 100%;
+  }
+
+  .season-header-actions,
+  .season-day-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .season-header-actions .cards-nav-pill,
+  .season-day-actions .cards-nav-pill {
+    width: 100%;
+  }
+
+  .season-summary-grid,
+  .season-day-metrics,
+  .season-stat-grid,
+  .betting-card-mobile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .season-scorebox {
+    width: 100%;
+    min-width: 0;
+  }
+
   .season-breakdown-panel,
   .season-day-rail,
   .season-game-card {

@@ -485,7 +485,6 @@ body.cards-app-shell .toggle-chip input {
 .cards-strip-top,
 .cards-card__meta,
 .cards-team-ribbon,
-.cards-market-row,
 .cards-player-card__meta,
 .cards-strip-head,
 .cards-head-left,
@@ -1237,6 +1236,13 @@ body.cards-app-shell .toggle-chip input {
   gap: 12px;
 }
 
+.cards-market-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
 .cards-market-row--tiles {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1265,6 +1271,7 @@ body.cards-app-shell .toggle-chip input {
   display: grid;
   gap: 6px;
   min-height: 94px;
+  min-width: 0;
   align-content: start;
   background: rgba(10, 21, 34, 0.88);
   cursor: pointer;
@@ -1283,6 +1290,36 @@ body.cards-app-shell .toggle-chip input {
 .cards-market-main {
   font-size: 14px;
   line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.cards-market-sub,
+.cards-game-time-label,
+.cards-game-time-value {
+  overflow-wrap: anywhere;
+}
+
+.cards-game-time-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.cards-game-time-label {
+  color: var(--cards-text-dim);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cards-game-time-value {
+  color: var(--cards-text);
+  font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.1;
 }
 
 .cards-live-lens-grid {
@@ -2637,14 +2674,33 @@ body.cards-app-shell .toggle-chip input {
   }
 
   .cards-date-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     width: 100%;
     gap: 8px;
+    overflow: visible;
+    justify-content: stretch;
+  }
+
+  .cards-date-form > * {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cards-form-pill {
+    display: none;
   }
 
   .cards-date-form input {
+    grid-column: 1 / -1;
     width: 100%;
     min-width: 0;
     flex: 1 1 100%;
+  }
+
+  .cards-date-form button {
+    grid-column: 1 / -1;
   }
 
   .cards-nav-pill {
@@ -2666,6 +2722,11 @@ body.cards-app-shell .toggle-chip input {
 
   .cards-source-meta {
     width: 100%;
+  }
+
+  .cards-header-meta {
+    white-space: normal;
+    text-align: center;
   }
 
   .cards-source-meta-pill,
@@ -2701,15 +2762,53 @@ body.cards-app-shell .toggle-chip input {
     justify-content: flex-start;
   }
 
+  .cards-head-matchup {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 8px;
+  }
+
+  .cards-score-divider {
+    display: none;
+  }
+
+  .cards-head-team {
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border: 1px solid rgba(132, 166, 196, 0.12);
+    border-radius: 16px;
+    background: rgba(6, 14, 23, 0.6);
+  }
+
+  .cards-team-line {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .cards-team-meta {
+    display: grid;
+    align-items: start;
+    gap: 3px;
+  }
+
   .cards-score-ribbon {
     margin: 0;
     padding: 10px 11px;
     gap: 8px;
+    align-items: flex-start;
   }
 
   .cards-score-side,
   .cards-score-meta {
     justify-items: start;
+  }
+
+  .cards-score-meta {
+    display: grid;
+    gap: 6px;
   }
 
   .cards-tabs {
@@ -2807,13 +2906,10 @@ body.cards-app-shell .toggle-chip input {
     font-size: 10px;
   }
 
-  .cards-head-team {
-    flex: 1 1 100%;
-    min-width: 0;
-  }
-
   .cards-head-team-score {
     font-size: 18px;
+    min-width: auto;
+    padding-left: 8px;
   }
 
   .cards-team-code {
@@ -2827,6 +2923,9 @@ body.cards-app-shell .toggle-chip input {
   .cards-status-cluster {
     width: 100%;
     gap: 6px;
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: start;
   }
 
   .cards-start-time,
@@ -2872,6 +2971,10 @@ body.cards-app-shell .toggle-chip input {
     gap: 10px;
   }
 
+  .cards-scoreboard {
+    grid-auto-columns: minmax(84vw, 1fr);
+  }
+
   .cards-title-row {
     gap: 10px;
   }
@@ -2892,6 +2995,33 @@ body.cards-app-shell .toggle-chip input {
   .cards-market-tile {
     min-height: 0;
     padding: 8px;
+  }
+
+  .cards-game-time-value {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 420px) {
+  .cards-shell {
+    width: min(100vw - 12px, 1500px);
+  }
+
+  .cards-control-card,
+  .cards-props-strip-shell,
+  .cards-game-card {
+    border-radius: 18px;
+  }
+
+  .cards-head-team {
+    padding: 9px 10px;
+  }
+
+  .cards-tab,
+  .cards-nav-pill,
+  .cards-date-form button,
+  .cards-date-form input {
+    min-height: 38px;
   }
 
   .cards-tabs {
