@@ -102,9 +102,35 @@
   function formatSignedPoints(value, digits) {
     const num = toNumber(value);
     if (num == null) return '-';
+    const fixed = num.toFixed(digits == null ? 1 : digits);
+    return num > 0 ? `+${fixed} pts` : `${fixed} pts`;
+  }
+
+  function formatSignedPercentPoints(value, digits) {
+    const num = toNumber(value);
+    if (num == null) return '-';
     const scaled = num * 100;
     const fixed = scaled.toFixed(digits == null ? 1 : digits);
-    return scaled > 0 ? `+${fixed} pts` : `${fixed} pts`;
+    return scaled > 0 ? `+${fixed}%` : `${fixed}%`;
+  }
+
+  function formatEdge(row, digits) {
+    const bucket = String(row?.market || '').toLowerCase();
+    const rawEdge = toNumber(row?.edge);
+    if (bucket === 'spreads' || bucket === 'totals') {
+      return formatSignedPoints(rawEdge, digits == null ? 1 : digits);
+    }
+
+    const probEdge = toNumber(insightValue(row, 'model', 'prob_edge'));
+    if (probEdge != null) {
+      return formatSignedPercentPoints(probEdge, digits == null ? 1 : digits);
+    }
+
+    if (rawEdge != null && Math.abs(rawEdge) <= 1) {
+      return formatSignedPercentPoints(rawEdge, digits == null ? 1 : digits);
+    }
+
+    return formatSignedPoints(rawEdge, digits == null ? 1 : digits);
   }
 
   function formatLine(value) {
@@ -498,7 +524,7 @@
     if (row?.reason_summary) return row.reason_summary;
     const bits = [];
     if (toNumber(row?.ev) != null) bits.push(`EV ${formatUnits(row.ev, 2)}`);
-    if (toNumber(row?.edge) != null) bits.push(`Edge ${formatSignedPoints(row.edge, 1)}`);
+    if (toNumber(row?.edge) != null || toNumber(insightValue(row, 'model', 'prob_edge')) != null) bits.push(`Edge ${formatEdge(row, 1)}`);
     if (toNumber(row?.model_prob) != null) bits.push(`Model ${formatPercent(row.model_prob, 1)}`);
     return bits.join(' | ') || 'Official card recommendation';
   }
@@ -661,7 +687,7 @@
             ${rowDetailHtml(row)}
           </td>
           <td>${escapeHtml(formatOdds(row?.odds))}</td>
-          <td>${escapeHtml(formatSignedPoints(row?.edge, 1))}</td>
+          <td>${escapeHtml(formatEdge(row, 1))}</td>
           <td><span class="season-ticket-pill ${resultTone(row)}">${escapeHtml(resultLabel(row))}</span></td>
           <td>
             <div class="season-betting-cell-main">${escapeHtml(formatUnits(row?.settlement?.profit_u, 2))}</div>
@@ -689,7 +715,7 @@
           <div class="betting-card-mobile-grid">
             <div><div class="betting-card-mobile-label">Pick</div><div class="betting-card-mobile-value">${escapeHtml(String(row?.display_pick || '-'))}</div></div>
             <div><div class="betting-card-mobile-label">Odds</div><div class="betting-card-mobile-value">${escapeHtml(formatOdds(row?.odds))}</div></div>
-            <div><div class="betting-card-mobile-label">Edge</div><div class="betting-card-mobile-value">${escapeHtml(formatSignedPoints(row?.edge, 1))}</div></div>
+            <div><div class="betting-card-mobile-label">Edge</div><div class="betting-card-mobile-value">${escapeHtml(formatEdge(row, 1))}</div></div>
             <div><div class="betting-card-mobile-label">Profit</div><div class="betting-card-mobile-value">${escapeHtml(formatUnits(row?.settlement?.profit_u, 2))}</div></div>
           </div>
           ${rowDetailHtml(row)}

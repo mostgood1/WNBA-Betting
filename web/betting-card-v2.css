@@ -436,6 +436,7 @@ a {
   color: var(--cards-text-soft);
   font-size: 12px;
   line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .season-detail-lines {
@@ -515,7 +516,8 @@ a {
 .season-calibration-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 720px;
+  min-width: 0;
+  table-layout: auto;
 }
 
 .season-calibration-table th,
@@ -523,7 +525,9 @@ a {
   padding: 12px 10px;
   border-top: 1px solid rgba(132, 166, 196, 0.12);
   text-align: left;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   vertical-align: top;
 }
 
@@ -532,6 +536,62 @@ a {
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.season-calibration-table th:nth-child(1),
+.season-calibration-table td:nth-child(1) {
+  width: 15%;
+}
+
+.season-calibration-table th:nth-child(2),
+.season-calibration-table td:nth-child(2) {
+  width: 9%;
+}
+
+.season-calibration-table th:nth-child(4),
+.season-calibration-table td:nth-child(4) {
+  width: 7%;
+}
+
+.season-calibration-table th:nth-child(5),
+.season-calibration-table td:nth-child(5) {
+  width: 7%;
+}
+
+.season-calibration-table th:nth-child(6),
+.season-calibration-table td:nth-child(6) {
+  width: 8%;
+}
+
+.season-calibration-table th:nth-child(7),
+.season-calibration-table td:nth-child(7) {
+  width: 10%;
+}
+
+.season-calibration-table td:nth-child(1),
+.season-calibration-table td:nth-child(2),
+.season-calibration-table td:nth-child(4),
+.season-calibration-table td:nth-child(5),
+.season-calibration-table td:nth-child(6),
+.season-calibration-table td:nth-child(7) {
+  white-space: nowrap;
+}
+
+.season-calibration-table th:nth-child(3),
+.season-calibration-table td:nth-child(3) {
+  width: auto;
+  min-width: 360px;
+}
+
+.season-calibration-table td:nth-child(3) {
+  white-space: normal;
+}
+
+.season-betting-cell-main,
+.season-betting-cell-sub,
+.season-pick-detail,
+.season-detail-chip-row {
+  min-width: 0;
 }
 
 .season-ticket-pill.is-win {
