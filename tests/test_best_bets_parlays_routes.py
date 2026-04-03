@@ -1027,6 +1027,7 @@ def test_api_season_betting_card_manifest_and_day(monkeypatch):
 
     monkeypatch.setattr(app_module, "api_cards", _fake_cards)
     monkeypatch.setattr(app_module, "_season_betting_card_candidate_dates", lambda season, requested_date=None: [date_str])
+    monkeypatch.setattr(app_module, "_season_betting_card_fetch_recap_items", lambda date_strs: [])
 
     app_module.app.testing = True
     with app_module.app.test_client() as client:

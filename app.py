@@ -6904,6 +6904,7 @@ def _season_betting_card_normalize_row(
     team_side: str | None = None,
     date_str: str | None = None,
     matchup_ctx: dict[str, Any] | None = None,
+    include_prop_insights: bool = False,
 ) -> dict[str, Any]:
     source_row = row if isinstance(row, dict) else {}
     effective_row = _season_betting_card_effective_prop_row(source_row)
@@ -6930,7 +6931,7 @@ def _season_betting_card_normalize_row(
     opponent_tri = away_tri if team_tri == home_tri else home_tri if team_tri == away_tri else None
     home_flag = True if team_tri == home_tri and team_tri else False if team_tri == away_tri and team_tri else None
     prop_insights = None
-    if bucket == "player_props" and date_str and player_name and team_tri and market_key:
+    if include_prop_insights and bucket == "player_props" and date_str and player_name and team_tri and market_key:
         prop_insights = _season_betting_card_prop_context(
             date_str=date_str,
             player_name=player_name,
@@ -7123,15 +7124,65 @@ def _season_betting_card_day_row_from_recap(item: dict[str, Any]) -> dict[str, A
     }
 
 
+def _season_betting_card_fetch_recap_items(date_strs: list[str]) -> list[dict[str, Any]]:
+    dates = [str(date_str).strip() for date_str in (date_strs or []) if str(date_str).strip()]
+    if not dates:
+        return []
+
+    params = urlencode(
+        {
+            "since": dates[0],
+            "until": dates[-1],
+            "include_legacy": 1,
+        }
+    )
+    try:
+        with app.test_request_context(f"/api/betting-recap?{params}"):
+            payload, status_code = _response_json_value(_recommendations_recaps())
+        if status_code and status_code >= 400:
+            return []
+        items = payload.get("items") if isinstance(payload, dict) else []
+        if not isinstance(items, list):
+            return []
+        by_date = {
+            str(item.get("date") or "").strip(): item
+            for item in items
+            if isinstance(item, dict) and str(item.get("date") or "").strip()
+        }
+        return [by_date[date_str] for date_str in dates if date_str in by_date]
+    except Exception:
+        return []
+
+
 def _season_betting_card_day_payload(season: int, date_str: str, profile: str) -> dict[str, Any] | None:
     cards_payload = _season_betting_card_fetch_cards_payload(date_str)
     if not isinstance(cards_payload, dict):
         return None
 
+    return _season_betting_card_day_payload_from_cards(
+        season,
+        date_str,
+        profile,
+        cards_payload,
+        include_games=True,
+        include_prop_insights=False,
+    )
+
+
+def _season_betting_card_day_payload_from_cards(
+    season: int,
+    date_str: str,
+    profile: str,
+    cards_payload: dict[str, Any],
+    *,
+    include_games: bool,
+    include_prop_insights: bool,
+) -> dict[str, Any]:
+
     games_out: list[dict[str, Any]] = []
     all_rows: list[dict[str, Any]] = []
     source_games = [game for game in (cards_payload.get("games") or []) if isinstance(game, dict)]
-    game_context = _load_best_bets_game_context(date_str)
+    game_context = _load_best_bets_game_context(date_str) if include_prop_insights else {}
 
     for index, game in enumerate(source_games):
         home_tri = str(game.get("home_tri") or "").strip().upper()
@@ -7148,7 +7199,18 @@ def _season_betting_card_day_payload(season: int, date_str: str, profile: str) -
 
         for raw_row in (game.get("game_market_recommendations") or []):
             if isinstance(raw_row, dict):
-                official_rows.append(_season_betting_card_normalize_row(raw_row, home_tri, away_tri, home_name, away_name, date_str=date_str, matchup_ctx=matchup_ctx))
+                official_rows.append(
+                    _season_betting_card_normalize_row(
+                        raw_row,
+                        home_tri,
+                        away_tri,
+                        home_name,
+                        away_name,
+                        date_str=date_str,
+                        matchup_ctx=matchup_ctx,
+                        include_prop_insights=include_prop_insights,
+                    )
+                )
 
         prop_map = game.get("prop_recommendations") if isinstance(game.get("prop_recommendations"), dict) else {}
         for team_side in ("away", "home"):
@@ -7164,10 +7226,14 @@ def _season_betting_card_day_payload(season: int, date_str: str, profile: str) -
                             team_side=team_side,
                             date_str=date_str,
                             matchup_ctx=matchup_ctx,
+                            include_prop_insights=include_prop_insights,
                         )
                     )
 
         all_rows.extend(official_rows)
+        if not include_games:
+            continue
+
         market_groups = {
             "totals": next((row for row in official_rows if str(row.get("market")) == "totals"), None),
             "ml": next((row for row in official_rows if str(row.get("market")) == "ml"), None),
@@ -7220,11 +7286,39 @@ def _season_betting_card_day_payload(season: int, date_str: str, profile: str) -
 
 
 def _season_betting_card_manifest(season: int, profile: str, requested_date: str | None = None) -> dict[str, Any]:
+    candidate_dates = _season_betting_card_candidate_dates(season, requested_date=requested_date)
     days_full: list[dict[str, Any]] = []
-    for date_str in _season_betting_card_candidate_dates(season, requested_date=requested_date):
-        day_payload = _season_betting_card_day_payload(season, date_str, profile)
-        if isinstance(day_payload, dict):
-            days_full.append(day_payload)
+    recap_items = _season_betting_card_fetch_recap_items(candidate_dates)
+    if recap_items:
+        for item in recap_items:
+            if isinstance(item, dict):
+                day_row = _season_betting_card_day_row_from_recap(item)
+                days_full.append(
+                    {
+                        "season": int(season),
+                        "date": day_row.get("date"),
+                        "profile": profile,
+                        "results": day_row.get("results"),
+                        "selected_counts": day_row.get("selected_counts"),
+                        "summary": {"unresolved_n": int(day_row.get("unresolved_n") or 0)},
+                        "unresolved_n": int(day_row.get("unresolved_n") or 0),
+                    }
+                )
+    else:
+        for date_str in candidate_dates:
+            cards_payload = _season_betting_card_fetch_cards_payload(date_str)
+            if not isinstance(cards_payload, dict):
+                continue
+            day_payload = _season_betting_card_day_payload_from_cards(
+                season,
+                date_str,
+                profile,
+                cards_payload,
+                include_games=False,
+                include_prop_insights=False,
+            )
+            if isinstance(day_payload, dict):
+                days_full.append(day_payload)
 
     day_rows: list[dict[str, Any]] = []
     month_counts: dict[str, int] = {}
