@@ -6395,19 +6395,6 @@ def _season_betting_card_fetch_cards_payload(date_str: str) -> dict[str, Any] | 
         return None
 
 
-def _season_betting_card_fetch_recaps_payload(since: str, until: str) -> dict[str, Any] | None:
-    try:
-        with app.test_request_context(f"/api/betting-card/recap?since={since}&until={until}"):
-            payload, status_code = _response_json_value(_recommendations_recaps())
-        if status_code and status_code >= 400:
-            return None
-        if not isinstance(payload, dict):
-            return None
-        return payload
-    except Exception:
-        return None
-
-
 def _season_betting_card_market_bucket(value: Any) -> str:
     market = str(value or "").strip().lower()
     if market in {"ml", "moneyline"}:
@@ -7233,83 +7220,6 @@ def _season_betting_card_day_payload(season: int, date_str: str, profile: str) -
 
 
 def _season_betting_card_manifest(season: int, profile: str, requested_date: str | None = None) -> dict[str, Any]:
-    until_date = str(requested_date or _default_us_slate_date_str()).strip()
-    since_date = f"{int(season):04d}-01-01"
-    recap_payload = _season_betting_card_fetch_recaps_payload(since_date, until_date)
-    if isinstance(recap_payload, dict):
-        recap_items = [item for item in (recap_payload.get("items") or []) if isinstance(item, dict)]
-        if recap_items:
-            day_rows = [_season_betting_card_day_row_from_recap(item) for item in recap_items]
-            day_rows.sort(key=lambda row: str(row.get("date") or ""))
-            month_counts: dict[str, int] = {}
-            result_rows: list[dict[str, Any]] = []
-            total_counts = {"combined": 0, "totals": 0, "ml": 0, "spreads": 0, "player_props": 0}
-            unresolved_total = 0
-            day_profits: list[tuple[str, float]] = []
-
-            for day in day_rows:
-                month_key = str(day.get("month") or "")
-                if month_key:
-                    month_counts[month_key] = month_counts.get(month_key, 0) + 1
-                counts = day.get("selected_counts") if isinstance(day.get("selected_counts"), dict) else {}
-                for key in total_counts:
-                    total_counts[key] += int(counts.get(key) or 0)
-                unresolved_n = int(day.get("unresolved_n") or 0)
-                unresolved_total += unresolved_n
-                combined = ((day.get("results") or {}).get("combined")) if isinstance(day.get("results"), dict) else {}
-                if isinstance(combined, dict):
-                    result_rows.append(combined)
-                    day_profits.append((str(day.get("date") or ""), float(combined.get("profit_u") or 0.0)))
-
-            merged = _season_betting_card_merge_stats(result_rows)
-            mean_u = None
-            median_u = None
-            best_day = {}
-            worst_day = {}
-            if day_profits:
-                profits_only = [profit for _, profit in day_profits]
-                mean_u = round(sum(profits_only) / len(profits_only), 3)
-                sorted_profits = sorted(profits_only)
-                mid = len(sorted_profits) // 2
-                median_val = sorted_profits[mid] if len(sorted_profits) % 2 else (sorted_profits[mid - 1] + sorted_profits[mid]) / 2.0
-                median_u = round(median_val, 3)
-                best_date, best_profit = max(day_profits, key=lambda item: item[1])
-                worst_date, worst_profit = min(day_profits, key=lambda item: item[1])
-                best_day = {"date": best_date, "profit_u": round(best_profit, 3)}
-                worst_day = {"date": worst_date, "profit_u": round(worst_profit, 3)}
-
-            first_date = day_rows[0].get("date") if day_rows else None
-            last_date = day_rows[-1].get("date") if day_rows else None
-            months = [{"month": month, "days": count} for month, count in sorted(month_counts.items())]
-            return _to_jsonable(
-                {
-                    "season": int(season),
-                    "profile": profile,
-                    "available_profiles": ["retuned"],
-                    "meta": {
-                        "first_date": first_date,
-                        "last_date": last_date,
-                        "partial": False,
-                    },
-                    "summary": {
-                        "cards": len(day_rows),
-                        "results": {"combined": merged},
-                        "combined": merged,
-                        "daily": {
-                            "mean_u": mean_u,
-                            "median_u": median_u,
-                            "best_day": best_day,
-                            "worst_day": worst_day,
-                        },
-                        "selected_counts": total_counts,
-                        "settled_recommendations": int(merged.get("n") or 0),
-                        "unresolved_recommendations": unresolved_total,
-                    },
-                    "months": months,
-                    "days": day_rows,
-                }
-            )
-
     days_full: list[dict[str, Any]] = []
     for date_str in _season_betting_card_candidate_dates(season, requested_date=requested_date):
         day_payload = _season_betting_card_day_payload(season, date_str, profile)
@@ -7614,7 +7524,6 @@ def api_betting_card():
                 "lookahead_applied": bool(cards_payload.get("lookahead_applied")),
                 "section": section,
                 "generated_from": "/api/cards",
-                "recap_endpoint": "/api/betting-recap",
                 "counts": {
                     "games": len(games),
                     "game_plays": len(game_plays),
@@ -7820,12 +7729,12 @@ def api_props_best_bets_parlays_alias():
 
 @app.route("/betting-recap")
 def route_betting_recap():
-    return send_from_directory(str(WEB_DIR), "reconciliation.html")
+    return _redirect_with_request_params("/betting-card", drop_params={"since", "until"})
 
 
 @app.route("/reconciliation")
 def route_reconciliation():
-    return _redirect_with_request_params("/betting-recap")
+    return _redirect_with_request_params("/betting-card", drop_params={"since", "until"})
 
 
 @app.route("/features")

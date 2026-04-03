@@ -42,7 +42,7 @@
   };
 
   const PROFILE_LABELS = {
-    retuned: 'Retuned recap',
+    retuned: 'Retuned profile',
   };
 
   const root = {
@@ -61,7 +61,6 @@
     dayPicks: document.getElementById('bettingCardDayPicks'),
     games: document.getElementById('bettingCardGames'),
     dailyLink: document.getElementById('bettingCardDailyLink'),
-    recapLink: document.getElementById('bettingCardRecapLink'),
     liveAuditLink: document.getElementById('bettingCardLiveAuditLink'),
   };
 
@@ -461,9 +460,6 @@
     if (root.dailyLink) {
       root.dailyLink.href = `/betting-card?date=${encodeURIComponent(state.selectedDate)}`;
     }
-    if (root.recapLink) {
-      root.recapLink.href = `/betting-recap?date=${encodeURIComponent(state.selectedDate)}`;
-    }
     if (root.liveAuditLink) {
       root.liveAuditLink.href = `/live-player-props-audit?date=${encodeURIComponent(state.selectedDate)}`;
     }
@@ -526,7 +522,7 @@
     if (toNumber(row?.ev) != null) bits.push(`EV ${formatUnits(row.ev, 2)}`);
     if (toNumber(row?.edge) != null || toNumber(insightValue(row, 'model', 'prob_edge')) != null) bits.push(`Edge ${formatEdge(row, 1)}`);
     if (toNumber(row?.model_prob) != null) bits.push(`Model ${formatPercent(row.model_prob, 1)}`);
-    return bits.join(' | ') || 'Official card recommendation';
+    return bits.join(' | ') || 'Betting card recommendation';
   }
 
   function renderHeader() {
@@ -534,8 +530,8 @@
     const summary = state.manifest?.summary || {};
     if (root.headerMeta) {
       const parts = [];
-      parts.push(`${formatNumber(summary?.cards, 0)} official card days`);
-      parts.push(`${formatNumber(summary?.settled_recommendations, 0)} settled official plays`);
+      parts.push(`${formatNumber(summary?.cards, 0)} betting-card days`);
+      parts.push(`${formatNumber(summary?.settled_recommendations, 0)} settled betting-card plays`);
       if (meta.first_date && meta.last_date) parts.push(`${meta.first_date} to ${meta.last_date}`);
       parts.push(profileLabel(state.profile));
       root.headerMeta.textContent = parts.join(' | ');
@@ -568,7 +564,7 @@
     const bestDay = daily?.best_day || {};
     const worstDay = daily?.worst_day || {};
     root.summary.innerHTML = [
-      metricCard('Card days', formatNumber(summary?.cards, 0), `${profileLabel(state.profile)} official-card dates`),
+      metricCard('Card days', formatNumber(summary?.cards, 0), `${profileLabel(state.profile)} betting-card dates`),
       metricCard('Official ROI', formatPercent(combined?.roi, 1), `${formatUnits(combined?.profit_u, 2)} on ${formatNumber(combined?.stake_u, 2)}u`),
       metricCard('Season profit', formatUnits(combined?.profit_u, 2), `${formatNumber(combined?.wins, 0)} wins | ${formatNumber(combined?.losses, 0)} losses`),
       metricCard('Settled bets', formatNumber(combined?.n, 0), `${formatNumber(summary?.unresolved_recommendations, 0)} unresolved`),
@@ -603,7 +599,7 @@
     if (!root.days) return;
     const days = filteredDays();
     if (!days.length) {
-      root.days.innerHTML = '<div class="season-empty-copy">No official card days match the current month filter.</div>';
+      root.days.innerHTML = '<div class="season-empty-copy">No betting-card days match the current month filter.</div>';
       return;
     }
     root.days.innerHTML = days.map((day) => {
@@ -636,9 +632,9 @@
     if (!root.dayTitle || !root.dayMeta || !root.dayActions || !root.dayMetrics) return;
     if (!state.day) {
       root.dayTitle.textContent = 'No day selected';
-      root.dayMeta.textContent = 'Pick an official-card date from the rail to load the day recap.';
+      root.dayMeta.textContent = 'Pick a betting-card date from the rail to load the day details.';
       root.dayActions.innerHTML = '';
-      root.dayMetrics.innerHTML = '<div class="season-empty-copy">No official card metrics available.</div>';
+      root.dayMetrics.innerHTML = '<div class="season-empty-copy">No betting-card metrics available.</div>';
       return;
     }
     const combined = (state.day?.results || {}).combined || {};
@@ -648,20 +644,19 @@
     root.dayTitle.textContent = formatDateLong(state.day.date);
     root.dayMeta.textContent = [
       `${games.length} games`,
-      `${formatNumber(counts?.combined, 0)} official picks`,
+      `${formatNumber(counts?.combined, 0)} betting-card picks`,
       profileLabel(state.day?.profile || state.profile),
       String(state.day?.source_kind || 'season_manifest'),
     ].join(' | ');
     root.dayActions.innerHTML = `
-      <a class="cards-nav-pill" href="/betting-card?date=${encodeURIComponent(state.day.date)}">Open daily cards</a>
-      <a class="cards-nav-pill" href="/betting-recap?date=${encodeURIComponent(state.day.date)}">Open recap</a>`;
+      <a class="cards-nav-pill" href="/betting-card?date=${encodeURIComponent(state.day.date)}">Open daily cards</a>`;
     root.dayMetrics.innerHTML = [
-      metricCard('Games', formatNumber(games.length, 0), 'Matchups with official-card action'),
-      metricCard('Official bets', formatNumber(counts?.combined, 0), `Tot ${counts?.totals ?? 0} | ML ${counts?.ml ?? 0} | Spr ${counts?.spreads ?? 0} | Props ${counts?.player_props ?? 0}`),
+      metricCard('Games', formatNumber(games.length, 0), 'Matchups with betting-card action'),
+      metricCard('Betting-card bets', formatNumber(counts?.combined, 0), `Tot ${counts?.totals ?? 0} | ML ${counts?.ml ?? 0} | Spr ${counts?.spreads ?? 0} | Props ${counts?.player_props ?? 0}`),
       metricCard('Profit', formatUnits(combined?.profit_u, 2), `${formatNumber(combined?.wins, 0)} wins | ${formatNumber(combined?.losses, 0)} losses`),
       metricCard('ROI', formatPercent(combined?.roi, 1), `${formatNumber(combined?.stake_u, 2)}u staked`),
       metricCard('Settled', formatNumber(combined?.n, 0), `${formatNumber(unresolved, 0)} unresolved`),
-      metricCard('Cap profile', String(state.day?.cap_profile || '-'), 'Official locked-card view'),
+      metricCard('Cap profile', String(state.day?.cap_profile || '-'), 'Locked betting-card view'),
     ].join('');
   }
 
@@ -680,7 +675,7 @@
           </td>
           <td>
             <div class="season-betting-cell-main">${escapeHtml(marketLabel(row))}</div>
-            <div class="season-betting-cell-sub">${escapeHtml(String(row?.market_family_label || 'Official card'))}</div>
+            <div class="season-betting-cell-sub">${escapeHtml(String(row?.market_family_label || 'Betting card'))}</div>
           </td>
           <td>
             <div class="season-betting-cell-main">${escapeHtml(String(row?.display_pick || '-'))}</div>
@@ -708,7 +703,7 @@
           <div class="betting-card-mobile-head">
             <div>
               <div class="betting-card-mobile-value">${escapeHtml(gameLabel)}</div>
-              <div class="season-inline-note">${escapeHtml(marketLabel(row))} | ${escapeHtml(String(row?.market_family_label || 'Official card'))}</div>
+              <div class="season-inline-note">${escapeHtml(marketLabel(row))} | ${escapeHtml(String(row?.market_family_label || 'Betting card'))}</div>
             </div>
             <span class="season-ticket-pill ${resultTone(row)}">${escapeHtml(resultLabel(row))}</span>
           </div>
@@ -727,7 +722,7 @@
   function renderDayPicks() {
     if (!root.dayPicks) return;
     if (!state.day) {
-      root.dayPicks.innerHTML = '<div class="season-empty-copy">Pick an official-card date to inspect the day-level recap.</div>';
+      root.dayPicks.innerHTML = '<div class="season-empty-copy">Pick a betting-card date to inspect the day-level board.</div>';
       return;
     }
     const items = allOfficialRows(state.day);
@@ -735,10 +730,10 @@
       <div class="season-panel-head">
         <div>
           <div class="season-kicker">Selected day board</div>
-          <div class="season-panel-title">Official picks by date</div>
+          <div class="season-panel-title">Betting-card picks by date</div>
         </div>
       </div>
-      <div class="season-inline-note">${escapeHtml(`${formatNumber(items.length, 0)} official betting-card picks across the selected date under ${profileLabel(state.day?.profile || state.profile)}.`)}</div>
+      <div class="season-inline-note">${escapeHtml(`${formatNumber(items.length, 0)} betting-card picks across the selected date under ${profileLabel(state.day?.profile || state.profile)}.`)}</div>
       ${items.length ? `
         <div class="season-calibration-table-wrap">
           <table class="season-calibration-table season-day-picks-table">
@@ -756,19 +751,19 @@
             <tbody>${pickTableRows(items)}</tbody>
           </table>
         </div>
-        <div class="betting-card-mobile-list">${pickMobileCards(items)}</div>` : '<div class="season-empty-copy">No official plays were logged for this date.</div>'}
+        <div class="betting-card-mobile-list">${pickMobileCards(items)}</div>` : '<div class="season-empty-copy">No betting-card plays were logged for this date.</div>'}
     `;
   }
 
   function renderGames() {
     if (!root.games) return;
     if (!state.day) {
-      root.games.innerHTML = '<div class="season-empty-copy">No official card games loaded.</div>';
+      root.games.innerHTML = '<div class="season-empty-copy">No betting-card games loaded.</div>';
       return;
     }
     const games = Array.isArray(state.day?.games) ? state.day.games : [];
     if (!games.length) {
-      root.games.innerHTML = '<div class="season-empty-copy">No official-card games were found for this date.</div>';
+      root.games.innerHTML = '<div class="season-empty-copy">No betting-card games were found for this date.</div>';
       return;
     }
     root.games.innerHTML = games.map((game) => {
@@ -790,25 +785,25 @@
                 <span class="season-team-code">${escapeHtml(game?.home?.abbr || 'Home')}</span>
                 <span class="season-team-name">${escapeHtml(game?.home?.name || game?.home?.abbr || 'Home')}</span>
               </div>
-              <div class="season-game-subcopy">Official card matchup</div>
+              <div class="season-game-subcopy">Betting card matchup</div>
               <div class="season-game-time">${escapeHtml([game?.start_time ? `Tip-off ${game.start_time}` : '', String(game?.status?.detailed || game?.status?.abstract || '').trim()].filter(Boolean).join(' | '))}</div>
               ${scoreText ? `<div class="season-game-subcopy">${escapeHtml(scoreText)}</div>` : ''}
             </div>
             <div class="season-scorebox">
-              <div class="season-score-label">Official card</div>
+              <div class="season-score-label">Betting card</div>
               <div class="season-score-main">${escapeHtml(formatUnits(combined?.profit_u, 2))}</div>
               <div class="season-game-subcopy">ROI ${escapeHtml(formatPercent(combined?.roi, 1))} | ${escapeHtml(formatNumber(rows.length, 0))} picks</div>
             </div>
           </div>
           <section class="season-game-betting-shell">
             <div class="season-stat-grid season-game-betting-stats">
-              ${metricCard('Picks', formatNumber(rows.length, 0), 'Official card only')}
+              ${metricCard('Picks', formatNumber(rows.length, 0), 'Betting card only')}
               ${metricCard('Profit', formatUnits(combined?.profit_u, 2), `${formatNumber(combined?.wins, 0)} wins | ${formatNumber(combined?.losses, 0)} losses`) }
               ${metricCard('ROI', formatPercent(combined?.roi, 1), `${formatNumber(combined?.stake_u, 2)}u staked`) }
               ${metricCard('Settled', formatNumber(combined?.n, 0), `Game ${formatNumber(game?.game_pk, 0)}`) }
             </div>
             <section class="season-breakdown-card season-game-betting-card">
-              <div class="season-breakdown-title">Official card</div>
+              <div class="season-breakdown-title">Betting card</div>
               <div class="season-calibration-table-wrap">
                 <table class="season-calibration-table season-game-betting-table">
                   <thead>
@@ -844,10 +839,10 @@
     state.selectedDate = String(dateStr);
     updateUrl();
     updateNavLinks();
-    if (root.dayMeta) root.dayMeta.textContent = 'Loading official card detail...';
+    if (root.dayMeta) root.dayMeta.textContent = 'Loading betting-card detail...';
     if (root.dayMetrics) root.dayMetrics.innerHTML = '<div class="cards-loading-state">Loading day metrics...</div>';
-    if (root.dayPicks) root.dayPicks.innerHTML = '<div class="cards-loading-state">Loading official picks...</div>';
-    if (root.games) root.games.innerHTML = '<div class="cards-loading-state">Loading official card games...</div>';
+    if (root.dayPicks) root.dayPicks.innerHTML = '<div class="cards-loading-state">Loading betting-card picks...</div>';
+    if (root.games) root.games.innerHTML = '<div class="cards-loading-state">Loading betting-card games...</div>';
     try {
       state.day = await fetchJson(`/api/season/${encodeURIComponent(state.season)}/betting-card/day/${encodeURIComponent(state.selectedDate)}?profile=${encodeURIComponent(state.profile)}`);
       renderDay();
@@ -855,14 +850,14 @@
       const message = error && error.message ? error.message : 'Unknown error';
       if (root.dayMeta) root.dayMeta.textContent = `Failed to load ${state.selectedDate}.`;
       if (root.dayMetrics) root.dayMetrics.innerHTML = `<div class="cards-empty-state season-error">Failed to load day metrics.<div class="season-inline-note">${escapeHtml(message)}</div></div>`;
-      if (root.dayPicks) root.dayPicks.innerHTML = `<div class="cards-empty-state season-error">Failed to load official picks.<div class="season-inline-note">${escapeHtml(message)}</div></div>`;
-      if (root.games) root.games.innerHTML = `<div class="cards-empty-state season-error">Failed to load official games.<div class="season-inline-note">${escapeHtml(message)}</div></div>`;
+      if (root.dayPicks) root.dayPicks.innerHTML = `<div class="cards-empty-state season-error">Failed to load betting-card picks.<div class="season-inline-note">${escapeHtml(message)}</div></div>`;
+      if (root.games) root.games.innerHTML = `<div class="cards-empty-state season-error">Failed to load betting-card games.<div class="season-inline-note">${escapeHtml(message)}</div></div>`;
     }
   }
 
   async function loadManifest() {
     updateNavLinks();
-    if (root.summary) root.summary.innerHTML = '<div class="cards-loading-state">Loading official betting-card recap...</div>';
+    if (root.summary) root.summary.innerHTML = '<div class="cards-loading-state">Loading betting-card summary...</div>';
     try {
       state.manifest = await fetchJson(`/api/season/${encodeURIComponent(state.season)}/betting-card?profile=${encodeURIComponent(state.profile)}&date=${encodeURIComponent(state.selectedDate)}`);
       state.profile = String(state.manifest?.profile || state.profile || 'retuned');
@@ -872,10 +867,10 @@
       renderMonths();
       const days = Array.isArray(state.manifest?.days) ? state.manifest.days : [];
       if (!days.length) {
-        if (root.days) root.days.innerHTML = '<div class="season-empty-copy">No official betting-card days are available for this profile.</div>';
-        if (root.dayMetrics) root.dayMetrics.innerHTML = '<div class="season-empty-copy">No official-card dates are available to inspect.</div>';
-        if (root.dayPicks) root.dayPicks.innerHTML = '<div class="season-empty-copy">No official picks recap is available.</div>';
-        if (root.games) root.games.innerHTML = '<div class="season-empty-copy">No official-card games available.</div>';
+        if (root.days) root.days.innerHTML = '<div class="season-empty-copy">No betting-card days are available for this profile.</div>';
+        if (root.dayMetrics) root.dayMetrics.innerHTML = '<div class="season-empty-copy">No betting-card dates are available to inspect.</div>';
+        if (root.dayPicks) root.dayPicks.innerHTML = '<div class="season-empty-copy">No betting-card picks are available.</div>';
+        if (root.games) root.games.innerHTML = '<div class="season-empty-copy">No betting-card games available.</div>';
         return;
       }
       if (!state.selectedDate || !days.some((row) => String(row?.date || '') === state.selectedDate)) {
@@ -885,11 +880,11 @@
       await loadDay(state.selectedDate);
     } catch (error) {
       const message = error && error.message ? error.message : 'Unknown error';
-      if (root.headerMeta) root.headerMeta.textContent = `Failed to load season ${state.season} official betting-card recap.`;
-      if (root.summary) root.summary.innerHTML = `<div class="cards-empty-state season-error">Failed to load official betting-card recap.<div class="season-inline-note">${escapeHtml(message)}</div></div>`;
-      if (root.days) root.days.innerHTML = '<div class="season-empty-copy">No official betting-card manifest found.</div>';
-      if (root.dayPicks) root.dayPicks.innerHTML = '<div class="season-empty-copy">No official picks recap available.</div>';
-      if (root.games) root.games.innerHTML = '<div class="season-empty-copy">No official-card games available.</div>';
+      if (root.headerMeta) root.headerMeta.textContent = `Failed to load season ${state.season} betting-card data.`;
+      if (root.summary) root.summary.innerHTML = `<div class="cards-empty-state season-error">Failed to load betting-card data.<div class="season-inline-note">${escapeHtml(message)}</div></div>`;
+      if (root.days) root.days.innerHTML = '<div class="season-empty-copy">No betting-card manifest found.</div>';
+      if (root.dayPicks) root.dayPicks.innerHTML = '<div class="season-empty-copy">No betting-card picks available.</div>';
+      if (root.games) root.games.innerHTML = '<div class="season-empty-copy">No betting-card games available.</div>';
     }
   }
 

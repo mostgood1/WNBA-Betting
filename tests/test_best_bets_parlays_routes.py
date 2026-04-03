@@ -808,8 +808,8 @@ def test_best_bets_page_routes_render():
     assert live_page.status_code == 302
     assert "/betting-card?date=2026-03-19" in live_page.headers["Location"]
 
-    assert betting_recap.status_code == 200
-    assert "Betting Recap" in betting_recap.get_data(as_text=True)
+    assert betting_recap.status_code == 302
+    assert "/betting-card" in betting_recap.headers["Location"]
 
     assert games_page.status_code == 302
     assert "/betting-card?date=2026-03-19&section=games" in games_page.headers["Location"]
@@ -824,10 +824,10 @@ def test_best_bets_page_routes_render():
     assert "/betting-card?date=2026-03-19" in recommendations_page.headers["Location"]
 
     assert reconciliation_page.status_code == 302
-    assert "/betting-recap?date=2026-03-19" in reconciliation_page.headers["Location"]
+    assert "/betting-card?date=2026-03-19" in reconciliation_page.headers["Location"]
 
     assert season_betting_card_page.status_code == 200
-    assert "NBA Official Betting Card" in season_betting_card_page.get_data(as_text=True)
+    assert "NBA Betting Card" in season_betting_card_page.get_data(as_text=True)
 
 
 def test_api_betting_card_flattens_game_and_prop_plays(monkeypatch):
@@ -871,7 +871,6 @@ def test_api_betting_card_flattens_game_and_prop_plays(monkeypatch):
     assert resp.status_code == 200
     payload = resp.get_json()
     assert payload["generated_from"] == "/api/cards"
-    assert payload["recap_endpoint"] == "/api/betting-recap"
     assert payload["counts"]["games"] == 1
     assert payload["counts"]["game_plays"] == 2
     assert payload["counts"]["prop_plays"] == 2
@@ -885,24 +884,6 @@ def test_api_betting_card_flattens_game_and_prop_plays(monkeypatch):
     assert props_payload["counts"]["game_plays"] == 0
     assert props_payload["counts"]["prop_plays"] == 2
     assert props_payload["game_plays"] == []
-
-
-def test_api_betting_recap_uses_recommendations_recaps(monkeypatch):
-    monkeypatch.setattr(
-        app_module,
-        "_recommendations_recaps",
-        lambda: app_module.jsonify({"version": "recaps-v1", "items": [{"date": "2026-03-19"}]}),
-    )
-
-    app_module.app.testing = True
-    with app_module.app.test_client() as client:
-        resp = client.get("/api/betting-recap?days=7")
-
-    assert resp.status_code == 200
-    payload = resp.get_json()
-    assert payload["version"] == "recaps-v1"
-    assert payload["items"][0]["date"] == "2026-03-19"
-
 
 def test_api_cards_v2_matches_mlb_betting_v2_shape(monkeypatch):
     date_str = "2026-03-19"
@@ -1045,7 +1026,6 @@ def test_api_season_betting_card_manifest_and_day(monkeypatch):
         )
 
     monkeypatch.setattr(app_module, "api_cards", _fake_cards)
-    monkeypatch.setattr(app_module, "_season_betting_card_fetch_recaps_payload", lambda since, until: None)
     monkeypatch.setattr(app_module, "_season_betting_card_candidate_dates", lambda season, requested_date=None: [date_str])
 
     app_module.app.testing = True
