@@ -1063,6 +1063,12 @@ def test_api_season_betting_card_manifest_and_day(monkeypatch):
     assert player_prop["reason_summary"]
 
 
+def test_betting_card_start_time_uses_app_timezone(monkeypatch):
+    monkeypatch.setenv("APP_TZ", "America/New_York")
+
+    assert app_module._betting_card_v2_start_time("2026-04-03T23:10:00Z") == "7:10 PM"
+
+
 def test_duplicate_best_bets_aliases_redirect_to_betting_card():
     app_module.app.testing = True
     with app_module.app.test_client() as client:

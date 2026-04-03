@@ -6119,12 +6119,11 @@ def _betting_card_v2_team_meta(team_tri: Any, team_name: Any = None) -> dict[str
 
 
 def _betting_card_v2_start_time(game_date: Any) -> str:
-    text = str(game_date or "").strip()
-    if not text:
+    dt_local = _best_bets_local_start_dt(game_date)
+    if dt_local is None:
         return ""
     try:
-        dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
-        return dt.astimezone().strftime("%I:%M %p").lstrip("0")
+        return dt_local.strftime("%I:%M %p").lstrip("0")
     except Exception:
         return ""
 
