@@ -7165,7 +7165,7 @@ def _season_betting_card_day_payload(season: int, date_str: str, profile: str) -
         profile,
         cards_payload,
         include_games=True,
-        include_prop_insights=False,
+        include_prop_insights=True,
     )
 
 

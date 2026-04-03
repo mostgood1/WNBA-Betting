@@ -1028,6 +1028,15 @@ def test_api_season_betting_card_manifest_and_day(monkeypatch):
     monkeypatch.setattr(app_module, "api_cards", _fake_cards)
     monkeypatch.setattr(app_module, "_season_betting_card_candidate_dates", lambda season, requested_date=None: [date_str])
     monkeypatch.setattr(app_module, "_season_betting_card_fetch_recap_items", lambda date_strs: [])
+    monkeypatch.setattr(
+        app_module,
+        "_season_betting_card_prop_context",
+        lambda **_kwargs: {
+            "history": {"last5_avg": 26.2, "last10_avg": 24.8, "season_avg": 23.9},
+            "matchup": {"opponent_allowed_avg": 25.1, "opponent_allowed_rank": 24, "opponent_vs_line": 0.6},
+            "model": {"baseline": 25.7, "win_prob": 0.61, "prob_edge": 0.07, "ev_pct": 8.4},
+        },
+    )
 
     app_module.app.testing = True
     with app_module.app.test_client() as client:
@@ -1049,6 +1058,9 @@ def test_api_season_betting_card_manifest_and_day(monkeypatch):
     assert len(day["games"]) == 1
     assert len(day["games"][0]["betting"]["officialRows"]) == 3
     assert day["games"][0]["betting"]["officialRows"][0]["display_pick"] == "BOS ML"
+    player_prop = day["games"][0]["betting"]["officialRows"][2]
+    assert player_prop["insights"]["model"]["baseline"] == 25.7
+    assert player_prop["reason_summary"]
 
 
 def test_duplicate_best_bets_aliases_redirect_to_betting_card():
