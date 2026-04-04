@@ -6446,21 +6446,34 @@ def _season_betting_card_effective_prop_row(row: dict[str, Any]) -> dict[str, An
     def _is_blank(value: Any) -> bool:
         return value is None or value == ""
 
+    def _finalize(merged: dict[str, Any]) -> dict[str, Any]:
+        if _is_blank(merged.get("model_baseline")) and not _is_blank(row.get("top_play_baseline")):
+            merged["model_baseline"] = row.get("top_play_baseline")
+        if _is_blank(merged.get("probability")) and not _is_blank(merged.get("model_prob")):
+            merged["probability"] = merged.get("model_prob")
+        if _is_blank(merged.get("prob")) and not _is_blank(merged.get("model_prob")):
+            merged["prob"] = merged.get("model_prob")
+        if _is_blank(merged.get("win_prob")) and not _is_blank(merged.get("p_win")):
+            merged["win_prob"] = merged.get("p_win")
+        if _is_blank(merged.get("implied_prob")) and not _is_blank(row.get("implied_prob")):
+            merged["implied_prob"] = row.get("implied_prob")
+        return merged
+
     best = row.get("best") if isinstance(row.get("best"), dict) else None
     if isinstance(best, dict):
         merged = dict(best)
         for key, value in row.items():
             if key not in merged or _is_blank(merged.get(key)):
                 merged[key] = value
-        return merged
+        return _finalize(merged)
     top_play = row.get("top_play") if isinstance(row.get("top_play"), dict) else None
     if isinstance(top_play, dict):
         merged = dict(top_play)
         for key, value in row.items():
             if key not in merged or _is_blank(merged.get(key)):
                 merged[key] = value
-        return merged
-    return dict(row)
+        return _finalize(merged)
+    return _finalize(dict(row))
 
 
 def _season_betting_card_allowed_stat_value(values: dict[str, Any], market_key: str) -> float | None:
@@ -6742,10 +6755,36 @@ def _season_betting_card_prop_context(
 
     baseline = _safe_float(source_row.get("model_baseline"))
     if baseline is None:
+        baseline = _safe_float(source_row.get("top_play_baseline"))
+    if baseline is None:
         baseline = _safe_float(source_row.get("sim_mu"))
+    price = _safe_float(source_row.get("odds"))
+    if price is None:
+        price = _safe_float(source_row.get("price"))
     p_win = _safe_float(source_row.get("p_win"))
-    prob_edge = _safe_float(source_row.get("prob_edge"))
+    if p_win is None:
+        p_win = _safe_float(source_row.get("prob_calib"))
+    if p_win is None:
+        p_win = _safe_float(source_row.get("probability"))
+    if p_win is None:
+        p_win = _safe_float(source_row.get("win_prob"))
+    if p_win is None:
+        p_win = _safe_float(source_row.get("model_prob"))
+    if p_win is None:
+        p_win = _safe_float(source_row.get("prob"))
     ev_pct = _safe_float(source_row.get("ev_pct"))
+    if ev_pct is None:
+        ev = _safe_float(source_row.get("ev"))
+        if ev is not None:
+            ev_pct = float(ev) * 100.0
+    if p_win is None:
+        p_win = _best_bets_prob_from_ev(_safe_float(source_row.get("ev")), price)
+    implied_prob = _safe_float(source_row.get("implied_prob"))
+    if implied_prob is None:
+        implied_prob = _american_to_implied_prob(price)
+    prob_edge = _safe_float(source_row.get("prob_edge"))
+    if prob_edge is None and p_win is not None and implied_prob is not None:
+        prob_edge = float(p_win) - float(implied_prob)
     consensus = _safe_float(source_row.get("top_play_consensus"))
     line_adv = _safe_float(source_row.get("top_play_line_adv"))
     opponent_vs_line = None
@@ -6913,6 +6952,15 @@ def _season_betting_card_normalize_row(
     line_value = _safe_float(effective_row.get("market_line")) if effective_row.get("market_line") is not None else _safe_float(effective_row.get("line"))
     odds_value = _safe_float(effective_row.get("odds")) if effective_row.get("odds") is not None else _safe_float(effective_row.get("price"))
     model_prob = _safe_float(effective_row.get("prob_calib")) if effective_row.get("prob_calib") is not None else _safe_float(effective_row.get("probability")) if effective_row.get("probability") is not None else _safe_float(effective_row.get("win_prob"))
+    if model_prob is None:
+        model_prob = _safe_float(effective_row.get("p_win"))
+    if model_prob is None:
+        model_prob = _safe_float(effective_row.get("model_prob"))
+    if model_prob is None:
+        model_prob = _safe_float(effective_row.get("prob"))
+    if model_prob is None:
+        odds_for_prob = _safe_float(effective_row.get("odds")) if effective_row.get("odds") is not None else _safe_float(effective_row.get("price"))
+        model_prob = _best_bets_prob_from_ev(_safe_float(effective_row.get("ev")), odds_for_prob)
     reason_arrays: list[str] = []
     for key in ("reasons", "basketball_reasons", "market_reasons", "model_reasons", "top_play_reasons", "sim_reasons"):
         values = effective_row.get(key)
