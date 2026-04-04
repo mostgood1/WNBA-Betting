@@ -1,0 +1,9 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-04-05,2026-04-05T23:10:00Z,Oklahoma City Thunder,Utah Jazz,-1526.0013561957787,1526.001356195777,-21.5,21.5,,,239.5,-100.0,-100.0,3,3,3,2,oddsapi_consensus
+2026-04-05,2026-04-05T19:40:00Z,Boston Celtics,Toronto Raptors,-337.9009068108645,337.9009068108645,-9.5,9.5,,,220.5,-100.57897174617881,100.57897174617878,3,3,3,3,oddsapi_consensus
+2026-04-05,2026-04-05T19:40:00Z,Chicago Bulls,Phoenix Suns,407.2735069819808,-407.27350698198086,10.5,-10.5,,,234.5,-100.0,-100.0,3,3,2,2,oddsapi_consensus
+2026-04-05,2026-04-06T02:10:00Z,Golden State Warriors,Houston Rockets,145.62231811443812,-145.6223181144381,3.5,-3.5,,,223.5,-100.57897174617881,100.57897174617878,3,3,2,3,oddsapi_consensus
+2026-04-05,2026-04-05T23:10:00Z,Minnesota Timberwolves,Charlotte Hornets,-108.13526174131832,108.13526174131835,-1.5,1.5,,,229.5,-100.0,-100.0,3,3,3,2,oddsapi_consensus
+2026-04-05,2026-04-05T23:10:00Z,New Orleans Pelicans,Orlando Magic,143.24909707571106,-143.24909707571103,3.5,-3.5,,,234.5,-100.0,-100.0,3,3,2,2,oddsapi_consensus
+2026-04-05,2026-04-05T23:40:00Z,Dallas Mavericks,Los Angeles Lakers,224.95930431259083,-224.95930431259077,6.5,-6.5,,,235.5,-100.0,-100.0,3,3,3,3,oddsapi_consensus
+2026-04-05,2026-04-06T01:10:00Z,Sacramento Kings,Los Angeles Clippers,480.4217293026924,-480.4217293026922,11.5,-11.5,,,231.5,-100.0,-100.0,3,3,3,2,oddsapi_consensus
