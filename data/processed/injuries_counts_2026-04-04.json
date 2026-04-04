@@ -1,0 +1,79 @@
+{
+  "date": "2026-04-04",
+  "team_counts": {
+    "DEN": 3,
+    "DET": 2,
+    "MIA": 2,
+    "SAS": 2,
+    "WAS": 4
+  },
+  "players": [
+    {
+      "player": "D'Angelo Russell",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Terry Rozier",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Norman Powell",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Trae Young",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Stewart",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Zeke Nnaji",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Cade Cunningham",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Peyton Watson",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Cam Whitmore",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Emanuel Miller",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Kyshawn George",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "David Jones Garcia",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Spencer Jones",
+      "team": "DEN",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}

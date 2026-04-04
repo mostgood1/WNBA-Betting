@@ -1,0 +1,4 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-04-04,2026-04-04T19:10:00Z,Denver Nuggets,San Antonio Spurs,125.50562757197902,-125.50562757197895,2.0,-2.0,135,-180,242.5,-101.85144726108936,101.85144726108936,11,11,7,4,oddsapi_consensus
+2026-04-04,2026-04-04T19:10:00Z,Miami Heat,Washington Wizards,-1119.001203618536,1119.0012036185353,-17.5,17.5,-115,-105,247.5,-100.4314804992455,100.43148049924548,11,11,11,11,oddsapi_consensus
+2026-04-04,2026-04-04T23:10:00Z,Philadelphia 76ers,Detroit Pistons,124.4600597976817,-124.46005979768164,2.5,-2.5,130,-170,227.5,-102.43060937423681,102.43060937423682,11,11,8,8,oddsapi_consensus
