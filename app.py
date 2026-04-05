@@ -2113,6 +2113,27 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
                             "match": None,
                         }
                     )
+
+            sim_pairs = {
+                (str(sg.get("home") or "").upper(), str(sg.get("away") or "").upper())
+                for sg in sim_games
+                if isinstance(sg, dict)
+            }
+            for eg in espn_games:
+                try:
+                    home = str(eg.get("home") or "").upper()
+                    away = str(eg.get("away") or "").upper()
+                    pair = (home, away)
+                    if not home or not away or pair in sim_pairs:
+                        continue
+                    eid = str(eg.get("game_id") or "").strip()
+                    rec = dict(eg)
+                    rec["game_id"] = _matchup_id(home, away) or eid or None
+                    rec["espn_event_id"] = eid or None
+                    rec["match"] = "espn_only"
+                    merged.append(rec)
+                except Exception:
+                    continue
             return "espn", merged
 
         # If SmartSim isn't available (common on Render / fresh deploy), still provide
@@ -14696,6 +14717,7 @@ _NBA_CARDS_LOCKED_POLICY: dict[str, Any] = {
     "game_market_min_sim": 20.0,
     "game_market_min_prob_edge": 0.0,
     "game_market_ml_min_price": -350.0,
+    "prop_official_cap_per_game": 1,
     "prop_cap_per_game": 3,
     "prop_lite_cap_per_game": 2,
     "prop_min_official": 60.0,
@@ -14716,6 +14738,11 @@ _NBA_CARDS_PROP_SLEEVE_POLICY: dict[str, dict[str, Any]] = {
         "min_prob_edge": 0.01,
         "min_win_prob": 0.53,
         "max_per_game": 1,
+        "official": True,
+        "official_min_score": 60.0,
+        "official_min_prob_edge": 0.03,
+        "official_min_win_prob": 0.60,
+        "official_max_per_game": 1,
     },
     "blk:under": {
         "min_score": 52.0,
@@ -14724,6 +14751,11 @@ _NBA_CARDS_PROP_SLEEVE_POLICY: dict[str, dict[str, Any]] = {
         "min_prob_edge": 0.01,
         "min_win_prob": 0.53,
         "max_per_game": 1,
+        "official": True,
+        "official_min_score": 62.0,
+        "official_min_prob_edge": 0.03,
+        "official_min_win_prob": 0.60,
+        "official_max_per_game": 1,
     },
     "ast:over": {
         "min_score": 50.0,
@@ -14741,6 +14773,11 @@ _NBA_CARDS_PROP_SLEEVE_POLICY: dict[str, dict[str, Any]] = {
         "min_prob_edge": 0.01,
         "min_win_prob": 0.53,
         "max_per_game": 1,
+        "official": True,
+        "official_min_score": 62.0,
+        "official_min_prob_edge": 0.03,
+        "official_min_win_prob": 0.60,
+        "official_max_per_game": 1,
     },
     "pts:over": {
         "min_score": 50.0,
@@ -14765,6 +14802,11 @@ _NBA_CARDS_PROP_SLEEVE_POLICY: dict[str, dict[str, Any]] = {
         "min_prob_edge": 0.01,
         "min_win_prob": 0.53,
         "max_per_game": 1,
+        "official": True,
+        "official_min_score": 60.0,
+        "official_min_prob_edge": 0.03,
+        "official_min_win_prob": 0.60,
+        "official_max_per_game": 1,
     },
 }
 
@@ -15009,22 +15051,82 @@ def _cards_prop_playable_via_sleeve_policy(row: dict[str, Any]) -> bool:
     return True
 
 
+def _cards_prop_official_via_sleeve_policy(row: dict[str, Any]) -> bool:
+    sleeve_policy = _cards_prop_sleeve_policy(row)
+    if not isinstance(sleeve_policy, dict) or not bool(sleeve_policy.get("official")):
+        return False
+    if not _cards_prop_has_complete_canonical_inputs(row):
+        return False
+    if not _cards_locked_policy_has_rich_inputs(row):
+        return False
+
+    team_side_required = str(sleeve_policy.get("team_side") or "").strip().lower()
+    if team_side_required:
+        row_team_side = str(row.get("team_side") or "").strip().lower()
+        if row_team_side != team_side_required:
+            return False
+
+    policy = _NBA_CARDS_LOCKED_POLICY
+    comp = _cards_locked_policy_components(row)
+    score = float(comp.get("score") or 0.0)
+    trend = float(comp.get("trend") or 0.0)
+    sim = float(comp.get("sim") or 0.0)
+    p_win = comp.get("p_win")
+    prob_edge = comp.get("prob_edge")
+
+    min_score = float(sleeve_policy.get("official_min_score") or policy.get("prop_min_official") or 0.0)
+    min_trend = float(sleeve_policy.get("official_min_trend") or policy.get("prop_min_trend") or 0.0)
+    min_sim = float(sleeve_policy.get("official_min_sim") or policy.get("prop_min_sim") or 0.0)
+    min_prob_edge = float(sleeve_policy.get("official_min_prob_edge") or policy.get("prop_min_prob_edge") or 0.0)
+    min_win_prob = float(sleeve_policy.get("official_min_win_prob") or policy.get("prop_min_win_prob") or 0.0)
+
+    if score < min_score:
+        return False
+    if trend < min_trend:
+        return False
+    if sim < min_sim:
+        return False
+    if p_win is None or float(p_win) < min_win_prob:
+        return False
+    if prob_edge is None or float(prob_edge) < min_prob_edge:
+        return False
+    return True
+
+
 def _cards_select_prop_buckets(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     ranked = [_cards_locked_policy_annotate(row) for row in rows if isinstance(row, dict)]
     ranked.sort(key=_cards_locked_policy_sort_key, reverse=True)
 
     official: list[dict[str, Any]] = []
     playable: list[dict[str, Any]] = []
+    official_by_sleeve: dict[str, int] = {}
+    official_players: set[tuple[str, str]] = set()
     playable_by_sleeve: dict[str, int] = {}
     playable_players: set[tuple[str, str]] = set()
     for row in ranked:
-        if _cards_locked_policy_qualifies(row, market_type="prop", tier="official"):
-            continue
-
         sleeve_policy = _cards_prop_sleeve_policy(row)
         sleeve_key = str((sleeve_policy or {}).get("sleeve_key") or "").strip().lower()
         player_key = _cards_prop_row_player_key(row)
+
+        if _cards_prop_official_via_sleeve_policy(row):
+            if player_key is not None and player_key in official_players:
+                continue
+            if sleeve_key:
+                official_cap = int((sleeve_policy or {}).get("official_max_per_game") or _NBA_CARDS_LOCKED_POLICY.get("prop_official_cap_per_game") or 0)
+                if official_cap > 0 and int(official_by_sleeve.get(sleeve_key, 0)) >= official_cap:
+                    continue
+            selected = dict(row, card_bucket="official")
+            if sleeve_key:
+                selected["playable_sleeve"] = sleeve_key
+                official_by_sleeve[sleeve_key] = int(official_by_sleeve.get(sleeve_key, 0) + 1)
+            if player_key is not None:
+                official_players.add(player_key)
+            official.append(selected)
+            continue
+
         if not _cards_prop_playable_via_sleeve_policy(row):
+            continue
+        if player_key is not None and player_key in official_players:
             continue
         if player_key is not None and player_key in playable_players:
             continue
@@ -16341,9 +16443,15 @@ def _cards_started_matchups_index(date_str: str, now_local: datetime | None = No
         if not home_tri or not away_tri:
             continue
         out[(home_tri, away_tri)] = {
+            "game_id": str(game.get("game_id") or "").strip() or None,
             "in_progress": bool(game.get("in_progress")),
             "final": bool(game.get("final")),
             "status": str(game.get("status") or "").strip() or None,
+            "period": _safe_int(game.get("period")),
+            "clock": str(game.get("clock") or "").strip() or None,
+            "home_pts": _safe_int(game.get("home_pts")),
+            "away_pts": _safe_int(game.get("away_pts")),
+            "periods": [dict(row) for row in (game.get("periods") or []) if isinstance(row, dict)],
         }
     return out
 
@@ -18961,6 +19069,41 @@ def api_cards():
         except Exception:
             missing_bits = []
 
+        matchup_live = (started_matchups or {}).get((home_tri, away_tri)) if isinstance(started_matchups, dict) else None
+        live_status = None
+        live_state = None
+        if isinstance(matchup_live, dict):
+            home_score = _safe_int(matchup_live.get("home_pts"))
+            away_score = _safe_int(matchup_live.get("away_pts"))
+            live_status = {
+                "game_id": str(matchup_live.get("game_id") or "").strip() or None,
+                "status": str(matchup_live.get("status") or "").strip() or None,
+                "is_live": bool(matchup_live.get("in_progress")),
+                "is_final": bool(matchup_live.get("final")),
+                "in_progress": bool(matchup_live.get("in_progress")),
+                "final": bool(matchup_live.get("final")),
+                "period": _safe_int(matchup_live.get("period")),
+                "clock": str(matchup_live.get("clock") or "").strip() or None,
+                "home_score": home_score,
+                "away_score": away_score,
+                "score": {
+                    "home": home_score,
+                    "away": away_score,
+                },
+                "periods": [dict(row) for row in (matchup_live.get("periods") or []) if isinstance(row, dict)],
+            }
+            live_state = {
+                "game_id": live_status.get("game_id"),
+                "status": live_status.get("status"),
+                "period": live_status.get("period"),
+                "clock": live_status.get("clock"),
+                "in_progress": bool(live_status.get("in_progress")),
+                "final": bool(live_status.get("final")),
+                "home_pts": home_score,
+                "away_pts": away_score,
+                "periods": [dict(row) for row in (live_status.get("periods") or []) if isinstance(row, dict)],
+            }
+
         game = {
             "date": d,
             "home_tri": home_tri,
@@ -18970,6 +19113,8 @@ def api_cards():
             "odds": odds,
             "sim": sim,
             "betting": bet,
+            "live_status": live_status,
+            "live_state": live_state,
             "prop_recommendations": prop_recommendations,
             "game_market_recommendations": game_market_recommendations,
             "plays_locked": bool(game_started),

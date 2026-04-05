@@ -620,6 +620,12 @@ body.cards-app-shell .toggle-chip input {
   background: rgba(8, 18, 30, 0.9);
 }
 
+.cards-chip.is-live {
+  color: var(--cards-bg);
+  background: linear-gradient(135deg, var(--cards-danger), #ff8a5b);
+  border-color: rgba(255, 107, 107, 0.34);
+}
+
 .cards-chip-button {
   cursor: pointer;
   font: inherit;
@@ -918,6 +924,13 @@ body.cards-app-shell .toggle-chip input {
   width: fit-content;
 }
 
+.cards-tabs-rail {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
 .cards-tab {
   appearance: none;
   border: 0;
@@ -1197,14 +1210,62 @@ body.cards-app-shell .toggle-chip input {
   align-items: start;
 }
 
+.cards-overview-side {
+  display: grid;
+  gap: 12px;
+}
+
+.cards-overview-side .cards-playable-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cards-mini-metrics--rail {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-self: stretch;
+  justify-self: end;
+  width: min(100%, 540px);
+}
+
+.cards-overview-side .cards-playable-item {
+  gap: 5px;
+  padding: 8px 9px;
+  border-radius: 12px;
+}
+
+.cards-overview-side .cards-playable-main {
+  font-size: 12px;
+  line-height: 1.15;
+}
+
+.cards-overview-side .cards-callout-copy,
+.cards-overview-side .cards-callout-label,
+.cards-overview-side .cards-chip,
+.cards-overview-side .cards-data-pair span {
+  font-size: 9.5px;
+}
+
+.cards-overview-side .cards-detail-grid {
+  gap: 6px;
+}
+
+.cards-overview-side .cards-data-pair {
+  padding: 6px 7px;
+  border-radius: 12px;
+}
+
+.cards-overview-side .cards-data-pair strong {
+  font-size: 12px;
+  line-height: 1.05;
+}
+
 .cards-overview-grid > .cards-panel-card:first-child {
-  grid-template-columns: minmax(0, 1.5fr) minmax(250px, 0.72fr);
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 0.34fr);
   grid-template-areas:
     'head head'
     'lens probs'
-    'lens mini';
-  column-gap: 12px;
-  row-gap: 12px;
+    'lens signals';
+  column-gap: 8px;
+  row-gap: 8px;
 }
 
 .cards-overview-grid > .cards-panel-card:first-child .cards-box-head {
@@ -1220,9 +1281,8 @@ body.cards-app-shell .toggle-chip input {
   align-content: start;
 }
 
-.cards-overview-grid > .cards-panel-card:first-child .cards-mini-metrics {
-  grid-area: mini;
-  grid-template-columns: 1fr;
+.cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack {
+  grid-area: signals;
   align-content: start;
 }
 
@@ -1239,14 +1299,14 @@ body.cards-app-shell .toggle-chip input {
 .cards-market-row {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
   align-items: stretch;
 }
 
 .cards-market-row--tiles {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .cards-market-tile,
@@ -1324,8 +1384,8 @@ body.cards-app-shell .toggle-chip input {
 
 .cards-live-lens-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .cards-live-lens-card {
@@ -1385,6 +1445,52 @@ body.cards-app-shell .toggle-chip input {
 
 .cards-live-lens-grid .cards-data-pair strong {
   font-size: 13px;
+}
+
+.cards-live-opportunity-stack {
+  display: grid;
+  gap: 4px;
+}
+
+.cards-live-opportunity-list {
+  display: grid;
+  gap: 4px;
+}
+
+.cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-live-lens-tile {
+  min-height: 0;
+  padding: 6px 7px;
+  border-radius: 10px;
+  gap: 3px;
+}
+
+.cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-live-lens-tile__edge {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-market-main {
+  font-size: 10px;
+  line-height: 1.02;
+}
+
+.cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-mini-copy,
+.cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-market-kicker {
+  font-size: 7.5px;
+  line-height: 1.05;
+}
+
+.cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-live-lens-tile__head {
+  gap: 4px;
+}
+
+.cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-chip {
+  padding: 3px 6px;
+  font-size: 8px;
+}
+
+.cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-market-kicker {
+  letter-spacing: 0.08em;
 }
 
 .cards-live-lens-tile {
@@ -1448,7 +1554,66 @@ body.cards-app-shell .toggle-chip input {
   margin: 0;
   padding: 0;
   display: grid;
+  gap: 6px;
+}
+
+.cards-prop-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+  margin-top: 8px;
+}
+
+.cards-prop-overview-card {
+  display: grid;
+  gap: 8px;
+  padding: 9px 10px;
+  border: 1px solid rgba(132, 166, 196, 0.12);
+  border-radius: 14px;
+  background: rgba(10, 21, 34, 0.9);
+  color: var(--cards-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.cards-prop-overview-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cards-prop-overview-card .cards-data-pair {
+  min-height: 0;
+  padding: 6px 7px;
+}
+
+.cards-prop-overview-card .cards-data-pair strong {
+  font-size: 13px;
+}
+
+.cards-prop-overview-card .cards-data-pair.is-positive strong {
+  color: var(--cards-success);
+}
+
+.cards-prop-overview-card .cards-data-pair.is-negative strong {
+  color: var(--cards-danger);
+}
+
+.cards-prop-overview-foot {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--cards-text-soft);
+  font-size: 11px;
+  line-height: 1.3;
+  border-top: 1px solid rgba(132, 166, 196, 0.12);
+  padding-top: 7px;
+}
+
+.cards-prop-overview-foot span:first-child {
+  flex: 1 1 220px;
 }
 
 .cards-callout-item {
@@ -1539,6 +1704,81 @@ body.cards-app-shell .toggle-chip input {
   font: inherit;
   cursor: pointer;
   text-align: left;
+}
+
+.cards-playable-item .cards-detail-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cards-playable-item .cards-data-pair {
+  padding: 8px 9px;
+  background: rgba(9, 18, 30, 0.82);
+}
+
+.cards-detail-grid--compact .cards-data-pair strong {
+  font-size: 13px;
+}
+
+@media (min-width: 1280px) {
+  .cards-overview-grid,
+  .cards-box-grid,
+  .cards-props-grid,
+  .cards-detail-grid,
+  .cards-prop-overview-grid {
+    gap: 8px;
+  }
+
+  .cards-panel-card,
+  .cards-lens-shell,
+  .cards-overview-side .cards-panel-card {
+    gap: 8px;
+    padding: 9px 10px;
+  }
+
+  .cards-callout-button,
+  .cards-playable-item,
+  .cards-table,
+  .cards-prop-filter-pill {
+    font-size: 10px;
+  }
+
+  .cards-market-sub,
+  .cards-mini-copy,
+  .cards-callout-copy {
+    font-size: 10px;
+    line-height: 1.18;
+  }
+
+  .cards-overview-side {
+    gap: 8px;
+  }
+
+  .cards-overview-side .cards-playable-list {
+    gap: 6px;
+  }
+
+  .cards-overview-side .cards-playable-item {
+    padding: 7px 8px;
+    gap: 4px;
+  }
+
+  .cards-overview-side .cards-playable-main {
+    font-size: 11px;
+    line-height: 1.08;
+  }
+
+  .cards-overview-side .cards-callout-copy,
+  .cards-overview-side .cards-callout-label,
+  .cards-overview-side .cards-chip,
+  .cards-overview-side .cards-data-pair span {
+    font-size: 9px;
+    line-height: 1.12;
+  }
+
+  .cards-overview-side .cards-data-pair strong {
+    font-size: 11px;
+  }
 }
 
 .cards-playable-head {
@@ -1870,6 +2110,14 @@ body.cards-app-shell .toggle-chip input {
   background: rgba(5, 14, 24, 0.66);
 }
 
+.cards-lens-shell .cards-box-grid {
+  gap: 10px;
+}
+
+.cards-lens-shell .cards-panel-card {
+  background: rgba(10, 21, 34, 0.84);
+}
+
 .cards-lens-head {
   display: flex;
   justify-content: space-between;
@@ -1925,6 +2173,14 @@ body.cards-app-shell .toggle-chip input {
   font-size: 14px;
 }
 
+.cards-lens-reasons {
+  gap: 8px;
+}
+
+.cards-lens-shell > .cards-game-link {
+  justify-self: start;
+}
+
 .cards-filters {
   display: flex;
   gap: 10px;
@@ -1965,6 +2221,15 @@ body.cards-app-shell .toggle-chip input {
   color: var(--cards-text);
   cursor: pointer;
   text-align: left;
+}
+
+.cards-prop-button.is-live {
+  border-color: rgba(255, 107, 107, 0.22);
+  background: linear-gradient(180deg, rgba(63, 18, 18, 0.82), rgba(18, 10, 15, 0.88));
+}
+
+.cards-prop-group.is-secondary {
+  padding-top: 2px;
 }
 
 .cards-prop-button.is-active {
@@ -2817,10 +3082,20 @@ body.cards-app-shell .toggle-chip input {
     padding: 6px;
   }
 
+  .cards-tabs-rail {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
   .cards-tab {
     flex: 1 1 calc(33.333% - 4px);
     min-width: 0;
     padding: 10px 8px;
+  }
+
+  .cards-mini-metrics--rail {
+    width: 100%;
+    justify-self: stretch;
   }
 
   .cards-panel {

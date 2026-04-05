@@ -1,6 +1,6 @@
 TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BIRTH_DATE,AGE,EXP,SCHOOL,PLAYER_ID,HOW_ACQUIRED,TEAM_ID,TEAM_ABBREVIATION,TEAM_NAME
 1610612737,2025-26,00,Keshon Gilbert,Keshon,keshon-gilbert,,G,6-4,200,"JUN 30, 2003",22.0,R,Iowa State,1642933,Signed on 03/04/26,1610612737,ATL,Atlanta Hawks
-1610612737,2025-26,00,RayJ Dennis,RayJ,rayj-dennis,00,G,6-1,180,"MAR 30, 2001",24.0,1,Baylor,1642484,Signed on 12/31/25,1610612737,ATL,Atlanta Hawks
+1610612737,2025-26,00,RayJ Dennis,RayJ,rayj-dennis,00,G,6-1,180,"MAR 30, 2001",25.0,1,Baylor,1642484,Signed on 12/31/25,1610612737,ATL,Atlanta Hawks
 1610612737,2025-26,00,Jonathan Kuminga,Jonathan,jonathan-kuminga,0,F,6-7,225,"OCT 06, 2002",23.0,4,NBA G League Ignite,1630228,Traded from GSW on 02/05/26,1610612737,ATL,Atlanta Hawks
 1610612737,2025-26,00,Jalen Johnson,Jalen,jalen-johnson,1,F,6-8,219,"DEC 18, 2001",24.0,4,Duke,1630552,#20 Pick in 2021 Draft,1610612737,ATL,Atlanta Hawks
 1610612737,2025-26,00,Keaton Wallace,Keaton,keaton-wallace,2,G,6-3,185,"FEB 26, 1999",27.0,1,Texas-San Antonio,1630811,Signed on 09/29/23,1610612737,ATL,Atlanta Hawks
@@ -16,7 +16,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612737,2025-26,00,Mouhamed Gueye,Mouhamed,mouhamed-gueye,18,F,6-11,210,"NOV 09, 2002",23.0,2,Washington State,1631243,Draft Rights Traded from BOS on 06/28/23,1610612737,ATL,Atlanta Hawks
 1610612737,2025-26,00,Corey Kispert,Corey,corey-kispert,24,F,6-6,224,"MAR 03, 1999",27.0,4,Gonzaga,1630557,Traded from WAS on 01/09/26,1610612737,ATL,Atlanta Hawks
 1610612737,2025-26,00,Jock Landale,Jock,jock-landale,31,C,6-11,255,"OCT 25, 1995",30.0,4,St. Mary's,1629111,Traded from UTA on 02/05/26,1610612737,ATL,Atlanta Hawks
-1610612737,2025-26,00,Caleb Houstan,Caleb,caleb-houstan,33,G,6-8,205,"JAN 09, 2003",23.0,3,Michigan,1631216,Signed on 08/19/25,1610612737,ATL,Atlanta Hawks
+1610612751,2025-26,00,Trevon Scott,Trevon,trevon-scott,,F,6-8,225,"NOV 25, 1996",29.0,1,Cincinnati,1630286,Signed on 10/13/25,1610612751,BKN,Brooklyn Nets
 1610612751,2025-26,00,Malachi Smith,Malachi,malachi-smith,,G,6-4,205,"DEC 06, 1999",26.0,R,Gonzaga,1641869,Signed on 10/14/25,1610612751,BKN,Brooklyn Nets
 1610612751,2025-26,00,Josh Minott,Josh,josh-minott,00,F,6-8,205,"NOV 25, 2002",23.0,3,Memphis,1631169,Traded from BOS on 02/05/26,1610612751,BKN,Brooklyn Nets
 1610612751,2025-26,00,Ziaire Williams,Ziaire,ziaire-williams,1,F,6-9,185,"SEP 12, 2001",24.0,4,Stanford,1630533,Traded from MEM on 07/19/24,1610612751,BKN,Brooklyn Nets
@@ -44,7 +44,6 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612738,2025-26,00,Ron Harper Jr.,Ron,ron-harper-jr,13,G-F,6-5,233,"APR 12, 2000",25.0,3,Rutgers,1631199,Signed on 09/19/25,1610612738,BOS,Boston Celtics
 1610612738,2025-26,00,Jordan Walsh,Jordan,jordan-walsh,27,G,6-6,205,"MAR 03, 2004",22.0,2,Arkansas,1641775,Draft Rights Traded from SAC on 06/28/23,1610612738,BOS,Boston Celtics
 1610612738,2025-26,00,Hugo González,Hugo,hugo-gonzález,28,G,6-6,200,"FEB 05, 2006",20.0,R,Real Madrid,1642864,#28 Pick in 2025 Draft,1610612738,BOS,Boston Celtics
-1610612738,2025-26,00,Charles Bassey,Charles,charles-bassey,28,C-F,6-10,230,"OCT 28, 2000",25.0,4,Western Kentucky,1629646,Signed on 03/15/26,1610612738,BOS,Boston Celtics
 1610612738,2025-26,00,Sam Hauser,Sam,sam-hauser,30,F,6-7,217,"DEC 08, 1997",28.0,4,Virginia,1630573,Signed on 08/13/21,1610612738,BOS,Boston Celtics
 1610612738,2025-26,00,Max Shulga,Max,max-shulga,44,G,6-4,210,"JUN 25, 2002",23.0,R,Virginia Commonwealth,1642917,Draft Rights Traded from ORL on 06/26/25,1610612738,BOS,Boston Celtics
 1610612738,2025-26,00,Luka Garza,Luka,luka-garza,52,C,6-10,243,"DEC 27, 1998",27.0,4,Iowa,1630568,Signed on 07/07/25,1610612738,BOS,Boston Celtics
@@ -83,12 +82,11 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612741,2025-26,00,Jalen Smith,Jalen,jalen-smith,25,F-C,6-8,244,"MAR 16, 2000",26.0,5,Maryland,1630188,Signed on 07/08/24,1610612741,CHI,Chicago Bulls
 1610612741,2025-26,00,Guerschon Yabusele,Guerschon,guerschon-yabusele,28,F,6-7,265,"DEC 17, 1995",30.0,3,"Rouen, France",1627824,Traded from NYK on 02/05/26,1610612741,CHI,Chicago Bulls
 1610612741,2025-26,00,Tre Jones,Tre,tre-jones,30,G,6-1,190,"JAN 08, 2000",26.0,5,Duke,1630200,Traded from SAS on 02/03/25,1610612741,CHI,Chicago Bulls
-1610612741,2025-26,00,Jaden Ivey,Jaden,jaden-ivey,31,G,6-3,195,"FEB 13, 2002",24.0,3,Purdue,1631093,Traded from DET on 02/03/26,1610612741,CHI,Chicago Bulls
 1610612741,2025-26,00,Isaac Okoro,Isaac,isaac-okoro,35,F-G,6-4,225,"JAN 26, 2001",25.0,5,Auburn,1630171,Traded from CLE on 07/06/25,1610612741,CHI,Chicago Bulls
 1610612741,2025-26,00,Patrick Williams,Patrick,patrick-williams,44,F,6-6,235,"AUG 26, 2001",24.0,5,Florida State,1630172,#4 Pick in 2020 Draft,1610612741,CHI,Chicago Bulls
 1610612741,2025-26,00,Lachlan Olbrich,Lachlan,lachlan-olbrich,47,C,6-8,236,"DEC 30, 2003",22.0,R,Illawarra,1642950,Draft Rights Traded from LAL on 06/30/25,1610612741,CHI,Chicago Bulls
 1610612739,2025-26,00,James Harden,James,james-harden,1,G,6-5,220,"AUG 26, 1989",36.0,16,Arizona State,201935,Traded from LAC on 02/04/26,1610612739,CLE,Cleveland Cavaliers
-1610612739,2025-26,00,Max Strus,Max,max-strus,2,G-F,6-5,215,"MAR 28, 1996",29.0,6,DePaul,1629622,Traded from MIA on 07/06/23,1610612739,CLE,Cleveland Cavaliers
+1610612739,2025-26,00,Max Strus,Max,max-strus,2,G-F,6-5,215,"MAR 28, 1996",30.0,6,DePaul,1629622,Traded from MIA on 07/06/23,1610612739,CLE,Cleveland Cavaliers
 1610612739,2025-26,00,Thomas Bryant,Thomas,thomas-bryant,3,C-F,6-9,248,"JUL 31, 1997",28.0,8,Indiana,1628418,Signed on 09/25/25,1610612739,CLE,Cleveland Cavaliers
 1610612739,2025-26,00,Evan Mobley,Evan,evan-mobley,4,C,6-11,215,"JUN 18, 2001",24.0,4,Southern California,1630596,#3 Pick in 2021 Draft,1610612739,CLE,Cleveland Cavaliers
 1610612739,2025-26,00,Sam Merrill,Sam,sam-merrill,5,G,6-4,205,"MAY 15, 1996",29.0,5,Utah State,1630241,Signed on 03/03/23,1610612739,CLE,Cleveland Cavaliers
@@ -99,20 +97,20 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612739,2025-26,00,Jaylon Tyson,Jaylon,jaylon-tyson,20,G-F,6-6,215,"DEC 02, 2002",23.0,1,California,1642281,#20 Pick in 2024 Draft,1610612739,CLE,Cleveland Cavaliers
 1610612739,2025-26,00,Tristan Enaruna,Tristan,tristan-enaruna,21,F,6-7,220,"JUN 26, 2001",24.0,R,Cleveland State,1642400,Signed on 09/26/25,1610612739,CLE,Cleveland Cavaliers
 1610612739,2025-26,00,Larry Nance Jr.,Larry,larry-nance-jr,22,F-C,6-6,245,"JAN 01, 1993",33.0,10,Wyoming,1626204,Signed on 07/06/25,1610612739,CLE,Cleveland Cavaliers
-1610612739,2025-26,00,Tyrese Proctor,Tyrese,tyrese-proctor,24,G,6-4,185,"APR 01, 2004",21.0,R,Duke,1642878,#49 Pick in 2025 Draft,1610612739,CLE,Cleveland Cavaliers
+1610612739,2025-26,00,Tyrese Proctor,Tyrese,tyrese-proctor,24,G,6-4,185,"APR 01, 2004",22.0,R,Duke,1642878,#49 Pick in 2025 Draft,1610612739,CLE,Cleveland Cavaliers
 1610612739,2025-26,00,Jarrett Allen,Jarrett,jarrett-allen,31,C,6-9,243,"APR 21, 1998",27.0,8,Texas,1628386,Traded from BKN on 01/16/21,1610612739,CLE,Cleveland Cavaliers
 1610612739,2025-26,00,Dean Wade,Dean,dean-wade,32,F-C,6-9,228,"NOV 20, 1996",29.0,6,Kansas State,1629731,Signed on 07/01/19,1610612739,CLE,Cleveland Cavaliers
 1610612739,2025-26,00,Olivier Sarr,Olivier,olivier-sarr,33,C,6-10,240,"FEB 20, 1999",27.0,3,Kentucky,1630846,Signed on 03/03/26,1610612739,CLE,Cleveland Cavaliers
 1610612739,2025-26,00,Nae'Qwan Tomlin,Nae'Qwan,naeqwan-tomlin,35,F,6-8,210,"DEC 19, 2000",25.0,1,Memphis,1641772,Signed on 09/23/24,1610612739,CLE,Cleveland Cavaliers
 1610612739,2025-26,00,Donovan Mitchell,Donovan,donovan-mitchell,45,G,6-2,215,"SEP 07, 1996",29.0,8,Louisville,1628378,Traded from UTA on 09/03/22,1610612739,CLE,Cleveland Cavaliers
-1610612742,2025-26,00,John Poulakidas,John,john-poulakidas,,G,6-6,205,"APR 04, 2003",22.0,R,Yale,1642967,Signed on 02/28/26,1610612742,DAL,Dallas Mavericks
+1610612742,2025-26,00,John Poulakidas,John,john-poulakidas,,G,6-6,205,"APR 04, 2003",23.0,R,Yale,1642967,Signed on 02/28/26,1610612742,DAL,Dallas Mavericks
 1610612742,2025-26,00,Max Christie,Max,max-christie,00,G,6-5,190,"FEB 10, 2003",23.0,3,Michigan State,1631108,Traded from LAL on 02/02/25,1610612742,DAL,Dallas Mavericks
 1610612742,2025-26,00,Dereck Lively II,Dereck,dereck-lively-ii,2,C,7-1,230,"FEB 12, 2004",22.0,2,Duke,1641726,Draft Rights Traded from OKC on 07/06/23,1610612742,DAL,Dallas Mavericks
 1610612742,2025-26,00,Dwight Powell,Dwight,dwight-powell,7,F-C,6-10,240,"JUL 20, 1991",34.0,11,Stanford,203939,Traded from BOS on 12/18/14,1610612742,DAL,Dallas Mavericks
 1610612742,2025-26,00,AJ Johnson,AJ,aj-johnson,8,G,6-5,160,"DEC 01, 2004",21.0,1,Illawarra,1642358,Traded from WAS on 02/05/26,1610612742,DAL,Dallas Mavericks
 1610612742,2025-26,00,Ryan Nembhard,Ryan,ryan-nembhard,9,G,5-11,180,"MAR 10, 2003",23.0,R,Gonzaga,1642948,Signed on 07/03/25,1610612742,DAL,Dallas Mavericks
 1610612742,2025-26,00,Brandon Williams,Brandon,brandon-williams,10,G,6-1,190,"NOV 22, 1999",26.0,3,Arizona,1630314,Signed on 12/28/23,1610612742,DAL,Dallas Mavericks
-1610612742,2025-26,00,Kyrie Irving,Kyrie,kyrie-irving,11,G,6-2,195,"MAR 23, 1992",33.0,14,Duke,202681,Traded from BKN on 02/06/23,1610612742,DAL,Dallas Mavericks
+1610612742,2025-26,00,Kyrie Irving,Kyrie,kyrie-irving,11,G,6-2,195,"MAR 23, 1992",34.0,14,Duke,202681,Traded from BKN on 02/06/23,1610612742,DAL,Dallas Mavericks
 1610612742,2025-26,00,Naji Marshall,Naji,naji-marshall,13,F,6-6,220,"JAN 24, 1998",28.0,5,Xavier,1630230,Signed on 07/06/24,1610612742,DAL,Dallas Mavericks
 1610612742,2025-26,00,Caleb Martin,Caleb,caleb-martin,16,F,6-5,205,"SEP 28, 1995",30.0,6,Nevada,1628997,Traded from PHI on 02/04/25,1610612742,DAL,Dallas Mavericks
 1610612742,2025-26,00,Khris Middleton,Khris,khris-middleton,20,F,6-7,222,"AUG 12, 1991",34.0,13,Texas A&M,203114,Traded from WAS on 02/05/26,1610612742,DAL,Dallas Mavericks
@@ -124,9 +122,9 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612742,2025-26,00,Cooper Flagg,Cooper,cooper-flagg,32,F,6-9,205,"DEC 21, 2006",19.0,R,Duke,1642843,#1 Pick in 2025 Draft,1610612742,DAL,Dallas Mavericks
 1610612742,2025-26,00,Marvin Bagley III,Marvin,marvin-bagley-iii,35,F,6-10,235,"MAR 14, 1999",27.0,7,Duke,1628963,Traded from WAS on 02/05/26,1610612742,DAL,Dallas Mavericks
 1610612743,2025-26,00,Christian Braun,Christian,christian-braun,0,G,6-6,220,"APR 17, 2001",24.0,3,Kansas,1631128,#21 Pick in 2022 Draft,1610612743,DEN,Denver Nuggets
-1610612743,2025-26,00,Tyus Jones,Tyus,tyus-jones,1,G,6-0,196,"MAY 10, 1996",29.0,10,Duke,1626145,Signed on 03/05/26,1610612743,DEN,Denver Nuggets
 1610612743,2025-26,00,Curtis Jones,Curtis,curtis-jones,1,G,6-3,195,"OCT 04, 2001",24.0,R,Iowa State,1642938,Signed on 07/21/25,1610612743,DEN,Denver Nuggets
 1610612743,2025-26,00,Julian Strawther,Julian,julian-strawther,3,G,6-6,205,"APR 18, 2002",23.0,2,Gonzaga,1631124,Draft Rights Traded from IND on 06/23/23,1610612743,DEN,Denver Nuggets
+1610612743,2025-26,00,Tyus Jones,Tyus,tyus-jones,5,G,6-0,196,"MAY 10, 1996",29.0,10,Duke,1626145,Signed on 03/05/26,1610612743,DEN,Denver Nuggets
 1610612743,2025-26,00,Peyton Watson,Peyton,peyton-watson,8,G,6-8,200,"SEP 11, 2002",23.0,3,UCLA,1631212,Draft Rights Traded from OKC on 06/23/22,1610612743,DEN,Denver Nuggets
 1610612743,2025-26,00,Tim Hardaway Jr.,Tim,tim-hardaway-jr,10,G-F,6-5,205,"MAR 16, 1992",34.0,12,Michigan,203501,Signed on 07/10/25,1610612743,DEN,Denver Nuggets
 1610612743,2025-26,00,Bruce Brown,Bruce,bruce-brown,11,G-F,6-4,202,"AUG 15, 1996",29.0,7,Miami,1628971,Signed on 07/09/25,1610612743,DEN,Denver Nuggets
@@ -140,7 +138,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612743,2025-26,00,KJ Simpson,KJ,kj-simpson,25,G,6-2,189,"AUG 08, 2002",23.0,1,Colorado,1642354,Signed on 02/19/26,1610612743,DEN,Denver Nuggets
 1610612743,2025-26,00,Jamal Murray,Jamal,jamal-murray,27,G,6-4,215,"FEB 23, 1997",29.0,9,Kentucky,1627750,#7 Pick in 2016 Draft,1610612743,DEN,Denver Nuggets
 1610612743,2025-26,00,Aaron Gordon,Aaron,aaron-gordon,32,F,6-8,235,"SEP 16, 1995",30.0,11,Arizona,203932,Traded from ORL on 03/25/21,1610612743,DEN,Denver Nuggets
-1610612743,2025-26,00,David Roddy,David,david-roddy,45,F,6-5,255,"MAR 27, 2001",24.0,3,Colorado State,1631223,Signed on 03/04/26,1610612743,DEN,Denver Nuggets
+1610612743,2025-26,00,David Roddy,David,david-roddy,45,F,6-5,255,"MAR 27, 2001",25.0,3,Colorado State,1631223,Signed on 03/04/26,1610612743,DEN,Denver Nuggets
 1610612765,2025-26,00,Jalen Duren,Jalen,jalen-duren,0,C,6-10,250,"NOV 18, 2003",22.0,3,Memphis,1631105,Draft Rights Traded from NYK on 07/06/22,1610612765,DET,Detroit Pistons
 1610612765,2025-26,00,Cade Cunningham,Cade,cade-cunningham,2,G,6-6,220,"SEP 25, 2001",24.0,4,Oklahoma State,1630595,#1 Pick in 2021 Draft,1610612765,DET,Detroit Pistons
 1610612765,2025-26,00,Isaac Jones,Isaac,isaac-jones,3,F,6-8,245,"JUL 11, 2000",25.0,1,Washington State,1642403,Awarded on Waivers on 11/06/25,1610612765,DET,Detroit Pistons
@@ -170,13 +168,12 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612744,2025-26,00,LJ Cryer,LJ,lj-cryer,18,G,6-0,,"OCT 09, 2001",24.0,R,Houston,1643018,Signed on 09/29/25,1610612744,GSW,Golden State Warriors
 1610612744,2025-26,00,Nate Williams,Nate,nate-williams,19,G,6-5,205,"FEB 12, 1999",27.0,3,Buffalo,1631466,Signed on 02/17/26,1610612744,GSW,Golden State Warriors
 1610612744,2025-26,00,Al Horford,Al,al-horford,20,C-F,6-8,240,"JUN 03, 1986",39.0,18,Florida,201143,Signed on 10/01/25,1610612744,GSW,Golden State Warriors
-1610612744,2025-26,00,Quinten Post,Quinten,quinten-post,21,C,7-0,238,"MAR 21, 2000",25.0,1,Boston College,1642366,Draft Rights Traded from POR on 07/06/24,1610612744,GSW,Golden State Warriors
+1610612744,2025-26,00,Quinten Post,Quinten,quinten-post,21,C,7-0,238,"MAR 21, 2000",26.0,1,Boston College,1642366,Draft Rights Traded from POR on 07/06/24,1610612744,GSW,Golden State Warriors
 1610612744,2025-26,00,Draymond Green,Draymond,draymond-green,23,F,6-6,230,"MAR 04, 1990",36.0,13,Michigan State,203110,#35 Pick in 2012 Draft,1610612744,GSW,Golden State Warriors
 1610612744,2025-26,00,Stephen Curry,Stephen,stephen-curry,30,G,6-2,185,"MAR 14, 1988",38.0,16,Davidson,201939,#7 Pick in 2009 Draft,1610612744,GSW,Golden State Warriors
 1610612744,2025-26,00,Seth Curry,Seth,seth-curry,31,G,6-1,185,"AUG 23, 1990",35.0,12,Duke,203552,Signed on 10/01/25,1610612744,GSW,Golden State Warriors
 1610612744,2025-26,00,Malevy Leons,Malevy,malevy-leons,33,F,6-9,210,"SEP 23, 1999",26.0,1,Bradley,1642502,Signed on 12/08/25,1610612744,GSW,Golden State Warriors
 1610612744,2025-26,00,Pat Spencer,Pat,pat-spencer,61,G,6-2,205,"JUL 04, 1996",29.0,2,Northwestern,1630311,Signed on 07/23/22,1610612744,GSW,Golden State Warriors
-1610612744,2025-26,00,Omer Yurtseven,Omer,omer-yurtseven,77,C,6-11,275,"JUN 19, 1998",27.0,3,Georgetown,1630209,Signed on 03/15/26,1610612744,GSW,Golden State Warriors
 1610612745,2025-26,00,Aaron Holiday,Aaron,aaron-holiday,0,G,6-0,185,"SEP 30, 1996",29.0,7,UCLA,1628988,Signed on 07/10/23,1610612745,HOU,Houston Rockets
 1610612745,2025-26,00,Amen Thompson,Amen,amen-thompson,1,G-F,6-7,200,"JAN 30, 2003",23.0,2,Overtime Elite,1641708,#4 Pick in 2023 Draft,1610612745,HOU,Houston Rockets
 1610612745,2025-26,00,Dorian Finney-Smith,Dorian,dorian-finney-smith,2,F,6-7,220,"MAY 04, 1993",32.0,9,Florida,1627827,Signed on 07/06/25,1610612745,HOU,Houston Rockets
@@ -200,7 +197,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612754,2025-26,00,Taelon Peter,Taelon,taelon-peter,4,G,6-3,185,"FEB 27, 2002",24.0,R,Liberty,1643007,#54 Pick in 2025 Draft,1610612754,IND,Indiana Pacers
 1610612754,2025-26,00,Jarace Walker,Jarace,jarace-walker,5,F,6-7,235,"SEP 04, 2003",22.0,2,Houston,1641716,Draft Rights Traded from WAS on 06/23/23,1610612754,IND,Indiana Pacers
 1610612754,2025-26,00,Kam Jones,Kam,kam-jones,7,G,6-4,200,"FEB 25, 2002",24.0,R,Marquette,1642880,Draft Rights Traded from SAS on 07/06/25,1610612754,IND,Indiana Pacers
-1610612754,2025-26,00,T.J. McConnell,T.J.,tj-mcconnell,9,G,6-1,190,"MAR 25, 1992",33.0,10,Arizona,204456,Signed on 07/29/19,1610612754,IND,Indiana Pacers
+1610612754,2025-26,00,T.J. McConnell,T.J.,tj-mcconnell,9,G,6-1,190,"MAR 25, 1992",34.0,10,Arizona,204456,Signed on 07/29/19,1610612754,IND,Indiana Pacers
 1610612754,2025-26,00,Micah Potter,Micah,micah-potter,11,C,6-9,248,"APR 06, 1998",27.0,4,Wisconsin,1630695,Signed on 12/26/25,1610612754,IND,Indiana Pacers
 1610612754,2025-26,00,Johnny Furphy,Johnny,johnny-furphy,12,G,6-8,200,"DEC 08, 2004",21.0,1,Kansas,1642277,Draft Rights Traded from SAS on 07/06/24,1610612754,IND,Indiana Pacers
 1610612754,2025-26,00,Jalen Slawson,Jalen,jalen-slawson,18,F,6-7,215,"OCT 22, 1999",26.0,1,Furman,1641771,Signed on 09/09/25,1610612754,IND,Indiana Pacers
@@ -210,7 +207,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612754,2025-26,00,Quenton Jackson,Quenton,quenton-jackson,29,G,6-4,173,"SEP 15, 1998",27.0,3,Texas A&M,1631245,Signed on 03/04/24,1610612754,IND,Indiana Pacers
 1610612754,2025-26,00,Jay Huff,Jay,jay-huff,32,C,7-1,240,"AUG 25, 1997",28.0,4,Virginia,1630643,Traded from MEM on 07/06/25,1610612754,IND,Indiana Pacers
 1610612754,2025-26,00,Ivica Zubac,Ivica,ivica-zubac,40,C,7-0,240,"MAR 18, 1997",29.0,9,Mega Basket,1627826,Traded from LAC on 02/05/26,1610612754,IND,Indiana Pacers
-1610612754,2025-26,00,Pascal Siakam,Pascal,pascal-siakam,43,F,6-8,245,"APR 02, 1994",31.0,9,New Mexico State,1627783,Traded from TOR on 01/17/24,1610612754,IND,Indiana Pacers
+1610612754,2025-26,00,Pascal Siakam,Pascal,pascal-siakam,43,F,6-8,245,"APR 02, 1994",32.0,9,New Mexico State,1627783,Traded from TOR on 01/17/24,1610612754,IND,Indiana Pacers
 1610612754,2025-26,00,Ethan Thompson,Ethan,ethan-thompson,55,G,6-4,195,"MAY 04, 1999",26.0,R,Oregon State,1630679,Signed on 11/30/25,1610612754,IND,Indiana Pacers
 1610612746,2025-26,00,Norchad Omier,Norchad,norchad-omier,,F,6-7,248,"AUG 28, 2001",24.0,R,Miami,1641807,Signed on 02/20/26,1610612746,LAC,Los Angeles Clippers
 1610612746,2025-26,00,Sean Pedulla,Sean,sean-pedulla,,G,6-1,195,"OCT 10, 2002",23.0,R,Mississippi,1642951,Signed on 02/19/26,1610612746,LAC,Los Angeles Clippers
@@ -222,7 +219,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612746,2025-26,00,Kris Dunn,Kris,kris-dunn,8,G,6-3,205,"MAR 18, 1994",32.0,9,Providence,1627739,Traded from UTA on 07/18/24,1610612746,LAC,Los Angeles Clippers
 1610612746,2025-26,00,Bennedict Mathurin,Bennedict,bennedict-mathurin,9,G-F,6-5,210,"JUN 19, 2002",23.0,3,Arizona,1631097,Traded from IND on 02/05/26,1610612746,LAC,Los Angeles Clippers
 1610612746,2025-26,00,Darius Garland,Darius,darius-garland,10,G,6-1,192,"JAN 26, 2000",26.0,6,Vanderbilt,1629636,Traded from CLE on 02/04/26,1610612746,LAC,Los Angeles Clippers
-1610612746,2025-26,00,Brook Lopez,Brook,brook-lopez,11,C,7-1,282,"APR 01, 1988",37.0,17,Stanford,201572,Signed on 07/06/25,1610612746,LAC,Los Angeles Clippers
+1610612746,2025-26,00,Brook Lopez,Brook,brook-lopez,11,C,7-1,282,"APR 01, 1988",38.0,17,Stanford,201572,Signed on 07/06/25,1610612746,LAC,Los Angeles Clippers
 1610612746,2025-26,00,Cam Christie,Cam,cam-christie,12,G,6-5,190,"JUL 24, 2005",20.0,1,Minnesota,1642353,#46 Pick in 2024 Draft,1610612746,LAC,Los Angeles Clippers
 1610612746,2025-26,00,TyTy Washington Jr.,TyTy,tyty-washington-jr,14,G,6-3,195,"NOV 15, 2001",24.0,3,Kentucky,1631102,Signed on 08/07/25,1610612746,LAC,Los Angeles Clippers
 1610612746,2025-26,00,Yanic Konan Niederhäuser,Yanic Konan,yanic-konan-niederhäuser,14,C,6-11,242,"MAR 14, 2003",23.0,R,Penn State,1642949,#30 Pick in 2025 Draft,1610612746,LAC,Los Angeles Clippers
@@ -231,7 +228,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612746,2025-26,00,Isaiah Jackson,Isaiah,isaiah-jackson,23,F,6-8,205,"JAN 10, 2002",24.0,4,Kentucky,1630543,Traded from IND on 02/05/26,1610612746,LAC,Los Angeles Clippers
 1610612746,2025-26,00,Nicolas Batum,Nicolas,nicolas-batum,33,G-F,6-7,230,"DEC 14, 1988",37.0,17,Le Mans,201587,Signed on 07/09/24,1610612746,LAC,Los Angeles Clippers
 1610612747,2025-26,00,Adou Thiero,Adou,adou-thiero,1,G,6-7,220,"MAY 08, 2004",21.0,R,Arkansas,1642876,Draft Rights Traded from BKN on 07/06/25,1610612747,LAL,Los Angeles Lakers
-1610612747,2025-26,00,Jarred Vanderbilt,Jarred,jarred-vanderbilt,2,F,6-8,214,"APR 03, 1999",26.0,7,Kentucky,1629020,Traded from UTA on 02/09/23,1610612747,LAL,Los Angeles Lakers
+1610612747,2025-26,00,Jarred Vanderbilt,Jarred,jarred-vanderbilt,2,F,6-8,214,"APR 03, 1999",27.0,7,Kentucky,1629020,Traded from UTA on 02/09/23,1610612747,LAL,Los Angeles Lakers
 1610612747,2025-26,00,Dalton Knecht,Dalton,dalton-knecht,4,F,6-6,215,"APR 19, 2001",24.0,1,Tennessee,1642261,#17 Pick in 2024 Draft,1610612747,LAL,Los Angeles Lakers
 1610612747,2025-26,00,Deandre Ayton,Deandre,deandre-ayton,5,C,7-0,252,"JUL 23, 1998",27.0,7,Arizona,1629028,Signed on 07/06/25,1610612747,LAL,Los Angeles Lakers
 1610612747,2025-26,00,Bronny James,Bronny,bronny-james,9,G,6-2,210,"OCT 06, 2004",21.0,1,Southern California,1642355,#55 Pick in 2024 Draft,1610612747,LAL,Los Angeles Lakers
@@ -248,9 +245,12 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612747,2025-26,00,Marcus Smart,Marcus,marcus-smart,36,G,6-3,220,"MAR 06, 1994",32.0,11,Oklahoma State,203935,Signed on 07/22/25,1610612747,LAL,Los Angeles Lakers
 1610612747,2025-26,00,Kobe Bufkin,Kobe,kobe-bufkin,44,G,6-4,195,"SEP 21, 2003",22.0,2,Michigan,1641723,Signed on 01/13/26,1610612747,LAL,Los Angeles Lakers
 1610612747,2025-26,00,Luka Dončić,Luka,luka-dončić,77,F-G,6-8,230,"FEB 28, 1999",27.0,7,Real Madrid,1629029,Traded from DAL on 02/02/25,1610612747,LAL,Los Angeles Lakers
-1610612763,2025-26,00,Tyler Burton,Tyler,tyler-burton,,F,6-7,215,"FEB 11, 2000",26.0,R,Richmond,1631174,Signed on 09/06/25,1610612763,MEM,Memphis Grizzlies
+1610612763,2025-26,00,Lucas Williamson,Lucas,lucas-williamson,,G,6-4,205,"JAN 28, 1999",27.0,R,Loyola-Chicago,1631351,Signed on 03/31/26,1610612763,MEM,Memphis Grizzlies
+1610612763,2025-26,00,Adama Bal,Adama,adama-bal,,G,6-7,190,"DEC 18, 2003",22.0,R,Santa Clara,1642380,Signed on 03/28/26,1610612763,MEM,Memphis Grizzlies
 1610612763,2025-26,00,Jahmai Mashack,Jahmai,jahmai-mashack,,G,6-4,203,"NOV 10, 2002",23.0,R,Tennessee,1642942,Draft Rights Traded from GSW on 07/06/25,1610612763,MEM,Memphis Grizzlies
+1610612763,2025-26,00,Toby Okani,Toby,toby-okani,,F,6-8,210,"OCT 05, 2001",24.0,R,West Virginia,1643253,Signed on 04/03/26,1610612763,MEM,Memphis Grizzlies
 1610612763,2025-26,00,Jaylen Wells,Jaylen,jaylen-wells,0,F,6-7,,"AUG 26, 2003",22.0,1,Washington State,1642377,#39 Pick in 2024 Draft,1610612763,MEM,Memphis Grizzlies
+1610612763,2025-26,00,Dariq Whitehead,Dariq,dariq-whitehead,0,G-F,6-6,220,"AUG 01, 2004",21.0,2,Duke,1641727,Signed on 04/03/26,1610612763,MEM,Memphis Grizzlies
 1610612763,2025-26,00,Scotty Pippen Jr.,Scotty,scotty-pippen-jr,1,G,6-2,170,"NOV 10, 2000",25.0,3,Vanderbilt,1630590,Signed on 01/16/24,1610612763,MEM,Memphis Grizzlies
 1610612763,2025-26,00,Ty Jerome,Ty,ty-jerome,2,G-F,6-5,195,"JUL 08, 1997",28.0,6,Virginia,1629660,Signed on 07/14/25,1610612763,MEM,Memphis Grizzlies
 1610612763,2025-26,00,Kentavious Caldwell-Pope,Kentavious,kentavious-caldwell-pope,3,G,6-5,204,"FEB 18, 1993",33.0,12,Georgia,203484,Traded from ORL on 06/15/25,1610612763,MEM,Memphis Grizzlies
@@ -265,7 +265,6 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612763,2025-26,00,Taylor Hendricks,Taylor,taylor-hendricks,22,F,6-9,215,"NOV 22, 2003",22.0,2,Central Florida,1641707,Traded from UTA on 02/03/26,1610612763,MEM,Memphis Grizzlies
 1610612763,2025-26,00,Cedric Coward,Cedric,cedric-coward,23,G,6-5,206,"SEP 11, 2003",22.0,R,Washington State,1642907,Draft Rights Traded from POR on 06/25/25,1610612763,MEM,Memphis Grizzlies
 1610612763,2025-26,00,Cam Spencer,Cam,cam-spencer,24,G,6-3,205,"APR 06, 2000",25.0,1,Connecticut,1642285,Draft Rights Traded from DET on 07/06/24,1610612763,MEM,Memphis Grizzlies
-1610612763,2025-26,00,DeJon Jarreau,DeJon,dejon-jarreau,33,G,6-5,185,"JAN 23, 1998",28.0,2,Houston,1630610,Signed on 03/10/24,1610612763,MEM,Memphis Grizzlies
 1610612763,2025-26,00,GG Jackson,GG,gg-jackson,45,F,6-9,210,"DEC 17, 2004",21.0,2,South Carolina,1641713,#45 Pick in 2023 Draft,1610612763,MEM,Memphis Grizzlies
 1610612763,2025-26,00,Taj Gibson,Taj,taj-gibson,67,F,6-9,232,"JUN 24, 1985",40.0,16,Southern California,201959,Signed on 02/26/26,1610612763,MEM,Memphis Grizzlies
 1610612748,2025-26,00,Simone Fontecchio,Simone,simone-fontecchio,0,F,6-7,209,"DEC 09, 1995",30.0,3,Baskonia,1631323,Traded from DET on 07/07/25,1610612748,MIA,Miami Heat
@@ -287,17 +286,16 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612748,2025-26,00,Davion Mitchell,Davion,davion-mitchell,45,G,6-0,202,"SEP 05, 1998",27.0,4,Baylor,1630558,Traded from TOR on 02/06/25,1610612748,MIA,Miami Heat
 1610612748,2025-26,00,Vladislav Goldin,Vladislav,vladislav-goldin,50,C,7-0,250,"MAY 12, 2001",24.0,R,Michigan,1642884,Signed on 07/02/25,1610612748,MIA,Miami Heat
 1610612749,2025-26,00,Jericho Sims,Jericho,jericho-sims,00,C,6-10,250,"OCT 20, 1998",27.0,4,Texas,1630579,Traded from NYK on 02/06/25,1610612749,MIL,Milwaukee Bucks
-1610612749,2025-26,00,Myles Turner,Myles,myles-turner,3,C-F,6-11,250,"MAR 24, 1996",29.0,10,Texas,1626167,Signed on 07/06/25,1610612749,MIL,Milwaukee Bucks
+1610612749,2025-26,00,Myles Turner,Myles,myles-turner,3,C-F,6-11,250,"MAR 24, 1996",30.0,10,Texas,1626167,Signed on 07/06/25,1610612749,MIL,Milwaukee Bucks
 1610612749,2025-26,00,Gary Trent Jr.,Gary,gary-trent-jr,5,G,6-5,204,"JAN 18, 1999",27.0,7,Duke,1629018,Signed on 07/20/24,1610612749,MIL,Milwaukee Bucks
 1610612749,2025-26,00,Kevin Porter Jr.,Kevin,kevin-porter-jr,7,G-F,6-5,203,"MAY 04, 2000",25.0,5,Southern California,1629645,Traded from LAC on 02/06/25,1610612749,MIL,Milwaukee Bucks
 1610612749,2025-26,00,Bobby Portis,Bobby,bobby-portis,9,F,6-9,250,"FEB 10, 1995",31.0,10,Arkansas,1626171,Signed on 11/24/20,1610612749,MIL,Milwaukee Bucks
 1610612749,2025-26,00,Gary Harris,Gary,gary-harris,11,G,6-4,210,"SEP 14, 1994",31.0,11,Michigan State,203914,Signed on 07/08/25,1610612749,MIL,Milwaukee Bucks
-1610612749,2025-26,00,Taurean Prince,Taurean,taurean-prince,12,F,6-6,218,"MAR 22, 1994",31.0,9,Baylor,1627752,Signed on 07/09/24,1610612749,MIL,Milwaukee Bucks
+1610612749,2025-26,00,Taurean Prince,Taurean,taurean-prince,12,F,6-6,218,"MAR 22, 1994",32.0,9,Baylor,1627752,Signed on 07/09/24,1610612749,MIL,Milwaukee Bucks
 1610612749,2025-26,00,Ryan Rollins,Ryan,ryan-rollins,13,G,6-3,180,"JUL 03, 2002",23.0,3,Toledo,1631157,Signed on 02/20/24,1610612749,MIL,Milwaukee Bucks
 1610612749,2025-26,00,Kyle Kuzma,Kyle,kyle-kuzma,18,F,6-8,221,"JUL 24, 1995",30.0,8,Utah,1628398,Traded from WAS on 02/06/25,1610612749,MIL,Milwaukee Bucks
 1610612749,2025-26,00,AJ Green,AJ,aj-green,20,G,6-4,190,"SEP 27, 1999",26.0,3,Northern Iowa,1631260,Signed on 07/01/22,1610612749,MIL,Milwaukee Bucks
 1610612749,2025-26,00,Ousmane Dieng,Ousmane,ousmane-dieng,21,F,6-9,185,"MAY 21, 2003",22.0,3,New Zealand Breakers,1631172,Traded from CHI on 02/05/26,1610612749,MIL,Milwaukee Bucks
-1610612749,2025-26,00,Cam Thomas,Cam,cam-thomas,24,G,6-3,210,"OCT 13, 2001",24.0,4,Louisiana State,1630560,Signed on 02/08/26,1610612749,MIL,Milwaukee Bucks
 1610612749,2025-26,00,Alex Antetokounmpo,Alex,alex-antetokounmpo,29,F,6-8,214,"AUG 27, 2001",24.0,R,                                   ,1630828,Signed on 09/16/22,1610612749,MIL,Milwaukee Bucks
 1610612749,2025-26,00,Cormac Ryan,Cormac,cormac-ryan,30,G,6-5,205,"OCT 26, 1998",27.0,R,North Carolina,1642504,Signed on 09/10/25,1610612749,MIL,Milwaukee Bucks
 1610612749,2025-26,00,Giannis Antetokounmpo,Giannis,giannis-antetokounmpo,34,F,6-11,243,"DEC 06, 1994",31.0,12,Filathlitikos,203507,#15 Pick in 2013 Draft,1610612749,MIL,Milwaukee Bucks
@@ -332,7 +330,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612740,2025-26,00,DeAndre Jordan,DeAndre,deandre-jordan,9,C,6-11,265,"JUL 21, 1988",37.0,17,Texas A&M,201599,Signed on 10/23/25,1610612740,NOP,New Orleans Pelicans
 1610612740,2025-26,00,Bryce McGowens,Bryce,bryce-mcgowens,11,G,6-6,190,"NOV 08, 2002",23.0,3,Nebraska,1631121,Signed on 07/30/25,1610612740,NOP,New Orleans Pelicans
 1610612740,2025-26,00,Micah Peavy,Micah,micah-peavy,14,G-F,6-7,215,"JUL 16, 2001",24.0,R,Georgetown,1642877,Draft Rights Traded from WAS on 07/06/25,1610612740,NOP,New Orleans Pelicans
-1610612740,2025-26,00,Karlo Matković,Karlo,karlo-matković,17,F-C,6-10,231,"MAR 30, 2001",24.0,1,Mega Basket,1631255,#52 Pick in 2022 Draft,1610612740,NOP,New Orleans Pelicans
+1610612740,2025-26,00,Karlo Matković,Karlo,karlo-matković,17,F-C,6-10,231,"MAR 30, 2001",25.0,1,Mega Basket,1631255,#52 Pick in 2022 Draft,1610612740,NOP,New Orleans Pelicans
 1610612740,2025-26,00,Yves Missi,Yves,yves-missi,21,C,6-11,235,"MAY 14, 2004",21.0,1,Baylor,1642274,#21 Pick in 2024 Draft,1610612740,NOP,New Orleans Pelicans
 1610612740,2025-26,00,Derik Queen,Derik,derik-queen,22,C,6-9,250,"DEC 27, 2004",21.0,R,Maryland,1642852,Draft Rights Traded from ATL on 06/25/25,1610612740,NOP,New Orleans Pelicans
 1610612740,2025-26,00,Trey Alexander,Trey,trey-alexander,23,G,6-5,185,"MAY 02, 2003",22.0,1,Creighton,1641725,Signed on 07/03/25,1610612740,NOP,New Orleans Pelicans
@@ -348,9 +346,9 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612752,2025-26,00,OG Anunoby,OG,og-anunoby,8,F-G,6-7,240,"JUL 17, 1997",28.0,8,Indiana,1628384,Traded from TOR on 12/30/23,1610612752,NYK,New York Knicks
 1610612752,2025-26,00,Kevin McCullar Jr.,Kevin,kevin-mccullar-jr,9,G,6-6,210,"MAR 15, 2001",25.0,1,Kansas,1641755,Draft Rights Traded from PHX on 06/27/24,1610612752,NYK,New York Knicks
 1610612752,2025-26,00,Jalen Brunson,Jalen,jalen-brunson,11,G,6-2,190,"AUG 31, 1996",29.0,7,Villanova,1628973,Signed on 07/12/22,1610612752,NYK,New York Knicks
-1610612752,2025-26,00,Tyler Kolek,Tyler,tyler-kolek,13,G,6-2,195,"MAR 27, 2001",24.0,1,Marquette,1642278,Draft Rights Traded from POR on 06/27/24,1610612752,NYK,New York Knicks
+1610612752,2025-26,00,Tyler Kolek,Tyler,tyler-kolek,13,G,6-2,195,"MAR 27, 2001",25.0,1,Marquette,1642278,Draft Rights Traded from POR on 06/27/24,1610612752,NYK,New York Knicks
 1610612752,2025-26,00,Jeremy Sochan,Jeremy,jeremy-sochan,20,F,6-8,230,"MAY 20, 2003",22.0,3,Baylor,1631110,Signed on 02/13/26,1610612752,NYK,New York Knicks
-1610612752,2025-26,00,Mitchell Robinson,Mitchell,mitchell-robinson,23,C-F,7-0,240,"APR 01, 1998",27.0,7,Western Kentucky,1629011,#36 Pick in 2018 Draft,1610612752,NYK,New York Knicks
+1610612752,2025-26,00,Mitchell Robinson,Mitchell,mitchell-robinson,23,C-F,7-0,240,"APR 01, 1998",28.0,7,Western Kentucky,1629011,#36 Pick in 2018 Draft,1610612752,NYK,New York Knicks
 1610612752,2025-26,00,Mikal Bridges,Mikal,mikal-bridges,25,G-F,6-6,209,"AUG 30, 1996",29.0,7,Villanova,1628969,Traded from BKN on 07/06/24,1610612752,NYK,New York Knicks
 1610612752,2025-26,00,Karl-Anthony Towns,Karl-Anthony,karl-anthony-towns,32,C-F,7-0,248,"NOV 15, 1995",30.0,10,Kentucky,1626157,Traded from MIN on 10/02/24,1610612752,NYK,New York Knicks
 1610612752,2025-26,00,Dillon Jones,Dillon,dillon-jones,33,F,6-5,235,"OCT 29, 2001",24.0,1,Weber State,1641794,Signed on 01/20/26,1610612752,NYK,New York Knicks
@@ -396,7 +394,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612755,2025-26,00,Tyrese Maxey,Tyrese,tyrese-maxey,0,G,6-2,200,"NOV 04, 2000",25.0,5,Kentucky,1630178,#21 Pick in 2020 Draft,1610612755,PHI,Philadelphia 76ers
 1610612755,2025-26,00,Andre Drummond,Andre,andre-drummond,1,C,6-11,279,"AUG 10, 1993",32.0,13,Connecticut,203083,Signed on 07/07/24,1610612755,PHI,Philadelphia 76ers
 1610612755,2025-26,00,Quentin Grimes,Quentin,quentin-grimes,5,G,6-5,207,"MAY 08, 2000",25.0,4,Houston,1629656,Traded from DAL on 02/04/25,1610612755,PHI,Philadelphia 76ers
-1610612755,2025-26,00,Kyle Lowry,Kyle,kyle-lowry,7,G,6-0,196,"MAR 25, 1986",39.0,19,Villanova,200768,Signed on 02/13/24,1610612755,PHI,Philadelphia 76ers
+1610612755,2025-26,00,Kyle Lowry,Kyle,kyle-lowry,7,G,6-0,196,"MAR 25, 1986",40.0,19,Villanova,200768,Signed on 02/13/24,1610612755,PHI,Philadelphia 76ers
 1610612755,2025-26,00,Paul George,Paul,paul-george,8,F,6-8,230,"MAY 02, 1990",35.0,15,Fresno State,202331,Signed on 07/06/24,1610612755,PHI,Philadelphia 76ers
 1610612755,2025-26,00,Kelly Oubre Jr.,Kelly,kelly-oubre-jr,9,F-G,6-8,210,"DEC 09, 1995",30.0,10,Kansas,1626162,Signed on 09/26/23,1610612755,PHI,Philadelphia 76ers
 1610612755,2025-26,00,Justin Edwards,Justin,justin-edwards,11,F,6-7,217,"DEC 16, 2003",22.0,1,Kentucky,1642348,Signed on 07/04/24,1610612755,PHI,Philadelphia 76ers
@@ -408,7 +406,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612755,2025-26,00,Johni Broome,Johni,johni-broome,22,F,6-9,244,"JUL 19, 2002",23.0,R,Auburn,1641780,#35 Pick in 2025 Draft,1610612755,PHI,Philadelphia 76ers
 1610612755,2025-26,00,Tyrese Martin,Tyrese,tyrese-martin,23,F,6-6,215,"MAR 07, 1999",27.0,2,Connecticut,1631213,Signed on 02/19/26,1610612755,PHI,Philadelphia 76ers
 1610612755,2025-26,00,Dominick Barlow,Dominick,dominick-barlow,25,F,6-9,224,"MAY 26, 2003",22.0,3,Overtime Elite,1631230,Signed on 07/09/25,1610612755,PHI,Philadelphia 76ers
-1610612755,2025-26,00,Adem Bona,Adem,adem-bona,30,F,6-10,235,"MAR 28, 2003",22.0,1,UCLA,1641737,#41 Pick in 2024 Draft,1610612755,PHI,Philadelphia 76ers
+1610612755,2025-26,00,Adem Bona,Adem,adem-bona,30,F,6-10,235,"MAR 28, 2003",23.0,1,UCLA,1641737,#41 Pick in 2024 Draft,1610612755,PHI,Philadelphia 76ers
 1610612755,2025-26,00,Jabari Walker,Jabari,jabari-walker,33,F,6-7,237,"JUL 30, 2002",23.0,3,Colorado,1631133,Signed on 07/05/25,1610612755,PHI,Philadelphia 76ers
 1610612755,2025-26,00,VJ Edgecombe,VJ,vj-edgecombe,77,G,6-4,190,"JUL 30, 2005",20.0,R,Baylor,1642845,#3 Pick in 2025 Draft,1610612755,PHI,Philadelphia 76ers
 1610612756,2025-26,00,Royce O'Neale,Royce,royce-oneale,00,F,6-6,226,"JUN 05, 1993",32.0,8,Baylor,1626220,Traded from BKN on 02/08/24,1610612756,PHX,Phoenix Suns
@@ -446,7 +444,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612757,2025-26,00,Vít Krejčí,Vít,vít-krejčí,27,G,6-8,195,"JUN 19, 2000",25.0,4,Zaragoza,1630249,Traded from ATL on 02/01/26,1610612757,POR,Portland Trail Blazers
 1610612757,2025-26,00,Toumani Camara,Toumani,toumani-camara,33,F,6-7,230,"MAY 08, 2000",25.0,2,Dayton,1641739,Traded from PHX on 09/27/23,1610612757,POR,Portland Trail Blazers
 1610612757,2025-26,00,Robert Williams III,Robert,robert-williams-iii,35,C-F,6-9,249,"OCT 17, 1997",28.0,7,Texas A&M,1629057,Traded from BOS on 10/01/23,1610612757,POR,Portland Trail Blazers
-1610612757,2025-26,00,Sidy Cissoko,Sidy,sidy-cissoko,91,G,6-6,220,"APR 02, 2004",21.0,2,NBA G League Ignite,1631321,Signed on 02/08/25,1610612757,POR,Portland Trail Blazers
+1610612757,2025-26,00,Sidy Cissoko,Sidy,sidy-cissoko,91,G,6-6,220,"APR 02, 2004",22.0,2,NBA G League Ignite,1631321,Signed on 02/08/25,1610612757,POR,Portland Trail Blazers
 1610612758,2025-26,00,Malik Monk,Malik,malik-monk,0,G,6-3,200,"FEB 04, 1998",28.0,8,Kentucky,1628370,Signed on 07/06/22,1610612758,SAC,Sacramento Kings
 1610612758,2025-26,00,Nique Clifford,Nique,nique-clifford,5,G,6-5,175,"FEB 09, 2002",24.0,R,Colorado State,1642363,Draft Rights Traded from OKC on 06/25/25,1610612758,SAC,Sacramento Kings
 1610612758,2025-26,00,Killian Hayes,Killian,killian-hayes,7,G,6-4,195,"JUL 27, 2001",24.0,5,Ratiopharm Ulm,1630165,Signed on 02/23/26,1610612758,SAC,Sacramento Kings
@@ -500,7 +498,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612761,2025-26,00,Sandro Mamukelashvili,Sandro,sandro-mamukelashvili,54,F-C,6-9,240,"MAY 23, 1999",26.0,4,Seton Hall,1630572,Signed on 07/03/25,1610612761,TOR,Toronto Raptors
 1610612761,2025-26,00,Alijah Martin,Alijah,alijah-martin,55,G,6-2,210,"DEC 26, 2001",24.0,R,Florida,1642918,#39 Pick in 2025 Draft,1610612761,TOR,Toronto Raptors
 1610612761,2025-26,00,Jamison Battle,Jamison,jamison-battle,77,F,6-7,220,"MAY 10, 2001",24.0,1,Ohio State,1642419,Signed on 07/16/24,1610612761,TOR,Toronto Raptors
-1610612762,2025-26,00,Kennedy Chandler,Kennedy,kennedy-chandler,1,G,6-0,170,"SEP 16, 2002",23.0,1,Tennessee,1631113,Signed on 03/21/26,1610612762,UTA,Utah Jazz
+1610612762,2025-26,00,Kennedy Chandler,Kennedy,kennedy-chandler,0,G,6-0,170,"SEP 16, 2002",23.0,1,Tennessee,1631113,Signed on 03/21/26,1610612762,UTA,Utah Jazz
 1610612762,2025-26,00,Blake Hinson,Blake,blake-hinson,2,F,6-8,230,"DEC 26, 1999",26.0,R,Pittsburgh,1642396,Signed on 02/09/26,1610612762,UTA,Utah Jazz
 1610612762,2025-26,00,Keyonte George,Keyonte,keyonte-george,3,G,6-4,185,"NOV 08, 2003",22.0,2,Baylor,1641718,#16 Pick in 2023 Draft,1610612762,UTA,Utah Jazz
 1610612762,2025-26,00,Cody Williams,Cody,cody-williams,5,F,6-8,190,"NOV 20, 2004",21.0,1,Colorado,1642262,#10 Pick in 2024 Draft,1610612762,UTA,Utah Jazz
@@ -517,7 +515,7 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612762,2025-26,00,Jusuf Nurkić,Jusuf,jusuf-nurkić,30,C,6-11,290,"AUG 23, 1994",31.0,11,Cedevita,203994,Traded from CHA on 06/29/25,1610612762,UTA,Utah Jazz
 1610612762,2025-26,00,Oscar Tshiebwe,Oscar,oscar-tshiebwe,34,F-C,6-8,255,"NOV 27, 1999",26.0,2,Kentucky,1631131,Signed on 08/12/24,1610612762,UTA,Utah Jazz
 1610612762,2025-26,00,Kevin Love,Kevin,kevin-love,42,F-C,6-10,251,"SEP 07, 1988",37.0,17,UCLA,201567,Traded from MIA on 07/07/25,1610612762,UTA,Utah Jazz
-1610612762,2025-26,00,John Konchar,John,john-konchar,55,G,6-5,210,"MAR 22, 1996",29.0,6,Indiana-Purdue Fort Wayne,1629723,Traded from MEM on 02/03/26,1610612762,UTA,Utah Jazz
+1610612762,2025-26,00,John Konchar,John,john-konchar,55,G,6-5,210,"MAR 22, 1996",30.0,6,Indiana-Purdue Fort Wayne,1629723,Traded from MEM on 02/03/26,1610612762,UTA,Utah Jazz
 1610612764,2025-26,00,Julian Reese,Julian,julian-reese,,F,6-9,230,"JUN 30, 2003",22.0,R,Maryland,1642882,Signed on 02/28/26,1610612764,WAS,Washington Wizards
 1610612764,2025-26,00,Bilal Coulibaly,Bilal,bilal-coulibaly,0,G,6-7,195,"JUL 26, 2004",21.0,2,Metropolitans 92,1641731,Draft Rights Traded from IND on 06/23/23,1610612764,WAS,Washington Wizards
 1610612764,2025-26,00,Tristan Vukcevic,Tristan,tristan-vukcevic,00,F,7-0,220,"MAR 11, 2003",23.0,2,Real Madrid,1641774,#42 Pick in 2023 Draft,1610612764,WAS,Washington Wizards

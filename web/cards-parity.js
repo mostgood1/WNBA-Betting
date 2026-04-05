@@ -575,6 +575,53 @@
     return selected;
   }
 
+  function signalLaneKey(signal) {
+    const key = String(signal?.key || '').toLowerCase();
+    if (key.includes('ml')) {
+      return 'ml';
+    }
+    if (key.includes('ats')) {
+      return 'ats';
+    }
+    if (key.includes('total')) {
+      return 'total';
+    }
+    return 'other';
+  }
+
+  function featuredSignalSelection(signals) {
+    const ranked = rankSignals(signals).filter((signal) => signal?.klass === 'BET' || signal?.klass === 'WATCH');
+    if (!ranked.length) {
+      return [null, null, null, null, null, null];
+    }
+
+    const selected = [];
+    const selectedKeys = new Set();
+    const requiredLanes = ['ml', 'ats', 'total'];
+
+    requiredLanes.forEach((lane) => {
+      const signal = ranked.find((entry) => signalLaneKey(entry) === lane && !selectedKeys.has(entry?.key));
+      if (signal) {
+        selected.push(signal);
+        selectedKeys.add(signal.key);
+      } else {
+        selected.push(null);
+      }
+    });
+
+    while (selected.length < 6) {
+      const wildcard = ranked.find((entry) => !selectedKeys.has(entry?.key));
+      if (!wildcard) {
+        selected.push(null);
+        continue;
+      }
+      selected.push(wildcard);
+      selectedKeys.add(wildcard.key);
+    }
+
+    return selected;
+  }
+
   function completedMarginBeforePeriod(liveState, beforePeriod) {
     const periods = safeArray(liveState?.periods);
     return periods
@@ -795,7 +842,7 @@
       const halfSim = simPeriodMean(game, 'h1');
       const halfMinutesElapsed = Number.isFinite(elapsedMinutes) ? elapsedMinutes : null;
       const halfMinutesRemaining = Number.isFinite(halfMinutesElapsed) ? Math.max(0, 24 - Math.min(24, halfMinutesElapsed)) : null;
-      if (Number.isFinite(halfLine) && Number.isFinite(halfActual) && Number.isFinite(halfMinutesElapsed)) {
+      if (Number.isFinite(halfLine) && Number.isFinite(halfActual) && Number.isFinite(halfMinutesElapsed) && Number(halfMinutesRemaining) > 0) {
         const elapsedForRate = Math.max(halfMinutesElapsed, 1);
         const liveRate = halfActual / elapsedForRate;
         const paceRaw = halfActual + (liveRate * Math.max(0, halfMinutesRemaining || 0));
@@ -820,7 +867,7 @@
         ? Math.max(0, elapsedMinutes - ((Math.floor(currentPeriod) - 1) * 12))
         : null;
       const quarterMinutesRemaining = Number.isFinite(quarterMinutesElapsed) ? Math.max(0, 12 - Math.min(12, quarterMinutesElapsed)) : null;
-      if (Number.isFinite(quarterLine) && Number.isFinite(quarterActual) && Number.isFinite(quarterMinutesElapsed)) {
+      if (Number.isFinite(quarterLine) && Number.isFinite(quarterActual) && Number.isFinite(quarterMinutesElapsed) && Number(quarterMinutesRemaining) > 0) {
         const elapsedForRate = Math.max(quarterMinutesElapsed, 1);
         const liveRate = quarterActual / elapsedForRate;
         const paceRaw = quarterActual + (liveRate * Math.max(0, quarterMinutesRemaining || 0));
@@ -843,7 +890,8 @@
       const actualHalfMargin = Number.isFinite(currentMargin) ? currentMargin : null;
       const simHalfMargin = simPeriodMargin(game, 'h1');
       const halfMinutesElapsed = Number.isFinite(elapsedMinutes) ? elapsedMinutes : null;
-      if (Number.isFinite(actualHalfMargin) && Number.isFinite(halfMinutesElapsed)) {
+      const halfMinutesRemaining = Number.isFinite(halfMinutesElapsed) ? Math.max(0, 24 - Math.min(24, halfMinutesElapsed)) : null;
+      if (Number.isFinite(actualHalfMargin) && Number.isFinite(halfMinutesElapsed) && Number(halfMinutesRemaining) > 0) {
         const blendWeight = clampNumber(halfMinutesElapsed / 24, 0.18, 1);
         const projectedHalfMargin = Number.isFinite(simHalfMargin)
           ? ((1 - blendWeight) * simHalfMargin) + (blendWeight * actualHalfMargin)
@@ -863,7 +911,6 @@
         }
 
         const halfMlThresholds = derivedPeriodMlThresholds('h1');
-        const halfMinutesRemaining = Math.max(0, 24 - halfMinutesElapsed);
         const pHomeHalf = projectedWinProbFromMargin(projectedHalfMargin, halfMinutesRemaining);
         if (Number.isFinite(pHomeHalf)) {
           const homeEdge = pHomeHalf - 0.5;
@@ -888,7 +935,8 @@
       const quarterMinutesElapsed = Number.isFinite(currentPeriod) && Number.isFinite(elapsedMinutes)
         ? Math.max(0, elapsedMinutes - ((Math.floor(currentPeriod) - 1) * 12))
         : null;
-      if (Number.isFinite(actualQuarterMargin) && Number.isFinite(quarterMinutesElapsed)) {
+      const quarterMinutesRemaining = Number.isFinite(quarterMinutesElapsed) ? Math.max(0, 12 - Math.min(12, quarterMinutesElapsed)) : null;
+      if (Number.isFinite(actualQuarterMargin) && Number.isFinite(quarterMinutesElapsed) && Number(quarterMinutesRemaining) > 0) {
         const blendWeight = clampNumber(quarterMinutesElapsed / 12, 0.22, 1);
         const projectedQuarterMargin = Number.isFinite(simQuarterMargin)
           ? ((1 - blendWeight) * simQuarterMargin) + (blendWeight * actualQuarterMargin)
@@ -908,7 +956,6 @@
         }
 
         const quarterMlThresholds = derivedPeriodMlThresholds(currentQuarterKey);
-        const quarterMinutesRemaining = Math.max(0, 12 - quarterMinutesElapsed);
         const pHomeQuarter = projectedWinProbFromMargin(projectedQuarterMargin, quarterMinutesRemaining);
         if (Number.isFinite(pHomeQuarter)) {
           const homeEdge = pHomeQuarter - 0.5;
@@ -970,10 +1017,11 @@
     }
 
     const signals = [quarterSignal, halfSignal, totalSignal, quarterAtsSignal, halfAtsSignal, atsSignal, quarterMlSignal, halfMlSignal, mlSignal].filter(Boolean);
-    const topSignals = rankSignals(signals).filter((signal) => signal.klass === 'BET' || signal.klass === 'WATCH');
+    const rankedSignals = rankSignals(signals).filter((signal) => signal.klass === 'BET' || signal.klass === 'WATCH');
+    const topSignals = featuredSignalSelection(signals);
     const compactSignals = compactSignalSelection(signals);
 
-    const overallClass = topSignals[0]?.klass || 'NONE';
+    const overallClass = rankedSignals[0]?.klass || 'NONE';
     const scoreLabel = hasStartedGame(liveState) && Number.isFinite(awayPts) && Number.isFinite(homePts)
       ? `${game?.away_tri || 'AWY'} ${fmtInteger(awayPts)} - ${fmtInteger(homePts)} ${game?.home_tri || 'HME'}`
       : `${game?.away_tri || 'AWY'} at ${game?.home_tri || 'HME'}`;
@@ -2456,14 +2504,75 @@
       .slice(0, 3);
   }
 
+  function liveOpportunityPropRows(game) {
+    if (mode !== 'live') {
+      return [];
+    }
+    const liveState = getLiveState(game);
+    if (!hasStartedGame(liveState)) {
+      return [];
+    }
+    return livePropTeaserItems(game, 0)
+      .map((item, index) => {
+        const teamTri = String(item?.team_tri || '').trim().toUpperCase();
+        const awayTri = String(game?.away_tri || '').trim().toUpperCase();
+        const homeTri = String(game?.home_tri || '').trim().toUpperCase();
+        const sideKey = teamTri === awayTri ? 'away' : (teamTri === homeTri ? 'home' : '');
+        const market = String(item?.market || '').trim().toLowerCase();
+        const side = livePropPrimarySide(item) || String(item?.side || '').trim().toUpperCase();
+        const klass = String(item?.klass || '').trim().toUpperCase();
+        const projection = finiteFirst(item?.pace_proj, item?.sim_mu_adjusted, item?.sim_mu);
+        const liveEdge = finiteFirst(item?.pace_vs_line, item?.sim_vs_line_adjusted, item?.sim_vs_line);
+        if (klass !== 'BET' && klass !== 'WATCH') {
+          return null;
+        }
+        const statusLabel = stripStatusText(item);
+        const sourceSummary = stripSecondaryText(item);
+        return {
+          key: ['live', awayTri, homeTri, teamTri, String(item?.player || '').trim(), market, side, Number(item?.line), index].join('|'),
+          cardId: cardId(game),
+          teamTri,
+          sideKey,
+          player: String(item?.player || '').trim(),
+          playerPhoto: item?.player_photo || item?.photo,
+          market,
+          marketLabel: marketLabel(market),
+          side,
+          line: Number(item?.line),
+          price: Number(item?.price),
+          book: item?.book,
+          evPct: Number(item?.ev_pct),
+          pWin: Number(item?.probability ?? item?.prob_calib),
+          simMu: finiteFirst(item?.sim_mu_adjusted, item?.sim_mu),
+          summary: [liveProjectionSummary(item), sourceSummary].filter(Boolean).join(' · '),
+          reasons: [statusLabel, sourceSummary].filter(Boolean),
+          matchup: `${awayTri} @ ${homeTri}`,
+          rank: index + 1,
+          primary: index === 0,
+          bucket: 'live',
+          actionLabel: klass || 'LIVE',
+          statusLabel,
+          lineSource: item?.line_source,
+          actual: Number(item?.actual),
+          liveProjection: Number(projection),
+          liveEdge: Number(liveEdge),
+        };
+      })
+      .filter(Boolean);
+  }
+
   function propBucketSummary(game) {
     const rows = allPropRows(game);
     const official = rows.filter((row) => row.bucket === 'official').length;
     const playable = rows.filter((row) => row.bucket !== 'official').length;
-    if (!official && !playable) {
+    const live = liveOpportunityPropRows(game).length;
+    if (!official && !playable && !live) {
       return 'No props';
     }
     const parts = [];
+    if (live) {
+      parts.push(`${live} live`);
+    }
     if (official) {
       parts.push(`${official} official`);
     }
@@ -2524,6 +2633,64 @@
     }
 
     return sections.join('');
+  }
+
+  function sidebarPropBoardMarkup(game) {
+    const id = cardId(game);
+    const liveRows = liveOpportunityPropRows(game).slice(0, 3);
+    const playableRows = allPropRows(game)
+      .sort((left, right) => recommendationSortScore(right) - recommendationSortScore(left))
+      .slice(0, 3);
+    const rows = mode === 'live' && liveRows.length ? liveRows : playableRows;
+    if (!rows.length) {
+      return '<div class="cards-empty-copy">No promoted prop lanes available for this matchup.</div>';
+    }
+    return `
+      <div class="cards-prop-overview-grid">
+        ${rows.map((row) => {
+          const isLiveRow = row.bucket === 'live';
+          const badgeClass = isLiveRow ? 'is-live' : '';
+          const badgeLabel = isLiveRow ? (row.actionLabel || 'Live') : (row.bucket === 'official' ? 'Official' : 'Playable');
+          const metrics = isLiveRow
+            ? [
+              { label: 'Current', value: Number.isFinite(Number(row.actual)) ? fmtNumber(row.actual, 1) : '-' },
+              { label: 'Live proj', value: Number.isFinite(Number(row.liveProjection)) ? fmtNumber(row.liveProjection, 1) : '-' },
+              { label: 'Line', value: `${row.side} ${fmtNumber(row.line, 1)}` },
+              { label: 'Live edge', value: Number.isFinite(Number(row.liveEdge)) ? fmtSigned(row.liveEdge, 1) : '-' , tone: Number(row.liveEdge) >= 0 ? 'is-positive' : 'is-negative' },
+            ]
+            : [
+              { label: 'Line', value: `${row.side} ${fmtNumber(row.line, 1)}` },
+              { label: 'Odds', value: `${fmtAmerican(row.price)} ${row.book || ''}`.trim() },
+              { label: 'Win', value: fmtPercent(row.pWin, 0) },
+              { label: 'EV', value: fmtPercentValue(row.evPct), tone: Number(row.evPct) >= 0 ? 'is-positive' : 'is-negative' },
+            ];
+          return `
+            <button class="cards-prop-overview-card" type="button" data-prop-select="${escapeHtml(row.key)}" data-card-target="${escapeHtml(id)}">
+              <div class="cards-lens-head">
+                <div>
+                  <div class="cards-lens-label">${escapeHtml(isLiveRow ? `${row.teamTri} live lens` : `${row.teamTri} prop`)}</div>
+                  <div class="cards-lens-main">${escapeHtml(row.player)}</div>
+                  <div class="cards-subcopy">${escapeHtml(`${row.marketLabel} ${row.side} ${fmtNumber(row.line, 1)}`)}</div>
+                </div>
+                <span class="cards-lens-badge ${badgeClass}">${escapeHtml(badgeLabel)}</span>
+              </div>
+              <div class="cards-prop-overview-metrics">
+                ${metrics.map((metric) => `
+                  <div class="cards-data-pair ${metric.tone || ''}">
+                    <span>${escapeHtml(metric.label)}</span>
+                    <strong>${escapeHtml(metric.value)}</strong>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="cards-prop-overview-foot">
+                <span>${escapeHtml(row.summary || (isLiveRow ? `${row.statusLabel || 'Live'} · ${row.matchup || ''}` : `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim()))}</span>
+                <span>${escapeHtml(`${row.teamTri} | ${row.marketLabel}`)}</span>
+              </div>
+            </button>
+          `;
+        }).join('')}
+      </div>
+    `;
   }
 
   function probabilityRows(game) {
@@ -2895,11 +3062,12 @@
   }
 
   function renderMarketTile(title, pick, auxLine, noteText, cardIdValue) {
+    const hasMetrics = Number.isFinite(Number(pick?.probability)) || Number.isFinite(Number(pick?.ev));
     return `
       <button class="cards-market-tile" type="button" ${pick?.tabTarget ? `data-market-tab-target="${escapeHtml(pick.tabTarget)}" data-card-target="${escapeHtml(cardIdValue)}"` : ''}>
         <div class="cards-market-kicker">${escapeHtml(title)}</div>
         <div class="cards-market-main">${escapeHtml(pick?.detail || 'No playable edge')}</div>
-        <div class="cards-mini-copy">${pick ? `Win ${fmtPercent(pick.probability, 0)} · EV ${fmtPercentValue(pick.ev)}` : 'Off card'}</div>
+        <div class="cards-mini-copy">${escapeHtml(pick ? (hasMetrics ? `Win ${fmtPercent(pick.probability, 0)} · EV ${fmtPercentValue(pick.ev)}` : (pick.meta || 'Off card')) : 'Off card')}</div>
         <div class="cards-market-sub" data-odds-only="true">${escapeHtml(auxLine)}</div>
         <div class="cards-market-sub">${escapeHtml(noteText)}</div>
       </button>
@@ -2940,7 +3108,7 @@
 
   function renderGamePanel(game) {
     const liveLens = getLiveLens(game);
-    const liveState = getLiveState(game);
+    const liveSignalTiles = safeArray(liveLens?.topSignals).slice(0, 6);
     return `
       <div class="cards-overview-grid">
         <div class="cards-panel-card">
@@ -2950,21 +3118,36 @@
           </div>
           <div class="cards-live-lens-grid">${renderGameLens(game)}</div>
           <div class="cards-prob-grid">${segmentProbabilityRows(game)}</div>
-          <div class="cards-mini-metrics">${miniMetrics(game)}</div>
-          ${mode === 'live' && (liveLens?.topSignals?.length || liveState?.status)
-            ? `<div class="cards-source-meta cards-live-signal-row">
-                ${safeArray(liveLens?.topSignals).slice(0, 4).map(renderLiveSignalChip).join('')}
-              </div>`
-            : ''}
-          ${renderLivePropTeaser(game)}
+          ${mode === 'live' && liveSignalTiles.length ? `
+            <div class="cards-live-opportunity-stack">
+              <div class="cards-section-label">BET / WATCH opportunities</div>
+              <div class="cards-live-opportunity-list">${liveSignalTiles.map(renderLiveSignalTile).join('')}</div>
+            </div>
+          ` : ''}
         </div>
-        <div class="cards-panel-card">
-          <div class="cards-box-head">
-            <div class="cards-table-title"><strong>Official card</strong></div>
-            <span class="cards-chip">${escapeHtml(marketCountSummary(game) || 'Market board')}</span>
+        <div class="cards-overview-side">
+          <div class="cards-panel-card">
+            <div class="cards-box-head">
+              <div class="cards-table-title"><strong>Official card</strong></div>
+              <span class="cards-chip">${escapeHtml(marketCountSummary(game) || 'Market board')}</span>
+            </div>
+            <ul class="cards-callout-list">${officialCardRows(game)}</ul>
+            ${sidebarPropBoardMarkup(game)}
           </div>
-          <ul class="cards-callout-list">${officialCardRows(game)}</ul>
         </div>
+      </div>
+    `;
+  }
+
+  function renderTabsRail(game, activeTab, id) {
+    return `
+      <div class="cards-tabs-rail">
+        <div class="cards-tabs">
+          <button class="cards-tab ${activeTab === 'game' ? 'is-active' : ''}" type="button" data-card-tab="game" data-card-target="${escapeHtml(id)}">Game</button>
+          <button class="cards-tab ${activeTab === 'box' ? 'is-active' : ''}" type="button" data-card-tab="box" data-card-target="${escapeHtml(id)}">Box Score</button>
+          <button class="cards-tab ${activeTab === 'props' ? 'is-active' : ''}" type="button" data-card-tab="props" data-card-target="${escapeHtml(id)}">Props</button>
+        </div>
+        <div class="cards-mini-metrics cards-mini-metrics--rail">${miniMetrics(game)}</div>
       </div>
     `;
   }
@@ -3264,9 +3447,27 @@
     });
   }
 
+  function filteredLivePropRows(game) {
+    const detail = ensurePropDetail(game);
+    const rows = liveOpportunityPropRows(game);
+    return rows.filter((row) => {
+      if (detail.side !== 'all' && row.sideKey !== detail.side) {
+        return false;
+      }
+      if (detail.type !== 'all' && row.market !== detail.type) {
+        return false;
+      }
+      if (detail.bucket !== 'all' && row.bucket !== detail.bucket) {
+        return false;
+      }
+      return true;
+    });
+  }
+
   function splitFilteredPropRows(game) {
     const rows = filteredPropRows(game);
     return {
+      live: filteredLivePropRows(game),
       official: rows.filter((row) => row.bucket === 'official'),
       playable: rows.filter((row) => row.bucket !== 'official'),
     };
@@ -3274,7 +3475,8 @@
 
   function selectedPropRow(game) {
     const detail = ensurePropDetail(game);
-    const filtered = filteredPropRows(game);
+    const groups = splitFilteredPropRows(game);
+    const filtered = groups.live.concat(groups.official, groups.playable);
     let selected = filtered.find((row) => row.key === detail.selectedKey) || null;
     if (!selected) {
       selected = filtered[0] || null;
@@ -3286,6 +3488,7 @@
   function renderPropFilters(game) {
     const detail = ensurePropDetail(game);
     const rows = allPropRows(game);
+    const liveRows = liveOpportunityPropRows(game);
     const rowsForCounts = rows.filter((row) => {
       if (detail.side !== 'all' && row.sideKey !== detail.side) {
         return false;
@@ -3295,9 +3498,19 @@
       }
       return true;
     });
+    const liveRowsForCounts = liveRows.filter((row) => {
+      if (detail.side !== 'all' && row.sideKey !== detail.side) {
+        return false;
+      }
+      if (detail.type !== 'all' && row.market !== detail.type) {
+        return false;
+      }
+      return true;
+    });
+    const liveCount = liveRowsForCounts.length;
     const officialCount = rowsForCounts.filter((row) => row.bucket === 'official').length;
     const playableCount = rowsForCounts.filter((row) => row.bucket !== 'official').length;
-    const markets = Array.from(new Set(rows.map((row) => row.market))).sort();
+    const markets = Array.from(new Set(rows.concat(liveRows).map((row) => row.market))).sort();
     const sidePills = [
       { key: 'all', label: 'All sides' },
       { key: 'away', label: `${game.away_tri}` },
@@ -3306,6 +3519,11 @@
     const typePills = [{ key: 'all', label: 'All props' }].concat(markets.map((market) => ({ key: market, label: marketLabel(market) })));
     return `
       <div class="cards-filters cards-prop-filter-pills">
+        ${liveCount || detail.bucket === 'live' ? `
+        <button class="cards-filter-pill cards-prop-filter-pill ${detail.bucket === 'live' ? 'is-active' : ''}" type="button" data-prop-filter-bucket="live" data-card-target="${escapeHtml(cardId(game))}">
+          <span>Live</span>
+          <span class="cards-prop-filter-count">${escapeHtml(String(liveCount))}</span>
+        </button>` : ''}
         <button class="cards-filter-pill cards-prop-filter-pill ${detail.bucket === 'official' ? 'is-active' : ''}" type="button" data-prop-filter-bucket="official" data-card-target="${escapeHtml(cardId(game))}">
           <span>Official</span>
           <span class="cards-prop-filter-count">${escapeHtml(String(officialCount))}</span>
@@ -3324,44 +3542,96 @@
     `;
   }
 
+  function renderPropButtons(game, rows, selectedKey) {
+    return `
+      <div class="cards-prop-list">
+        ${rows.map((row) => {
+          const tierClass = row.bucket === 'official' ? 'is-official' : (row.bucket === 'live' ? 'is-live' : 'is-candidate');
+          const tierLabel = row.bucket === 'official' ? 'Official' : (row.bucket === 'live' ? (row.actionLabel || 'Live') : 'Playable');
+          const supportingCopy = row.bucket === 'live'
+            ? `${row.teamTri} · ${row.statusLabel || 'Live'}${Number.isFinite(row.liveEdge) ? ` · Edge ${fmtSigned(row.liveEdge, 1)}` : ''}`
+            : `${row.teamTri} · EV ${fmtPercentValue(row.evPct)} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim();
+          return `
+            <button class="cards-prop-button ${tierClass} ${selectedKey === row.key ? 'is-active' : ''}" type="button" data-prop-select="${escapeHtml(row.key)}" data-card-target="${escapeHtml(cardId(game))}">
+              <div class="cards-prop-button-head">
+                <strong>${escapeHtml(row.player || 'Player')}</strong>
+                <span class="cards-chip ${tierClass}">${escapeHtml(tierLabel)}</span>
+              </div>
+              <div class="cards-prop-button-main">${escapeHtml(row.marketLabel)} ${escapeHtml(row.side)} ${fmtNumber(row.line, 1)}</div>
+              <small>${escapeHtml(supportingCopy)}</small>
+            </button>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  function renderPropTeamStacks(game, rows, selectedKey) {
+    const groups = [
+      { key: 'away', label: `${game.away_tri} props` },
+      { key: 'home', label: `${game.home_tri} props` },
+    ];
+    return groups
+      .map((group) => {
+        const teamRows = rows.filter((row) => row.sideKey === group.key);
+        if (!teamRows.length) {
+          return '';
+        }
+        return `
+          <div class="cards-prop-stack">
+            <div class="cards-section-label">${escapeHtml(group.label)}</div>
+            ${renderPropButtons(game, teamRows, selectedKey)}
+          </div>
+        `;
+      })
+      .join('');
+  }
+
   function renderPropGroups(game) {
     const groups = splitFilteredPropRows(game);
-    const rows = groups.official.concat(groups.playable);
+    const rows = groups.live.concat(groups.official, groups.playable);
     if (!rows.length) {
-      return '<div class="cards-empty">No official or playable props matched the current side and prop-type filters for this game.</div>';
+      return '<div class="cards-empty">No live, official, or playable props matched the current side and prop-type filters for this game.</div>';
     }
 
-    const renderGroup = (title, chipText, groupRows) => {
+    const activeKey = selectedPropRow(game)?.key;
+
+    const renderGroup = (title, chipText, groupRows, bucketKey, options = {}) => {
       if (!groupRows.length) {
         return '';
       }
-      const bucketKey = title === 'Official plays' ? 'official' : 'playable';
+      const chipClass = options.chipClass || '';
+      const description = options.description || '';
+      const body = options.teamStacks
+        ? renderPropTeamStacks(game, groupRows, activeKey)
+        : renderPropButtons(game, groupRows, activeKey);
       return `
-        <div class="cards-prop-board-group">
+        <div class="cards-prop-group ${options.secondary ? 'is-secondary' : ''}">
           <div class="cards-box-head cards-box-head--nested">
             <div class="cards-table-title"><strong>${escapeHtml(title)}</strong></div>
-            <button class="cards-chip cards-chip-button ${title === 'Official plays' ? 'cards-chip--accent' : ''}" type="button" data-prop-filter-bucket="${escapeHtml(bucketKey)}" data-card-target="${escapeHtml(cardId(game))}">${escapeHtml(chipText)}</button>
+            <button class="cards-chip cards-chip-button ${chipClass}" type="button" data-prop-filter-bucket="${escapeHtml(bucketKey)}" data-card-target="${escapeHtml(cardId(game))}">${escapeHtml(chipText)}</button>
           </div>
-          <div class="cards-prop-list">
-            ${groupRows.map((row) => `
-              <button class="cards-prop-button ${row.bucket === 'official' ? 'is-official' : 'is-candidate'} ${selectedPropRow(game)?.key === row.key ? 'is-active' : ''}" type="button" data-prop-select="${escapeHtml(row.key)}" data-card-target="${escapeHtml(cardId(game))}">
-                <div class="cards-prop-button-head">
-                  <strong>${escapeHtml(row.player || 'Player')}</strong>
-                  <span class="cards-chip ${row.bucket === 'official' ? 'is-official' : 'is-candidate'}">${row.bucket === 'official' ? 'Official' : 'Playable'}</span>
-                </div>
-                <div class="cards-prop-button-main">${escapeHtml(row.marketLabel)} ${escapeHtml(row.side)} ${fmtNumber(row.line, 1)}</div>
-                <small>${escapeHtml(row.teamTri)} · EV ${fmtPercentValue(row.evPct)} · ${fmtAmerican(row.price)} ${escapeHtml(row.book || '')}</small>
-              </button>
-            `).join('')}
-          </div>
+          ${description ? `<div class="cards-callout-copy">${escapeHtml(description)}</div>` : ''}
+          ${body}
         </div>
       `;
     };
 
     return `
       <div class="cards-prop-board">
-        ${renderGroup('Official plays', `${groups.official.length} rows`, groups.official)}
-        ${renderGroup('Playable board', `${groups.playable.length} rows`, groups.playable)}
+        ${renderGroup('Live opportunities', `${groups.live.length} plays`, groups.live, 'live', {
+          chipClass: 'is-live',
+          description: 'Current market odds ranked by live projection first, then sim support and edge.',
+        })}
+        ${renderGroup('Official picks', `${groups.official.length} plays`, groups.official, 'official', {
+          chipClass: 'cards-chip--accent',
+          teamStacks: true,
+        })}
+        ${renderGroup('Other playable props', `${groups.playable.length} plays`, groups.playable, 'playable', {
+          secondary: true,
+          description: 'Qualified lanes that stayed off the official card after sleeve caps and one-prop-per-player selection.',
+          teamStacks: true,
+        })}
       </div>
     `;
   }
@@ -3370,25 +3640,80 @@
     if (!selected) {
       return null;
     }
-    const sideBucket = selected.sideKey === 'away' ? 'away' : 'home';
-    const players = safeArray(game?.sim?.players?.[sideBucket]).concat(safeArray(game?.sim?.missing_prop_players?.[sideBucket]));
+    const players = selected.sideKey === 'away' || selected.sideKey === 'home'
+      ? safeArray(game?.sim?.players?.[selected.sideKey]).concat(safeArray(game?.sim?.missing_prop_players?.[selected.sideKey]))
+      : safeArray(game?.sim?.players?.away)
+        .concat(safeArray(game?.sim?.players?.home))
+        .concat(safeArray(game?.sim?.missing_prop_players?.away))
+        .concat(safeArray(game?.sim?.missing_prop_players?.home));
     return players.find((player) => String(player.player_name || '').trim().toLowerCase() === String(selected.player || '').trim().toLowerCase()) || null;
+  }
+
+  function playerActualRow(game, selected) {
+    if (!selected) {
+      return null;
+    }
+    const liveBoxscore = getLivePlayerBoxscore(game) || { away: [], home: [] };
+    const playerKey = normalizePlayerKey(selected.player);
+    const preferredRows = selected.sideKey === 'away' || selected.sideKey === 'home'
+      ? safeArray(liveBoxscore[selected.sideKey])
+      : [];
+    const fallbackRows = safeArray(liveBoxscore.away).concat(safeArray(liveBoxscore.home));
+    return preferredRows.concat(fallbackRows).find((player) => normalizePlayerKey(player?.player) === playerKey) || null;
+  }
+
+  function propTierLabel(selected) {
+    if (!selected) {
+      return '-';
+    }
+    if (selected.bucket === 'live') {
+      return selected.actionLabel || 'Live';
+    }
+    return selected.bucket === 'official' ? 'Official' : 'Playable';
+  }
+
+  function renderLensDetailGrid(pairs) {
+    return `
+      <div class="cards-detail-grid">
+        ${pairs.map((pair) => `
+          <div class="cards-data-pair">
+            <span>${escapeHtml(pair.label)}</span>
+            <strong>${escapeHtml(pair.value)}</strong>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function renderLensReasons(selected) {
+    const reasons = safeArray(selected?.reasons).slice(0, 6);
+    const pills = reasons.map((reason) => `<span class="cards-source-meta-pill">${escapeHtml(reason)}</span>`).join('');
+    const summary = String(selected?.summary || '').trim();
+    if (!summary && !pills) {
+      return '';
+    }
+    return `
+      <div class="cards-panel-card cards-prop-stack cards-lens-reasons">
+        <div class="cards-table-head"><div class="cards-table-title">Why this lane</div></div>
+        ${summary ? `<div class="cards-callout-copy">${escapeHtml(summary)}</div>` : ''}
+        ${pills ? `<div class="cards-source-meta">${pills}</div>` : ''}
+      </div>
+    `;
   }
 
   function renderLensDetailPairs(selected, simRow) {
     const metricValue = simRow ? simRow[`${selected.market}_mean`] : null;
-    const pairs = [
+    const simValue = Number(metricValue ?? selected.simMu);
+    return [
+      { label: 'Tier', value: propTierLabel(selected) },
+      { label: 'Line', value: `${escapeHtml(selected.side)} ${fmtNumber(selected.line, 1)}` },
       { label: 'Odds', value: `${fmtAmerican(selected.price)} ${selected.book || ''}`.trim() },
       { label: 'EV', value: fmtPercentValue(selected.evPct) },
       { label: 'Win prob', value: fmtPercent(selected.pWin, 0) },
-      { label: 'Model mean', value: fmtNumber(metricValue ?? selected.simMu, 1) },
+      { label: 'Edge', value: Number.isFinite(Number(selected.edge)) ? fmtSigned(selected.edge, 1) : '-' },
+      { label: 'Model mean', value: Number.isFinite(simValue) ? fmtNumber(simValue, 1) : '-' },
+      { label: 'Sim row', value: Number.isFinite(simValue) ? fmtNumber(simValue, 1) : '-' },
     ];
-    return pairs.map((pair) => `
-      <div class="cards-data-pair">
-        <span>${escapeHtml(pair.label)}</span>
-        <strong>${escapeHtml(pair.value)}</strong>
-      </div>
-    `).join('');
   }
 
   function renderPlayerRowTable(simRow) {
@@ -3425,6 +3750,40 @@
     `;
   }
 
+  function renderActualPlayerRowTable(actualRow) {
+    if (!actualRow) {
+      return '<div class="cards-empty">No live or final player row matched this prop yet.</div>';
+    }
+    return `
+      <div class="cards-table-wrap">
+        <table class="cards-table">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Min</th>
+              <th>Pts</th>
+              <th>Reb</th>
+              <th>Ast</th>
+              <th>3PM</th>
+              <th>PRA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${escapeHtml(actualRow.player || 'Player')}</td>
+              <td>${escapeHtml(fmtMinutesPlayed(actualRow.mp))}</td>
+              <td>${fmtInteger(actualRow.pts)}</td>
+              <td>${fmtInteger(actualRow.reb)}</td>
+              <td>${fmtInteger(actualRow.ast)}</td>
+              <td>${fmtInteger(actualRow.threes_made)}</td>
+              <td>${fmtInteger((Number(actualRow.pts) || 0) + (Number(actualRow.reb) || 0) + (Number(actualRow.ast) || 0))}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
   function renderPropLens(game) {
     const selected = selectedPropRow(game);
     if (!selected) {
@@ -3436,11 +3795,58 @@
           </div>
           <span class="cards-lens-badge is-live">Refine filters</span>
         </div>
-        <div class="cards-callout-copy">No official or playable props matched the current side and prop-type filters for this game.</div>
+        <div class="cards-callout-copy">No live, official, or playable props matched the current side and prop-type filters for this game.</div>
       `;
     }
     const simRow = playerSimRow(game, selected);
-    const reasons = safeArray(selected.reasons).slice(0, 6);
+    const actualRow = playerActualRow(game, selected);
+    const actualValue = actualStatValue(actualRow, selected.market);
+    const simValue = Number(simRow?.[`${selected.market}_mean`] ?? selected.simMu);
+    const reasonsPanel = renderLensReasons(selected);
+    const laddersHref = `/prop-ladders?date=${encodeURIComponent(state.date)}&team=${encodeURIComponent(selected.teamTri)}&player=${encodeURIComponent(selected.player)}&market=${encodeURIComponent(selected.market)}`;
+    if (selected.bucket === 'live') {
+      const liveActual = Number(selected.actual);
+      const liveProjection = Number(selected.liveProjection);
+      const liveEdge = Number(selected.liveEdge);
+      const livePairs = [
+        { label: 'Tier', value: propTierLabel(selected) },
+        { label: 'Current', value: Number.isFinite(liveActual) ? fmtNumber(liveActual, 1) : '-' },
+        { label: 'Live proj', value: Number.isFinite(liveProjection) ? fmtNumber(liveProjection, 1) : '-' },
+        { label: 'Sim row', value: Number.isFinite(simValue) ? fmtNumber(simValue, 1) : '-' },
+        { label: 'Model mean', value: Number.isFinite(Number(selected.simMu)) ? fmtNumber(selected.simMu, 1) : '-' },
+        { label: 'Line', value: `${escapeHtml(selected.side)} ${fmtNumber(selected.line, 1)}` },
+        { label: 'Odds', value: Number.isFinite(Number(selected.price)) ? `${fmtAmerican(selected.price)} ${selected.book || ''}`.trim() : (selected.book || '-') },
+        { label: 'Live edge', value: Number.isFinite(liveEdge) ? fmtSigned(liveEdge, 1) : '-' },
+        { label: 'Actual row', value: Number.isFinite(actualValue) ? fmtNumber(actualValue, 1) : '-' },
+      ];
+      return `
+        <div class="cards-lens-head">
+          <div>
+            <div class="cards-lens-label">Prop lens</div>
+            <div class="cards-lens-main">${escapeHtml(selected.player)} · ${escapeHtml(selected.marketLabel)} ${escapeHtml(selected.side)} ${fmtNumber(selected.line, 1)}</div>
+            <div class="cards-subcopy">${escapeHtml(selected.teamTri)} · ${escapeHtml(selected.matchup || `${game.away_tri} at ${game.home_tri}`)}</div>
+          </div>
+          <span class="cards-lens-badge is-live">${escapeHtml(selected.actionLabel || 'Live')}</span>
+        </div>
+        ${renderLensDetailGrid(livePairs)}
+        ${reasonsPanel}
+        <div class="cards-box-grid">
+          <div class="cards-panel-card cards-prop-stack">
+            <div class="cards-table-head"><div class="cards-table-title">Live / final player row</div></div>
+            ${renderActualPlayerRowTable(actualRow)}
+          </div>
+          <div class="cards-panel-card cards-prop-stack">
+            <div class="cards-table-head"><div class="cards-table-title">Sim player row</div></div>
+            ${renderPlayerRowTable(simRow)}
+          </div>
+        </div>
+        <a class="cards-game-link" href="${escapeHtml(laddersHref)}">Open full ${escapeHtml(selected.marketLabel)} ladders board</a>
+      `;
+    }
+    const defaultPairs = renderLensDetailPairs(selected, simRow).concat([
+      { label: 'Actual row', value: Number.isFinite(actualValue) ? fmtNumber(actualValue, 1) : '-' },
+      { label: 'Team', value: selected.teamTri || '-' },
+    ]);
     return `
       <div class="cards-lens-head">
         <div>
@@ -3450,20 +3856,19 @@
         </div>
         <span class="cards-lens-badge ${selected.bucket === 'official' ? '' : 'is-live'}">${selected.bucket === 'official' ? 'Official' : 'Playable'}</span>
       </div>
-      <div class="cards-detail-grid">${renderLensDetailPairs(selected, simRow)}</div>
-      <div class="cards-callout-copy">${escapeHtml(selected.summary || 'No prop summary available.')}</div>
-      ${reasons.length ? `<div class="cards-source-meta">${reasons.map((reason) => `<span class="cards-source-meta-pill">${escapeHtml(reason)}</span>`).join('')}</div>` : ''}
+      ${renderLensDetailGrid(defaultPairs)}
+      ${reasonsPanel}
       <div class="cards-box-grid">
         <div class="cards-panel-card cards-prop-stack">
-          <div class="cards-table-title">Sim player row</div>
-          ${renderPlayerRowTable(simRow)}
+          <div class="cards-table-head"><div class="cards-table-title">Live / final player row</div></div>
+          ${renderActualPlayerRowTable(actualRow)}
         </div>
         <div class="cards-panel-card cards-prop-stack">
-          <div class="cards-table-title">Ladders</div>
-          <a class="cards-game-link" href="/prop-ladders?date=${encodeURIComponent(state.date)}&team=${encodeURIComponent(selected.teamTri)}&player=${encodeURIComponent(selected.player)}&market=${encodeURIComponent(selected.market)}">Open full ${escapeHtml(selected.marketLabel)} ladders board</a>
-          <div class="cards-callout-copy">Inspect alternate rungs and O/U dispersion for this prop.</div>
+          <div class="cards-table-head"><div class="cards-table-title">Sim player row</div></div>
+          ${renderPlayerRowTable(simRow)}
         </div>
       </div>
+      <a class="cards-game-link" href="${escapeHtml(laddersHref)}">Open full ${escapeHtml(selected.marketLabel)} ladders board</a>
     `;
   }
 
@@ -3505,6 +3910,8 @@
     const scoreMetaSecondary = liveLensPending
       ? 'Loading live lens...'
       : `${simScoreLabel} · Total ${fmtNumber(score.total_mean, 1)} · Margin ${fmtSigned(score.margin_mean, 1)}`;
+    const propsSummary = propBucketSummary(game);
+    const livePropCount = liveOpportunityPropRows(game).length;
     return `
       <article class="cards-game-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" data-card-id="${escapeHtml(id)}" data-matchup-key="${escapeHtml(matchup)}" id="game-card-${escapeHtml(id)}">
         <div class="cards-strip-head">
@@ -3542,14 +3949,10 @@
           ${renderMarketTile('Moneyline', bestMarketPick(game, 'moneyline'), `${game.home_tri} ${fmtAmerican(betting.home_ml)} / ${game.away_tri} ${fmtAmerican(betting.away_ml)}`, `Home win ${fmtPercent(betting.p_home_win, 0)} · Away win ${fmtPercent(betting.p_away_win, 0)}`, id)}
           ${renderMarketTile('Spread', bestMarketPick(game, 'spread'), `${game.home_tri} ${fmtSigned(betting.home_spread)} · ${game.away_tri} ${fmtSigned(-Number(betting.home_spread))}`, `Model margin ${fmtSigned(score.margin_mean, 1)} · Market ${fmtSigned(-Number(market.market_home_spread), 1)}`, id)}
           ${renderMarketTile('Total', bestMarketPick(game, 'total'), `Total ${fmtNumber(betting.total, 1)}`, `Model total ${fmtNumber(score.total_mean, 1)} · Over ${fmtPercent(betting.p_total_over, 0)}`, id)}
-          ${renderMarketTile('Props', { detail: `${safeArray(game?.prop_recommendations?.home).length + safeArray(game?.prop_recommendations?.away).length} playable props`, probability: null, ev: null, tabTarget: 'props' }, 'Jump to props board', 'Filter by team side and stat type in the Props tab.', id)}
+          ${renderMarketTile('Props', { detail: propsSummary, probability: null, ev: null, meta: livePropCount ? `${livePropCount} live opportunities` : 'Open prop board', tabTarget: 'props' }, livePropCount ? `${livePropCount} live opps · Open props board` : 'Open props board', livePropCount ? 'Live opportunities sit above official picks and extra playable props.' : 'Official picks and playable props are grouped by team in the Props tab.', id)}
         </div>
 
-        <div class="cards-tabs">
-          <button class="cards-tab ${activeTab === 'game' ? 'is-active' : ''}" type="button" data-card-tab="game" data-card-target="${escapeHtml(id)}">Game</button>
-          <button class="cards-tab ${activeTab === 'box' ? 'is-active' : ''}" type="button" data-card-tab="box" data-card-target="${escapeHtml(id)}">Box Score</button>
-          <button class="cards-tab ${activeTab === 'props' ? 'is-active' : ''}" type="button" data-card-tab="props" data-card-target="${escapeHtml(id)}">Props</button>
-        </div>
+        ${renderTabsRail(game, activeTab, id)}
 
         <section class="cards-panel ${activeTab === 'game' ? 'is-active' : ''}" data-panel-id="game">${renderGamePanel(game)}</section>
         <section class="cards-panel ${activeTab === 'box' ? 'is-active' : ''}" data-panel-id="box">
