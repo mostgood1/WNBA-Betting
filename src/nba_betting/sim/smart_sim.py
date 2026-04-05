@@ -980,24 +980,24 @@ def _player_career_opponent_rate_context(date_str: str, lookback_days: int = 720
 
 
 @lru_cache(maxsize=128)
-def _opponent_position_rate_context(date_str: str, lookback_days: int = 120) -> pd.DataFrame:
-    box = _load_boxscores_history_processed()
-    if box is None or box.empty:
+def _opponent_position_rate_context_from_player_logs(date_str: str, lookback_days: int = 120) -> pd.DataFrame:
+    logs = _load_player_logs_processed()
+    if logs is None or logs.empty:
         return pd.DataFrame()
 
     end = pd.to_datetime(str(date_str or ""), errors="coerce")
     if pd.isna(end):
         return pd.DataFrame()
 
-    cols = {str(c).upper(): c for c in box.columns}
-    gid_col = cols.get("GAME_ID") or cols.get("GAMEID")
+    cols = {str(c).upper(): c for c in logs.columns}
     team_col = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM")
     name_col = cols.get("PLAYER_NAME") or cols.get("PLAYER")
-    date_col = cols.get("DATE") or cols.get("GAME_DATE")
+    date_col = cols.get("GAME_DATE") or cols.get("DATE")
     min_col = cols.get("MIN")
     pos_col = cols.get("START_POSITION") or cols.get("POSITION")
     pid_col = cols.get("PLAYER_ID")
-    if not gid_col or not team_col or not name_col or not date_col or not min_col:
+    matchup_col = cols.get("MATCHUP")
+    if not team_col or not name_col or not date_col or not min_col or not matchup_col:
         return pd.DataFrame()
 
     stat_cols = {
@@ -1010,9 +1010,9 @@ def _opponent_position_rate_context(date_str: str, lookback_days: int = 120) -> 
         "tov": cols.get("TOV"),
     }
 
-    keep_cols = [c for c in [gid_col, team_col, name_col, date_col, min_col, pos_col, pid_col] if c]
+    keep_cols = [c for c in [team_col, name_col, date_col, min_col, pos_col, pid_col, matchup_col] if c]
     keep_cols.extend([c for c in stat_cols.values() if c])
-    ctx = box[keep_cols].copy()
+    ctx = logs[keep_cols].copy()
     ctx[date_col] = pd.to_datetime(ctx[date_col], errors="coerce")
     start = end - pd.Timedelta(days=int(max(21, lookback_days)))
     ctx = ctx[(ctx[date_col].notna()) & (ctx[date_col] >= start) & (ctx[date_col] < end)].copy()
@@ -1020,10 +1020,9 @@ def _opponent_position_rate_context(date_str: str, lookback_days: int = 120) -> 
         return pd.DataFrame()
 
     ctx[team_col] = ctx[team_col].astype(str).str.upper().str.strip()
-    ctx[gid_col] = pd.to_numeric(ctx[gid_col], errors="coerce")
     ctx["_pkey"] = ctx[name_col].map(_norm_player_key)
     ctx["_min"] = ctx[min_col].map(_parse_min_to_float)
-    ctx = ctx[np.isfinite(ctx["_min"]) & (ctx["_min"] > 0.0) & ctx[gid_col].notna()].copy()
+    ctx = ctx[np.isfinite(ctx["_min"]) & (ctx["_min"] > 0.0)].copy()
     if ctx.empty:
         return pd.DataFrame()
 
@@ -1063,12 +1062,7 @@ def _opponent_position_rate_context(date_str: str, lookback_days: int = 120) -> 
     if ctx.empty:
         return pd.DataFrame()
 
-    matchup = ctx[[gid_col, team_col]].drop_duplicates().copy()
-    opp_map = matchup.merge(matchup, on=gid_col, suffixes=("_team", "_opp"))
-    opp_map = opp_map[opp_map[f"{team_col}_team"] != opp_map[f"{team_col}_opp"]].copy()
-    opp_map = opp_map.drop_duplicates(subset=[gid_col, f"{team_col}_team"], keep="last")
-    opp_map = opp_map.rename(columns={f"{team_col}_team": team_col, f"{team_col}_opp": "_opp"})[[gid_col, team_col, "_opp"]]
-    ctx = ctx.merge(opp_map, on=[gid_col, team_col], how="left")
+    ctx["_opp"] = ctx[matchup_col].map(_matchup_opponent)
     ctx["_opp"] = ctx["_opp"].astype(str).str.upper().str.strip()
     ctx = ctx[ctx["_opp"].str.len().between(2, 4)].copy()
     if ctx.empty:
@@ -1087,6 +1081,119 @@ def _opponent_position_rate_context(date_str: str, lookback_days: int = 120) -> 
     for stat in stat_cols:
         agg_dict[f"_{stat}_pm"] = "mean"
     out = grouped.agg(agg_dict).reset_index().rename(columns={"_min": "_n"})
+    return out
+
+
+@lru_cache(maxsize=128)
+def _opponent_position_rate_context(date_str: str, lookback_days: int = 120) -> pd.DataFrame:
+    box = _load_boxscores_history_processed()
+    if box is None or box.empty:
+        return _opponent_position_rate_context_from_player_logs(date_str, lookback_days=lookback_days)
+
+    end = pd.to_datetime(str(date_str or ""), errors="coerce")
+    if pd.isna(end):
+        return pd.DataFrame()
+
+    cols = {str(c).upper(): c for c in box.columns}
+    gid_col = cols.get("GAME_ID") or cols.get("GAMEID")
+    team_col = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM")
+    name_col = cols.get("PLAYER_NAME") or cols.get("PLAYER")
+    date_col = cols.get("DATE") or cols.get("GAME_DATE")
+    min_col = cols.get("MIN")
+    pos_col = cols.get("START_POSITION") or cols.get("POSITION")
+    pid_col = cols.get("PLAYER_ID")
+    if not gid_col or not team_col or not name_col or not date_col or not min_col:
+        return _opponent_position_rate_context_from_player_logs(date_str, lookback_days=lookback_days)
+
+    stat_cols = {
+        "pts": cols.get("PTS"),
+        "reb": cols.get("REB"),
+        "ast": cols.get("AST"),
+        "threes": cols.get("FG3M"),
+        "stl": cols.get("STL"),
+        "blk": cols.get("BLK"),
+        "tov": cols.get("TOV"),
+    }
+
+    keep_cols = [c for c in [gid_col, team_col, name_col, date_col, min_col, pos_col, pid_col] if c]
+    keep_cols.extend([c for c in stat_cols.values() if c])
+    ctx = box[keep_cols].copy()
+    ctx[date_col] = pd.to_datetime(ctx[date_col], errors="coerce")
+    start = end - pd.Timedelta(days=int(max(21, lookback_days)))
+    ctx = ctx[(ctx[date_col].notna()) & (ctx[date_col] >= start) & (ctx[date_col] < end)].copy()
+    if ctx.empty:
+        return _opponent_position_rate_context_from_player_logs(date_str, lookback_days=lookback_days)
+
+    ctx[team_col] = ctx[team_col].astype(str).str.upper().str.strip()
+    ctx[gid_col] = pd.to_numeric(ctx[gid_col], errors="coerce")
+    ctx["_pkey"] = ctx[name_col].map(_norm_player_key)
+    ctx["_min"] = ctx[min_col].map(_parse_min_to_float)
+    ctx = ctx[np.isfinite(ctx["_min"]) & (ctx["_min"] > 0.0) & ctx[gid_col].notna()].copy()
+    if ctx.empty:
+        return _opponent_position_rate_context_from_player_logs(date_str, lookback_days=lookback_days)
+
+    if pos_col:
+        ctx["_pos"] = ctx[pos_col].map(_normalize_position)
+    else:
+        ctx["_pos"] = ""
+
+    roster_pos = _season_roster_positions(date_str)
+    if roster_pos is not None and not roster_pos.empty:
+        pid_lookup: dict[int, str] = {}
+        try:
+            for _, row in roster_pos.dropna(subset=["player_id"]).iterrows():
+                pid_lookup[int(float(row["player_id"]))] = str(row.get("position") or "")
+        except Exception:
+            pid_lookup = {}
+        team_key_lookup = {
+            (str(row.get("team") or "").strip().upper(), str(row.get("_pkey") or "").strip().upper()): str(row.get("position") or "")
+            for _, row in roster_pos.iterrows()
+            if str(row.get("position") or "").strip()
+        }
+
+        missing = ctx["_pos"].eq("")
+        if missing.any() and pid_col and pid_col in ctx.columns and pid_lookup:
+            pid_vals = pd.to_numeric(ctx.loc[missing, pid_col], errors="coerce")
+            mapped = pid_vals.map(lambda value: pid_lookup.get(int(float(value)), "") if pd.notna(value) else "")
+            ctx.loc[missing, "_pos"] = mapped.fillna("")
+
+        missing = ctx["_pos"].eq("")
+        if missing.any() and team_key_lookup:
+            ctx.loc[missing, "_pos"] = [
+                team_key_lookup.get((str(team).strip().upper(), str(pkey).strip().upper()), "")
+                for team, pkey in zip(ctx.loc[missing, team_col], ctx.loc[missing, "_pkey"])
+            ]
+
+    ctx = ctx[ctx["_pos"].isin({"G", "F", "C"})].copy()
+    if ctx.empty:
+        return _opponent_position_rate_context_from_player_logs(date_str, lookback_days=lookback_days)
+
+    matchup = ctx[[gid_col, team_col]].drop_duplicates().copy()
+    opp_map = matchup.merge(matchup, on=gid_col, suffixes=("_team", "_opp"))
+    opp_map = opp_map[opp_map[f"{team_col}_team"] != opp_map[f"{team_col}_opp"]].copy()
+    opp_map = opp_map.drop_duplicates(subset=[gid_col, f"{team_col}_team"], keep="last")
+    opp_map = opp_map.rename(columns={f"{team_col}_team": team_col, f"{team_col}_opp": "_opp"})[[gid_col, team_col, "_opp"]]
+    ctx = ctx.merge(opp_map, on=[gid_col, team_col], how="left")
+    ctx["_opp"] = ctx["_opp"].astype(str).str.upper().str.strip()
+    ctx = ctx[ctx["_opp"].str.len().between(2, 4)].copy()
+    if ctx.empty:
+        return _opponent_position_rate_context_from_player_logs(date_str, lookback_days=lookback_days)
+
+    for stat, col in stat_cols.items():
+        if col:
+            vals = pd.to_numeric(ctx[col], errors="coerce").astype(float)
+        else:
+            vals = pd.Series([np.nan] * len(ctx), index=ctx.index, dtype=float)
+        ctx[f"_{stat}_pm"] = vals / ctx["_min"].where(ctx["_min"] > 0.0, other=np.nan)
+        ctx[f"_{stat}_pm"] = ctx[f"_{stat}_pm"].replace([np.inf, -np.inf], np.nan)
+
+    grouped = ctx.groupby(["_opp", "_pos"], dropna=False)
+    agg_dict: dict[str, Any] = {"_min": "count"}
+    for stat in stat_cols:
+        agg_dict[f"_{stat}_pm"] = "mean"
+    out = grouped.agg(agg_dict).reset_index().rename(columns={"_min": "_n"})
+    if out is None or out.empty:
+        return _opponent_position_rate_context_from_player_logs(date_str, lookback_days=lookback_days)
     return out
 
 
