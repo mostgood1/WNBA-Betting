@@ -1,0 +1,4 @@
+date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
+2026-03-26,Charlotte Hornets,New York Knicks,CHA,NYK,114.0,103.0,-8.763347625732422,233.29063012373447,11.0,217.0,-19.763347625732422,16.290630123734474
+2026-03-26,Detroit Pistons,New Orleans Pelicans,DET,NOP,129.0,108.0,9.130199432373049,243.9990290409356,21.0,237.0,-11.869800567626951,6.999029040935596
+2026-03-26,Orlando Magic,Sacramento Kings,ORL,SAC,121.0,117.0,4.513619422912598,230.3361187790128,4.0,238.0,0.5136194229125977,-7.663881220987207
