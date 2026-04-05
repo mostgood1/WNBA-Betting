@@ -27,6 +27,24 @@ from .rosters import fetch_rosters
 from .league_status import build_league_status
 from .availability import build_and_check_dressed_players
 from .roster_audit import audit_roster_for_date
+from .cards_settlement_audit import (
+    audit_playable_prop_aliases,
+    audit_playable_prop_coverage_gaps,
+    audit_playable_prop_provider_anomalies,
+    audit_playable_prop_settlement,
+    build_playable_prop_alias_rollups,
+    build_playable_prop_coverage_rollups,
+    build_playable_prop_provider_rollups,
+    build_playable_prop_settlement_rollups,
+    default_playable_prop_alias_audit_path,
+    default_playable_prop_alias_rollup_path,
+    default_playable_prop_coverage_audit_path,
+    default_playable_prop_coverage_rollup_path,
+    default_playable_prop_provider_audit_path,
+    default_playable_prop_provider_rollup_path,
+    default_playable_prop_settlement_audit_path,
+    default_playable_prop_settlement_rollup_path,
+)
 from .roster_checks import roster_sanity_check
 from .roster_files import pick_rosters_file
 from .player_logs import fetch_player_logs
@@ -3113,6 +3131,153 @@ def audit_rosters_cmd(date_str: str):
         console.print({"date": date_str, "rows": int(len(audit)), "output": str(out_path), **summary})
     except Exception as e:
         console.print(f"Failed to audit rosters: {e}", style="red")
+
+
+@cli.command("audit-playable-prop-settlement")
+@click.option("--season", type=int, default=2026, show_default=True, help="Season to audit")
+@click.option("--date", "date_str", type=str, required=False, help="Stop audit at date YYYY-MM-DD")
+@click.option("--out", "out_path", type=click.Path(dir_okay=False, path_type=Path), required=False, help="Optional output CSV path")
+def audit_playable_prop_settlement_cmd(season: int, date_str: str | None, out_path: Path | None):
+    """Export unresolved playable prop settlement gaps for season cards.
+
+    Writes a CSV classifying each unresolved playable prop by source coverage and lookup failure mode.
+    """
+    console.rule("Audit Playable Prop Settlement")
+    try:
+        audit, summary = audit_playable_prop_settlement(season, requested_date=date_str)
+        if audit is None or audit.empty:
+            console.print(summary, style="yellow")
+            return
+        target = out_path if out_path is not None else default_playable_prop_settlement_audit_path(season=season, requested_date=date_str)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        audit.to_csv(target, index=False)
+        rollups = build_playable_prop_settlement_rollups(audit)
+        player_target = default_playable_prop_settlement_rollup_path("players", season=season, requested_date=date_str)
+        date_target = default_playable_prop_settlement_rollup_path("dates", season=season, requested_date=date_str)
+        sleeve_target = default_playable_prop_settlement_rollup_path("sleeves", season=season, requested_date=date_str)
+        rollups["players"].to_csv(player_target, index=False)
+        rollups["dates"].to_csv(date_target, index=False)
+        rollups["sleeves"].to_csv(sleeve_target, index=False)
+        top_players = []
+        if not rollups["players"].empty:
+            top_players = rollups["players"].head(10).to_dict(orient="records")
+        console.print(
+            {
+                **summary,
+                "output": str(target),
+                "player_rollup": str(player_target),
+                "date_rollup": str(date_target),
+                "sleeve_rollup": str(sleeve_target),
+                "top_players": top_players,
+            }
+        )
+    except Exception as e:
+        console.print(f"Failed to audit playable prop settlement gaps: {e}", style="red")
+
+
+@cli.command("audit-playable-prop-aliases")
+@click.option("--season", type=int, default=2026, show_default=True, help="Season to audit")
+@click.option("--date", "date_str", type=str, required=False, help="Stop audit at date YYYY-MM-DD")
+@click.option("--out", "out_path", type=click.Path(dir_okay=False, path_type=Path), required=False, help="Optional output CSV path")
+def audit_playable_prop_aliases_cmd(season: int, date_str: str | None, out_path: Path | None):
+    """Export likely alias candidates for unresolved playable prop settlement misses.
+
+    Replays lookup misses against the actuals feed and surfaces same-team name variants that may be fixable via canonical aliases.
+    """
+    console.rule("Audit Playable Prop Aliases")
+    try:
+        audit, summary = audit_playable_prop_aliases(season, requested_date=date_str)
+        if audit is None or audit.empty:
+            console.print(summary, style="yellow")
+            return
+        target = out_path if out_path is not None else default_playable_prop_alias_audit_path(season=season, requested_date=date_str)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        audit.to_csv(target, index=False)
+        rollups = build_playable_prop_alias_rollups(audit)
+        pair_target = default_playable_prop_alias_rollup_path("pairs", season=season, requested_date=date_str)
+        player_target = default_playable_prop_alias_rollup_path("players", season=season, requested_date=date_str)
+        rollups["pairs"].to_csv(pair_target, index=False)
+        rollups["players"].to_csv(player_target, index=False)
+        console.print(
+            {
+                **summary,
+                "output": str(target),
+                "pair_rollup": str(pair_target),
+                "player_rollup": str(player_target),
+            }
+        )
+    except Exception as e:
+        console.print(f"Failed to audit playable prop aliases: {e}", style="red")
+
+
+@cli.command("audit-playable-prop-provider-anomalies")
+@click.option("--season", type=int, default=2026, show_default=True, help="Season to audit")
+@click.option("--date", "date_str", type=str, required=False, help="Stop audit at date YYYY-MM-DD")
+@click.option("--out", "out_path", type=click.Path(dir_okay=False, path_type=Path), required=False, help="Optional output CSV path")
+def audit_playable_prop_provider_anomalies_cmd(season: int, date_str: str | None, out_path: Path | None):
+    """Export provider-side anomaly candidates for unresolved playable prop lookup misses."""
+    console.rule("Audit Playable Prop Provider Anomalies")
+    try:
+        audit, summary = audit_playable_prop_provider_anomalies(season, requested_date=date_str)
+        if audit is None or audit.empty:
+            console.print(summary, style="yellow")
+            return
+        target = out_path if out_path is not None else default_playable_prop_provider_audit_path(season=season, requested_date=date_str)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        audit.to_csv(target, index=False)
+        rollups = build_playable_prop_provider_rollups(audit)
+        player_target = default_playable_prop_provider_rollup_path("players", season=season, requested_date=date_str)
+        date_target = default_playable_prop_provider_rollup_path("dates", season=season, requested_date=date_str)
+        pair_target = default_playable_prop_provider_rollup_path("pairs", season=season, requested_date=date_str)
+        rollups["players"].to_csv(player_target, index=False)
+        rollups["dates"].to_csv(date_target, index=False)
+        rollups["pairs"].to_csv(pair_target, index=False)
+        console.print(
+            {
+                **summary,
+                "output": str(target),
+                "player_rollup": str(player_target),
+                "date_rollup": str(date_target),
+                "pair_rollup": str(pair_target),
+            }
+        )
+    except Exception as e:
+        console.print(f"Failed to audit playable prop provider anomalies: {e}", style="red")
+
+
+@cli.command("audit-playable-prop-coverage-gaps")
+@click.option("--season", type=int, default=2026, show_default=True, help="Season to audit")
+@click.option("--date", "date_str", type=str, required=False, help="Stop audit at date YYYY-MM-DD")
+@click.option("--out", "out_path", type=click.Path(dir_okay=False, path_type=Path), required=False, help="Optional output CSV path")
+def audit_playable_prop_coverage_gaps_cmd(season: int, date_str: str | None, out_path: Path | None):
+    """Export coverage-gap rows for unresolved playable prop misses after alias and provider checks."""
+    console.rule("Audit Playable Prop Coverage Gaps")
+    try:
+        audit, summary = audit_playable_prop_coverage_gaps(season, requested_date=date_str)
+        if audit is None or audit.empty:
+            console.print(summary, style="yellow")
+            return
+        target = out_path if out_path is not None else default_playable_prop_coverage_audit_path(season=season, requested_date=date_str)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        audit.to_csv(target, index=False)
+        rollups = build_playable_prop_coverage_rollups(audit)
+        player_target = default_playable_prop_coverage_rollup_path("players", season=season, requested_date=date_str)
+        date_target = default_playable_prop_coverage_rollup_path("dates", season=season, requested_date=date_str)
+        team_target = default_playable_prop_coverage_rollup_path("teams", season=season, requested_date=date_str)
+        rollups["players"].to_csv(player_target, index=False)
+        rollups["dates"].to_csv(date_target, index=False)
+        rollups["teams"].to_csv(team_target, index=False)
+        console.print(
+            {
+                **summary,
+                "output": str(target),
+                "player_rollup": str(player_target),
+                "date_rollup": str(date_target),
+                "team_rollup": str(team_target),
+            }
+        )
+    except Exception as e:
+        console.print(f"Failed to audit playable prop coverage gaps: {e}", style="red")
 
 
 @cli.command("backfill-player-props")

@@ -16,6 +16,7 @@
     selectedDate: String(url.searchParams.get('date') || getLocalDateISO()),
     profile: String(url.searchParams.get('profile') || 'retuned'),
     monthFilter: 'all',
+    dayPicksMode: 'official',
     manifest: null,
     day: null,
   };
@@ -190,6 +191,37 @@
     if (bucket !== 'player_props') return MARKET_LABELS[bucket] || 'Pick';
     const marketKey = String(row?.market_key || '').toLowerCase();
     return PROP_LABELS[marketKey] || MARKET_LABELS.player_props;
+  }
+
+  function formatPlayableSleeve(value) {
+    const raw = String(value || '').trim().toLowerCase();
+    if (!raw) return '';
+    const [marketKey, sideKey] = raw.split(':');
+    const market = PROP_LABELS[String(marketKey || '').toLowerCase()] || String(marketKey || '').toUpperCase();
+    const side = sideKey === 'over' ? 'Over' : sideKey === 'under' ? 'Under' : String(sideKey || '').toUpperCase();
+    if (!market || !side) return raw;
+    return `${market} ${side}`;
+  }
+
+  function playableSleeveCounts(rows) {
+    const counts = new Map();
+    (Array.isArray(rows) ? rows : []).forEach((row) => {
+      const key = String(row?.playable_sleeve || '').trim().toLowerCase();
+      if (!key) return;
+      counts.set(key, Number(counts.get(key) || 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .map(([key, count]) => ({ key, label: formatPlayableSleeve(key), count }))
+      .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
+  }
+
+  function renderPlayableSleeveSummary(rows) {
+    const sleeves = playableSleeveCounts(rows);
+    if (!sleeves.length) return '';
+    return `
+      <div class="season-day-sleeve-strip">
+        ${sleeves.map((item) => `<span class="season-sleeve-pill is-summary">${escapeHtml(`${item.label} ${formatNumber(item.count, 0)}`)}</span>`).join('')}
+      </div>`;
   }
 
   function insightValue(row, group, key) {
@@ -490,13 +522,35 @@
     return rows;
   }
 
+  function playableRowsForGame(game) {
+    const rows = Array.isArray(game?.betting?.playableRows) ? game.betting.playableRows : [];
+    return rows;
+  }
+
   function allOfficialRows(day) {
     const games = Array.isArray(day?.games) ? day.games : [];
     const rows = [];
     games.forEach((game) => {
-      officialRowsForGame(game).forEach((row) => rows.push({ game, row }));
+      officialRowsForGame(game).forEach((row) => rows.push({ game, row, bucket: 'official' }));
     });
     return rows;
+  }
+
+  function allPlayableRows(day) {
+    const games = Array.isArray(day?.games) ? day.games : [];
+    const rows = [];
+    games.forEach((game) => {
+      playableRowsForGame(game).forEach((row) => rows.push({ game, row, bucket: 'playable' }));
+    });
+    return rows;
+  }
+
+  function normalizedDayPicksMode(officialItems, playableItems) {
+    if (state.dayPicksMode === 'playable' && playableItems.length) return 'playable';
+    if (state.dayPicksMode === 'all' && (officialItems.length || playableItems.length)) return 'all';
+    if (officialItems.length) return 'official';
+    if (playableItems.length) return 'playable';
+    return 'official';
   }
 
   function resultTone(row) {
@@ -557,21 +611,33 @@
 
   function renderSummary() {
     if (!root.summary) return;
-    const summary = state.manifest?.summary || {};
+    const summary = state.manifest?.summary;
+    if (!summary) {
+      root.summary.innerHTML = '';
+      return;
+    }
     const combined = summary?.results?.combined || summary?.combined || {};
+    const playableCombined = summary?.playable_results?.combined || {};
+    const allCombined = summary?.all_results?.combined || {};
     const daily = summary?.daily || {};
     const counts = summary?.selected_counts || {};
+    const playableCounts = summary?.playable_selected_counts || {};
     const bestDay = daily?.best_day || {};
     const worstDay = daily?.worst_day || {};
     root.summary.innerHTML = [
       metricCard('Card days', formatNumber(summary?.cards, 0), `${profileLabel(state.profile)} betting-card dates`),
       metricCard('Official ROI', formatPercent(combined?.roi, 1), `${formatUnits(combined?.profit_u, 2)} on ${formatNumber(combined?.stake_u, 2)}u`),
+      metricCard('Playable ROI', formatPercent(playableCombined?.roi, 1), `${formatUnits(playableCombined?.profit_u, 2)} on ${formatNumber(playableCombined?.stake_u, 2)}u`),
+      metricCard('All-card ROI', formatPercent(allCombined?.roi, 1), `${formatUnits(allCombined?.profit_u, 2)} on ${formatNumber(allCombined?.stake_u, 2)}u`),
       metricCard('Season profit', formatUnits(combined?.profit_u, 2), `${formatNumber(combined?.wins, 0)} wins | ${formatNumber(combined?.losses, 0)} losses`),
-      metricCard('Settled bets', formatNumber(combined?.n, 0), `${formatNumber(summary?.unresolved_recommendations, 0)} unresolved`),
+      metricCard('Settled bets', formatNumber(combined?.n, 0), `${formatNumber(summary?.unresolved_recommendations, 0)} locked unresolved`),
+      metricCard('Playable settled', formatNumber(summary?.playable_settled_recommendations, 0), `${formatNumber(summary?.playable_unresolved_recommendations, 0)} unresolved`),
+      metricCard('All settled', formatNumber(summary?.all_settled_recommendations, 0), `${formatNumber(summary?.all_unresolved_recommendations, 0)} unresolved`),
       metricCard('Daily mean', formatUnits(daily?.mean_u, 2), `Median ${formatUnits(daily?.median_u, 2)}`),
       metricCard('Best day', formatUnits(bestDay?.profit_u, 2), String(bestDay?.date || '-')),
       metricCard('Worst day', formatUnits(worstDay?.profit_u, 2), String(worstDay?.date || '-')),
       metricCard('Selection mix', formatNumber(counts?.combined, 0), `Tot ${counts?.totals ?? 0} | ML ${counts?.ml ?? 0} | Spr ${counts?.spreads ?? 0} | Props ${counts?.player_props ?? 0}`),
+      metricCard('Playable adds', formatNumber(playableCounts?.combined, 0), `Props ${playableCounts?.player_props ?? 0} | ${formatNumber(summary?.playable_unresolved_recommendations, 0)} unresolved`),
     ].join('');
   }
 
@@ -605,12 +671,19 @@
     root.days.innerHTML = days.map((day) => {
       const isActive = String(day?.date || '') === state.selectedDate;
       const counts = day?.selected_counts || {};
+      const playableCounts = day?.playable_selected_counts || {};
       const combined = (day?.results || {}).combined || {};
       const unresolved = Number(day?.unresolved_n || 0);
       const labels = formatDateRail(String(day?.date || ''));
-      const badge = unresolved > 0
-        ? `<span class="season-day-pill is-empty">${escapeHtml(formatNumber(unresolved, 0))} unresolved</span>`
-        : `<span class="season-day-pill is-official">${escapeHtml(formatNumber(counts?.combined, 0))} picks</span>`;
+      const badges = [];
+      if (unresolved > 0) {
+        badges.push(`<span class="season-day-pill is-empty">${escapeHtml(formatNumber(unresolved, 0))} unresolved</span>`);
+      } else {
+        badges.push(`<span class="season-day-pill is-official">${escapeHtml(formatNumber(counts?.combined, 0))} locked</span>`);
+      }
+      if (Number(playableCounts?.combined || 0) > 0) {
+        badges.push(`<span class="season-day-pill is-playable">${escapeHtml(`+${formatNumber(playableCounts?.combined, 0)} playable`)}</span>`);
+      }
       return `
         <article class="season-day-entry">
           <button type="button" class="season-day-button ${isActive ? 'is-active' : ''}" data-betting-card-date="${escapeHtml(String(day?.date || ''))}">
@@ -623,7 +696,7 @@
             </div>
             <div class="season-day-secondary">ROI ${escapeHtml(formatPercent(combined?.roi, 1))} | ${escapeHtml(formatNumber(combined?.n, 0))} settled | ${escapeHtml(labels.month)}</div>
           </button>
-          <div class="season-day-badges">${badge}</div>
+          <div class="season-day-badges">${badges.join('')}</div>
         </article>`;
     }).join('');
   }
@@ -638,24 +711,31 @@
       return;
     }
     const combined = (state.day?.results || {}).combined || {};
+    const playableCombined = (state.day?.playable_results || {}).combined || {};
     const counts = state.day?.selected_counts || {};
+    const playableCounts = state.day?.playable_selected_counts || {};
+    const playableRows = allPlayableRows(state.day).map((item) => item.row || {});
     const games = Array.isArray(state.day?.games) ? state.day.games : [];
     const unresolved = Number(state.day?.summary?.unresolved_n || 0);
+    const playableUnresolved = Number(state.day?.summary?.playable_unresolved_n || 0);
+    const playableTotal = Number(playableCounts?.combined || 0);
     root.dayTitle.textContent = formatDateLong(state.day.date);
     root.dayMeta.textContent = [
       `${games.length} games`,
-      `${formatNumber(counts?.combined, 0)} betting-card picks`,
+      `${formatNumber(counts?.combined, 0)} locked-card picks${playableTotal ? ` | +${formatNumber(playableTotal, 0)} playable` : ''}`,
       profileLabel(state.day?.profile || state.profile),
       String(state.day?.source_kind || 'season_manifest'),
     ].join(' | ');
     root.dayActions.innerHTML = `
-      <a class="cards-nav-pill" href="/betting-card?date=${encodeURIComponent(state.day.date)}">Open daily cards</a>`;
+      <a class="cards-nav-pill" href="/betting-card?date=${encodeURIComponent(state.day.date)}">Open daily cards</a>
+      ${renderPlayableSleeveSummary(playableRows)}`;
     root.dayMetrics.innerHTML = [
       metricCard('Games', formatNumber(games.length, 0), 'Matchups with betting-card action'),
-      metricCard('Betting-card bets', formatNumber(counts?.combined, 0), `Tot ${counts?.totals ?? 0} | ML ${counts?.ml ?? 0} | Spr ${counts?.spreads ?? 0} | Props ${counts?.player_props ?? 0}`),
-      metricCard('Profit', formatUnits(combined?.profit_u, 2), `${formatNumber(combined?.wins, 0)} wins | ${formatNumber(combined?.losses, 0)} losses`),
-      metricCard('ROI', formatPercent(combined?.roi, 1), `${formatNumber(combined?.stake_u, 2)}u staked`),
-      metricCard('Settled', formatNumber(combined?.n, 0), `${formatNumber(unresolved, 0)} unresolved`),
+      metricCard('Locked card', formatNumber(counts?.combined, 0), `Tot ${counts?.totals ?? 0} | ML ${counts?.ml ?? 0} | Spr ${counts?.spreads ?? 0} | Props ${counts?.player_props ?? 0}`),
+      metricCard('Playable adds', formatNumber(playableCounts?.combined, 0), `${formatNumber(playableCombined?.n, 0)} settled | ${formatNumber(playableUnresolved, 0)} unresolved`),
+      metricCard('Locked profit', formatUnits(combined?.profit_u, 2), `${formatNumber(combined?.wins, 0)} wins | ${formatNumber(combined?.losses, 0)} losses`),
+      metricCard('Locked ROI', formatPercent(combined?.roi, 1), `${formatNumber(combined?.stake_u, 2)}u staked`),
+      metricCard('Settled', formatNumber(combined?.n, 0), `${formatNumber(unresolved, 0)} locked unresolved`),
       metricCard('Cap profile', String(state.day?.cap_profile || '-'), 'Locked betting-card view'),
     ].join('');
   }
@@ -664,6 +744,8 @@
     return items.map((item) => {
       const game = item.game || {};
       const row = item.row || {};
+      const bucket = String(item.bucket || row?.card_bucket || 'official').toLowerCase();
+      const sleeve = formatPlayableSleeve(row?.playable_sleeve);
       const gameLabel = `${game?.away?.abbr || 'Away'} @ ${game?.home?.abbr || 'Home'}`;
       const gameMeta = [game?.start_time ? `Tip-off ${game.start_time}` : '', String(game?.status?.abstract || '').trim()].filter(Boolean).join(' | ');
       const actualText = row?.settlement?.actual != null ? `Actual ${formatLine(row.settlement.actual)}` : 'Settlement unavailable';
@@ -675,7 +757,8 @@
           </td>
           <td>
             <div class="season-betting-cell-main">${escapeHtml(marketLabel(row))}</div>
-            <div class="season-betting-cell-sub">${escapeHtml(String(row?.market_family_label || 'Betting card'))}</div>
+            <div class="season-betting-cell-sub">${escapeHtml(bucket === 'playable' ? 'Playable addition' : String(row?.market_family_label || 'Betting card'))}</div>
+            ${bucket === 'playable' && sleeve ? `<div class="season-betting-tag-row"><span class="season-sleeve-pill">${escapeHtml(sleeve)}</span></div>` : ''}
           </td>
           <td>
             <div class="season-betting-cell-main">${escapeHtml(String(row?.display_pick || '-'))}</div>
@@ -696,6 +779,8 @@
     return items.map((item) => {
       const row = item.row || {};
       const game = item.game || {};
+      const bucket = String(item.bucket || row?.card_bucket || 'official').toLowerCase();
+      const sleeve = formatPlayableSleeve(row?.playable_sleeve);
       const gameLabel = `${game?.away?.abbr || 'Away'} @ ${game?.home?.abbr || 'Home'}`;
       const actualText = row?.settlement?.actual != null ? `Actual ${formatLine(row.settlement.actual)}` : 'Settlement unavailable';
       return `
@@ -703,7 +788,8 @@
           <div class="betting-card-mobile-head">
             <div>
               <div class="betting-card-mobile-value">${escapeHtml(gameLabel)}</div>
-              <div class="season-inline-note">${escapeHtml(marketLabel(row))} | ${escapeHtml(String(row?.market_family_label || 'Betting card'))}</div>
+              <div class="season-inline-note">${escapeHtml(marketLabel(row))} | ${escapeHtml(bucket === 'playable' ? 'Playable addition' : String(row?.market_family_label || 'Betting card'))}</div>
+              ${bucket === 'playable' && sleeve ? `<div class="season-betting-tag-row"><span class="season-sleeve-pill">${escapeHtml(sleeve)}</span></div>` : ''}
             </div>
             <span class="season-ticket-pill ${resultTone(row)}">${escapeHtml(resultLabel(row))}</span>
           </div>
@@ -725,15 +811,41 @@
       root.dayPicks.innerHTML = '<div class="season-empty-copy">Pick a betting-card date to inspect the day-level board.</div>';
       return;
     }
-    const items = allOfficialRows(state.day);
+    const officialItems = allOfficialRows(state.day);
+    const playableItems = allPlayableRows(state.day);
+    const mode = normalizedDayPicksMode(officialItems, playableItems);
+    const items = mode === 'playable'
+      ? playableItems
+      : mode === 'all'
+        ? officialItems.concat(playableItems)
+        : officialItems;
+    const modeTitle = mode === 'playable'
+      ? 'Playable additions by date'
+      : mode === 'all'
+        ? 'Locked card + playable additions'
+        : 'Locked card by date';
+    const modeCopy = mode === 'playable'
+      ? `${formatNumber(playableItems.length, 0)} playable additions across the selected date under ${profileLabel(state.day?.profile || state.profile)}.`
+      : mode === 'all'
+        ? `${formatNumber(items.length, 0)} total recommendations across the selected date, combining locked card picks and playable additions.`
+        : `${formatNumber(officialItems.length, 0)} locked-card picks across the selected date under ${profileLabel(state.day?.profile || state.profile)}.`;
+    const sleeveSummary = mode === 'playable' || mode === 'all'
+      ? renderPlayableSleeveSummary(playableItems.map((item) => item.row || {}))
+      : '';
     root.dayPicks.innerHTML = `
       <div class="season-panel-head">
         <div>
           <div class="season-kicker">Selected day board</div>
-          <div class="season-panel-title">Betting-card picks by date</div>
+          <div class="season-panel-title">${escapeHtml(modeTitle)}</div>
         </div>
       </div>
-      <div class="season-inline-note">${escapeHtml(`${formatNumber(items.length, 0)} betting-card picks across the selected date under ${profileLabel(state.day?.profile || state.profile)}.`)}</div>
+      <div class="season-day-badges">
+        <button type="button" class="cards-filter-pill ${mode === 'official' ? 'is-active' : ''}" data-betting-card-day-picks="official">${escapeHtml(`Locked ${formatNumber(officialItems.length, 0)}`)}</button>
+        ${playableItems.length ? `<button type="button" class="cards-filter-pill ${mode === 'playable' ? 'is-active' : ''}" data-betting-card-day-picks="playable">${escapeHtml(`Playable ${formatNumber(playableItems.length, 0)}`)}</button>` : ''}
+        ${(officialItems.length && playableItems.length) ? `<button type="button" class="cards-filter-pill ${mode === 'all' ? 'is-active' : ''}" data-betting-card-day-picks="all">${escapeHtml(`All ${formatNumber(officialItems.length + playableItems.length, 0)}`)}</button>` : ''}
+      </div>
+      <div class="season-inline-note">${escapeHtml(modeCopy)}</div>
+      ${sleeveSummary}
       ${items.length ? `
         <div class="season-calibration-table-wrap">
           <table class="season-calibration-table season-day-picks-table">
@@ -768,7 +880,9 @@
     }
     root.games.innerHTML = games.map((game) => {
       const rows = officialRowsForGame(game);
+      const playableRows = playableRowsForGame(game);
       const combined = ((game?.betting || {}).results || {}).combined || {};
+      const playableCombined = ((game?.betting || {}).playable_results || {}).combined || {};
       const score = game?.matchup?.score || {};
       const scoreText = score.away != null || score.home != null
         ? `${game?.away?.abbr || 'Away'} ${score.away ?? '-'} - ${game?.home?.abbr || 'Home'} ${score.home ?? '-'}`
@@ -792,34 +906,55 @@
             <div class="season-scorebox">
               <div class="season-score-label">Betting card</div>
               <div class="season-score-main">${escapeHtml(formatUnits(combined?.profit_u, 2))}</div>
-              <div class="season-game-subcopy">ROI ${escapeHtml(formatPercent(combined?.roi, 1))} | ${escapeHtml(formatNumber(rows.length, 0))} picks</div>
+              <div class="season-game-subcopy">ROI ${escapeHtml(formatPercent(combined?.roi, 1))} | ${escapeHtml(formatNumber(rows.length, 0))} locked${playableRows.length ? ` | +${escapeHtml(formatNumber(playableRows.length, 0))} playable` : ''}</div>
             </div>
           </div>
           <section class="season-game-betting-shell">
             <div class="season-stat-grid season-game-betting-stats">
-              ${metricCard('Picks', formatNumber(rows.length, 0), 'Betting card only')}
-              ${metricCard('Profit', formatUnits(combined?.profit_u, 2), `${formatNumber(combined?.wins, 0)} wins | ${formatNumber(combined?.losses, 0)} losses`) }
-              ${metricCard('ROI', formatPercent(combined?.roi, 1), `${formatNumber(combined?.stake_u, 2)}u staked`) }
+              ${metricCard('Locked picks', formatNumber(rows.length, 0), 'Official card only')}
+              ${metricCard('Playable adds', formatNumber(playableRows.length, 0), `${formatNumber(playableCombined?.n, 0)} settled`) }
+              ${metricCard('Locked profit', formatUnits(combined?.profit_u, 2), `${formatNumber(combined?.wins, 0)} wins | ${formatNumber(combined?.losses, 0)} losses`) }
+              ${metricCard('Locked ROI', formatPercent(combined?.roi, 1), `${formatNumber(combined?.stake_u, 2)}u staked`) }
               ${metricCard('Settled', formatNumber(combined?.n, 0), `Game ${formatNumber(game?.game_pk, 0)}`) }
             </div>
             <section class="season-breakdown-card season-game-betting-card">
-              <div class="season-breakdown-title">Betting card</div>
-              <div class="season-calibration-table-wrap">
-                <table class="season-calibration-table season-game-betting-table">
-                  <thead>
-                    <tr>
-                      <th>Market</th>
-                      <th>Pick</th>
-                      <th>Odds</th>
-                      <th>Edge</th>
-                      <th>Status</th>
-                      <th>Profit</th>
-                    </tr>
-                  </thead>
-                  <tbody>${pickTableRows(rows.map((row) => ({ game, row })))}</tbody>
-                </table>
-              </div>
-              <div class="betting-card-mobile-list">${pickMobileCards(rows.map((row) => ({ game, row })))}</div>
+              <div class="season-breakdown-title">Locked card</div>
+              ${rows.length ? `
+                <div class="season-calibration-table-wrap">
+                  <table class="season-calibration-table season-game-betting-table">
+                    <thead>
+                      <tr>
+                        <th>Market</th>
+                        <th>Pick</th>
+                        <th>Odds</th>
+                        <th>Edge</th>
+                        <th>Status</th>
+                        <th>Profit</th>
+                      </tr>
+                    </thead>
+                    <tbody>${pickTableRows(rows.map((row) => ({ game, row, bucket: 'official' })))}</tbody>
+                  </table>
+                </div>
+                <div class="betting-card-mobile-list">${pickMobileCards(rows.map((row) => ({ game, row, bucket: 'official' })))}</div>` : '<div class="season-empty-copy">No locked-card plays for this matchup.</div>'}
+              ${playableRows.length ? `
+                <div class="season-inline-note">Playable additions are qualified props that stayed off the locked card after ranking and slot limits.</div>
+                <div class="season-breakdown-title">Playable additions</div>
+                <div class="season-calibration-table-wrap">
+                  <table class="season-calibration-table season-game-betting-table">
+                    <thead>
+                      <tr>
+                        <th>Market</th>
+                        <th>Pick</th>
+                        <th>Odds</th>
+                        <th>Edge</th>
+                        <th>Status</th>
+                        <th>Profit</th>
+                      </tr>
+                    </thead>
+                    <tbody>${pickTableRows(playableRows.map((row) => ({ game, row, bucket: 'playable' })))}</tbody>
+                  </table>
+                </div>
+                <div class="betting-card-mobile-list">${pickMobileCards(playableRows.map((row) => ({ game, row, bucket: 'playable' })))}</div>` : ''}
             </section>
           </section>
         </article>`;
@@ -837,6 +972,7 @@
   async function loadDay(dateStr) {
     if (!dateStr) return;
     state.selectedDate = String(dateStr);
+    state.dayPicksMode = 'official';
     updateUrl();
     updateNavLinks();
     if (root.dayMeta) root.dayMeta.textContent = 'Loading betting-card detail...';
@@ -919,6 +1055,17 @@
       if (!button || !root.days.contains(button)) return;
       event.preventDefault();
       await loadDay(String(button.getAttribute('data-betting-card-date') || ''));
+    });
+  }
+
+  if (root.dayPicks) {
+    root.dayPicks.addEventListener('click', function (event) {
+      const button = event.target.closest('[data-betting-card-day-picks]');
+      if (!button || !root.dayPicks.contains(button)) return;
+      event.preventDefault();
+      const mode = String(button.getAttribute('data-betting-card-day-picks') || 'official');
+      state.dayPicksMode = mode === 'playable' ? 'playable' : mode === 'all' ? 'all' : 'official';
+      renderDayPicks();
     });
   }
 

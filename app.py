@@ -51,6 +51,11 @@ except Exception:  # pragma: no cover
     _fetch_bovada_player_props_current = None  # type: ignore
     _probe_bovada = None  # type: ignore
 
+try:
+    from nba_betting.props import build_canonical_prop_candidate as _build_canonical_prop_candidate  # type: ignore
+except Exception:  # pragma: no cover
+    _build_canonical_prop_candidate = None  # type: ignore
+
 # Optional: load environment variables from a .env file if present
 try:  # lightweight optional dependency
     from dotenv import load_dotenv  # type: ignore
@@ -6383,7 +6388,7 @@ def _season_betting_card_candidate_dates(season: int, requested_date: str | None
 
 def _season_betting_card_fetch_cards_payload(date_str: str) -> dict[str, Any] | None:
     try:
-        with app.test_request_context(f"/api/cards?date={date_str}"):
+        with app.test_request_context(f"/api/cards?date={date_str}&props_source=source"):
             payload, status_code = _response_json_value(api_cards())
         if status_code and status_code >= 400:
             return None
@@ -6907,10 +6912,134 @@ def _season_betting_card_display_pick(row: dict[str, Any], bucket: str, home_tri
     return f"{player} {side} {shown_line} {market}".strip()
 
 
+def _playable_prop_audit_line_key(value: Any) -> float | None:
+    line_val = _safe_float(value)
+    if line_val is None:
+        return None
+    return round(float(line_val), 4)
+
+
+@lru_cache(maxsize=1)
+def _latest_playable_prop_coverage_audit_lookup() -> dict[str, Any]:
+    out = {
+        "audit_date": None,
+        "by_id_exact": {},
+        "by_name_exact": {},
+        "by_name": {},
+    }
+    try:
+        candidates: list[tuple[str, Path]] = []
+        for path in DATA_PROCESSED_DIR.glob("playable_prop_coverage_audit_*.csv"):
+            match = re.match(r"^playable_prop_coverage_audit_(\d{4}-\d{2}-\d{2})\.csv$", path.name)
+            if match:
+                candidates.append((str(match.group(1) or "").strip(), path))
+        if not candidates:
+            return out
+        audit_date, audit_path = max(candidates, key=lambda item: item[0])
+        use_columns = {
+            "date",
+            "team_abbr",
+            "player_name",
+            "player_id",
+            "market",
+            "side",
+            "line",
+            "playable_sleeve",
+            "source_name",
+            "unresolved_reason",
+            "provider_anomaly_likely",
+            "audit_classification",
+            "coverage_subtype",
+            "team_present_in_source",
+            "market_supported_by_source",
+            "player_name_present_any_team",
+            "player_id_present_any_team",
+        }
+        audit_df = pd.read_csv(audit_path, usecols=lambda col: str(col).strip() in use_columns)
+        if audit_df is None or audit_df.empty:
+            return out
+        by_id_exact: dict[tuple[str, str, int, str, str, float | None], dict[str, Any]] = {}
+        by_name_exact: dict[tuple[str, str, str, str, str, float | None], dict[str, Any]] = {}
+        by_name: dict[tuple[str, str, str, str, str], dict[str, Any]] = {}
+        for _, raw_row in audit_df.iterrows():
+            date_key = str(raw_row.get("date") or "").strip()
+            team_abbr = str(raw_row.get("team_abbr") or "").strip().upper()
+            player_name = str(raw_row.get("player_name") or "").strip()
+            player_key = _norm_player_name(player_name)
+            player_id = _safe_int(raw_row.get("player_id"))
+            market = str(raw_row.get("market") or "").strip().lower()
+            side = str(raw_row.get("side") or "").strip().lower()
+            line_key = _playable_prop_audit_line_key(raw_row.get("line"))
+            if not date_key or not team_abbr or not market or not side:
+                continue
+            summary = {
+                "audit_date": audit_date,
+                "source_name": str(raw_row.get("source_name") or "").strip() or None,
+                "unresolved_reason": str(raw_row.get("unresolved_reason") or "").strip().lower() or None,
+                "audit_classification": str(raw_row.get("audit_classification") or "").strip().lower() or None,
+                "coverage_subtype": str(raw_row.get("coverage_subtype") or "").strip().lower() or None,
+                "playable_sleeve": str(raw_row.get("playable_sleeve") or "").strip().lower() or None,
+                "provider_anomaly_likely": bool(raw_row.get("provider_anomaly_likely")),
+                "team_present_in_source": bool(raw_row.get("team_present_in_source")),
+                "market_supported_by_source": bool(raw_row.get("market_supported_by_source")),
+                "player_name_present_any_team": bool(raw_row.get("player_name_present_any_team")),
+                "player_id_present_any_team": bool(raw_row.get("player_id_present_any_team")),
+            }
+            if player_id is not None:
+                by_id_exact[(date_key, team_abbr, player_id, market, side, line_key)] = summary
+            if player_key:
+                by_name_exact[(date_key, team_abbr, player_key, market, side, line_key)] = summary
+                by_name.setdefault((date_key, team_abbr, player_key, market, side), summary)
+        out["audit_date"] = audit_date
+        out["by_id_exact"] = by_id_exact
+        out["by_name_exact"] = by_name_exact
+        out["by_name"] = by_name
+        return out
+    except Exception:
+        return out
+
+
+def _lookup_playable_prop_unresolved_audit(
+    date_str: Any,
+    team_tri: Any,
+    player_name: Any,
+    player_id: Any,
+    market: Any,
+    side: Any,
+    line: Any,
+) -> dict[str, Any] | None:
+    lookup = _latest_playable_prop_coverage_audit_lookup()
+    date_key = str(date_str or "").strip()
+    team_abbr = str(team_tri or "").strip().upper()
+    market_key = str(market or "").strip().lower()
+    side_key = str(side or "").strip().lower()
+    line_key = _playable_prop_audit_line_key(line)
+    if not date_key or not team_abbr or not market_key or not side_key:
+        return None
+    player_id_key = _safe_int(player_id)
+    if player_id_key is not None:
+        audit_row = (lookup.get("by_id_exact") or {}).get((date_key, team_abbr, player_id_key, market_key, side_key, line_key))
+        if isinstance(audit_row, dict):
+            return dict(audit_row)
+    player_key = _norm_player_name(player_name)
+    if player_key:
+        audit_row = (lookup.get("by_name_exact") or {}).get((date_key, team_abbr, player_key, market_key, side_key, line_key))
+        if isinstance(audit_row, dict):
+            return dict(audit_row)
+        audit_row = (lookup.get("by_name") or {}).get((date_key, team_abbr, player_key, market_key, side_key))
+        if isinstance(audit_row, dict):
+            return dict(audit_row)
+    return None
+
+
 def _season_betting_card_settlement(row: dict[str, Any]) -> dict[str, Any] | None:
     existing = row.get("settlement") if isinstance(row.get("settlement"), dict) else {}
+    unresolved_audit = row.get("unresolved_audit") if isinstance(row.get("unresolved_audit"), dict) else {}
     result = str(existing.get("result") or row.get("result") or "").strip().lower()
     actual = existing.get("actual") if existing.get("actual") is not None else row.get("actual")
+    pending_reason = str(existing.get("pending_reason") or row.get("pending_reason") or row.get("unresolved_reason") or unresolved_audit.get("unresolved_reason") or "").strip().lower() or None
+    audit_classification = str(existing.get("audit_classification") or row.get("audit_classification") or unresolved_audit.get("audit_classification") or "").strip().lower() or None
+    coverage_subtype = str(existing.get("coverage_subtype") or row.get("coverage_subtype") or unresolved_audit.get("coverage_subtype") or "").strip().lower() or None
     profit_u = _safe_float(existing.get("profit_u"))
     if profit_u is None:
         profit_u = _safe_float(existing.get("profit_units"))
@@ -6924,13 +7053,20 @@ def _season_betting_card_settlement(row: dict[str, Any]) -> dict[str, Any] | Non
             price = _safe_float(row.get("price"))
         if price is not None:
             profit_u = _ll_profit_units(float(price), result)
-    if result not in {"win", "loss", "push"} and actual is None and profit_u is None:
+    if result not in {"win", "loss", "push"} and actual is None and profit_u is None and not pending_reason and not audit_classification and not coverage_subtype:
         return None
-    return {
+    settlement = {
         "result": result if result in {"win", "loss", "push"} else "pending",
         "actual": actual,
         "profit_u": profit_u,
     }
+    if pending_reason:
+        settlement["pending_reason"] = pending_reason
+    if audit_classification:
+        settlement["audit_classification"] = audit_classification
+    if coverage_subtype:
+        settlement["coverage_subtype"] = coverage_subtype
+    return settlement
 
 
 def _season_betting_card_normalize_row(
@@ -7007,11 +7143,17 @@ def _season_betting_card_normalize_row(
             line_value=line_value,
             insights=prop_insights,
         ) or reason_summary
+    unresolved_audit = effective_row.get("unresolved_audit") if isinstance(effective_row.get("unresolved_audit"), dict) else source_row.get("unresolved_audit") if isinstance(source_row.get("unresolved_audit"), dict) else {}
+    unresolved_reason = str(effective_row.get("unresolved_reason") or source_row.get("unresolved_reason") or unresolved_audit.get("unresolved_reason") or "").strip().lower() or None
+    audit_classification = str(effective_row.get("audit_classification") or source_row.get("audit_classification") or unresolved_audit.get("audit_classification") or "").strip().lower() or None
+    coverage_subtype = str(effective_row.get("coverage_subtype") or source_row.get("coverage_subtype") or unresolved_audit.get("coverage_subtype") or "").strip().lower() or None
     return {
         "market": bucket,
         "market_key": market_key,
         "market_label": _season_betting_card_market_label(bucket, market_key),
         "market_family_label": _season_betting_card_market_family_label(bucket),
+        "card_bucket": str(effective_row.get("card_bucket") or source_row.get("card_bucket") or "official").strip().lower() or "official",
+        "playable_sleeve": str(effective_row.get("playable_sleeve") or source_row.get("playable_sleeve") or "").strip().lower() or None,
         "selection": selection,
         "display_pick": _season_betting_card_display_pick(effective_row, bucket, home_tri, away_tri, home_name, away_name),
         "market_line": line_value,
@@ -7032,6 +7174,10 @@ def _season_betting_card_normalize_row(
         "model_reasons": [str(item).strip() for item in (effective_row.get("model_reasons") or []) if str(item).strip()] if isinstance(effective_row.get("model_reasons"), list) else [],
         "top_play_reasons": [str(item).strip() for item in (effective_row.get("top_play_reasons") or []) if str(item).strip()] if isinstance(effective_row.get("top_play_reasons"), list) else [],
         "insights": prop_insights,
+        "unresolved_reason": unresolved_reason,
+        "audit_classification": audit_classification,
+        "coverage_subtype": coverage_subtype,
+        "unresolved_audit": dict(unresolved_audit) if unresolved_audit else None,
         "settlement": _season_betting_card_settlement(effective_row),
     }
 
@@ -7070,6 +7216,30 @@ def _season_betting_card_result_stats(rows: list[dict[str, Any]]) -> dict[str, A
     }
 
 
+def _season_betting_card_unresolved_breakdown(rows: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for row in rows:
+        settlement = row.get("settlement") if isinstance(row.get("settlement"), dict) else {}
+        result = str((settlement or {}).get("result") or "").strip().lower()
+        if result in {"win", "loss", "push"}:
+            continue
+        unresolved_audit = row.get("unresolved_audit") if isinstance(row.get("unresolved_audit"), dict) else {}
+        key = str(
+            row.get("coverage_subtype")
+            or settlement.get("coverage_subtype")
+            or unresolved_audit.get("coverage_subtype")
+            or row.get("audit_classification")
+            or settlement.get("audit_classification")
+            or unresolved_audit.get("audit_classification")
+            or row.get("unresolved_reason")
+            or settlement.get("pending_reason")
+            or unresolved_audit.get("unresolved_reason")
+            or "pending"
+        ).strip().lower() or "pending"
+        counts[key] = int(counts.get(key) or 0) + 1
+    return counts
+
+
 def _season_betting_card_merge_stats(rows: list[dict[str, Any]]) -> dict[str, Any]:
     out = {"n": 0, "wins": 0, "losses": 0, "pushes": 0, "stake_u": 0.0, "profit_u": 0.0}
     for row in rows:
@@ -7083,6 +7253,12 @@ def _season_betting_card_merge_stats(rows: list[dict[str, Any]]) -> dict[str, An
     out["profit_u"] = round(out["profit_u"], 3)
     out["roi"] = round(out["profit_u"] / out["stake_u"], 4) if out["stake_u"] > 0 else None
     return out
+
+
+def _season_betting_card_result_block(stats: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(stats, dict):
+        return {"combined": {}}
+    return {"combined": dict(stats)}
 
 
 def _season_betting_card_selected_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
@@ -7227,7 +7403,8 @@ def _season_betting_card_day_payload_from_cards(
 ) -> dict[str, Any]:
 
     games_out: list[dict[str, Any]] = []
-    all_rows: list[dict[str, Any]] = []
+    official_day_rows: list[dict[str, Any]] = []
+    playable_day_rows: list[dict[str, Any]] = []
     source_games = [game for game in (cards_payload.get("games") or []) if isinstance(game, dict)]
     game_context = _load_best_bets_game_context(date_str) if include_prop_insights else {}
 
@@ -7243,6 +7420,7 @@ def _season_betting_card_day_payload_from_cards(
         game_date = str(odds.get("commence_time") or "").strip()
         status = _betting_card_v2_status(game)
         official_rows: list[dict[str, Any]] = []
+        playable_rows: list[dict[str, Any]] = []
 
         for raw_row in (game.get("game_market_recommendations") or []):
             if isinstance(raw_row, dict):
@@ -7263,30 +7441,41 @@ def _season_betting_card_day_payload_from_cards(
         for team_side in ("away", "home"):
             for raw_row in (prop_map.get(team_side) or []):
                 if isinstance(raw_row, dict):
-                    official_rows.append(
-                        _season_betting_card_normalize_row(
-                            raw_row,
-                            home_tri,
-                            away_tri,
-                            home_name,
-                            away_name,
-                            team_side=team_side,
-                            date_str=date_str,
-                            matchup_ctx=matchup_ctx,
-                            include_prop_insights=include_prop_insights,
-                        )
+                    if str(raw_row.get("card_bucket") or "").strip().lower() == "discard":
+                        continue
+                    normalized_row = _season_betting_card_normalize_row(
+                        raw_row,
+                        home_tri,
+                        away_tri,
+                        home_name,
+                        away_name,
+                        team_side=team_side,
+                        date_str=date_str,
+                        matchup_ctx=matchup_ctx,
+                        include_prop_insights=include_prop_insights,
                     )
+                    if str(normalized_row.get("card_bucket") or "").strip().lower() == "playable":
+                        playable_rows.append(normalized_row)
+                    else:
+                        normalized_row["card_bucket"] = "official"
+                        official_rows.append(normalized_row)
 
-        all_rows.extend(official_rows)
+        official_day_rows.extend(official_rows)
+        playable_day_rows.extend(playable_rows)
         if not include_games:
             continue
 
+        all_game_rows = list(official_rows) + list(playable_rows)
         market_groups = {
             "totals": next((row for row in official_rows if str(row.get("market")) == "totals"), None),
             "ml": next((row for row in official_rows if str(row.get("market")) == "ml"), None),
             "spreads": next((row for row in official_rows if str(row.get("market")) == "spreads"), None),
             "playerProps": [row for row in official_rows if str(row.get("market")) == "player_props"],
+            "playablePlayerProps": [row for row in playable_rows if str(row.get("market")) == "player_props"],
         }
+        official_results = _season_betting_card_result_stats(official_rows)
+        playable_results = _season_betting_card_result_stats(playable_rows)
+        all_results = _season_betting_card_result_stats(all_game_rows)
         game_pk = _safe_int((game.get("sim") or {}).get("game_id") if isinstance(game.get("sim"), dict) else None)
         if game_pk is None:
             game_pk = index + 1
@@ -7301,16 +7490,43 @@ def _season_betting_card_day_payload_from_cards(
                 "matchup": _season_betting_card_matchup(game, status),
                 "betting": {
                     "officialRows": official_rows,
+                    "playableRows": playable_rows,
+                    "allRows": all_game_rows,
                     "markets": market_groups,
                     "results": {
-                        "combined": _season_betting_card_result_stats(official_rows),
+                        "combined": official_results,
+                    },
+                    "playable_results": {
+                        "combined": playable_results,
+                    },
+                    "all_results": {
+                        "combined": all_results,
+                    },
+                    "counts": {
+                        "official": int(len(official_rows)),
+                        "playable": int(len(playable_rows)),
+                        "combined": int(len(all_game_rows)),
+                        "player_props": int(sum(1 for row in official_rows if str(row.get("market")) == "player_props")),
+                        "playable_player_props": int(sum(1 for row in playable_rows if str(row.get("market")) == "player_props")),
+                    },
+                    "flags": {
+                        "hasOfficialRecommendations": bool(official_rows),
+                        "hasPlayableCandidates": bool(playable_rows),
+                        "hasAnyRecommendations": bool(all_game_rows),
                     },
                 },
             }
         )
 
-    results = _season_betting_card_result_stats(all_rows)
-    unresolved_n = max(0, int(len(all_rows) - int(results.get("n") or 0)))
+    all_day_rows = list(official_day_rows) + list(playable_day_rows)
+    results = _season_betting_card_result_stats(official_day_rows)
+    playable_results = _season_betting_card_result_stats(playable_day_rows)
+    all_results = _season_betting_card_result_stats(all_day_rows)
+    unresolved_n = max(0, int(len(official_day_rows) - int(results.get("n") or 0)))
+    playable_unresolved_n = max(0, int(len(playable_day_rows) - int(playable_results.get("n") or 0)))
+    all_unresolved_n = max(0, int(len(all_day_rows) - int(all_results.get("n") or 0)))
+    playable_unresolved_breakdown = _season_betting_card_unresolved_breakdown(playable_day_rows)
+    all_unresolved_breakdown = _season_betting_card_unresolved_breakdown(all_day_rows)
     return _to_jsonable(
         {
             "season": int(season),
@@ -7323,11 +7539,27 @@ def _season_betting_card_day_payload_from_cards(
             "results": {
                 "combined": results,
             },
-            "selected_counts": _season_betting_card_selected_counts(all_rows),
+            "playable_results": {
+                "combined": playable_results,
+            },
+            "all_results": {
+                "combined": all_results,
+            },
+            "selected_counts": _season_betting_card_selected_counts(official_day_rows),
+            "playable_selected_counts": _season_betting_card_selected_counts(playable_day_rows),
+            "all_selected_counts": _season_betting_card_selected_counts(all_day_rows),
             "summary": {
                 "unresolved_n": unresolved_n,
+                "playable_unresolved_n": playable_unresolved_n,
+                "playable_unresolved_breakdown": playable_unresolved_breakdown,
+                "all_unresolved_n": all_unresolved_n,
+                "all_unresolved_breakdown": all_unresolved_breakdown,
             },
             "unresolved_n": unresolved_n,
+            "playable_unresolved_n": playable_unresolved_n,
+            "playable_unresolved_breakdown": playable_unresolved_breakdown,
+            "all_unresolved_n": all_unresolved_n,
+            "all_unresolved_breakdown": all_unresolved_breakdown,
         }
     )
 
@@ -7336,42 +7568,68 @@ def _season_betting_card_manifest(season: int, profile: str, requested_date: str
     candidate_dates = _season_betting_card_candidate_dates(season, requested_date=requested_date)
     days_full: list[dict[str, Any]] = []
     recap_items = _season_betting_card_fetch_recap_items(candidate_dates)
-    if recap_items:
-        for item in recap_items:
-            if isinstance(item, dict):
-                day_row = _season_betting_card_day_row_from_recap(item)
-                days_full.append(
-                    {
-                        "season": int(season),
-                        "date": day_row.get("date"),
-                        "profile": profile,
-                        "results": day_row.get("results"),
-                        "selected_counts": day_row.get("selected_counts"),
-                        "summary": {"unresolved_n": int(day_row.get("unresolved_n") or 0)},
-                        "unresolved_n": int(day_row.get("unresolved_n") or 0),
-                    }
-                )
-    else:
-        for date_str in candidate_dates:
+    recap_by_date: dict[str, dict[str, Any]] = {}
+    for item in recap_items:
+        if isinstance(item, dict):
+            day_row = _season_betting_card_day_row_from_recap(item)
+            date_key = str(day_row.get("date") or "").strip()
+            if date_key:
+                recap_by_date[date_key] = day_row
+
+    for date_str in candidate_dates:
+        recap_row = recap_by_date.get(str(date_str))
+        day_payload = None
+        needs_full_cards = str(date_str) == str(requested_date or "") or not isinstance(recap_row, dict)
+        if needs_full_cards:
             cards_payload = _season_betting_card_fetch_cards_payload(date_str)
-            if not isinstance(cards_payload, dict):
-                continue
-            day_payload = _season_betting_card_day_payload_from_cards(
-                season,
-                date_str,
-                profile,
-                cards_payload,
-                include_games=False,
-                include_prop_insights=False,
+            if isinstance(cards_payload, dict):
+                day_payload = _season_betting_card_day_payload_from_cards(
+                    season,
+                    date_str,
+                    profile,
+                    cards_payload,
+                    include_games=False,
+                    include_prop_insights=False,
+                )
+        if isinstance(day_payload, dict):
+            days_full.append(day_payload)
+            continue
+        if isinstance(recap_row, dict):
+            days_full.append(
+                {
+                    "season": int(season),
+                    "date": recap_row.get("date"),
+                    "profile": profile,
+                    "results": recap_row.get("results"),
+                    "playable_results": {"combined": {}},
+                    "all_results": recap_row.get("results"),
+                    "selected_counts": recap_row.get("selected_counts"),
+                    "playable_selected_counts": {"combined": 0, "totals": 0, "ml": 0, "spreads": 0, "player_props": 0},
+                    "all_selected_counts": recap_row.get("selected_counts"),
+                    "summary": {
+                        "unresolved_n": int(recap_row.get("unresolved_n") or 0),
+                        "playable_unresolved_n": 0,
+                        "all_unresolved_n": int(recap_row.get("unresolved_n") or 0),
+                    },
+                    "unresolved_n": int(recap_row.get("unresolved_n") or 0),
+                    "playable_unresolved_n": 0,
+                    "all_unresolved_n": int(recap_row.get("unresolved_n") or 0),
+                }
             )
-            if isinstance(day_payload, dict):
-                days_full.append(day_payload)
 
     day_rows: list[dict[str, Any]] = []
     month_counts: dict[str, int] = {}
     result_rows: list[dict[str, Any]] = []
+    playable_result_rows: list[dict[str, Any]] = []
+    all_result_rows: list[dict[str, Any]] = []
     total_counts = {"combined": 0, "totals": 0, "ml": 0, "spreads": 0, "player_props": 0}
+    playable_total_counts = {"combined": 0, "totals": 0, "ml": 0, "spreads": 0, "player_props": 0}
+    all_total_counts = {"combined": 0, "totals": 0, "ml": 0, "spreads": 0, "player_props": 0}
     unresolved_total = 0
+    playable_unresolved_total = 0
+    all_unresolved_total = 0
+    playable_unresolved_breakdown_total: dict[str, int] = {}
+    all_unresolved_breakdown_total: dict[str, int] = {}
     day_profits: list[tuple[str, float]] = []
 
     for day in days_full:
@@ -7380,25 +7638,55 @@ def _season_betting_card_manifest(season: int, profile: str, requested_date: str
         if month_key:
             month_counts[month_key] = month_counts.get(month_key, 0) + 1
         counts = day.get("selected_counts") if isinstance(day.get("selected_counts"), dict) else {}
+        playable_counts = day.get("playable_selected_counts") if isinstance(day.get("playable_selected_counts"), dict) else {}
+        all_counts = day.get("all_selected_counts") if isinstance(day.get("all_selected_counts"), dict) else {}
         for key in total_counts:
             total_counts[key] += int(counts.get(key) or 0)
+            playable_total_counts[key] += int(playable_counts.get(key) or 0)
+            all_total_counts[key] += int(all_counts.get(key) or 0)
         unresolved_n = int(day.get("unresolved_n") or ((day.get("summary") or {}).get("unresolved_n") if isinstance(day.get("summary"), dict) else 0) or 0)
+        playable_unresolved_n = int(day.get("playable_unresolved_n") or ((day.get("summary") or {}).get("playable_unresolved_n") if isinstance(day.get("summary"), dict) else 0) or 0)
+        all_unresolved_n = int(day.get("all_unresolved_n") or ((day.get("summary") or {}).get("all_unresolved_n") if isinstance(day.get("summary"), dict) else 0) or 0)
+        playable_unresolved_breakdown = day.get("playable_unresolved_breakdown") if isinstance(day.get("playable_unresolved_breakdown"), dict) else ((day.get("summary") or {}).get("playable_unresolved_breakdown") if isinstance(day.get("summary"), dict) and isinstance((day.get("summary") or {}).get("playable_unresolved_breakdown"), dict) else {})
+        all_unresolved_breakdown = day.get("all_unresolved_breakdown") if isinstance(day.get("all_unresolved_breakdown"), dict) else ((day.get("summary") or {}).get("all_unresolved_breakdown") if isinstance(day.get("summary"), dict) and isinstance((day.get("summary") or {}).get("all_unresolved_breakdown"), dict) else {})
         unresolved_total += unresolved_n
+        playable_unresolved_total += playable_unresolved_n
+        all_unresolved_total += all_unresolved_n
+        for key, value in playable_unresolved_breakdown.items():
+            playable_unresolved_breakdown_total[str(key)] = int(playable_unresolved_breakdown_total.get(str(key)) or 0) + int(value or 0)
+        for key, value in all_unresolved_breakdown.items():
+            all_unresolved_breakdown_total[str(key)] = int(all_unresolved_breakdown_total.get(str(key)) or 0) + int(value or 0)
         combined = ((day.get("results") or {}).get("combined")) if isinstance(day.get("results"), dict) else {}
+        playable_combined = ((day.get("playable_results") or {}).get("combined")) if isinstance(day.get("playable_results"), dict) else {}
+        all_combined = ((day.get("all_results") or {}).get("combined")) if isinstance(day.get("all_results"), dict) else {}
         if isinstance(combined, dict):
             result_rows.append(combined)
             day_profits.append((date_str, float(combined.get("profit_u") or 0.0)))
+        if isinstance(playable_combined, dict):
+            playable_result_rows.append(playable_combined)
+        if isinstance(all_combined, dict):
+            all_result_rows.append(all_combined)
         day_rows.append(
             {
                 "date": date_str,
                 "month": month_key,
                 "selected_counts": counts,
+                "playable_selected_counts": playable_counts,
+                "all_selected_counts": all_counts,
                 "results": {"combined": combined},
+                "playable_results": _season_betting_card_result_block(playable_combined if isinstance(playable_combined, dict) else None),
+                "all_results": _season_betting_card_result_block(all_combined if isinstance(all_combined, dict) else None),
                 "unresolved_n": unresolved_n,
+                "playable_unresolved_n": playable_unresolved_n,
+                "playable_unresolved_breakdown": playable_unresolved_breakdown,
+                "all_unresolved_n": all_unresolved_n,
+                "all_unresolved_breakdown": all_unresolved_breakdown,
             }
         )
 
     merged = _season_betting_card_merge_stats(result_rows)
+    merged_playable = _season_betting_card_merge_stats(playable_result_rows)
+    merged_all = _season_betting_card_merge_stats(all_result_rows)
     mean_u = None
     median_u = None
     best_day = {}
@@ -7435,6 +7723,8 @@ def _season_betting_card_manifest(season: int, profile: str, requested_date: str
                 "cards": len(day_rows),
                 "results": {"combined": merged},
                 "combined": merged,
+                "playable_results": {"combined": merged_playable},
+                "all_results": {"combined": merged_all},
                 "daily": {
                     "mean_u": mean_u,
                     "median_u": median_u,
@@ -7442,8 +7732,16 @@ def _season_betting_card_manifest(season: int, profile: str, requested_date: str
                     "worst_day": worst_day,
                 },
                 "selected_counts": total_counts,
+                "playable_selected_counts": playable_total_counts,
+                "all_selected_counts": all_total_counts,
                 "settled_recommendations": int(merged.get("n") or 0),
+                "playable_settled_recommendations": int(merged_playable.get("n") or 0),
+                "all_settled_recommendations": int(merged_all.get("n") or 0),
                 "unresolved_recommendations": unresolved_total,
+                "playable_unresolved_recommendations": playable_unresolved_total,
+                "playable_unresolved_breakdown": playable_unresolved_breakdown_total,
+                "all_unresolved_recommendations": all_unresolved_total,
+                "all_unresolved_breakdown": all_unresolved_breakdown_total,
             },
             "months": months,
             "days": day_rows,
@@ -8560,15 +8858,37 @@ def _finals_from_stats_all(date_str_local: str) -> pd.DataFrame:
 
 def _write_finals_csv_for_date(date_str: str) -> tuple[str, int]:
     """Fetch finals for date and write data/processed/finals_YYYY-MM-DD.csv; return (path, rows)."""
+    def _normalize_finals_frame(frame: pd.DataFrame | None) -> pd.DataFrame:
+        if not isinstance(frame, pd.DataFrame) or frame.empty:
+            return pd.DataFrame(columns=["home_tri", "away_tri", "home_pts", "visitor_pts"])
+        df_local = frame.copy()
+        for col in ("home_tri", "away_tri", "home_pts", "visitor_pts"):
+            if col not in df_local.columns:
+                df_local[col] = pd.NA
+        for tri_col in ("home_tri", "away_tri"):
+            df_local[tri_col] = df_local[tri_col].apply(
+                lambda value: (_get_tricode(_espn_to_tri(str(value).strip())) if str(value or "").strip() else None)
+            )
+        df_local["home_pts"] = pd.to_numeric(df_local["home_pts"], errors="coerce")
+        df_local["visitor_pts"] = pd.to_numeric(df_local["visitor_pts"], errors="coerce")
+        df_local = df_local.dropna(subset=["home_tri", "away_tri", "home_pts", "visitor_pts"])
+        if df_local.empty:
+            return pd.DataFrame(columns=["home_tri", "away_tri", "home_pts", "visitor_pts"])
+        df_local["home_tri"] = df_local["home_tri"].astype(str).str.upper().str.strip()
+        df_local["away_tri"] = df_local["away_tri"].astype(str).str.upper().str.strip()
+        df_local["home_pts"] = df_local["home_pts"].astype(float)
+        df_local["visitor_pts"] = df_local["visitor_pts"].astype(float)
+        return df_local[["home_tri", "away_tri", "home_pts", "visitor_pts"]].drop_duplicates()
+
     # Preference: stats -> CDN -> ESPN
-    df = _finals_from_stats_all(date_str)
-    if df is None or df.empty:
-        df = _finals_from_cdn_all(date_str)
-    if df is None or df.empty:
-        df = _finals_from_espn_all(date_str)
+    df = _normalize_finals_frame(_finals_from_stats_all(date_str))
+    if df.empty:
+        df = _normalize_finals_frame(_finals_from_cdn_all(date_str))
+    if df.empty:
+        df = _normalize_finals_frame(_finals_from_espn_all(date_str))
 
     # If still empty, try +/- 1 day as a timezone-friendly fallback and merge unique rows
-    if df is None or df.empty:
+    if df.empty:
         try:
             from datetime import datetime as _dt, timedelta as _td
             base = _dt.strptime(date_str, "%Y-%m-%d").date()
@@ -8576,12 +8896,12 @@ def _write_finals_csv_for_date(date_str: str) -> tuple[str, int]:
             for off in (-1, 1):
                 d2 = (base + _td(days=off)).isoformat()
                 # Stats first
-                d2_df = _finals_from_stats_all(d2)
-                if d2_df is None or d2_df.empty:
-                    d2_df = _finals_from_cdn_all(d2)
-                if d2_df is None or d2_df.empty:
-                    d2_df = _finals_from_espn_all(d2)
-                if isinstance(d2_df, pd.DataFrame) and not d2_df.empty:
+                d2_df = _normalize_finals_frame(_finals_from_stats_all(d2))
+                if d2_df.empty:
+                    d2_df = _normalize_finals_frame(_finals_from_cdn_all(d2))
+                if d2_df.empty:
+                    d2_df = _normalize_finals_frame(_finals_from_espn_all(d2))
+                if not d2_df.empty:
                     candidates.append(d2_df)
             if candidates:
                 try:
@@ -8595,7 +8915,7 @@ def _write_finals_csv_for_date(date_str: str) -> tuple[str, int]:
         except Exception:
             pass
     if not isinstance(df, pd.DataFrame):
-        df = pd.DataFrame()
+        df = pd.DataFrame(columns=["home_tri", "away_tri", "home_pts", "visitor_pts"])
     for col in ("home_tri","away_tri","home_pts","visitor_pts"):
         if col not in df.columns:
             df[col] = pd.NA
@@ -13359,20 +13679,36 @@ def _load_recon_props_lookup(date_str: str) -> tuple[dict[int, dict[str, Any]], 
     by_key: dict[tuple[str, str], dict[str, Any]] = {}
     for _, r in df.iterrows():
         row = r.to_dict()
+        pts = _safe_float(row.get("pts"))
+        reb = _safe_float(row.get("reb"))
+        ast = _safe_float(row.get("ast"))
         record = {
             "date": row.get("date"),
             "player_id": _safe_int(row.get("player_id")),
             "player_name": str(row.get("player_name") or "").strip(),
             "team_abbr": str(row.get("team_abbr") or "").strip().upper(),
-            "pts": _safe_float(row.get("pts")),
-            "reb": _safe_float(row.get("reb")),
-            "ast": _safe_float(row.get("ast")),
+            "pts": pts,
+            "reb": reb,
+            "ast": ast,
             "threes": _safe_float(row.get("threes")),
             "stl": _safe_float(row.get("stl")),
             "blk": _safe_float(row.get("blk")),
             "tov": _safe_float(row.get("tov")),
+            "pr": _safe_float(row.get("pr")),
+            "pa": _safe_float(row.get("pa")),
+            "ra": _safe_float(row.get("ra")),
             "pra": _safe_float(row.get("pra")),
         }
+        if record["pr"] is None and pts is not None and reb is not None:
+            record["pr"] = float(pts + reb)
+        if record["pa"] is None and pts is not None and ast is not None:
+            record["pa"] = float(pts + ast)
+        if record["ra"] is None and reb is not None and ast is not None:
+            record["ra"] = float(reb + ast)
+        if record["pra"] is None:
+            combo_parts = [pts, reb, ast]
+            if all(part is not None for part in combo_parts):
+                record["pra"] = float(sum(combo_parts))
         pid = record.get("player_id")
         if pid:
             by_id[int(pid)] = record
@@ -13381,6 +13717,44 @@ def _load_recon_props_lookup(date_str: str) -> tuple[dict[int, dict[str, Any]], 
         if team_key and player_key:
             by_key[(team_key, player_key)] = record
     return by_id, by_key
+
+
+@lru_cache(maxsize=32)
+def _load_finals_lookup(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
+    path = DATA_PROCESSED_DIR / f"finals_{date_str}.csv"
+    if not path.exists():
+        try:
+            _maybe_fetch_remote_processed(path.name)
+        except Exception:
+            pass
+    try:
+        if not path.exists():
+            return {}
+        df = pd.read_csv(path)
+    except Exception:
+        return {}
+    if not isinstance(df, pd.DataFrame) or df.empty:
+        return {}
+
+    out: dict[tuple[str, str], dict[str, Any]] = {}
+    for _, raw_row in df.iterrows():
+        try:
+            row = raw_row.to_dict()
+            home_tri = str(_get_tricode(_espn_to_tri(row.get("home_tri"))) or "").strip().upper()
+            away_tri = str(_get_tricode(_espn_to_tri(row.get("away_tri"))) or "").strip().upper()
+            home_pts = _safe_float(row.get("home_pts"))
+            away_pts = _safe_float(row.get("visitor_pts"))
+            if not home_tri or not away_tri:
+                continue
+            if home_pts is None or away_pts is None:
+                continue
+            out[(home_tri, away_tri)] = {
+                "home_pts": home_pts,
+                "visitor_pts": away_pts,
+            }
+        except Exception:
+            continue
+    return out
 
 
 def _best_bets_prop_market_label(market: str) -> str:
@@ -14277,6 +14651,13 @@ def _extend_recommendation_reason_payload(
 
     if isinstance(source, dict):
         for key in (
+            "market",
+            "side",
+            "line",
+            "price",
+            "home",
+            "away",
+            "market_home_margin",
             "basketball_priority_score",
             "sim_support_score",
             "value_support_score",
@@ -14308,6 +14689,398 @@ def _extend_recommendation_reason_payload(
     return payload
 
 
+_NBA_CARDS_LOCKED_POLICY: dict[str, Any] = {
+    "game_market_min_official": 58.0,
+    "game_market_min_playable": 42.0,
+    "game_market_min_trend": 18.0,
+    "game_market_min_sim": 20.0,
+    "game_market_min_prob_edge": 0.0,
+    "game_market_ml_min_price": -350.0,
+    "prop_cap_per_game": 3,
+    "prop_lite_cap_per_game": 2,
+    "prop_min_official": 60.0,
+    "prop_min_playable": 46.0,
+    "prop_min_trend": 28.0,
+    "prop_min_sim": 24.0,
+    "prop_min_prob_edge": 0.015,
+    "prop_min_win_prob": 0.53,
+    "prop_lite_min_official": 17.0,
+    "prop_lite_min_playable": 12.0,
+}
+
+_NBA_CARDS_PROP_SLEEVE_POLICY: dict[str, dict[str, Any]] = {
+    "ast:under": {
+        "min_score": 50.0,
+        "min_trend": 18.0,
+        "min_sim": 18.0,
+        "min_prob_edge": 0.01,
+        "min_win_prob": 0.53,
+        "max_per_game": 1,
+    },
+    "blk:under": {
+        "min_score": 52.0,
+        "min_trend": 18.0,
+        "min_sim": 20.0,
+        "min_prob_edge": 0.01,
+        "min_win_prob": 0.53,
+        "max_per_game": 1,
+    },
+    "ast:over": {
+        "min_score": 50.0,
+        "min_trend": 18.0,
+        "min_sim": 18.0,
+        "min_prob_edge": 0.01,
+        "min_win_prob": 0.53,
+        "max_per_game": 1,
+        "team_side": "away",
+    },
+    "pts:under": {
+        "min_score": 50.0,
+        "min_trend": 18.0,
+        "min_sim": 18.0,
+        "min_prob_edge": 0.01,
+        "min_win_prob": 0.53,
+        "max_per_game": 1,
+    },
+    "pts:over": {
+        "min_score": 50.0,
+        "min_trend": 18.0,
+        "min_sim": 18.0,
+        "min_prob_edge": 0.01,
+        "min_win_prob": 0.53,
+        "max_per_game": 1,
+    },
+    "ra:over": {
+        "min_score": 50.0,
+        "min_trend": 18.0,
+        "min_sim": 18.0,
+        "min_prob_edge": 0.01,
+        "min_win_prob": 0.53,
+        "max_per_game": 1,
+    },
+    "threes:under": {
+        "min_score": 50.0,
+        "min_trend": 18.0,
+        "min_sim": 18.0,
+        "min_prob_edge": 0.01,
+        "min_win_prob": 0.53,
+        "max_per_game": 1,
+    },
+}
+
+
+def _cards_policy_number(row: dict[str, Any] | None, *keys: str) -> float | None:
+    if not isinstance(row, dict):
+        return None
+    for key in keys:
+        value = row.get(key)
+        if value is None and isinstance(row.get("best"), dict):
+            value = row["best"].get(key)
+        if value is None and isinstance(row.get("top_play"), dict):
+            value = row["top_play"].get(key)
+        num = _safe_float(value)
+        if num is not None:
+            return num
+    return None
+
+
+def _cards_locked_policy_components(row: dict[str, Any]) -> dict[str, float | None]:
+    trend = _cards_policy_number(row, "basketball_priority_score")
+    sim = _cards_policy_number(row, "sim_support_score", "score")
+    value = _cards_policy_number(row, "value_support_score")
+    priority = _cards_policy_number(row, "recommendation_priority_score", "score_adj", "score")
+    p_win = _cards_policy_number(row, "p_win", "model_prob", "probability", "prob_calib")
+    implied_prob = _cards_policy_number(row, "implied_prob")
+    prob_edge = _cards_policy_number(row, "prob_edge")
+    if prob_edge is None and p_win is not None and implied_prob is not None:
+        prob_edge = float(p_win) - float(implied_prob)
+    ev_pct = _cards_policy_number(row, "ev_pct")
+    if ev_pct is None:
+        ev = _cards_policy_number(row, "ev")
+        if ev is not None:
+            ev_pct = float(ev) * 100.0
+    consensus = _cards_policy_number(row, "top_play_consensus")
+    line_adv = _cards_policy_number(row, "top_play_line_adv")
+
+    if trend is None and priority is not None and sim is not None and value is not None:
+        trend = max(0.0, min(100.0, (float(priority) - (0.35 * float(sim)) - (0.20 * float(value))) / 0.45))
+    if sim is None and priority is not None:
+        sim = float(priority)
+    if value is None:
+        value = max(0.0, min(100.0, float(ev_pct or 0.0)))
+
+    score = None
+    if trend is not None or sim is not None or value is not None:
+        score = round(
+            (0.45 * float(trend or 0.0))
+            + (0.35 * float(sim or 0.0))
+            + (0.20 * float(value or 0.0)),
+            3,
+        )
+        if consensus is not None:
+            score += min(4.0, 4.0 * float(max(0.0, min(1.0, consensus))))
+        if line_adv is not None:
+            score += min(3.0, 3.0 * float(max(0.0, min(1.0, line_adv))))
+        if prob_edge is not None and prob_edge > 0:
+            score += min(6.0, float(prob_edge) * 100.0 * 0.18)
+        score = round(max(0.0, min(100.0, float(score))), 3)
+
+    return {
+        "trend": trend,
+        "sim": sim,
+        "value": value,
+        "priority": priority,
+        "p_win": p_win,
+        "prob_edge": prob_edge,
+        "ev_pct": ev_pct,
+        "consensus": consensus,
+        "line_adv": line_adv,
+        "score": score,
+    }
+
+
+def _cards_locked_policy_sort_key(row: dict[str, Any]) -> tuple[float, float, float, float, float, float]:
+    comp = _cards_locked_policy_components(row)
+    return (
+        float(comp.get("score") or 0.0),
+        float(comp.get("trend") or 0.0),
+        float(comp.get("sim") or 0.0),
+        float(comp.get("prob_edge") or 0.0),
+        float(comp.get("ev_pct") or 0.0),
+        float(comp.get("priority") or 0.0),
+    )
+
+
+def _cards_locked_policy_has_rich_inputs(row: dict[str, Any]) -> bool:
+    trend = _cards_policy_number(row, "basketball_priority_score")
+    sim = _cards_policy_number(row, "sim_support_score")
+    value = _cards_policy_number(row, "value_support_score")
+    p_win = _cards_policy_number(row, "p_win", "model_prob", "probability", "prob_calib")
+    prob_edge = _cards_policy_number(row, "prob_edge")
+    signal_count = sum(
+        value is not None
+        for value in (trend, sim, value, p_win, prob_edge)
+    )
+    return bool((trend is not None and sim is not None) or signal_count >= 3)
+
+
+def _cards_locked_policy_has_support_signal(row: dict[str, Any], comp: dict[str, float | None] | None = None) -> bool:
+    comp = comp if isinstance(comp, dict) else _cards_locked_policy_components(row)
+    consensus = comp.get("consensus")
+    line_adv = comp.get("line_adv")
+    prob_edge = comp.get("prob_edge")
+    return bool(
+        (consensus is not None and float(consensus) > 0.0)
+        or (line_adv is not None and float(line_adv) > 0.0)
+        or (prob_edge is not None and float(prob_edge) > 0.0)
+    )
+
+
+def _cards_locked_policy_qualifies(row: dict[str, Any], *, market_type: str, tier: str) -> bool:
+    policy = _NBA_CARDS_LOCKED_POLICY
+    comp = _cards_locked_policy_components(row)
+    score = float(comp.get("score") or 0.0)
+    trend = float(comp.get("trend") or 0.0)
+    sim = float(comp.get("sim") or 0.0)
+    p_win = comp.get("p_win")
+    prob_edge = comp.get("prob_edge")
+    market_key = str(row.get("market") or "").strip().upper()
+    price = _cards_policy_number(row, "price", "odds")
+
+    if market_type == "prop":
+        if tier == "official":
+            return False
+        if not _cards_locked_policy_has_rich_inputs(row):
+            if not _cards_locked_policy_has_support_signal(row, comp):
+                return False
+            return score >= float(policy["prop_lite_min_playable"])
+        return score >= float(policy["prop_min_playable"])
+
+    if tier == "official":
+        if market_key == "ML" and price is not None and float(price) < float(policy["game_market_ml_min_price"]):
+            return False
+        if score < float(policy["game_market_min_official"]):
+            return False
+        if trend < float(policy["game_market_min_trend"]):
+            return False
+        if sim < float(policy["game_market_min_sim"]):
+            return False
+        if prob_edge is not None and float(prob_edge) < float(policy["game_market_min_prob_edge"]):
+            return False
+        return True
+    return score >= float(policy["game_market_min_playable"])
+
+
+def _cards_locked_policy_annotate(row: dict[str, Any]) -> dict[str, Any]:
+    comp = _cards_locked_policy_components(row)
+    out = dict(row)
+    out["locked_policy_score"] = comp.get("score")
+    out["locked_policy_trend_score"] = comp.get("trend")
+    out["locked_policy_sim_score"] = comp.get("sim")
+    out["locked_policy_value_score"] = comp.get("value")
+    return out
+
+
+def _cards_prop_canonical_candidate(row: dict[str, Any]) -> Any | None:
+    if not isinstance(row, dict) or _build_canonical_prop_candidate is None:
+        return None
+    try:
+        return _build_canonical_prop_candidate(
+            row,
+            team=str(row.get("team") or "").strip().upper() or None,
+            opponent=str(row.get("opponent") or "").strip().upper() or None,
+            team_side=str(row.get("team_side") or "").strip().lower() or None,
+        )
+    except Exception:
+        return None
+
+
+def _cards_prop_sleeve_key(row: dict[str, Any]) -> str | None:
+    candidate = _cards_prop_canonical_candidate(row)
+    if candidate is None:
+        return None
+    sleeve_key = str(getattr(candidate, "sleeve_key", "") or "").strip().lower()
+    return sleeve_key or None
+
+
+def _cards_prop_sleeve_policy(row: dict[str, Any]) -> dict[str, Any] | None:
+    sleeve_key = _cards_prop_sleeve_key(row)
+    if not sleeve_key:
+        return None
+    policy = _NBA_CARDS_PROP_SLEEVE_POLICY.get(sleeve_key)
+    if not isinstance(policy, dict):
+        return None
+    return dict(policy, sleeve_key=sleeve_key)
+
+
+def _cards_prop_has_complete_canonical_inputs(row: dict[str, Any]) -> bool:
+    candidate = _cards_prop_canonical_candidate(row)
+    if candidate is None:
+        return False
+    return bool(
+        getattr(candidate, "sim_mean", None) is not None
+        and getattr(candidate, "sim_sd", None) is not None
+        and getattr(candidate, "model_prob", None) is not None
+        and getattr(candidate, "line", None) is not None
+        and getattr(candidate, "price", None) is not None
+    )
+
+
+def _cards_prop_row_player_key(row: dict[str, Any]) -> tuple[str, str] | None:
+    if not isinstance(row, dict):
+        return None
+    team_key = str(row.get("team") or "").strip().upper()
+    player_key = _norm_player_name(str(row.get("player") or row.get("player_name") or ""))
+    if not team_key or not player_key:
+        return None
+    return team_key, player_key
+
+
+def _cards_prop_playable_via_sleeve_policy(row: dict[str, Any]) -> bool:
+    sleeve_policy = _cards_prop_sleeve_policy(row)
+    if not isinstance(sleeve_policy, dict):
+        return False
+    if not _cards_prop_has_complete_canonical_inputs(row):
+        return False
+
+    team_side_required = str(sleeve_policy.get("team_side") or "").strip().lower()
+    if team_side_required:
+        row_team_side = str(row.get("team_side") or "").strip().lower()
+        if row_team_side != team_side_required:
+            return False
+
+    comp = _cards_locked_policy_components(row)
+    score = float(comp.get("score") or 0.0)
+    trend = float(comp.get("trend") or 0.0)
+    sim = float(comp.get("sim") or 0.0)
+    p_win = comp.get("p_win")
+    prob_edge = comp.get("prob_edge")
+
+    if score < float(sleeve_policy.get("min_score") or 0.0):
+        return False
+    if trend < float(sleeve_policy.get("min_trend") or 0.0):
+        return False
+    if sim < float(sleeve_policy.get("min_sim") or 0.0):
+        return False
+    if p_win is None or float(p_win) < float(sleeve_policy.get("min_win_prob") or 0.0):
+        return False
+    if prob_edge is None or float(prob_edge) < float(sleeve_policy.get("min_prob_edge") or 0.0):
+        return False
+    return True
+
+
+def _cards_select_prop_buckets(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    ranked = [_cards_locked_policy_annotate(row) for row in rows if isinstance(row, dict)]
+    ranked.sort(key=_cards_locked_policy_sort_key, reverse=True)
+
+    official: list[dict[str, Any]] = []
+    playable: list[dict[str, Any]] = []
+    playable_by_sleeve: dict[str, int] = {}
+    playable_players: set[tuple[str, str]] = set()
+    for row in ranked:
+        if _cards_locked_policy_qualifies(row, market_type="prop", tier="official"):
+            continue
+
+        sleeve_policy = _cards_prop_sleeve_policy(row)
+        sleeve_key = str((sleeve_policy or {}).get("sleeve_key") or "").strip().lower()
+        player_key = _cards_prop_row_player_key(row)
+        if not _cards_prop_playable_via_sleeve_policy(row):
+            continue
+        if player_key is not None and player_key in playable_players:
+            continue
+        if sleeve_key:
+            max_per_game = int((sleeve_policy or {}).get("max_per_game") or 0)
+            if max_per_game > 0 and int(playable_by_sleeve.get(sleeve_key, 0)) >= max_per_game:
+                continue
+
+        selected = dict(row, card_bucket="playable")
+        if sleeve_key:
+            selected["playable_sleeve"] = sleeve_key
+            playable_by_sleeve[sleeve_key] = int(playable_by_sleeve.get(sleeve_key, 0) + 1)
+        if player_key is not None:
+            playable_players.add(player_key)
+        playable.append(selected)
+
+    for idx, row in enumerate(official, start=1):
+        row["card_rank"] = idx
+    for idx, row in enumerate(playable, start=1):
+        row["card_rank"] = idx
+    return official, playable
+
+
+def _cards_prop_recommendations_need_bucket_refresh(
+    prop_recommendations: dict[str, list[dict[str, Any]]] | None,
+    *,
+    snapshot_picks: list[dict[str, Any]] | None,
+) -> bool:
+    total_rows = 0
+    official_rows = 0
+    playable_rows = 0
+    for side_key in ("home", "away"):
+        rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
+        if not isinstance(rows, list):
+            continue
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            total_rows += 1
+            bucket = str(row.get("card_bucket") or "").strip().lower()
+            if bucket not in {"official", "playable", "discard"}:
+                return total_rows > 0
+            if bucket == "official":
+                official_rows += 1
+            elif bucket == "playable":
+                playable_rows += 1
+
+    if total_rows <= 0:
+        return False
+
+    snapshot_count = sum(1 for pick in (snapshot_picks or []) if _prop_snapshot_identity(pick) is not None)
+    if snapshot_count > 0 and total_rows > snapshot_count and playable_rows <= 0 and official_rows >= snapshot_count:
+        return True
+    return False
+
+
 def _merge_recommendation_reason_fields(
     target: dict[str, Any],
     source: dict[str, Any] | None,
@@ -14329,6 +15102,15 @@ def _merge_recommendation_reason_fields(
 
     if isinstance(source, dict):
         for key in (
+            "market",
+            "side",
+            "line",
+            "price",
+            "home_team",
+            "away_team",
+            "home_tricode",
+            "away_tricode",
+            "market_home_margin",
             "basketball_priority_score",
             "sim_support_score",
             "value_support_score",
@@ -14623,6 +15405,114 @@ def _decorate_game_recommendation_payload(
         return None
     payload: dict[str, Any] = {}
     return _merge_recommendation_reason_fields(payload, decorated)
+
+
+def _cards_game_selection_key(side: Any, home_tri: str, away_tri: str, home_name: str, away_name: str) -> str:
+    raw = str(side or "").strip()
+    if not raw:
+        return ""
+    raw_key = raw.lower()
+    home_keys = {"home", str(home_tri or "").lower(), str(home_name or "").lower()}
+    away_keys = {"away", str(away_tri or "").lower(), str(away_name or "").lower()}
+    if raw_key in home_keys:
+        return "home"
+    if raw_key in away_keys:
+        return "away"
+    if raw_key in {"over", "under"}:
+        return raw_key
+    return raw_key
+
+
+def _attach_recon_to_game_market_recommendation(
+    row: dict[str, Any],
+    *,
+    home_tri: str,
+    away_tri: str,
+    home_name: str,
+    away_name: str,
+    odds_row: dict[str, Any] | None,
+    actual_row: dict[str, Any] | None,
+) -> None:
+    if not isinstance(row, dict) or not isinstance(actual_row, dict):
+        return
+
+    home_pts = _safe_float(actual_row.get("home_pts"))
+    away_pts = _safe_float(actual_row.get("visitor_pts"))
+    if home_pts is None or away_pts is None:
+        return
+
+    market = str(row.get("market") or "").strip().upper()
+    selection = _cards_game_selection_key(
+        row.get("side") if row.get("side") is not None else row.get("selection"),
+        home_tri,
+        away_tri,
+        home_name,
+        away_name,
+    )
+    final_margin = float(home_pts) - float(away_pts)
+    final_total = float(home_pts) + float(away_pts)
+    price = _safe_float(row.get("price"))
+    if price is None:
+        price = _safe_float(row.get("odds"))
+
+    result = None
+    actual_value = None
+    if market == "ML" and selection in {"home", "away"}:
+        actual_value = final_margin
+        if price is None and isinstance(odds_row, dict):
+            price = _safe_float(odds_row.get("home_ml" if selection == "home" else "away_ml"))
+        home_won = final_margin > 0.0
+        result = "win" if ((selection == "home") == home_won) else "loss"
+    elif market in {"ATS", "SPREAD", "SPREADS"} and selection in {"home", "away"}:
+        actual_value = final_margin
+        if price is None:
+            price = -110.0
+        home_spread = None
+        if isinstance(odds_row, dict):
+            home_spread = _safe_float(odds_row.get("home_spread"))
+        if home_spread is None:
+            market_home_margin = _safe_float(row.get("market_home_margin"))
+            if market_home_margin is not None:
+                home_spread = -float(market_home_margin)
+        if home_spread is None:
+            return
+        if selection == "home":
+            diff = float(final_margin) + float(home_spread)
+        else:
+            diff = -float(final_margin) - float(home_spread)
+        if abs(diff) < 1e-9:
+            result = "push"
+        else:
+            result = "win" if diff > 0.0 else "loss"
+    elif market in {"TOTAL", "OU"} and selection in {"over", "under"}:
+        actual_value = final_total
+        if price is None:
+            price = -110.0
+        total_line = _safe_float(row.get("line"))
+        if total_line is None and isinstance(odds_row, dict):
+            total_line = _safe_float(odds_row.get("total"))
+        if total_line is None:
+            return
+        diff = float(final_total) - float(total_line) if selection == "over" else float(total_line) - float(final_total)
+        if abs(diff) < 1e-9:
+            result = "push"
+        else:
+            result = "win" if diff > 0.0 else "loss"
+
+    if result not in {"win", "loss", "push"}:
+        return
+
+    row["home_pts"] = float(home_pts)
+    row["away_pts"] = float(away_pts)
+    row["final_margin"] = float(final_margin)
+    row["final_total"] = float(final_total)
+    if price is not None:
+        row["price"] = float(price)
+    row["actual"] = actual_value
+    row["result"] = result
+    profit_u = _ll_profit_units(float(price), result) if price is not None else None
+    if profit_u is not None:
+        row["profit_u"] = float(profit_u)
 
 
 def _decorate_prop_recommendation_payload(
@@ -14938,21 +15828,16 @@ def _build_cards_game_market_recommendations(
         by_market.setdefault(market_key, []).append(row)
 
     official: list[dict[str, Any]] = []
-    playable: list[dict[str, Any]] = []
     for rows in by_market.values():
-        ranked = sorted(rows, key=_cards_recommendation_sort_key, reverse=True)
-        if ranked:
-            official.append(dict(ranked[0], card_bucket="official"))
-        for extra in ranked[1:]:
-            playable.append(dict(extra, card_bucket="playable"))
+        ranked = sorted((_cards_locked_policy_annotate(row) for row in rows), key=_cards_locked_policy_sort_key, reverse=True)
+        selected = next((row for row in ranked if _cards_locked_policy_qualifies(row, market_type="game", tier="official")), None)
+        if selected is not None:
+            official.append(dict(selected, card_bucket="official"))
 
-    ordered_official = sorted(official, key=_cards_recommendation_sort_key, reverse=True)
-    ordered_playable = sorted(playable, key=_cards_recommendation_sort_key, reverse=True)
+    ordered_official = sorted(official, key=_cards_locked_policy_sort_key, reverse=True)
     for idx, row in enumerate(ordered_official, start=1):
         row["card_rank"] = idx
-    for idx, row in enumerate(ordered_playable, start=1):
-        row["card_rank"] = idx
-    return ordered_official + ordered_playable
+    return ordered_official
 
 
 def _prop_recommendation_identity(row: dict[str, Any]) -> tuple[str, str, str, str, float | None] | None:
@@ -15003,33 +15888,44 @@ def _apply_cards_prop_recommendation_buckets(
             snapshot_meta[ident] = pick
 
     if snapshot_meta:
-        official_count = 0
-        playable_count = 0
         for row in ranked_rows:
             ident = _prop_recommendation_identity(row)
             match = snapshot_meta.get(ident) if ident is not None else None
             if match is not None:
-                row["card_bucket"] = "official"
-                official_count += 1
-                row["card_rank"] = official_count
                 if match.get("tier") is not None and row.get("tier") is None:
                     row["tier"] = match.get("tier")
                 if match.get("score_adj") is not None and row.get("recommendation_priority_score") is None:
                     row["recommendation_priority_score"] = match.get("score_adj")
-            else:
-                row["card_bucket"] = "playable"
-                playable_count += 1
-                row["card_rank"] = playable_count
-        return
 
-    official_limit = min(3, len(ranked_rows))
-    for idx, row in enumerate(ranked_rows, start=1):
-        if idx <= official_limit:
+    official_rows, playable_rows = _cards_select_prop_buckets(ranked_rows)
+    official_keys = {
+        _prop_recommendation_identity(row)
+        for row in official_rows
+        if _prop_recommendation_identity(row) is not None
+    }
+    playable_keys = {
+        _prop_recommendation_identity(row)
+        for row in playable_rows
+        if _prop_recommendation_identity(row) is not None
+    }
+    official_count = 0
+    playable_count = 0
+    for row in ranked_rows:
+        ident = _prop_recommendation_identity(row)
+        if ident is not None and ident in official_keys:
+            row.update({k: v for k, v in next((r for r in official_rows if _prop_recommendation_identity(r) == ident), {}).items() if k.startswith("locked_policy_") or k == "playable_sleeve"})
             row["card_bucket"] = "official"
-            row["card_rank"] = idx
-        else:
+            official_count += 1
+            row["card_rank"] = official_count
+        elif ident is not None and ident in playable_keys:
+            row.update({k: v for k, v in next((r for r in playable_rows if _prop_recommendation_identity(r) == ident), {}).items() if k.startswith("locked_policy_") or k == "playable_sleeve"})
             row["card_bucket"] = "playable"
-            row["card_rank"] = idx - official_limit
+            playable_count += 1
+            row["card_rank"] = playable_count
+        else:
+            row.update(_cards_locked_policy_annotate(row))
+            row["card_bucket"] = "discard"
+            row["card_rank"] = None
 
 
 def _build_cards_prop_recommendations_from_source(
@@ -15037,8 +15933,40 @@ def _build_cards_prop_recommendations_from_source(
     *,
     home_tri: str,
     away_tri: str,
+    date_str: str | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     out: dict[str, list[dict[str, Any]]] = {"home": [], "away": []}
+    pred_lookup = _load_best_bets_props_prediction_lookup(date_str) if date_str else {}
+
+    def _source_play_identity(play: dict[str, Any] | None) -> tuple[str, str, float | None] | None:
+        if not isinstance(play, dict):
+            return None
+        market = str(play.get("market") or "").strip().lower()
+        side = str(play.get("side") or "").strip().upper()
+        line = _safe_float(play.get("line"))
+        if not market or not side:
+            return None
+        return market, side, line
+
+    def _source_play_sort_key(play: dict[str, Any]) -> tuple[float, float, float, float]:
+        ev_pct = _safe_float(play.get("ev_pct"))
+        if ev_pct is None:
+            ev = _safe_float(play.get("ev"))
+            if ev is not None:
+                ev_pct = float(ev) * 100.0
+        edge = _safe_float(play.get("edge"))
+        price = _safe_float(play.get("price"))
+        line = _safe_float(play.get("line"))
+        side = str(play.get("side") or "").strip().upper()
+        line_value = float(line or 0.0)
+        if side == "UNDER":
+            line_value = -line_value
+        return (
+            float(ev_pct if ev_pct is not None else float("-inf")),
+            float(edge if edge is not None else float("-inf")),
+            float(price if price is not None else float("-inf")),
+            line_value,
+        )
 
     for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
         rows: list[dict[str, Any]] = []
@@ -15059,53 +15987,336 @@ def _build_cards_prop_recommendations_from_source(
                 if str(item).strip()
             ] if isinstance(source_row.get("top_play_reasons"), list) else []
 
-            best_row = dict(best)
-            best_row.setdefault("player", player_name)
-            best_row.setdefault("player_name", player_name)
-            best_row.setdefault("team", team_tri)
-            if top_play_reasons and not isinstance(best_row.get("reasons"), list):
-                best_row["reasons"] = list(top_play_reasons)
-
             picks = [dict(pick) for pick in (source_row.get("plays") or []) if isinstance(pick, dict)]
             for pick in picks:
                 pick.setdefault("player", player_name)
                 pick.setdefault("player_name", player_name)
                 pick.setdefault("team", team_tri)
-                if top_play_reasons and not isinstance(pick.get("reasons"), list):
-                    pick["reasons"] = list(top_play_reasons)
 
-            ev_pct = _safe_float(best_row.get("ev_pct"))
-            if ev_pct is None:
-                ev = _safe_float(best_row.get("ev"))
-                if ev is not None:
-                    ev_pct = float(ev) * 100.0
+            play_groups: dict[tuple[str, str], dict[str, Any]] = {}
+            for pick in picks:
+                market = str(pick.get("market") or "").strip().lower()
+                selection = str(pick.get("side") or "").strip().upper()
+                if not market or not selection:
+                    continue
+                key = (market, selection)
+                current = play_groups.get(key)
+                if current is None or _source_play_sort_key(pick) > _source_play_sort_key(current):
+                    play_groups[key] = pick
 
-            recommendation_priority_score = _safe_float(source_row.get("recommendation_priority_score"))
-            if recommendation_priority_score is None:
+            if not play_groups:
+                best_key = _source_play_identity(best)
+                if best_key is not None:
+                    play_groups[(best_key[0], best_key[1])] = dict(best)
+
+            player_pred = pred_lookup.get((_norm_player_name(player_name), team_tri)) if isinstance(pred_lookup, dict) else None
+
+            best_identity = _source_play_identity(best)
+            for grouped_play in play_groups.values():
+                best_row = dict(grouped_play)
+                best_row.setdefault("player", player_name)
+                best_row.setdefault("player_name", player_name)
+                best_row.setdefault("team", team_tri)
+
+                play_identity = _source_play_identity(best_row)
+                play_reasons = list(top_play_reasons) if play_identity is not None and play_identity == best_identity else []
+                if play_reasons and not isinstance(best_row.get("reasons"), list):
+                    best_row["reasons"] = list(play_reasons)
+
+                ev_pct = _safe_float(best_row.get("ev_pct"))
+                if ev_pct is None:
+                    ev = _safe_float(best_row.get("ev"))
+                    if ev is not None:
+                        ev_pct = float(ev) * 100.0
+
                 recommendation_priority_score = ev_pct
-            if recommendation_priority_score is None:
-                recommendation_priority_score = _safe_float(best_row.get("edge"))
+                if recommendation_priority_score is None:
+                    recommendation_priority_score = _safe_float(best_row.get("edge"))
+                if recommendation_priority_score is None and play_identity is not None and play_identity == best_identity:
+                    recommendation_priority_score = _safe_float(source_row.get("recommendation_priority_score"))
 
-            rows.append(
-                {
-                    "player": player_name,
-                    "team": team_tri,
-                    "best": best_row,
-                    "picks": picks,
-                    "top_play_reasons": list(top_play_reasons),
-                    "why_explain": str(source_row.get("top_play_explain") or "").strip() or None,
-                    "top_play_baseline": _safe_float(source_row.get("top_play_baseline")),
-                    "top_play_consensus": _safe_float(source_row.get("top_play_consensus")),
-                    "top_play_line_adv": _safe_float(source_row.get("top_play_line_adv")),
-                    "recommendation_priority_score": recommendation_priority_score,
-                    "source": "props_recommendations",
-                }
-            )
+                rows.append(
+                    _flatten_prop_recommendation_row(
+                        {
+                            "player": player_name,
+                            "team": team_tri,
+                            "best": best_row,
+                            "picks": picks,
+                            "top_play_reasons": play_reasons,
+                            "why_explain": str(source_row.get("top_play_explain") or "").strip() or None if play_reasons else None,
+                            "top_play_baseline": _safe_float(source_row.get("top_play_baseline")),
+                            "top_play_consensus": _safe_float(source_row.get("top_play_consensus")) if play_reasons else None,
+                            "top_play_line_adv": _safe_float(source_row.get("top_play_line_adv")) if play_reasons else None,
+                            "recommendation_priority_score": recommendation_priority_score,
+                            "source": "props_recommendations",
+                        },
+                        team_tri=team_tri,
+                        home_tri=home_tri,
+                        away_tri=away_tri,
+                        date_str=date_str,
+                        player_sim=(player_pred if isinstance(player_pred, dict) else None),
+                    )
+                )
 
         rows.sort(key=_cards_recommendation_sort_key, reverse=True)
         out[side_key] = rows
 
     return out
+
+
+def _prop_recommendation_player_sim_stats(player_row: dict[str, Any] | None, market: Any) -> tuple[float | None, float | None]:
+    if not isinstance(player_row, dict):
+        return None, None
+
+    def _first_numeric(*keys: str) -> float | None:
+        for key in keys:
+            value = _safe_float(player_row.get(key))
+            if value is not None:
+                return value
+        return None
+
+    market_key = str(market or "").strip().lower()
+    if market_key in {"points"}:
+        market_key = "pts"
+    elif market_key in {"rebounds"}:
+        market_key = "reb"
+    elif market_key in {"assists"}:
+        market_key = "ast"
+    elif market_key in {"3pm", "3ptm", "fg3m"}:
+        market_key = "threes"
+    elif market_key in {"steals", "steal"}:
+        market_key = "stl"
+    elif market_key in {"blocks", "block"}:
+        market_key = "blk"
+    elif market_key in {"turnovers", "turnover", "to"}:
+        market_key = "tov"
+
+    direct_fields = {
+        "pts": (("pts_mean", "pred_pts", "mean_pts", "points_mean", "pred_points"), ("pts_sd", "sd_pts", "points_sd")),
+        "reb": (("reb_mean", "pred_reb", "mean_reb"), ("reb_sd", "sd_reb")),
+        "ast": (("ast_mean", "pred_ast", "mean_ast"), ("ast_sd", "sd_ast")),
+        "threes": (("threes_mean", "pred_threes", "mean_threes"), ("threes_sd", "sd_threes")),
+        "stl": (("stl_mean", "pred_stl", "mean_stl"), ("stl_sd", "sd_stl")),
+        "blk": (("blk_mean", "pred_blk", "mean_blk"), ("blk_sd", "sd_blk")),
+        "tov": (("tov_mean", "pred_tov", "mean_tov"), ("tov_sd", "sd_tov")),
+        "pra": (("pra_mean", "pred_pra", "mean_pra"), ("pra_sd", "sd_pra")),
+    }
+    if market_key in direct_fields:
+        mean_keys, sd_keys = direct_fields[market_key]
+        return _first_numeric(*mean_keys), _first_numeric(*sd_keys)
+
+    pts_mu = _first_numeric("pts_mean", "pred_pts", "mean_pts", "points_mean", "pred_points")
+    pts_sd = _first_numeric("pts_sd", "sd_pts", "points_sd")
+    reb_mu = _first_numeric("reb_mean", "pred_reb", "mean_reb")
+    reb_sd = _first_numeric("reb_sd", "sd_reb")
+    ast_mu = _first_numeric("ast_mean", "pred_ast", "mean_ast")
+    ast_sd = _first_numeric("ast_sd", "sd_ast")
+
+    def _sum(mu1: float | None, sd1: float | None, mu2: float | None, sd2: float | None) -> tuple[float | None, float | None]:
+        if mu1 is None or mu2 is None:
+            return None, None
+        left_sd = 0.0 if sd1 is None else float(sd1)
+        right_sd = 0.0 if sd2 is None else float(sd2)
+        return float(mu1 + mu2), float(math.sqrt(max(0.0, left_sd * left_sd + right_sd * right_sd)))
+
+    if market_key == "pa":
+        direct_mu = _first_numeric("pa_mean", "pred_pa", "mean_pa")
+        direct_sd = _first_numeric("pa_sd", "sd_pa")
+        if direct_mu is not None and direct_sd is not None:
+            return direct_mu, direct_sd
+        combo_mu, combo_sd = _sum(pts_mu, pts_sd, ast_mu, ast_sd)
+        return (direct_mu if direct_mu is not None else combo_mu), combo_sd
+    if market_key == "pr":
+        direct_mu = _first_numeric("pr_mean", "pred_pr", "mean_pr")
+        direct_sd = _first_numeric("pr_sd", "sd_pr")
+        if direct_mu is not None and direct_sd is not None:
+            return direct_mu, direct_sd
+        combo_mu, combo_sd = _sum(pts_mu, pts_sd, reb_mu, reb_sd)
+        return (direct_mu if direct_mu is not None else combo_mu), combo_sd
+    if market_key == "ra":
+        direct_mu = _first_numeric("ra_mean", "pred_ra", "mean_ra")
+        direct_sd = _first_numeric("ra_sd", "sd_ra")
+        if direct_mu is not None and direct_sd is not None:
+            return direct_mu, direct_sd
+        combo_mu, combo_sd = _sum(reb_mu, reb_sd, ast_mu, ast_sd)
+        return (direct_mu if direct_mu is not None else combo_mu), combo_sd
+    return None, None
+
+
+def _flatten_prop_recommendation_row(
+    row: dict[str, Any],
+    *,
+    team_tri: str | None = None,
+    home_tri: str | None = None,
+    away_tri: str | None = None,
+    date_str: str | None = None,
+    player_sim: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    if not isinstance(row, dict):
+        return row
+
+    team_key = str(team_tri or row.get("team") or "").strip().upper() or None
+    home_key = str(home_tri or "").strip().upper()
+    away_key = str(away_tri or "").strip().upper()
+    if team_key == home_key and away_key:
+        opponent = away_key
+        team_side = "home"
+    elif team_key == away_key and home_key:
+        opponent = home_key
+        team_side = "away"
+    else:
+        opponent = str(row.get("opponent") or "").strip().upper() or None
+        team_side = str(row.get("team_side") or "").strip().lower() or None
+
+    effective = _season_betting_card_effective_prop_row(row)
+    candidate = None
+    if _build_canonical_prop_candidate is not None:
+        try:
+            game_key = str(row.get("game_key") or "").strip() or None
+            if game_key is None and date_str and home_key and away_key:
+                game_key = f"{date_str}:{away_key}@{home_key}"
+            candidate = _build_canonical_prop_candidate(
+                row,
+                date=date_str,
+                game_key=game_key,
+                team=team_key,
+                opponent=opponent,
+                team_side=team_side,
+            )
+        except Exception:
+            candidate = None
+
+    market = str((getattr(candidate, "market", None) if candidate is not None else None) or effective.get("market") or row.get("market") or "").strip().lower() or None
+    side = str((getattr(candidate, "side", None) if candidate is not None else None) or effective.get("side") or row.get("side") or row.get("selection") or "").strip().upper() or None
+    line = _safe_float((getattr(candidate, "line", None) if candidate is not None else None))
+    if line is None:
+        line = _safe_float(effective.get("line"))
+    price = _safe_float((getattr(candidate, "price", None) if candidate is not None else None))
+    if price is None:
+        price = _safe_float(effective.get("price"))
+    implied_prob = _safe_float((getattr(candidate, "implied_prob", None) if candidate is not None else None))
+    if implied_prob is None:
+        implied_prob = _safe_float(effective.get("implied_prob"))
+    model_prob = _safe_float((getattr(candidate, "model_prob", None) if candidate is not None else None))
+    if model_prob is None:
+        model_prob = (
+            _safe_float(effective.get("model_prob"))
+            or _safe_float(effective.get("probability"))
+            or _safe_float(effective.get("prob_calib"))
+            or _safe_float(effective.get("p_win"))
+        )
+    push_prob = _safe_float((getattr(candidate, "push_prob", None) if candidate is not None else None))
+    if push_prob is None:
+        push_prob = _safe_float(effective.get("p_push"))
+    ev_pct = _safe_float((getattr(candidate, "ev_pct", None) if candidate is not None else None))
+    if ev_pct is None:
+        ev_pct = _safe_float(effective.get("ev_pct"))
+    ev = _safe_float(effective.get("ev"))
+    if ev is None and ev_pct is not None:
+        ev = float(ev_pct) / 100.0
+    if model_prob is None and ev is not None and price is not None:
+        model_prob = _best_bets_prob_from_ev(ev, price)
+
+    sim_mu = _safe_float((getattr(candidate, "sim_mean", None) if candidate is not None else None))
+    if sim_mu is None:
+        sim_mu = (
+            _safe_float(effective.get("sim_mu"))
+            or _safe_float(effective.get("model_baseline"))
+            or _safe_float(row.get("top_play_baseline"))
+        )
+    sim_sd = _safe_float((getattr(candidate, "sim_sd", None) if candidate is not None else None))
+    if sim_sd is None:
+        sim_sd = _safe_float(effective.get("sim_sd"))
+    if player_sim is not None and market:
+        player_mu, player_sd = _prop_recommendation_player_sim_stats(player_sim, market)
+        if sim_mu is None:
+            sim_mu = player_mu
+        if sim_sd is None:
+            sim_sd = player_sd
+
+    minutes = _safe_float((getattr(candidate, "minutes", None) if candidate is not None else None))
+    if minutes is None:
+        minutes = (
+            _safe_float(effective.get("expected_minutes"))
+            or _safe_float(effective.get("minutes_proj"))
+            or _safe_float(effective.get("min_mean"))
+            or _safe_float(effective.get("pred_min"))
+            or _safe_float(effective.get("roll5_min"))
+        )
+    if minutes is None and player_sim is not None:
+        minutes = (
+            _safe_float(player_sim.get("min_mean"))
+            or _safe_float(player_sim.get("pred_min"))
+            or _safe_float(player_sim.get("roll5_min"))
+        )
+
+    game_key = str(row.get("game_key") or "").strip() or None
+    if game_key is None and date_str and home_key and away_key:
+        game_key = f"{date_str}:{away_key}@{home_key}"
+
+    if team_key:
+        row["team"] = team_key
+    if opponent:
+        row["opponent"] = opponent
+    if team_side:
+        row["team_side"] = team_side
+    if date_str and not row.get("date"):
+        row["date"] = date_str
+    if game_key and not row.get("game_key"):
+        row["game_key"] = game_key
+    if market:
+        row["market"] = market
+    if side:
+        row["side"] = side
+        row.setdefault("selection", side)
+    if line is not None:
+        row["line"] = line
+    if price is not None:
+        row["price"] = price
+    if implied_prob is not None:
+        row["implied_prob"] = implied_prob
+    if push_prob is not None:
+        row["p_push"] = push_prob
+    if ev is not None:
+        row["ev"] = ev
+    if ev_pct is not None:
+        row["ev_pct"] = ev_pct
+    if sim_mu is not None:
+        row["sim_mu"] = sim_mu
+        row.setdefault("model_baseline", sim_mu)
+    if sim_sd is not None:
+        row["sim_sd"] = sim_sd
+    if minutes is not None:
+        row["expected_minutes"] = minutes
+        row.setdefault("minutes_proj", minutes)
+        row.setdefault("min_mean", minutes)
+    if model_prob is not None:
+        row["model_prob"] = model_prob
+        row.setdefault("prob_calib", model_prob)
+        row.setdefault("probability", model_prob)
+        row.setdefault("prob", model_prob)
+        row.setdefault("win_prob", model_prob)
+        row.setdefault("p_win", model_prob)
+
+    best = row.get("best") if isinstance(row.get("best"), dict) else None
+    if isinstance(best, dict):
+        for key in ("market", "side", "line", "price", "implied_prob", "p_push", "ev", "ev_pct", "sim_mu", "sim_sd"):
+            if row.get(key) is not None and best.get(key) is None:
+                best[key] = row.get(key)
+        if minutes is not None:
+            best.setdefault("expected_minutes", minutes)
+            best.setdefault("minutes_proj", minutes)
+            best.setdefault("min_mean", minutes)
+        if model_prob is not None:
+            best.setdefault("model_prob", model_prob)
+            best.setdefault("prob_calib", model_prob)
+            best.setdefault("probability", model_prob)
+            best.setdefault("p_win", model_prob)
+        if opponent and not best.get("opponent"):
+            best["opponent"] = opponent
+        if team_key and not best.get("team"):
+            best["team"] = team_key
+    return row
 
 
 def _cards_started_matchups_index(date_str: str, now_local: datetime | None = None) -> dict[tuple[str, str], dict[str, Any]]:
@@ -15799,6 +17010,7 @@ def _sim_vs_line_prop_recommendations(
         mu: float,
         sd: float,
         pw: float,
+        p_push: float,
         ev: float,
     ) -> dict[str, Any]:
         scored_play: dict[str, Any] = {
@@ -15810,6 +17022,7 @@ def _sim_vs_line_prop_recommendations(
             "sim_mu": float(mu),
             "sim_sd": float(sd),
             "p_win": float(pw),
+            "p_push": float(p_push),
             "ev": float(ev),
             "ev_pct": float(ev) * 100.0,
         }
@@ -15915,6 +17128,7 @@ def _sim_vs_line_prop_recommendations(
                             float(mu),
                             float(sd),
                             float(pw),
+                            float(p_push),
                             float(ev),
                         )
                     )
@@ -15968,6 +17182,7 @@ def _sim_vs_line_prop_recommendations(
                                             float(mu),
                                             float(sd),
                                             float(pw),
+                                            float(p_push),
                                             float(ev),
                                         )
                                     )
@@ -16021,15 +17236,22 @@ def _sim_vs_line_prop_recommendations(
                 )
 
                 scored.append(
-                    {
-                        "player": player_name,
-                        "player_id": resolved_player_id,
-                        "photo": photo,
-                        "player_photo": photo,
-                        "team": str(team_tri or "").strip().upper(),
-                        "best": best_play,
-                        "picks": picks,
-                    }
+                    _flatten_prop_recommendation_row(
+                        {
+                            "player": player_name,
+                            "player_id": resolved_player_id,
+                            "photo": photo,
+                            "player_photo": photo,
+                            "team": str(team_tri or "").strip().upper(),
+                            "best": best_play,
+                            "picks": picks,
+                            "source": "runtime_smartsim",
+                        },
+                        team_tri=team_tri,
+                        home_tri=home_tri,
+                        away_tri=away_tri,
+                        player_sim=p,
+                    )
                 )
             except Exception:
                 continue
@@ -16170,7 +17392,7 @@ def api_cards():
     requested_home_tri = _normalize_team_arg(request.args.get("home"))
     requested_away_tri = _normalize_team_arg(request.args.get("away"))
     props_source = str(request.args.get("props_source", request.args.get("propsSource", "auto")) or "auto").strip().lower()
-    if props_source not in {"auto", "snapshot", "runtime"}:
+    if props_source not in {"auto", "snapshot", "runtime", "source"}:
         props_source = "auto"
     smart_sim_files = _load_smart_sim_files_for_authoritative_slate(d)
     if not smart_sim_files:
@@ -16199,6 +17421,7 @@ def api_cards():
     cards_prop_snapshot_index = _load_cards_prop_snapshot_index(d)
     cards_prop_recommendations_index = _load_cards_prop_recommendations_index(d)
     cards_sim_detail_index = _load_cards_sim_detail_index(d)
+    finals_lookup = _load_finals_lookup(d)
     now_local = _best_bets_local_now_naive()
     started_matchups = _cards_started_matchups_index(d, now_local)
 
@@ -16356,7 +17579,7 @@ def api_cards():
             return
         actual_props = {
             key: actual_row.get(key)
-            for key in ("pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra")
+            for key in ("pts", "reb", "ast", "threes", "stl", "blk", "tov", "pr", "pa", "ra", "pra")
             if actual_row.get(key) is not None
         }
         if actual_props:
@@ -16371,17 +17594,36 @@ def api_cards():
     def _attach_recon_to_prop_recommendation(row: dict[str, Any], team_tri: Any) -> None:
         if not isinstance(row, dict):
             return
-        actual_row = _lookup_recon_prop_actuals(team_tri, row.get("player"), (row.get("best") or {}).get("player_id") if isinstance(row.get("best"), dict) else None)
+        best = row.get("best") if isinstance(row.get("best"), dict) else None
+        actual_row = _lookup_recon_prop_actuals(team_tri, row.get("player"), best.get("player_id") if isinstance(best, dict) else None)
         if not isinstance(actual_row, dict):
+            audit_row = _lookup_playable_prop_unresolved_audit(
+                d,
+                team_tri,
+                row.get("player"),
+                best.get("player_id") if isinstance(best, dict) else None,
+                best.get("market") if isinstance(best, dict) else row.get("market"),
+                best.get("side") if isinstance(best, dict) else row.get("side"),
+                best.get("line") if isinstance(best, dict) else row.get("line"),
+            )
+            if isinstance(audit_row, dict) and audit_row:
+                row["unresolved_audit"] = dict(audit_row)
+                row["unresolved_reason"] = str(audit_row.get("unresolved_reason") or "").strip().lower() or None
+                row["audit_classification"] = str(audit_row.get("audit_classification") or "").strip().lower() or None
+                row["coverage_subtype"] = str(audit_row.get("coverage_subtype") or "").strip().lower() or None
+                if isinstance(best, dict):
+                    best["unresolved_audit"] = dict(audit_row)
+                    best["unresolved_reason"] = row.get("unresolved_reason")
+                    best["audit_classification"] = row.get("audit_classification")
+                    best["coverage_subtype"] = row.get("coverage_subtype")
             return
         actual_props = {
             key: actual_row.get(key)
-            for key in ("pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra")
+            for key in ("pts", "reb", "ast", "threes", "stl", "blk", "tov", "pr", "pa", "ra", "pra")
             if actual_row.get(key) is not None
         }
         if actual_props:
             row["actual_props"] = actual_props
-        best = row.get("best") if isinstance(row.get("best"), dict) else None
         if isinstance(best, dict):
             market_key = _boxscore_prop_market_key(best.get("market")) or str(best.get("market") or "").strip().lower()
             actual_val = _safe_float(actual_row.get(market_key))
@@ -17440,18 +18682,43 @@ def api_cards():
         if allowed_books and excluded_books:
             allowed_books = {bk for bk in allowed_books if bk not in excluded_books}
 
-        prop_recommendations_snapshot = cards_prop_recommendations_index.get((home_tri, away_tri)) if props_source != "runtime" else None
-        if isinstance(prop_recommendations_snapshot, dict):
-            prop_recommendations = {
-                "home": [dict(row) for row in (prop_recommendations_snapshot.get("home") or []) if isinstance(row, dict)],
-                "away": [dict(row) for row in (prop_recommendations_snapshot.get("away") or []) if isinstance(row, dict)],
-            }
-        elif game_started and props_source != "runtime":
+        prop_recommendations_snapshot = cards_prop_recommendations_index.get((home_tri, away_tri)) if props_source in {"auto", "snapshot"} else None
+        use_source_prop_recommendations = (
+            props_source == "source"
+            or (game_started and props_source != "runtime")
+            or (props_source == "auto" and not isinstance(prop_recommendations_snapshot, dict))
+        )
+        if use_source_prop_recommendations:
             prop_recommendations = _build_cards_prop_recommendations_from_source(
                 props_recs_by_team,
                 home_tri=home_tri,
                 away_tri=away_tri,
+                date_str=d,
             )
+            built_home = len(prop_recommendations.get("home") or []) if isinstance(prop_recommendations, dict) else 0
+            built_away = len(prop_recommendations.get("away") or []) if isinstance(prop_recommendations, dict) else 0
+            if props_source != "source" and built_home <= 0 and built_away <= 0 and isinstance(prop_recommendations_snapshot, dict):
+                prop_recommendations = {
+                    "home": [dict(row) for row in (prop_recommendations_snapshot.get("home") or []) if isinstance(row, dict)],
+                    "away": [dict(row) for row in (prop_recommendations_snapshot.get("away") or []) if isinstance(row, dict)],
+                }
+            elif props_source == "auto" and built_home <= 0 and built_away <= 0 and not game_started:
+                prop_recommendations = _sim_vs_line_prop_recommendations(
+                    players_out,
+                    props_recs_by_team,
+                    home_tri=home_tri,
+                    away_tri=away_tri,
+                    topn_per_side=6,
+                    allowed_markets=allowed_markets,
+                    allowed_books=allowed_books,
+                    min_ev_pct=min_ev_pct,
+                    excluded_books=excluded_books,
+                )
+        elif isinstance(prop_recommendations_snapshot, dict):
+            prop_recommendations = {
+                "home": [dict(row) for row in (prop_recommendations_snapshot.get("home") or []) if isinstance(row, dict)],
+                "away": [dict(row) for row in (prop_recommendations_snapshot.get("away") or []) if isinstance(row, dict)],
+            }
         else:
             prop_recommendations = _sim_vs_line_prop_recommendations(
                 players_out,
@@ -17471,8 +18738,82 @@ def api_cards():
                     if not isinstance(rows, list):
                         continue
                     for row in rows:
+                        try:
+                            if not isinstance(row, dict):
+                                continue
+                            player_name = str(row.get("player") or "").strip()
+                            player_pred = None
+                            if player_name and isinstance(best_bets_prop_prediction_lookup, dict):
+                                player_pred = best_bets_prop_prediction_lookup.get((_norm_player_name(player_name), str(team_tri or "").strip().upper()))
+                            _flatten_prop_recommendation_row(
+                                row,
+                                team_tri=team_tri,
+                                home_tri=home_tri,
+                                away_tri=away_tri,
+                                date_str=d,
+                                player_sim=(player_pred if isinstance(player_pred, dict) else None),
+                            )
+                            best = row.get("best") if isinstance(row.get("best"), dict) else None
+                            if not isinstance(best, dict):
+                                continue
+                            player_name = str(row.get("player") or best.get("player") or best.get("player_name") or "").strip()
+                            player_key = _norm_player_name(player_name)
+                            source_row = props_recs_source_lookup.get((str(team_tri or "").strip().upper(), player_key))
+                            support_fields = _prop_source_support_fields(
+                                source_row,
+                                market=str(best.get("market") or ""),
+                                side=str(best.get("side") or ""),
+                                line=_safe_float(best.get("line")),
+                            )
+                            reason_payload = _decorate_prop_recommendation_payload(
+                                player_name=player_name,
+                                team_tri=team_tri,
+                                top_play=best,
+                                date_str=d,
+                                prop_prediction_lookup=best_bets_prop_prediction_lookup,
+                                game_context=best_bets_game_context,
+                                injury_snapshot=best_bets_injury_snapshot,
+                                slate_total_median=best_bets_slate_total_median,
+                                support_fields=support_fields,
+                            )
+                            if not isinstance(reason_payload, dict):
+                                continue
+                            row.update(reason_payload)
+                            row["top_play_reasons"] = list(reason_payload.get("top_play_reasons") or reason_payload.get("reasons") or [])
+                            best["reasons"] = list(reason_payload.get("reasons") or [])
+                            for key in ("basketball_summary", "basketball_reasons", "model_reasons", "market_reasons"):
+                                value = reason_payload.get(key)
+                                if isinstance(value, list):
+                                    best[key] = list(value)
+                                elif value is not None:
+                                    best[key] = value
+                            _attach_recon_to_prop_recommendation(row, team_tri)
+                        except Exception:
+                            continue
+            except Exception:
+                pass
+
+        try:
+            for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
+                rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
+                if not isinstance(rows, list):
+                    continue
+                for row in rows:
+                    try:
                         if not isinstance(row, dict):
                             continue
+                        player_name = str(row.get("player") or "").strip()
+                        player_pred = None
+                        if player_name and isinstance(best_bets_prop_prediction_lookup, dict):
+                            player_pred = best_bets_prop_prediction_lookup.get((_norm_player_name(player_name), str(team_tri or "").strip().upper()))
+                        _flatten_prop_recommendation_row(
+                            row,
+                            team_tri=team_tri,
+                            home_tri=home_tri,
+                            away_tri=away_tri,
+                            date_str=d,
+                            player_sim=(player_pred if isinstance(player_pred, dict) else None),
+                        )
                         best = row.get("best") if isinstance(row.get("best"), dict) else None
                         if not isinstance(best, dict):
                             continue
@@ -17507,17 +18848,54 @@ def api_cards():
                                 best[key] = list(value)
                             elif value is not None:
                                 best[key] = value
-                        _attach_recon_to_prop_recommendation(row, team_tri)
-            except Exception:
-                pass
+                    except Exception:
+                        continue
+        except Exception:
+            pass
 
-            try:
-                _apply_cards_prop_recommendation_buckets(
-                    prop_recommendations,
-                    snapshot_picks=cards_prop_snapshot_index.get((home_tri, away_tri)) or [],
-                )
-            except Exception:
-                pass
+        try:
+            for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
+                rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
+                if not isinstance(rows, list):
+                    continue
+                for row in rows:
+                    try:
+                        if not isinstance(row, dict):
+                            continue
+                        player_name = str(row.get("player") or "").strip()
+                        player_pred = None
+                        if player_name and isinstance(best_bets_prop_prediction_lookup, dict):
+                            player_pred = best_bets_prop_prediction_lookup.get((_norm_player_name(player_name), str(team_tri or "").strip().upper()))
+                        _flatten_prop_recommendation_row(
+                            row,
+                            team_tri=team_tri,
+                            home_tri=home_tri,
+                            away_tri=away_tri,
+                            date_str=d,
+                            player_sim=(player_pred if isinstance(player_pred, dict) else None),
+                        )
+                        _attach_recon_to_prop_recommendation(row, team_tri)
+                    except Exception:
+                        continue
+        except Exception:
+            pass
+
+        try:
+            snapshot_picks = cards_prop_snapshot_index.get((home_tri, away_tri)) or []
+            _apply_cards_prop_recommendation_buckets(
+                prop_recommendations,
+                snapshot_picks=snapshot_picks,
+            )
+            for side_key in ("home", "away"):
+                rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
+                if not isinstance(rows, list):
+                    continue
+                prop_recommendations[side_key] = [
+                    row for row in rows
+                    if isinstance(row, dict) and str(row.get("card_bucket") or "").strip().lower() in {"official", "playable"}
+                ]
+        except Exception:
+            pass
 
         try:
             game_market_recommendations = _build_cards_game_market_recommendations(
@@ -17533,6 +18911,22 @@ def api_cards():
                 raw_rows=cards_game_recommendations_index.get((home_tri, away_tri)) or [],
                 allow_pregame_updates=not game_started,
             )
+            actual_game_row = recon_games_map.get((home_tri, away_tri)) if isinstance(recon_games_map, dict) else None
+            if not isinstance(actual_game_row, dict):
+                actual_game_row = finals_lookup.get((home_tri, away_tri)) if isinstance(finals_lookup, dict) else None
+            if isinstance(actual_game_row, dict):
+                for rec_row in game_market_recommendations:
+                    if not isinstance(rec_row, dict):
+                        continue
+                    _attach_recon_to_game_market_recommendation(
+                        rec_row,
+                        home_tri=home_tri,
+                        away_tri=away_tri,
+                        home_name=home_name,
+                        away_name=away_name,
+                        odds_row=odds if isinstance(odds, dict) else None,
+                        actual_row=actual_game_row,
+                    )
         except Exception:
             game_market_recommendations = []
 

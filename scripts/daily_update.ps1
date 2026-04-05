@@ -88,6 +88,110 @@ function Resolve-NbaSeasonString {
   return "{0}-{1}" -f $seasonYear, ("{0:d2}" -f (($seasonYear + 1) % 100))
 }
 
+function Resolve-NbaSeasonYear {
+  param([string]$DateValue)
+
+  $dt = [datetime]::ParseExact($DateValue, 'yyyy-MM-dd', $null)
+  if ($dt.Month -ge 7) {
+    return ($dt.Year + 1)
+  }
+  return $dt.Year
+}
+
+function Import-CsvSafe {
+  param([string]$Path)
+
+  if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path $Path)) {
+    return @()
+  }
+
+  try {
+    return @(Import-Csv -Path $Path)
+  } catch {
+    return @()
+  }
+}
+
+function Format-GroupedCsvCounts {
+  param(
+    [object[]]$Rows,
+    [string]$ColumnName,
+    [int]$MaxItems = 8
+  )
+
+  if ($null -eq $Rows -or $Rows.Count -le 0 -or [string]::IsNullOrWhiteSpace($ColumnName)) {
+    return ''
+  }
+
+  $parts = @()
+  $sortedGroups = $Rows |
+    Group-Object -Property $ColumnName |
+    Sort-Object -Property @(
+      @{ Expression = 'Count'; Descending = $true },
+      @{ Expression = 'Name'; Descending = $false }
+    ) |
+    Select-Object -First $MaxItems
+  foreach ($group in $sortedGroups) {
+    $name = [string]$group.Name
+    if ([string]::IsNullOrWhiteSpace($name)) { $name = 'UNKNOWN' }
+    $parts += ('{0}={1}' -f $name, $group.Count)
+  }
+
+  return ($parts -join ', ')
+}
+
+function Write-PlayablePropAuditSummary {
+  param(
+    [string]$AuditKind,
+    [string]$RequestedDate,
+    [string]$AuditPath,
+    [string]$GroupColumn,
+    [string]$RollupPath
+  )
+
+  $auditRows = Import-CsvSafe -Path $AuditPath
+  if ($auditRows.Count -le 0) {
+    Write-Log ("Playable prop {0} summary unavailable for {1}; audit CSV missing or empty: {2}" -f $AuditKind, $RequestedDate, $AuditPath)
+    return
+  }
+
+  $groupSummary = Format-GroupedCsvCounts -Rows $auditRows -ColumnName $GroupColumn
+  if ([string]::IsNullOrWhiteSpace($groupSummary)) {
+    Write-Log ("Playable prop {0} summary through {1}: rows={2}" -f $AuditKind, $RequestedDate, $auditRows.Count)
+  } else {
+    Write-Log ("Playable prop {0} summary through {1}: rows={2}; {3}" -f $AuditKind, $RequestedDate, $auditRows.Count, $groupSummary)
+  }
+
+  $rollupRows = Import-CsvSafe -Path $RollupPath
+  if ($rollupRows.Count -le 0) {
+    return
+  }
+
+  $top = $rollupRows[0]
+  if ($AuditKind -eq 'provider') {
+    $playerName = [string]$top.player_name
+    $teamAbbr = [string]$top.team_abbr
+    $candidateName = [string]$top.top_candidate_name
+    $candidateTeam = [string]$top.top_candidate_team_abbr
+    $rows = [string]$top.rows
+    if (-not [string]::IsNullOrWhiteSpace($playerName) -and -not [string]::IsNullOrWhiteSpace($candidateName)) {
+      Write-Log ("Playable prop provider top pair: {0} ({1}) -> {2} ({3}), rows={4}" -f $playerName, $teamAbbr, $candidateName, $candidateTeam, $rows)
+    }
+    return
+  }
+
+  if ($AuditKind -eq 'coverage') {
+    $teamAbbr = [string]$top.team_abbr
+    $coverageSubtype = [string]$top.coverage_subtype
+    $rows = [string]$top.rows
+    $players = [string]$top.players
+    $dates = [string]$top.dates
+    if (-not [string]::IsNullOrWhiteSpace($teamAbbr)) {
+      Write-Log ("Playable prop coverage top team: {0} {1}, rows={2}, players={3}, dates={4}" -f $teamAbbr, $coverageSubtype, $rows, $players, $dates)
+    }
+  }
+}
+
 $DateWasImplicit = [string]::IsNullOrWhiteSpace($Date)
 
 # Ignore any token-related parameters to enforce local-only execution
@@ -1515,6 +1619,48 @@ try {
       Write-Log ("recon_props missing after fetch-prop-actuals (non-fatal): {0}" -f $rp)
     }
   } catch { }
+
+  try {
+    $skipPlayablePropAudits = $env:DAILY_SKIP_PLAYABLE_PROP_AUDITS
+    if ($null -ne $skipPlayablePropAudits -and $skipPlayablePropAudits -match '^(1|true|yes)$') {
+      Write-Log 'Skipping playable prop settlement/provider coverage audits (DAILY_SKIP_PLAYABLE_PROP_AUDITS=1)'
+    } else {
+      $auditSeason = Resolve-NbaSeasonYear -DateValue $yesterday
+      $auditTimeout = $env:DAILY_PLAYABLE_PROP_AUDIT_TIMEOUT_SEC
+      if ($null -eq $auditTimeout -or $auditTimeout -eq '') { $auditTimeout = '300' }
+      try { $auditTimeoutInt = [int]$auditTimeout } catch { $auditTimeoutInt = 300 }
+      if ($auditTimeoutInt -lt 60) { $auditTimeoutInt = 60 }
+      if ($auditTimeoutInt -gt 1800) { $auditTimeoutInt = 1800 }
+
+      Write-Log ("Auditing playable prop provider anomalies through {0} for season {1}" -f $yesterday, $auditSeason)
+      $rcPlayableProviderAudit = Invoke-PyModWithTimeout -plist @(
+        '-m','nba_betting.cli','audit-playable-prop-provider-anomalies',
+        '--season', [string]$auditSeason,
+        '--date', $yesterday
+      ) -TimeoutSeconds $auditTimeoutInt -Label 'audit_playable_prop_provider_anomalies'
+      Write-Log ("audit-playable-prop-provider-anomalies exit code: {0}" -f $rcPlayableProviderAudit)
+      if ($rcPlayableProviderAudit -eq 0) {
+        $providerAuditPath = Join-Path $RepoRoot ("data/processed/playable_prop_provider_audit_{0}.csv" -f $yesterday)
+        $providerPairRollupPath = Join-Path $RepoRoot ("data/processed/playable_prop_provider_audit_pairs_{0}.csv" -f $yesterday)
+        Write-PlayablePropAuditSummary -AuditKind 'provider' -RequestedDate $yesterday -AuditPath $providerAuditPath -GroupColumn 'audit_classification' -RollupPath $providerPairRollupPath
+      }
+
+      Write-Log ("Auditing playable prop coverage gaps through {0} for season {1}" -f $yesterday, $auditSeason)
+      $rcPlayableCoverageAudit = Invoke-PyModWithTimeout -plist @(
+        '-m','nba_betting.cli','audit-playable-prop-coverage-gaps',
+        '--season', [string]$auditSeason,
+        '--date', $yesterday
+      ) -TimeoutSeconds $auditTimeoutInt -Label 'audit_playable_prop_coverage_gaps'
+      Write-Log ("audit-playable-prop-coverage-gaps exit code: {0}" -f $rcPlayableCoverageAudit)
+      if ($rcPlayableCoverageAudit -eq 0) {
+        $coverageAuditPath = Join-Path $RepoRoot ("data/processed/playable_prop_coverage_audit_{0}.csv" -f $yesterday)
+        $coverageTeamRollupPath = Join-Path $RepoRoot ("data/processed/playable_prop_coverage_audit_teams_{0}.csv" -f $yesterday)
+        Write-PlayablePropAuditSummary -AuditKind 'coverage' -RequestedDate $yesterday -AuditPath $coverageAuditPath -GroupColumn 'coverage_subtype' -RollupPath $coverageTeamRollupPath
+      }
+    }
+  } catch {
+    Write-Log ("playable prop audits failed (non-fatal): {0}" -f $_.Exception.Message)
+  }
 } catch {
   Write-Log ("fetch-prop-actuals failed (non-fatal): {0}" -f $_.Exception.Message)
 }
@@ -3070,9 +3216,13 @@ try {
   if ($null -ne $skipCardsPropsSnapshot -and $skipCardsPropsSnapshot -match '^(1|true|yes)$') {
     Write-Log 'Skipping cards props snapshot build (DAILY_SKIP_CARDS_PROPS_SNAPSHOT=1)'
   } else {
+    $cardsPropsSource = [string]$env:DAILY_CARDS_PROPS_SNAPSHOT_SOURCE
+    if ([string]::IsNullOrWhiteSpace($cardsPropsSource)) { $cardsPropsSource = 'auto' }
+    $cardsPropsSource = $cardsPropsSource.Trim().ToLowerInvariant()
+    if (@('auto', 'source', 'runtime', 'snapshot') -notcontains $cardsPropsSource) { $cardsPropsSource = 'auto' }
     $cardsPropsOut = Join-Path $RepoRoot ("data/processed/cards_props_snapshot_{0}.json" -f $Date)
     try { if (Test-Path $cardsPropsOut) { Remove-Item $cardsPropsOut -Force -ErrorAction SilentlyContinue } } catch { }
-    Write-Log ("Building cards props snapshot for {0} -> {1}" -f $Date, $cardsPropsOut)
+    Write-Log ("Building cards props snapshot for {0} -> {1} (props_source={2})" -f $Date, $cardsPropsOut, $cardsPropsSource)
 
     $tmpPyCardsProps = Join-Path $LogPath ("build_cards_props_snapshot_{0}.py" -f $Stamp)
     $pyCardsProps = @"
@@ -3088,9 +3238,10 @@ import app
 
 date_str = r"{DATE_PLACEHOLDER}"
 out_path = Path(r"{OUT_PLACEHOLDER}")
+props_source = r"{PROPS_SOURCE_PLACEHOLDER}"
 
 client = app.app.test_client()
-resp = client.get(f"/api/cards?date={date_str}&props_source=runtime")
+resp = client.get(f"/api/cards?date={date_str}&props_source={props_source}")
 try:
   payload = resp.get_json() if resp is not None else None
 except Exception:
@@ -3122,6 +3273,7 @@ print("OK")
     $pyCardsProps = $pyCardsProps.Replace('{DATE_PLACEHOLDER}', $Date)
     $pyCardsProps = $pyCardsProps.Replace('{REPO_PLACEHOLDER}', $RepoRoot)
     $pyCardsProps = $pyCardsProps.Replace('{OUT_PLACEHOLDER}', $cardsPropsOut)
+    $pyCardsProps = $pyCardsProps.Replace('{PROPS_SOURCE_PLACEHOLDER}', $cardsPropsSource)
     Set-Content -Path $tmpPyCardsProps -Value $pyCardsProps -Encoding UTF8
     $outCardsProps = & $Python $tmpPyCardsProps 2>&1 | Tee-Object -FilePath $LogFile -Append
     if ($outCardsProps -match 'OK') { Write-Log ("Wrote {0}" -f $cardsPropsOut) } else { Write-Log ("Cards props snapshot build returned: {0}" -f $outCardsProps) }
@@ -3254,9 +3406,13 @@ try {
   if ($null -ne $skipCardsSimDetail -and $skipCardsSimDetail -match '^(1|true|yes)$') {
     Write-Log 'Skipping cards sim detail snapshot build (DAILY_SKIP_CARDS_SIM_DETAIL=1)'
   } else {
+    $cardsSimPropsSource = [string]$env:DAILY_CARDS_SIM_DETAIL_PROPS_SOURCE
+    if ([string]::IsNullOrWhiteSpace($cardsSimPropsSource)) { $cardsSimPropsSource = 'auto' }
+    $cardsSimPropsSource = $cardsSimPropsSource.Trim().ToLowerInvariant()
+    if (@('auto', 'source', 'runtime', 'snapshot') -notcontains $cardsSimPropsSource) { $cardsSimPropsSource = 'auto' }
     $cardsSimDetailOut = Join-Path $RepoRoot ("data/processed/cards_sim_detail_{0}.json" -f $Date)
     try { if (Test-Path $cardsSimDetailOut) { Remove-Item $cardsSimDetailOut -Force -ErrorAction SilentlyContinue } } catch { }
-    Write-Log ("Building cards sim detail snapshot for {0} -> {1}" -f $Date, $cardsSimDetailOut)
+    Write-Log ("Building cards sim detail snapshot for {0} -> {1} (props_source={2})" -f $Date, $cardsSimDetailOut, $cardsSimPropsSource)
 
     $tmpPyCardsSim = Join-Path $LogPath ("build_cards_sim_detail_{0}.py" -f $Stamp)
     $pyCardsSim = @"
@@ -3272,9 +3428,10 @@ import app
 
 date_str = r"{DATE_PLACEHOLDER}"
 out_path = Path(r"{OUT_PLACEHOLDER}")
+props_source = r"{PROPS_SOURCE_PLACEHOLDER}"
 
 client = app.app.test_client()
-resp = client.get(f"/api/cards?date={date_str}&include_players=1&props_source=snapshot")
+resp = client.get(f"/api/cards?date={date_str}&include_players=1&props_source={props_source}")
 try:
   payload = resp.get_json() if resp is not None else None
 except Exception:
@@ -3328,6 +3485,7 @@ print("OK")
     $pyCardsSim = $pyCardsSim.Replace('{DATE_PLACEHOLDER}', $Date)
     $pyCardsSim = $pyCardsSim.Replace('{REPO_PLACEHOLDER}', $RepoRoot)
     $pyCardsSim = $pyCardsSim.Replace('{OUT_PLACEHOLDER}', $cardsSimDetailOut)
+    $pyCardsSim = $pyCardsSim.Replace('{PROPS_SOURCE_PLACEHOLDER}', $cardsSimPropsSource)
     Set-Content -Path $tmpPyCardsSim -Value $pyCardsSim -Encoding UTF8
     $outCardsSim = & $Python $tmpPyCardsSim 2>&1 | Tee-Object -FilePath $LogFile -Append
     if ($outCardsSim -match 'OK') { Write-Log ("Wrote {0}" -f $cardsSimDetailOut) } else { Write-Log ("Cards sim detail snapshot build returned: {0}" -f $outCardsSim) }
