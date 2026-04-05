@@ -202,6 +202,33 @@
     }).format(date);
   }
 
+    function scheduledStatusText(game) {
+      const rawCandidates = [
+        game?.matchup?.displayState,
+        game?.status?.detailed,
+        game?.live_status?.status,
+        game?.live_state?.status,
+        game?.start_time,
+      ];
+      for (const candidate of rawCandidates) {
+        const text = String(candidate || '').trim();
+        if (text && !/^scheduled$/i.test(text) && !/^time tbd$/i.test(text)) {
+          return text;
+        }
+      }
+      return 'Scheduled';
+    }
+
+    function tipoffText(game) {
+      const commenceTime = String(game?.odds?.commence_time || '').trim();
+      const formattedCommenceTime = fmtTime(commenceTime);
+      if (formattedCommenceTime !== 'Time TBD') {
+        return formattedCommenceTime;
+      }
+      const fallback = scheduledStatusText(game);
+      return fallback === 'Scheduled' ? 'Time TBD' : fallback;
+    }
+
   function shiftISODate(value, days) {
     const date = new Date(`${String(value || getLocalDateISO())}T12:00:00`);
     if (Number.isNaN(date.getTime())) {
@@ -1216,11 +1243,11 @@
       const liveLens = getLiveLens(game);
       const liveState = getLiveState(game);
       if (!hasStartedGame(liveState)) {
-        return 'Scheduled';
+        return scheduledStatusText(game);
       }
       return liveLens?.statusLabel || String(liveState?.status || 'Live');
     }
-    return 'Scheduled';
+    return scheduledStatusText(game);
   }
 
   function liveSignalChipClass(signal) {
@@ -3010,7 +3037,7 @@
     const hasStarted = hasStartedGame(liveState);
     const id = cardId(game);
     const compactHeaderText = mode === 'live' && !hasStarted
-      ? fmtTime(game?.odds?.commence_time)
+      ? tipoffText(game)
       : statusText(game);
     const compactDetailText = mode === 'live'
       ? (hasStarted ? (liveState?.status || liveLens?.signals?.total?.detail || 'Monitoring live game lens') : marketCountSummary(game))
@@ -3929,7 +3956,7 @@
           <div class="cards-status-cluster">
             <div class="cards-game-time-row">
               <span class="cards-game-time-label">Tipoff</span>
-              <span class="cards-game-time-value">${escapeHtml(fmtTime(game?.odds?.commence_time))}</span>
+              <span class="cards-game-time-value">${escapeHtml(tipoffText(game))}</span>
             </div>
             <span class="cards-status-badge ${statusClass(game)}">${escapeHtml(statusText(game))}</span>
             <div class="cards-start-time">${escapeHtml(mode === 'live' ? (hasStarted ? (liveState?.status || 'Live game lens active') : 'Pregame betting board ready') : 'Model slate snapshot')}</div>

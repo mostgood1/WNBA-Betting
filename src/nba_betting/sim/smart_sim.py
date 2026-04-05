@@ -1076,9 +1076,9 @@ def _opponent_position_rate_context(date_str: str, lookback_days: int = 120) -> 
 
     for stat, col in stat_cols.items():
         if col:
-            vals = pd.to_numeric(ctx[col], errors="coerce").fillna(0.0).astype(float)
+            vals = pd.to_numeric(ctx[col], errors="coerce").astype(float)
         else:
-            vals = pd.Series([0.0] * len(ctx), index=ctx.index, dtype=float)
+            vals = pd.Series([np.nan] * len(ctx), index=ctx.index, dtype=float)
         ctx[f"_{stat}_pm"] = vals / ctx["_min"].where(ctx["_min"] > 0.0, other=np.nan)
         ctx[f"_{stat}_pm"] = ctx[f"_{stat}_pm"].replace([np.inf, -np.inf], np.nan)
 

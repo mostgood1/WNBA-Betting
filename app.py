@@ -4821,13 +4821,13 @@ def _compute_team_allowed_stats(date_str: str, days_back: int = 21) -> tuple[dic
                         if not t:
                             continue
                         per_game.setdefault(t, {})[gk] = {
-                            "pts": float(b.get(c_pts, 0.0) or 0.0) if c_pts else np.nan,
-                            "reb": float(b.get(c_reb, 0.0) or 0.0) if c_reb else np.nan,
-                            "ast": float(b.get(c_ast, 0.0) or 0.0) if c_ast else np.nan,
-                            "threes": float(b.get(c_3, 0.0) or 0.0) if c_3 else np.nan,
-                            "stl": float(b.get(c_stl, 0.0) or 0.0) if c_stl else np.nan,
-                            "blk": float(b.get(c_blk, 0.0) or 0.0) if c_blk else np.nan,
-                            "tov": float(b.get(c_tov, 0.0) or 0.0) if c_tov else np.nan,
+                            "pts": _safe_float(b.get(c_pts)) if c_pts else np.nan,
+                            "reb": _safe_float(b.get(c_reb)) if c_reb else np.nan,
+                            "ast": _safe_float(b.get(c_ast)) if c_ast else np.nan,
+                            "threes": _safe_float(b.get(c_3)) if c_3 else np.nan,
+                            "stl": _safe_float(b.get(c_stl)) if c_stl else np.nan,
+                            "blk": _safe_float(b.get(c_blk)) if c_blk else np.nan,
+                            "tov": _safe_float(b.get(c_tov)) if c_tov else np.nan,
                         }
             except Exception:
                 continue
