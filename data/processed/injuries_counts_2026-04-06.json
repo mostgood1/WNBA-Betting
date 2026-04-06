@@ -1,0 +1,95 @@
+{
+  "date": "2026-04-06",
+  "team_counts": {
+    "DEN": 2,
+    "DET": 4,
+    "NYK": 1,
+    "PHI": 2,
+    "POR": 4,
+    "SAS": 3
+  },
+  "players": [
+    {
+      "player": "Damian Lillard",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Jerami Grant",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyrese Maxey",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Stewart",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Vít Krejčí",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Cade Cunningham",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Shaedon Sharpe",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Wendell Moore Jr.",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Harrison Ingram",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Peyton Watson",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Johni Broome",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Emanuel Miller",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Jemison III",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "David Jones Garcia",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaac Jones",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Spencer Jones",
+      "team": "DEN",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
