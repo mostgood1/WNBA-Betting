@@ -1538,24 +1538,65 @@
 
   function stripSecondaryText(item) {
     if (mode === 'live') {
+      const player = String(item?.player || 'This player').trim() || 'This player';
       const lineSource = String(item?.line_source || '').trim();
       const simValue = Number(item?.sim_mu);
       const simAdjusted = Number(item?.sim_mu_adjusted);
       const liveLine = Number(item?.line);
       const priorMult = Number(item?.pregame_stat_multiplier);
-      const pieces = [];
-      if (lineSource) {
-        pieces.push(lineSource === 'oddsapi' ? 'Live OddsAPI' : titleCase(lineSource));
+      const teamRatio = Number(item?.pregame_team_total_ratio);
+      const sentences = [];
+      let pregameSentence = '';
+      let contextSentence = '';
+
+      if (Number.isFinite(simValue) && Number.isFinite(simAdjusted) && Math.abs(simAdjusted - simValue) >= 0.05) {
+        pregameSentence = `Pregame, ${player} was ${fmtNumber(simValue, 1)} and adjusted to ${fmtNumber(simAdjusted, 1)}`;
+      } else if (Number.isFinite(simAdjusted)) {
+        pregameSentence = `Pregame baseline: ${fmtNumber(simAdjusted, 1)} for ${player}`;
+      } else if (Number.isFinite(simValue)) {
+        pregameSentence = `Pregame baseline: ${fmtNumber(simValue, 1)} for ${player}`;
       }
-      if (Number.isFinite(simAdjusted) && Number.isFinite(liveLine)) {
-        pieces.push(`Adj sim ${fmtNumber(simAdjusted, 1)} vs ${fmtNumber(liveLine, 1)}`);
-      } else if (Number.isFinite(simValue) && Number.isFinite(liveLine)) {
-        pieces.push(`Sim ${fmtNumber(simValue, 1)} vs ${fmtNumber(liveLine, 1)}`);
+
+      if (pregameSentence && Number.isFinite(liveLine)) {
+        pregameSentence += ` vs ${fmtNumber(liveLine, 1)}`;
+      }
+      if (pregameSentence) {
+        sentences.push(`${pregameSentence}.`);
+      }
+
+      const contextBits = [];
+        if (Number.isFinite(liveLine)) {
+          contextBits.push(`Live line ${fmtNumber(liveLine, 1)}`);
+        } else if (lineSource) {
+          contextBits.push(lineSource === 'oddsapi' ? 'Live OddsAPI line' : `${titleCase(lineSource)} line`);
+      }
+      if (Number.isFinite(teamRatio) && Math.abs(teamRatio - 1) >= 0.02) {
+        const pct = Math.abs((teamRatio - 1) * 100);
+        if (teamRatio > 1) {
+            contextBits.push(`team scoring environment ${fmtNumber(pct, 0)}% stronger than usual`);
+        } else {
+            contextBits.push(`team scoring environment ${fmtNumber(pct, 0)}% softer than usual`);
+        }
       }
       if (Number.isFinite(priorMult) && Math.abs(priorMult - 1) >= 0.01) {
-        pieces.push(`Prior x${fmtNumber(priorMult, 2)}`);
+        const pct = Math.abs((priorMult - 1) * 100);
+        if (priorMult > 1) {
+            contextBits.push(`stat baseline lifted ${fmtNumber(pct, 0)}% before live updates`);
+        } else {
+            contextBits.push(`stat baseline trimmed ${fmtNumber(pct, 0)}% before live updates`);
+        }
       }
-      return pieces.join(' · ') || 'Live player prop lens';
+      if (contextBits.length) {
+        if (contextBits.length === 1) {
+          contextSentence = contextBits[0];
+        } else if (contextBits.length === 2) {
+          contextSentence = `${contextBits[0]}, and ${contextBits[1]}`;
+        } else {
+          contextSentence = `${contextBits.slice(0, -1).join(', ')}, and ${contextBits[contextBits.length - 1]}`;
+        }
+        sentences.push(`${contextSentence}.`);
+      }
+      return sentences.join(' ') || 'Live player prop lens.';
     }
     const pieces = [];
     if (item?.book) {
@@ -1571,32 +1612,32 @@
     if (mode !== 'live') {
       return '';
     }
+    const player = String(item?.player || 'This player').trim() || 'This player';
     const actual = Number(item?.actual);
     const paceProj = Number(item?.pace_proj);
-    const simValue = Number(item?.sim_mu);
-    const simAdjusted = Number(item?.sim_mu_adjusted);
     const line = Number(item?.line);
-    const teamRatio = Number(item?.pregame_team_total_ratio);
-    const pieces = [];
+    if (Number.isFinite(actual) && Number.isFinite(paceProj) && Number.isFinite(line)) {
+      const edge = paceProj - line;
+      const diff = Math.abs(edge);
+      const direction = edge > 0 ? 'above' : (edge < 0 ? 'below' : 'right on');
+      if (direction === 'right on') {
+        return `${player} has ${fmtNumber(actual, 1)}. Live proj ${fmtNumber(paceProj, 1)}, right on the ${fmtNumber(line, 1)} line.`;
+      }
+      return `${player} has ${fmtNumber(actual, 1)}. Live proj ${fmtNumber(paceProj, 1)}, ${fmtNumber(diff, 1)} ${direction} the ${fmtNumber(line, 1)} line.`;
+    }
+    if (Number.isFinite(actual) && Number.isFinite(paceProj)) {
+      return `${player} has ${fmtNumber(actual, 1)}. Live proj ${fmtNumber(paceProj, 1)}.`;
+    }
+    if (Number.isFinite(paceProj) && Number.isFinite(line)) {
+      return `Live proj ${fmtNumber(paceProj, 1)} for ${player} vs ${fmtNumber(line, 1)}.`;
+    }
     if (Number.isFinite(actual)) {
-      pieces.push(`Actual ${fmtNumber(actual, 1)}`);
+      return `${player} has ${fmtNumber(actual, 1)} so far.`;
     }
     if (Number.isFinite(paceProj)) {
-      pieces.push(`Proj ${fmtNumber(paceProj, 1)}`);
+      return `The live read projects ${fmtNumber(paceProj, 1)} for ${player}.`;
     }
-    if (Number.isFinite(simAdjusted)) {
-      pieces.push(`Adj ${fmtNumber(simAdjusted, 1)}`);
-    }
-    if (Number.isFinite(simValue)) {
-      pieces.push(`Sim ${fmtNumber(simValue, 1)}`);
-    }
-    if (Number.isFinite(line) && Number.isFinite(paceProj)) {
-      pieces.push(`Edge ${fmtSigned(paceProj - line, 1)}`);
-    }
-    if (Number.isFinite(teamRatio) && Math.abs(teamRatio - 1) >= 0.02) {
-      pieces.push(`Team ${fmtSigned((teamRatio - 1) * 100, 0)}%`);
-    }
-    return pieces.join(' · ');
+    return '';
   }
 
   function normalizePlayerKey(value) {
@@ -2555,6 +2596,12 @@
         }
         const statusLabel = stripStatusText(item);
         const sourceSummary = stripSecondaryText(item);
+        const lineSource = String(item?.line_source || '').trim();
+        const reasonTags = [
+          statusLabel,
+          lineSource ? (lineSource === 'oddsapi' ? 'Live OddsAPI' : titleCase(lineSource)) : '',
+          Number.isFinite(Number(item?.pregame_stat_multiplier)) && Math.abs(Number(item?.pregame_stat_multiplier) - 1) >= 0.01 ? 'Adjusted prior' : '',
+        ].filter(Boolean);
         return {
           key: ['live', awayTri, homeTri, teamTri, String(item?.player || '').trim(), market, side, Number(item?.line), index].join('|'),
           cardId: cardId(game),
@@ -2571,8 +2618,8 @@
           evPct: Number(item?.ev_pct),
           pWin: Number(item?.probability ?? item?.prob_calib),
           simMu: finiteFirst(item?.sim_mu_adjusted, item?.sim_mu),
-          summary: [liveProjectionSummary(item), sourceSummary].filter(Boolean).join(' · '),
-          reasons: [statusLabel, sourceSummary].filter(Boolean),
+          summary: [liveProjectionSummary(item), sourceSummary].filter(Boolean).join(' '),
+          reasons: reasonTags,
           matchup: `${awayTri} @ ${homeTri}`,
           rank: index + 1,
           primary: index === 0,
@@ -2679,18 +2726,16 @@
           const badgeClass = isLiveRow ? 'is-live' : '';
           const badgeLabel = isLiveRow ? (row.actionLabel || 'Live') : (row.bucket === 'official' ? 'Official' : 'Playable');
           const metrics = isLiveRow
-            ? [
-              { label: 'Current', value: Number.isFinite(Number(row.actual)) ? fmtNumber(row.actual, 1) : '-' },
-              { label: 'Live proj', value: Number.isFinite(Number(row.liveProjection)) ? fmtNumber(row.liveProjection, 1) : '-' },
-              { label: 'Line', value: `${row.side} ${fmtNumber(row.line, 1)}` },
-              { label: 'Live edge', value: Number.isFinite(Number(row.liveEdge)) ? fmtSigned(row.liveEdge, 1) : '-' , tone: Number(row.liveEdge) >= 0 ? 'is-positive' : 'is-negative' },
-            ]
+            ? []
             : [
               { label: 'Line', value: `${row.side} ${fmtNumber(row.line, 1)}` },
               { label: 'Odds', value: `${fmtAmerican(row.price)} ${row.book || ''}`.trim() },
               { label: 'Win', value: fmtPercent(row.pWin, 0) },
               { label: 'EV', value: fmtPercentValue(row.evPct), tone: Number(row.evPct) >= 0 ? 'is-positive' : 'is-negative' },
             ];
+          const liveRecap = isLiveRow
+            ? String(row.summary || `${row.statusLabel || 'Live'} for ${row.player || 'this player'} in ${row.matchup || 'this matchup'}.`).trim()
+            : '';
           return `
             <button class="cards-prop-overview-card" type="button" data-prop-select="${escapeHtml(row.key)}" data-card-target="${escapeHtml(id)}">
               <div class="cards-lens-head">
@@ -2701,16 +2746,18 @@
                 </div>
                 <span class="cards-lens-badge ${badgeClass}">${escapeHtml(badgeLabel)}</span>
               </div>
-              <div class="cards-prop-overview-metrics">
+              ${isLiveRow
+                ? `<div class="cards-callout-copy">${escapeHtml(liveRecap)}</div>`
+                : `<div class="cards-prop-overview-metrics">
                 ${metrics.map((metric) => `
                   <div class="cards-data-pair ${metric.tone || ''}">
                     <span>${escapeHtml(metric.label)}</span>
                     <strong>${escapeHtml(metric.value)}</strong>
                   </div>
                 `).join('')}
-              </div>
+              </div>`}
               <div class="cards-prop-overview-foot">
-                <span>${escapeHtml(row.summary || (isLiveRow ? `${row.statusLabel || 'Live'} · ${row.matchup || ''}` : `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim()))}</span>
+                <span>${escapeHtml(isLiveRow ? `${row.statusLabel || 'Live'}${row.matchup ? ` · ${row.matchup}` : ''}` : (row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim()))}</span>
                 <span>${escapeHtml(`${row.teamTri} | ${row.marketLabel}`)}</span>
               </div>
             </button>
