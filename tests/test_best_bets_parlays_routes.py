@@ -1042,6 +1042,9 @@ def test_api_season_betting_card_manifest_and_day(monkeypatch):
     with app_module.app.test_client() as client:
         manifest_resp = client.get(f"/api/season/2026/betting-card?date={date_str}&profile=retuned")
         day_resp = client.get(f"/api/season/2026/betting-card/day/{date_str}?profile=retuned")
+        day_resp_with_insights = client.get(
+            f"/api/season/2026/betting-card/day/{date_str}?profile=retuned&include_prop_insights=1"
+        )
 
     assert manifest_resp.status_code == 200
     manifest = manifest_resp.get_json()
@@ -1059,6 +1062,11 @@ def test_api_season_betting_card_manifest_and_day(monkeypatch):
     assert len(day["games"][0]["betting"]["officialRows"]) == 3
     assert day["games"][0]["betting"]["officialRows"][0]["display_pick"] == "BOS ML"
     player_prop = day["games"][0]["betting"]["officialRows"][2]
+    assert player_prop.get("insights") is None
+
+    assert day_resp_with_insights.status_code == 200
+    day_with_insights = day_resp_with_insights.get_json()
+    player_prop = day_with_insights["games"][0]["betting"]["officialRows"][2]
     assert player_prop["insights"]["model"]["baseline"] == 25.7
     assert player_prop["reason_summary"]
 

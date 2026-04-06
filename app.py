@@ -7398,7 +7398,13 @@ def _season_betting_card_fetch_recap_items(date_strs: list[str]) -> list[dict[st
         return []
 
 
-def _season_betting_card_day_payload(season: int, date_str: str, profile: str) -> dict[str, Any] | None:
+def _season_betting_card_day_payload(
+    season: int,
+    date_str: str,
+    profile: str,
+    *,
+    include_prop_insights: bool = False,
+) -> dict[str, Any] | None:
     cards_payload = _season_betting_card_fetch_cards_payload(date_str)
     if not isinstance(cards_payload, dict):
         return None
@@ -7409,7 +7415,7 @@ def _season_betting_card_day_payload(season: int, date_str: str, profile: str) -
         profile,
         cards_payload,
         include_games=True,
-        include_prop_insights=True,
+        include_prop_insights=include_prop_insights,
     )
 
 
@@ -7800,7 +7806,13 @@ def api_season_betting_card_manifest(season: int):
 @app.route("/api/season/<int:season>/betting-card/day/<date_str>")
 def api_season_betting_card_day(season: int, date_str: str):
     profile = str(request.args.get("profile") or "retuned").strip().lower() or "retuned"
-    day_payload = _season_betting_card_day_payload(season, date_str, profile)
+    include_prop_insights = str(request.args.get("include_prop_insights") or "").strip().lower() in {"1", "true", "yes", "on"}
+    day_payload = _season_betting_card_day_payload(
+        season,
+        date_str,
+        profile,
+        include_prop_insights=include_prop_insights,
+    )
     if not isinstance(day_payload, dict):
         return jsonify({"error": "day not found", "date": date_str, "season": season}), 404
     return jsonify(day_payload)
