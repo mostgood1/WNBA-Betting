@@ -980,7 +980,12 @@
     if (root.dayPicks) root.dayPicks.innerHTML = '<div class="cards-loading-state">Loading betting-card picks...</div>';
     if (root.games) root.games.innerHTML = '<div class="cards-loading-state">Loading betting-card games...</div>';
     try {
-      state.day = await fetchJson(`/api/season/${encodeURIComponent(state.season)}/betting-card/day/${encodeURIComponent(state.selectedDate)}?profile=${encodeURIComponent(state.profile)}`);
+      const basePath = `/api/season/${encodeURIComponent(state.season)}/betting-card/day/${encodeURIComponent(state.selectedDate)}?profile=${encodeURIComponent(state.profile)}`;
+      try {
+        state.day = await fetchJson(`${basePath}&include_prop_insights=1`);
+      } catch (_detailedError) {
+        state.day = await fetchJson(basePath);
+      }
       renderDay();
     } catch (error) {
       const message = error && error.message ? error.message : 'Unknown error';
