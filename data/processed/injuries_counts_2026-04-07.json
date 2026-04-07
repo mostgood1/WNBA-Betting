@@ -1,0 +1,328 @@
+{
+  "date": "2026-04-07",
+  "team_counts": {
+    "BKN": 7,
+    "CHA": 2,
+    "CHI": 5,
+    "DAL": 3,
+    "GSW": 4,
+    "HOU": 2,
+    "IND": 5,
+    "LAC": 3,
+    "LAL": 3,
+    "MIA": 2,
+    "MIL": 4,
+    "MIN": 2,
+    "NOP": 2,
+    "OKC": 1,
+    "PHX": 1,
+    "SAC": 2,
+    "TOR": 1,
+    "UTA": 7,
+    "WAS": 4
+  },
+  "players": [
+    {
+      "player": "Kyrie Irving",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Giannis Antetokounmpo",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Marcus Smart",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jusuf Nurkić",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "D'Angelo Russell",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Terry Rozier",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Domantas Sabonis",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Pascal Siakam",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Ivica Zubac",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Fred VanVleet",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Lauri Markkanen",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Collins",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaren Jackson Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Caleb Martin",
+      "team": "DAL",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Michael Porter Jr.",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Gary Trent Jr.",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Luka Dončić",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Drew Eubanks",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Haywood Highsmith",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Terance Mann",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Andrew Nembhard",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevin Porter Jr.",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Nic Claxton",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Anthony Edwards",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Aaron Nesmith",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaden McDaniels",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Jalen Smith",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Murphy III",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Ziaire Williams",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Moses Moody",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Jackson",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Austin Reaves",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Josh Giddey",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Gui Santos",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Nikola Jović",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Walker Kessler",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Bryce McGowens",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Ryan Rollins",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Cam Whitmore",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Keyonte George",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Dereck Lively II",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Noah Clowney",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Tosan Evbuomwan",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Matas Buzelis",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Elijah Harkless",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Sarr",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Collier",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Kyshawn George",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Johnny Furphy",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Quinten Post",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Thomas Sorber",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Noa Essengue",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Egor Dëmin",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Liam McNeeley",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Danny Wolf",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Chucky Hepburn",
+      "team": "TOR",
+      "status": "OUT"
+    },
+    {
+      "player": "Yanic Konan Niederhäuser",
+      "team": "LAC",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
