@@ -1,0 +1,126 @@
+{
+  "date": "2026-04-08",
+  "team_counts": {
+    "CLE": 1,
+    "DEN": 2,
+    "DET": 1,
+    "MEM": 10,
+    "ORL": 2,
+    "POR": 4,
+    "SAS": 2
+  },
+  "players": [
+    {
+      "player": "Damian Lillard",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Jerami Grant",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Jonathan Isaac",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Thomas Bryant",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Brandon Clarke",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Ty Jerome",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Vít Krejčí",
+      "team": "POR",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Scotty Pippen Jr.",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Shaedon Sharpe",
+      "team": "POR",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Wendell Moore Jr.",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Peyton Watson",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "GG Jackson",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Jett Howard",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Edey",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Olivier-Maxence Prosper",
+      "team": "MEM",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Stephon Castle",
+      "team": "SAS",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Cam Spencer",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "David Jones Garcia",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaylen Wells",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Spencer Jones",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Javon Small",
+      "team": "MEM",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
