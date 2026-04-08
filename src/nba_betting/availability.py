@@ -88,6 +88,8 @@ def build_and_check_dressed_players(
             ls["team_on_slate"] = ls["team_on_slate"].map(_coerce_bool)
 
         issues: list[str] = []
+        warnings: list[str] = []
+        explicit_exclusion_statuses = {"OUT", "INACTIVE", "SUSPENDED", "REST", "DOUBTFUL"}
 
         # Focus only on slate teams.
         if "team_on_slate" in ls.columns:
@@ -137,15 +139,34 @@ def build_and_check_dressed_players(
                 else:
                     dressed_n = total
 
+                explicit_excluded_n = 0
+                if "injury_status" in g.columns:
+                    try:
+                        explicit_excluded_n = int(
+                            g["injury_status"]
+                            .fillna("")
+                            .astype(str)
+                            .str.upper()
+                            .str.strip()
+                            .isin(explicit_exclusion_statuses)
+                            .sum()
+                        )
+                    except Exception:
+                        explicit_excluded_n = 0
+
                 team_counts[tri] = {
                     "roster_rows": total,
                     "expected_dressed_rows": dressed_n,
+                    "explicit_excluded_rows": explicit_excluded_n,
                 }
 
                 if total < int(min_total_roster_per_team):
                     issues.append(f"team_roster_thin:{tri}:{total}")
                 if dressed_n < int(min_dressed_per_team):
-                    issues.append(f"team_dressed_thin:{tri}:{dressed_n}")
+                    if explicit_excluded_n > 0:
+                        warnings.append(f"team_dressed_thin_explained:{tri}:{dressed_n}:{explicit_excluded_n}")
+                    else:
+                        issues.append(f"team_dressed_thin:{tri}:{dressed_n}")
         except Exception:
             pass
 
@@ -171,6 +192,7 @@ def build_and_check_dressed_players(
             "min_total_roster_per_team": int(min_total_roster_per_team),
             "team_counts": team_counts,
             "issues": issues,
+            "warnings": warnings,
         }
         summary["ok"] = bool(len(issues) == 0)
 

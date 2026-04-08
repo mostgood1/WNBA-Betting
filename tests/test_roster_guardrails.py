@@ -3,6 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from nba_betting import config as config_module
+from nba_betting import availability as availability_module
 from nba_betting import roster_checks as roster_checks_module
 from nba_betting import roster_files as roster_files_module
 from nba_betting import rosters as rosters_module
@@ -121,3 +122,100 @@ def test_fetch_rosters_retries_missing_teams_after_partial_pass(tmp_path, monkey
 
     assert set(out["TEAM_ABBREVIATION"].astype(str).str.upper()) == {"ATL", "PHX"}
     assert calls["PHX"] == 2
+
+
+def test_check_dressed_allows_explained_thin_team(tmp_path, monkeypatch):
+    date_str = "2026-04-08"
+    data_root = tmp_path / "data"
+    processed = data_root / "processed"
+    processed.mkdir(parents=True)
+
+    rows = []
+    for idx in range(1, 7):
+        rows.append(
+            {
+                "player_id": idx,
+                "player_name": f"Active {idx}",
+                "team": "MEM",
+                "team_on_slate": True,
+                "playing_today": True,
+                "injury_status": "",
+            }
+        )
+    for idx in range(7, 11):
+        rows.append(
+            {
+                "player_id": idx,
+                "player_name": f"Out {idx}",
+                "team": "MEM",
+                "team_on_slate": True,
+                "playing_today": False,
+                "injury_status": "OUT",
+            }
+        )
+
+    pd.DataFrame(rows).to_csv(processed / f"league_status_{date_str}.csv", index=False)
+
+    test_paths = config_module.Paths(root=tmp_path, repo_data_root=data_root, data_root=data_root)
+    monkeypatch.setattr(config_module, "paths", test_paths)
+    monkeypatch.setattr(availability_module, "paths", test_paths)
+
+    result = availability_module.build_and_check_dressed_players(
+        date_str,
+        min_dressed_per_team=8,
+        min_total_roster_per_team=10,
+        fail_on_error=True,
+    )
+
+    assert result.ok is True
+    assert result.summary["issues"] == []
+    assert "team_dressed_thin_explained:MEM:6:4" in result.summary["warnings"]
+
+
+def test_check_dressed_still_fails_unexplained_thin_team(tmp_path, monkeypatch):
+    date_str = "2026-04-08"
+    data_root = tmp_path / "data"
+    processed = data_root / "processed"
+    processed.mkdir(parents=True)
+
+    rows = []
+    for idx in range(1, 7):
+        rows.append(
+            {
+                "player_id": idx,
+                "player_name": f"Active {idx}",
+                "team": "MEM",
+                "team_on_slate": True,
+                "playing_today": True,
+                "injury_status": "",
+            }
+        )
+    for idx in range(7, 11):
+        rows.append(
+            {
+                "player_id": idx,
+                "player_name": f"Unknown {idx}",
+                "team": "MEM",
+                "team_on_slate": True,
+                "playing_today": False,
+                "injury_status": "",
+            }
+        )
+
+    pd.DataFrame(rows).to_csv(processed / f"league_status_{date_str}.csv", index=False)
+
+    test_paths = config_module.Paths(root=tmp_path, repo_data_root=data_root, data_root=data_root)
+    monkeypatch.setattr(config_module, "paths", test_paths)
+    monkeypatch.setattr(availability_module, "paths", test_paths)
+
+    try:
+        availability_module.build_and_check_dressed_players(
+            date_str,
+            min_dressed_per_team=8,
+            min_total_roster_per_team=10,
+            fail_on_error=True,
+        )
+    except RuntimeError as exc:
+        assert "team_dressed_thin:MEM:6" in str(exc)
+    else:
+        raise AssertionError("expected build_and_check_dressed_players to fail")
