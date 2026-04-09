@@ -7,8 +7,9 @@
     "GSW": 6,
     "HOU": 2,
     "IND": 5,
-    "LAL": 3,
+    "LAL": 4,
     "MIA": 2,
+    "NYK": 1,
     "PHI": 3,
     "TOR": 1,
     "WAS": 6
@@ -27,6 +28,11 @@
     {
       "player": "Steven Adams",
       "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Marcus Smart",
+      "team": "LAL",
       "status": "OUT"
     },
     {
@@ -195,6 +201,11 @@
       "status": "OUT"
     },
     {
+      "player": "Tyler Kolek",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
       "player": "Quinten Post",
       "team": "GSW",
       "status": "OUT"
@@ -222,7 +233,7 @@
     {
       "player": "Will Richard",
       "team": "GSW",
-      "status": "DOUBTFUL"
+      "status": "OUT"
     }
   ],
   "team_key_outs": {},
