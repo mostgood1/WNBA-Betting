@@ -107,40 +107,65 @@ jobs:
           powershell -NoProfile -ExecutionPolicy Bypass -File scripts\daily_update.ps1 -Date $date -GitPush -GitSyncFirst
 
       - name: Upload live-lens tuning override to Render
+        id: upload_live_lens_tuning
         if: steps.decide.outputs.run == 'true'
         shell: powershell
         env:
           NBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.NBA_BETTING_BASE_URL }}
           LIVE_LENS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.NBA_BETTING_ADMIN_TOKEN }}
         run: |
+          function Set-UploadOutput([string]$status, [string]$detail = '') {
+            "status=$status" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            if ($detail) {
+              "detail=$detail" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            }
+          }
+
           $baseUrl = "${env:NBA_BETTING_BASE_URL}".Trim()
           $adminToken = "${env:LIVE_LENS_ADMIN_TOKEN}".Trim()
           $overridePath = Join-Path $PWD 'data\processed\live_lens_tuning_override.json'
 
           if (-not (Test-Path $overridePath)) {
             Write-Host 'Skipping upload: no live_lens_tuning_override.json produced.'
+            Set-UploadOutput 'skipped_no_file' 'live_lens_tuning_override.json not produced'
             exit 0
           }
           if (-not $baseUrl) {
             Write-Host 'Skipping upload: NBA_BETTING_BASE_URL secret not configured.'
+            Set-UploadOutput 'skipped_missing_base_url' 'NBA_BETTING_BASE_URL secret not configured'
             exit 0
           }
           if (-not $adminToken) {
             Write-Host 'Skipping upload: LIVE_LENS_ADMIN_TOKEN secret not configured.'
+            Set-UploadOutput 'skipped_missing_admin_token' 'LIVE_LENS_ADMIN_TOKEN secret not configured'
             exit 0
           }
 
           $uri = "{0}/api/upload_live_lens_tuning" -f $baseUrl.TrimEnd('/')
           Write-Host "Uploading $overridePath to $uri"
-          curl.exe -sS -X POST -H "Authorization: Bearer $adminToken" -F "file=@$overridePath;type=application/json" $uri
+          $respPath = Join-Path $env:RUNNER_TEMP 'live_lens_tuning_upload.json'
+          curl.exe --fail-with-body -sS -X POST -H "Authorization: Bearer $adminToken" -F "file=@$overridePath;type=application/json" $uri -o $respPath
+          $response = Get-Content $respPath -Raw | ConvertFrom-Json
+          if (-not $response.ok) {
+            throw "Live-lens tuning upload returned ok=false: $(Get-Content $respPath -Raw)"
+          }
+          Set-UploadOutput 'uploaded' ([string]$response.path)
 
       - name: Upload live-lens optimized adjustments to Render
+        id: upload_live_lens_optimized
         if: steps.decide.outputs.run == 'true'
         shell: powershell
         env:
           NBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.NBA_BETTING_BASE_URL }}
           LIVE_LENS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.NBA_BETTING_ADMIN_TOKEN }}
         run: |
+          function Set-UploadOutput([string]$status, [string]$detail = '') {
+            "status=$status" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            if ($detail) {
+              "detail=$detail" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+            }
+          }
+
           $baseUrl = "${env:NBA_BETTING_BASE_URL}".Trim()
           $adminToken = "${env:LIVE_LENS_ADMIN_TOKEN}".Trim()
           $latestOptimized = Get-ChildItem (Join-Path $PWD 'data\processed') -Filter 'live_lens_adjustments_optimized_*.json' -ErrorAction SilentlyContinue |
@@ -149,17 +174,48 @@ jobs:
 
           if (-not $latestOptimized) {
             Write-Host 'Skipping upload: no live_lens_adjustments_optimized_*.json produced.'
+            Set-UploadOutput 'skipped_no_file' 'live_lens_adjustments_optimized_*.json not produced'
             exit 0
           }
           if (-not $baseUrl) {
             Write-Host 'Skipping upload: NBA_BETTING_BASE_URL secret not configured.'
+            Set-UploadOutput 'skipped_missing_base_url' 'NBA_BETTING_BASE_URL secret not configured'
             exit 0
           }
           if (-not $adminToken) {
             Write-Host 'Skipping upload: LIVE_LENS_ADMIN_TOKEN secret not configured.'
+            Set-UploadOutput 'skipped_missing_admin_token' 'LIVE_LENS_ADMIN_TOKEN secret not configured'
             exit 0
           }
 
           $uri = "{0}/api/upload_live_lens_adjustments_optimized" -f $baseUrl.TrimEnd('/')
           Write-Host "Uploading $($latestOptimized.FullName) to $uri"
-          curl.exe -sS -X POST -H "Authorization: Bearer $adminToken" -F "file=@$($latestOptimized.FullName);type=application/json" $uri
+          $respPath = Join-Path $env:RUNNER_TEMP 'live_lens_adjustments_upload.json'
+          curl.exe --fail-with-body -sS -X POST -H "Authorization: Bearer $adminToken" -F "file=@$($latestOptimized.FullName);type=application/json" $uri -o $respPath
+          $response = Get-Content $respPath -Raw | ConvertFrom-Json
+          if (-not $response.ok) {
+            throw "Live-lens optimized upload returned ok=false: $(Get-Content $respPath -Raw)"
+          }
+          Set-UploadOutput 'uploaded' ([string]$response.file)
+
+      - name: Summarize live-lens upload status
+        if: always() && steps.decide.outputs.run == 'true'
+        shell: powershell
+        run: |
+          $tuningStatus = "${{ steps.upload_live_lens_tuning.outputs.status }}".Trim()
+          $tuningDetail = "${{ steps.upload_live_lens_tuning.outputs.detail }}".Trim()
+          $optimizedStatus = "${{ steps.upload_live_lens_optimized.outputs.status }}".Trim()
+          $optimizedDetail = "${{ steps.upload_live_lens_optimized.outputs.detail }}".Trim()
+
+          Add-Content $env:GITHUB_STEP_SUMMARY "## Live Lens upload status"
+          Add-Content $env:GITHUB_STEP_SUMMARY "- tuning override: $tuningStatus $tuningDetail"
+          Add-Content $env:GITHUB_STEP_SUMMARY "- optimized adjustments: $optimizedStatus $optimizedDetail"
+
+          foreach ($entry in @(
+            @{ Name = 'tuning override'; Status = $tuningStatus; Detail = $tuningDetail },
+            @{ Name = 'optimized adjustments'; Status = $optimizedStatus; Detail = $optimizedDetail }
+          )) {
+            if ($entry.Status -and $entry.Status -ne 'uploaded' -and $entry.Status -notlike 'skipped_no_file') {
+              Write-Host "::warning::Live Lens $($entry.Name) upload status=$($entry.Status) $($entry.Detail)"
+            }
+          }

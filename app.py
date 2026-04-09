@@ -27,6 +27,23 @@ import traceback
 from pathlib import Path as _PathEarly
 BASE_DIR = _PathEarly(__file__).resolve().parent
 SRC_DIR = BASE_DIR / "src"
+
+
+def _git_head_info() -> tuple[str | None, str | None]:
+    try:
+        sha = _subp.check_output(["git", "rev-parse", "HEAD"], cwd=str(BASE_DIR), text=True).strip()
+    except Exception:
+        sha = None
+    try:
+        branch = _subp.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(BASE_DIR), text=True).strip()
+    except Exception:
+        branch = None
+    return sha, branch
+
+
+APP_RUNTIME_STARTED_AT = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+APP_RUNTIME_GIT_SHA, APP_RUNTIME_GIT_BRANCH = _git_head_info()
+
 import sys as _sys_early
 if str(SRC_DIR) not in _sys_early.path:
     _sys_early.path.insert(0, str(SRC_DIR))
@@ -8307,17 +8324,18 @@ def health():
 @app.route("/api/version")
 def api_version():
     """Return app version info (git SHA, branch) to verify deploy state."""
-    try:
-        sha = _subp.check_output(["git", "rev-parse", "HEAD"], cwd=str(BASE_DIR), text=True).strip()
-    except Exception:
-        sha = None
-    try:
-        branch = _subp.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(BASE_DIR), text=True).strip()
-    except Exception:
-        branch = None
+    repo_sha, repo_branch = _git_head_info()
+    runtime_sha = APP_RUNTIME_GIT_SHA
+    runtime_branch = APP_RUNTIME_GIT_BRANCH
     return jsonify(_to_jsonable({
-        "sha": sha,
-        "branch": branch,
+        "sha": runtime_sha,
+        "branch": runtime_branch,
+        "runtime_sha": runtime_sha,
+        "runtime_branch": runtime_branch,
+        "runtime_started_at": APP_RUNTIME_STARTED_AT,
+        "repo_sha": repo_sha,
+        "repo_branch": repo_branch,
+        "runtime_matches_repo": bool(runtime_sha and repo_sha and runtime_sha == repo_sha),
         "time": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }))
 
