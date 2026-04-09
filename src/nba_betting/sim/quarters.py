@@ -223,8 +223,12 @@ def _load_default_blend_weights() -> tuple[float, float]:
     """
     global _DEFAULT_BLEND_TOTAL_W, _DEFAULT_BLEND_MARGIN_W
     try:
-        fp = paths.data_processed / "quarters_blend_weights.json"
-        if not fp.exists():
+        fp = None
+        for candidate in (paths.repo_data_processed / "quarters_blend_weights.json", paths.data_processed / "quarters_blend_weights.json"):
+            if candidate.exists():
+                fp = candidate
+                break
+        if fp is None:
             return _DEFAULT_BLEND_TOTAL_W, _DEFAULT_BLEND_MARGIN_W
         import json
 

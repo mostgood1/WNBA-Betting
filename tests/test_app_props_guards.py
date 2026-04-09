@@ -137,7 +137,7 @@ def test_api_cards_skips_missing_prop_players_warning_when_smartsim_errors(tmp_p
     monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
     monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
 
-    with app_module.app.test_request_context("/api/cards?date=2026-03-13"):
+    with app_module.app.test_request_context("/api/cards?date=2026-03-13&include_players=1"):
         response = app_module.api_cards()
 
     payload = response.get_json()
@@ -298,6 +298,113 @@ def test_load_cards_sim_detail_snapshot_prefers_repo_copy_over_active_data_root(
     payload = app_module._load_cards_sim_detail_snapshot("2026-04-01")
 
     assert payload == {"games": [{"home_tri": "HOU", "away_tri": "MIL", "sim": {"players_summary": {"home": 15}}}]}
+
+
+def test_live_lens_override_prefers_repo_copy_over_active_data_root(tmp_path, monkeypatch):
+    repo_processed = tmp_path / "repo" / "data" / "processed"
+    active_live_lens = tmp_path / "active" / "data" / "live_lens"
+    repo_processed.mkdir(parents=True)
+    active_live_lens.mkdir(parents=True)
+
+    (repo_processed / "live_lens_tuning_override.json").write_text(
+        json.dumps({"markets": {"player_prop": {"watch": 3.0}}}),
+        encoding="utf-8",
+    )
+    (active_live_lens / "live_lens_tuning_override.json").write_text(
+        json.dumps({"markets": {"player_prop": {"watch": 9.0}}}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(app_module, "REPO_DATA_PROCESSED_DIR", repo_processed)
+    monkeypatch.setattr(app_module, "_live_lens_artifacts_dir", lambda: active_live_lens)
+    monkeypatch.setattr(app_module, "_live_lens_override_cache", (0.0, "", 0.0, None))
+
+    payload = app_module._live_load_lens_override()
+
+    assert payload == {"markets": {"player_prop": {"watch": 3.0}}}
+
+
+def test_api_live_lens_tuning_prefers_repo_override_and_latest_repo_optimized_adjustments(tmp_path, monkeypatch):
+    repo_processed = tmp_path / "repo" / "data" / "processed"
+    active_live_lens = tmp_path / "active" / "data" / "live_lens"
+    repo_processed.mkdir(parents=True)
+    active_live_lens.mkdir(parents=True)
+
+    (repo_processed / "live_lens_tuning_override.json").write_text(
+        json.dumps(
+            {
+                "markets": {"player_prop": {"watch": 3.0}},
+                "trained": {"source": "repo-override"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (active_live_lens / "live_lens_tuning_override.json").write_text(
+        json.dumps({"markets": {"player_prop": {"watch": 9.0}}}),
+        encoding="utf-8",
+    )
+    (repo_processed / "live_lens_adjustments_optimized_2026-04-01_2026-04-07.json").write_text(
+        json.dumps(
+            {
+                "window": {"start": "2026-04-01", "end": "2026-04-07"},
+                "generated_at": "2026-04-08T05:00:00Z",
+                "best": {
+                    "params": {"pace_weight": 0.4, "min_elapsed_min": 9.0},
+                    "bets": 31,
+                    "profit": 12.5,
+                    "roi_per_bet": 0.4,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (active_live_lens / "live_lens_adjustments_optimized_2026-04-01_2026-04-07.json").write_text(
+        json.dumps(
+            {
+                "window": {"start": "2026-04-01", "end": "2026-04-07"},
+                "best": {"params": {"pace_weight": 0.1, "min_elapsed_min": 3.0}},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(app_module, "REPO_DATA_PROCESSED_DIR", repo_processed)
+    monkeypatch.setattr(app_module, "_live_lens_artifacts_dir", lambda: active_live_lens)
+    monkeypatch.setattr(app_module, "_live_tuning_cache", {})
+
+    with app_module.app.test_request_context("/api/live_lens_tuning?ttl=300"):
+        response = app_module.api_live_lens_tuning()
+
+    payload = response.get_json()
+
+    assert response.status_code == 200
+    assert payload["markets"]["player_prop"]["watch"] == 3.0
+    assert payload["adjustments"]["game_total"]["pace_weight"] == 0.4
+    assert payload["adjustments"]["game_total"]["min_elapsed_min"] == 9.0
+    assert payload["trained"]["source"] == "repo-override"
+    assert payload["trained"]["game_total_optimization"]["path"] == "live_lens_adjustments_optimized_2026-04-01_2026-04-07.json"
+
+
+def test_api_download_live_lens_adjustments_optimized_prefers_latest_repo_copy(tmp_path, monkeypatch):
+    repo_processed = tmp_path / "repo" / "data" / "processed"
+    active_live_lens = tmp_path / "active" / "data" / "live_lens"
+    repo_processed.mkdir(parents=True)
+    active_live_lens.mkdir(parents=True)
+
+    latest_name = "live_lens_adjustments_optimized_2026-04-01_2026-04-07.json"
+    older_name = "live_lens_adjustments_optimized_2026-03-25_2026-03-31.json"
+    (repo_processed / older_name).write_text(json.dumps({"best": {"params": {"pace_weight": 0.2}}}), encoding="utf-8")
+    (repo_processed / latest_name).write_text(json.dumps({"best": {"params": {"pace_weight": 0.4}}}), encoding="utf-8")
+    (active_live_lens / latest_name).write_text(json.dumps({"best": {"params": {"pace_weight": 0.1}}}), encoding="utf-8")
+
+    monkeypatch.setattr(app_module, "REPO_DATA_PROCESSED_DIR", repo_processed)
+    monkeypatch.setattr(app_module, "_live_lens_artifacts_dir", lambda: active_live_lens)
+
+    with app_module.app.test_client() as client:
+        response = client.get("/api/download_live_lens_adjustments_optimized")
+
+    assert response.status_code == 200
+    assert json.loads(response.data) == {"best": {"params": {"pace_weight": 0.4}}}
 
 
 def test_api_prop_ladders_requests_players_from_api_cards(monkeypatch):
@@ -569,6 +676,123 @@ def test_api_cards_started_game_uses_source_props_when_snapshot_missing(monkeypa
     assert game["prop_recommendations"]["home"][0]["best"]["line"] == 27.5
 
 
+def test_api_cards_enriches_each_prop_recommendation_once(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+
+    smart_sim_path = processed / "smart_sim_2026-04-02_PHX_UTA.json"
+    smart_sim_path.write_text(
+        json.dumps(
+            {
+                "home": "PHX",
+                "away": "UTA",
+                "score": {},
+                "players": {"home": [], "away": []},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(app_module, "_load_smart_sim_files_for_authoritative_slate", lambda _date: [smart_sim_path])
+    monkeypatch.setattr(app_module, "_smart_sim_matchup_from_path", lambda _date, _path, prefix=None: ("PHX", "UTA"))
+    monkeypatch.setattr(
+        app_module,
+        "_load_game_odds_map",
+        lambda _date: {("PHX", "UTA"): {"home_team": "Phoenix Suns", "visitor_team": "Utah Jazz"}},
+    )
+    monkeypatch.setattr(app_module, "_load_predictions_rows_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
+    monkeypatch.setattr(
+        app_module,
+        "_load_props_recommendations_by_team",
+        lambda _date: {"PHX": [{"player": "Devin Booker", "team": "PHX"}]},
+    )
+    monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_game_context", lambda _date: {})
+    monkeypatch.setattr(
+        app_module,
+        "_load_best_bets_props_prediction_lookup",
+        lambda _date: {(app_module._norm_player_name("Devin Booker"), "PHX"): {"pts_mean": 28.0}},
+    )
+    monkeypatch.setattr(app_module, "_best_bets_load_injury_snapshot", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_game_recommendations_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_prop_snapshot_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_prop_recommendations_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_sim_detail_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_finals_lookup", lambda _date: {})
+    monkeypatch.setattr(
+        app_module,
+        "_load_recon_props_lookup",
+        lambda _date: (
+            {},
+            {
+                ("PHX", app_module._norm_player_name("Devin Booker")): {"pts": 30.0},
+            },
+        ),
+    )
+    monkeypatch.setattr(app_module, "_cards_started_matchups_index", lambda _date, _now=None: {})
+    monkeypatch.setattr(
+        app_module,
+        "_build_cards_prop_recommendations_from_source",
+        lambda *args, **kwargs: {
+            "home": [
+                {
+                    "team": "PHX",
+                    "player": "Devin Booker",
+                    "best": {"market": "pts", "side": "OVER", "line": 27.5, "price": -110},
+                }
+            ],
+            "away": [],
+        },
+    )
+
+    counts = {"flatten": 0, "decorate": 0, "settle": 0}
+
+    def _fake_flatten(row, **kwargs):
+        counts["flatten"] += 1
+        return row
+
+    def _fake_decorate(**kwargs):
+        counts["decorate"] += 1
+        return {
+            "reasons": ["Reason one"],
+            "top_play_reasons": ["Reason one"],
+            "basketball_reasons": ["Reason one"],
+        }
+
+    def _fake_settle_prop_pick(*, actual, line, side):
+        counts["settle"] += 1
+        return "win"
+
+    def _fake_apply_buckets(prop_recommendations, *, snapshot_picks):
+        for rows in prop_recommendations.values():
+            for row in rows:
+                if isinstance(row, dict):
+                    row["card_bucket"] = "official"
+                    row["card_rank"] = 1
+
+    monkeypatch.setattr(app_module, "_flatten_prop_recommendation_row", _fake_flatten)
+    monkeypatch.setattr(app_module, "_decorate_prop_recommendation_payload", _fake_decorate)
+    monkeypatch.setattr(app_module, "_best_bets_settle_prop_pick", _fake_settle_prop_pick)
+    monkeypatch.setattr(app_module, "_apply_cards_prop_recommendation_buckets", _fake_apply_buckets)
+    monkeypatch.setattr(app_module, "_build_cards_game_market_recommendations", lambda **kwargs: [])
+    monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
+
+    with app_module.app.test_request_context("/api/cards?date=2026-04-02&props_source=source"):
+        response = app_module.api_cards()
+
+    payload = response.get_json()
+    prop_row = payload["games"][0]["prop_recommendations"]["home"][0]
+
+    assert counts == {"flatten": 1, "decorate": 1, "settle": 1}
+    assert prop_row["top_play_reasons"] == ["Reason one"]
+    assert prop_row["actual"] == 30.0
+    assert prop_row["result"] == "win"
+
+
 def test_api_cards_normalizes_snapshot_names_and_backfills_roster_coverage(tmp_path, monkeypatch):
     data_dir = tmp_path / "data"
     processed = data_dir / "processed"
@@ -680,7 +904,7 @@ def test_api_cards_normalizes_snapshot_names_and_backfills_roster_coverage(tmp_p
     monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
     monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
 
-    with app_module.app.test_request_context("/api/cards?date=2026-03-19"):
+    with app_module.app.test_request_context("/api/cards?date=2026-03-19&include_players=1"):
         response = app_module.api_cards()
 
     payload = response.get_json()
@@ -758,7 +982,7 @@ def test_api_cards_normalizes_claxton_alias_without_missing_prop_warning(tmp_pat
     monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
     monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
 
-    with app_module.app.test_request_context("/api/cards?date=2026-03-19"):
+    with app_module.app.test_request_context("/api/cards?date=2026-03-19&include_players=1"):
         response = app_module.api_cards()
 
     payload = response.get_json()
@@ -1020,12 +1244,13 @@ def test_api_cards_surfaces_snapshot_prop_line_options_and_marks_recommendations
         },
     )
 
-    with app_module.app.test_request_context("/api/cards?date=2026-03-13"):
+    with app_module.app.test_request_context("/api/cards?date=2026-03-13&include_players=1"):
         response = app_module.api_cards()
 
     payload = response.get_json()
     game = payload["games"][0]
     assert isinstance(game["game_market_recommendations"], list)
+    assert game["sim"]["players_loaded"] is True
 
     prop_rows = game["prop_recommendations"]["home"]
     assert len(prop_rows) == 1
@@ -1517,23 +1742,21 @@ def test_upload_props_refresh_artifacts_accepts_snapshot_only(tmp_path, monkeypa
     assert not (processed / "props_edges_2026-03-18.csv").exists()
 
 
-def test_cards_shell_routes_use_split_pages():
+def test_cards_shell_routes_use_single_main_page():
     client = app_module.app.test_client()
 
     root_response = client.get("/")
     pregame_response = client.get("/pregame")
     live_response = client.get("/live")
+    betting_card_response = client.get("/betting-card")
 
     assert root_response.status_code == 200
-    assert pregame_response.status_code == 200
-    assert live_response.status_code == 200
+    assert pregame_response.status_code == 404
+    assert live_response.status_code == 404
+    assert betting_card_response.status_code == 302
 
     root_html = root_response.get_data(as_text=True)
-    pregame_html = pregame_response.get_data(as_text=True)
-    live_html = live_response.get_data(as_text=True)
 
-    assert 'data-page-mode="pregame"' in root_html
-    assert 'data-page-mode="pregame"' in pregame_html
-    assert 'NBA Betting – Pregame' in pregame_html
-    assert 'data-page-mode="live"' in live_html
-    assert 'NBA Betting – Live' in live_html
+    assert 'data-page-mode="live"' in root_html
+    assert 'NBA Betting - Daily Betting Card' in root_html
+    assert betting_card_response.headers["Location"].endswith("/")

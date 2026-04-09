@@ -105,3 +105,61 @@ jobs:
           if (-not $date) { throw "Missing computed date" }
           Write-Host "Running scripts/daily_update.ps1 for date=$date"
           powershell -NoProfile -ExecutionPolicy Bypass -File scripts\daily_update.ps1 -Date $date -GitPush -GitSyncFirst
+
+      - name: Upload live-lens tuning override to Render
+        if: steps.decide.outputs.run == 'true'
+        shell: powershell
+        env:
+          NBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.NBA_BETTING_BASE_URL }}
+          LIVE_LENS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.NBA_BETTING_ADMIN_TOKEN }}
+        run: |
+          $baseUrl = "${env:NBA_BETTING_BASE_URL}".Trim()
+          $adminToken = "${env:LIVE_LENS_ADMIN_TOKEN}".Trim()
+          $overridePath = Join-Path $PWD 'data\processed\live_lens_tuning_override.json'
+
+          if (-not (Test-Path $overridePath)) {
+            Write-Host 'Skipping upload: no live_lens_tuning_override.json produced.'
+            exit 0
+          }
+          if (-not $baseUrl) {
+            Write-Host 'Skipping upload: NBA_BETTING_BASE_URL secret not configured.'
+            exit 0
+          }
+          if (-not $adminToken) {
+            Write-Host 'Skipping upload: LIVE_LENS_ADMIN_TOKEN secret not configured.'
+            exit 0
+          }
+
+          $uri = "{0}/api/upload_live_lens_tuning" -f $baseUrl.TrimEnd('/')
+          Write-Host "Uploading $overridePath to $uri"
+          curl.exe -sS -X POST -H "Authorization: Bearer $adminToken" -F "file=@$overridePath;type=application/json" $uri
+
+      - name: Upload live-lens optimized adjustments to Render
+        if: steps.decide.outputs.run == 'true'
+        shell: powershell
+        env:
+          NBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.NBA_BETTING_BASE_URL }}
+          LIVE_LENS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.NBA_BETTING_ADMIN_TOKEN }}
+        run: |
+          $baseUrl = "${env:NBA_BETTING_BASE_URL}".Trim()
+          $adminToken = "${env:LIVE_LENS_ADMIN_TOKEN}".Trim()
+          $latestOptimized = Get-ChildItem (Join-Path $PWD 'data\processed') -Filter 'live_lens_adjustments_optimized_*.json' -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending |
+            Select-Object -First 1
+
+          if (-not $latestOptimized) {
+            Write-Host 'Skipping upload: no live_lens_adjustments_optimized_*.json produced.'
+            exit 0
+          }
+          if (-not $baseUrl) {
+            Write-Host 'Skipping upload: NBA_BETTING_BASE_URL secret not configured.'
+            exit 0
+          }
+          if (-not $adminToken) {
+            Write-Host 'Skipping upload: LIVE_LENS_ADMIN_TOKEN secret not configured.'
+            exit 0
+          }
+
+          $uri = "{0}/api/upload_live_lens_adjustments_optimized" -f $baseUrl.TrimEnd('/')
+          Write-Host "Uploading $($latestOptimized.FullName) to $uri"
+          curl.exe -sS -X POST -H "Authorization: Bearer $adminToken" -F "file=@$($latestOptimized.FullName);type=application/json" $uri

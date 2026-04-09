@@ -13,6 +13,25 @@ _PROB_CALIBRATION_INDEX: Optional[list[tuple[pd.Timestamp, Any]]] = None
 _PROB_CALIBRATION_CACHE: dict[str, Optional[dict[str, Any]]] = {}
 
 
+def _calibration_period_prob_paths() -> list[Any]:
+    """Return calibration artifacts with repo copies preferred over active data root."""
+    chosen: dict[pd.Timestamp, Any] = {}
+    roots = [paths.repo_data_processed, paths.data_processed]
+    for root in roots:
+        try:
+            for fp in root.glob("calibration_period_probs_*.json"):
+                ds = fp.name.replace("calibration_period_probs_", "").replace(".json", "")
+                try:
+                    dt = pd.to_datetime(ds).normalize()
+                except Exception:
+                    continue
+                if dt not in chosen:
+                    chosen[dt] = fp
+        except Exception:
+            continue
+    return [chosen[dt] for dt in sorted(chosen.keys())]
+
+
 def _clamp01(x: Any, default: float = 0.5) -> float:
     try:
         v = float(x)
@@ -45,7 +64,7 @@ def _load_prob_calibration_for_date(date_str: str) -> Optional[dict[str, Any]]:
     if _PROB_CALIBRATION_INDEX is None:
         idx: list[tuple[pd.Timestamp, Any]] = []
         try:
-            for fp in paths.data_processed.glob("calibration_period_probs_*.json"):
+            for fp in _calibration_period_prob_paths():
                 ds = fp.name.replace("calibration_period_probs_", "").replace(".json", "")
                 try:
                     dt = pd.to_datetime(ds).normalize()

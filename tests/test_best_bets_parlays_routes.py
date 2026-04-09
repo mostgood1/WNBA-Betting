@@ -788,6 +788,7 @@ def test_recommendations_all_props_preserves_bucketed_why_reasons(tmp_path, monk
 def test_best_bets_page_routes_render():
     app_module.app.testing = True
     with app_module.app.test_client() as client:
+        root_page = client.get("/?date=2026-03-19")
         betting_card = client.get("/betting-card?date=2026-03-19")
         pregame_page = client.get("/pregame?date=2026-03-19")
         live_page = client.get("/live?date=2026-03-19")
@@ -799,32 +800,34 @@ def test_best_bets_page_routes_render():
         reconciliation_page = client.get("/reconciliation?date=2026-03-19")
         season_betting_card_page = client.get("/season/2026/betting-card?date=2026-03-19&profile=retuned")
 
-    assert betting_card.status_code == 200
-    assert "NBA Betting - Daily Betting Card" in betting_card.get_data(as_text=True)
+    assert root_page.status_code == 200
+    assert "NBA Betting - Daily Betting Card" in root_page.get_data(as_text=True)
 
-    assert pregame_page.status_code == 302
-    assert "/betting-card?date=2026-03-19" in pregame_page.headers["Location"]
+    assert betting_card.status_code == 302
+    assert "/?date=2026-03-19" in betting_card.headers["Location"]
 
-    assert live_page.status_code == 302
-    assert "/betting-card?date=2026-03-19" in live_page.headers["Location"]
+    assert pregame_page.status_code == 404
+
+    assert live_page.status_code == 404
 
     assert betting_recap.status_code == 302
-    assert "/betting-card" in betting_recap.headers["Location"]
+    assert betting_recap.headers["Location"].startswith("/")
+    assert "/betting-card" not in betting_recap.headers["Location"]
 
     assert games_page.status_code == 302
-    assert "/betting-card?date=2026-03-19&section=games" in games_page.headers["Location"]
+    assert "/?date=2026-03-19&section=games" in games_page.headers["Location"]
 
     assert props_page.status_code == 302
-    assert "/betting-card?date=2026-03-19&section=props" in props_page.headers["Location"]
+    assert "/?date=2026-03-19&section=props" in props_page.headers["Location"]
 
     assert props_recs.status_code == 302
-    assert "/betting-card?date=2026-03-19&section=props" in props_recs.headers["Location"]
+    assert "/?date=2026-03-19&section=props" in props_recs.headers["Location"]
 
     assert recommendations_page.status_code == 302
-    assert "/betting-card?date=2026-03-19" in recommendations_page.headers["Location"]
+    assert "/?date=2026-03-19" in recommendations_page.headers["Location"]
 
     assert reconciliation_page.status_code == 302
-    assert "/betting-card?date=2026-03-19" in reconciliation_page.headers["Location"]
+    assert "/?date=2026-03-19" in reconciliation_page.headers["Location"]
 
     assert season_betting_card_page.status_code == 200
     assert "NBA Betting Card" in season_betting_card_page.get_data(as_text=True)

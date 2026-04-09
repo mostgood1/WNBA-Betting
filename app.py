@@ -11,7 +11,7 @@ import json
 import base64
 import os
 from datetime import datetime, timedelta, timezone
-from flask import Flask, jsonify, request, send_from_directory, redirect
+from flask import Flask, jsonify, request, send_file, send_from_directory, redirect
 import subprocess
 import sys
 import time
@@ -220,7 +220,7 @@ _live_pbp_actions_cache: dict[str, tuple[float, list[dict[str, Any]]]] = _Capped
     lo=0,
     hi=500,
 )
-_live_lens_override_cache: tuple[float, float, dict[str, Any] | None] = (0.0, 0.0, None)  # (loaded_at, mtime, obj)
+_live_lens_override_cache: tuple[float, str, float, dict[str, Any] | None] = (0.0, "", 0.0, None)  # (loaded_at, path, mtime, obj)
 _roster_pid_by_team_nk_cache: tuple[int, dict[tuple[str, str], int]] | None = None
 
 # Processed artifact caches for live endpoints (avoid re-reading CSVs on every poll)
@@ -2300,11 +2300,12 @@ def _live_load_lens_override() -> dict[str, Any] | None:
     """
     global _live_lens_override_cache
     try:
-        p = _live_lens_artifacts_dir() / "live_lens_tuning_override.json"
+        candidates = _live_lens_artifact_candidates("live_lens_tuning_override.json")
     except Exception:
         return None
 
-    if not p.exists():
+    p = next((candidate for candidate in candidates if candidate.exists()), None)
+    if p is None:
         return None
 
     try:
@@ -2318,10 +2319,11 @@ def _live_load_lens_override() -> dict[str, Any] | None:
         mtime = float(p.stat().st_mtime)
     except Exception:
         mtime = 0.0
+    path_key = str(p)
 
     try:
-        loaded_at, last_mtime, cached = _live_lens_override_cache
-        if cached is not None and (now - float(loaded_at) < float(ttl)) and float(last_mtime) == float(mtime):
+        loaded_at, last_path, last_mtime, cached = _live_lens_override_cache
+        if cached is not None and (now - float(loaded_at) < float(ttl)) and str(last_path) == path_key and float(last_mtime) == float(mtime):
             return cached
     except Exception:
         pass
@@ -2335,10 +2337,80 @@ def _live_load_lens_override() -> dict[str, Any] | None:
         obj = None
 
     try:
-        _live_lens_override_cache = (now, mtime, obj)
+        _live_lens_override_cache = (now, path_key, mtime, obj)
     except Exception:
         pass
     return obj
+
+
+def _live_lens_artifact_candidates(filename: str) -> list[Path]:
+    candidates: list[Path] = []
+    seen: set[str] = set()
+    try:
+        repo_candidate = REPO_DATA_PROCESSED_DIR / filename
+        active_candidate = _live_lens_artifacts_dir() / filename
+    except Exception:
+        return []
+    for candidate in (repo_candidate, active_candidate):
+        key = str(candidate)
+        if key in seen:
+            continue
+        seen.add(key)
+        candidates.append(candidate)
+    return candidates
+
+
+def _live_preferred_artifact_path(filename: str) -> Path | None:
+    try:
+        candidates = _live_lens_artifact_candidates(filename)
+    except Exception:
+        return None
+    return next((candidate for candidate in candidates if candidate.exists()), None)
+
+
+def _live_latest_adjustments_optimized_path() -> Path | None:
+    pattern = "live_lens_adjustments_optimized_*.json"
+    preferred_by_name: dict[str, Path] = {}
+
+    try:
+        repo_processed = REPO_DATA_PROCESSED_DIR
+    except Exception:
+        repo_processed = None
+    if isinstance(repo_processed, Path) and repo_processed.exists():
+        try:
+            for candidate in sorted(repo_processed.glob(pattern)):
+                if candidate.is_file():
+                    preferred_by_name.setdefault(candidate.name, candidate)
+        except Exception:
+            pass
+
+    try:
+        active_dir = _live_lens_artifacts_dir()
+    except Exception:
+        active_dir = None
+    if isinstance(active_dir, Path) and active_dir.exists():
+        try:
+            for candidate in sorted(active_dir.glob(pattern)):
+                if candidate.is_file() and candidate.name not in preferred_by_name:
+                    preferred_by_name[candidate.name] = candidate
+        except Exception:
+            pass
+
+    if not preferred_by_name:
+        return None
+    return preferred_by_name[max(preferred_by_name)]
+
+
+def _live_lens_optimized_filename(value: Any) -> str | None:
+    try:
+        name = Path(str(value or "")).name.strip()
+    except Exception:
+        return None
+    if not name:
+        return None
+    if re.fullmatch(r"live_lens_adjustments_optimized_\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}\.json", name):
+        return name
+    return None
 
 
 def _live_roster_pid_by_team_nk() -> dict[tuple[str, str], int]:
@@ -3325,10 +3397,8 @@ def _enforce_minimal_ui_allowlist():
         # Exact pages
         allowed_exact = {
             "/",
-            "/pregame",
             "/betting-card",
             "/betting-recap",
-            "/live",
             "/prop-ladders",
             "/recommendations",
             "/props/recommendations",
@@ -3429,6 +3499,8 @@ def _enforce_minimal_ui_allowlist():
             "/api/upload_live_lens_projections",
             "/api/download_live_lens_tuning",
             "/api/upload_live_lens_tuning",
+            "/api/download_live_lens_adjustments_optimized",
+            "/api/upload_live_lens_adjustments_optimized",
             "/api/live_player_boxscore",
             "/api/live_player_lens",
         }
@@ -7561,7 +7633,7 @@ def _season_betting_card_day_payload_from_cards(
             "profile": profile,
             "source_kind": "api_cards_v2",
             "cap_profile": profile,
-            "cards_url": f"/betting-card?date={date_str}",
+            "cards_url": f"/?date={date_str}",
             "games": games_out,
             "results": {
                 "combined": results,
@@ -7825,29 +7897,12 @@ def root():
         page_mode="live",
         title="NBA Betting - Daily Betting Card",
         heading="NBA Betting - Daily Betting Card",
-        base_path="/betting-card",
+        base_path="/",
     )
-
-
-@app.route("/pregame")
-def route_pregame_cards():
-    return _redirect_with_request_params("/betting-card")
-
 
 @app.route("/betting-card")
 def route_betting_card():
-    return _serve_cards_page(
-        "cards.html",
-        page_mode="live",
-        title="NBA Betting - Daily Betting Card",
-        heading="NBA Betting - Daily Betting Card",
-        base_path="/betting-card",
-    )
-
-
-@app.route("/live")
-def route_live_cards():
-    return _redirect_with_request_params("/betting-card")
+    return _redirect_with_request_params("/")
 
 
 @app.route("/prop-ladders")
@@ -8056,12 +8111,12 @@ def route_recommendations():
             ],
         }), 400
 
-    return _redirect_with_request_params("/betting-card")
+    return _redirect_with_request_params("/")
 
 
 @app.route("/props/recommendations")
 def route_props_recommendations_page():
-    return _redirect_with_request_params("/betting-card", extra_params={"section": "props"})
+    return _redirect_with_request_params("/", extra_params={"section": "props"})
 
 
 @app.route("/best-bets-parlays")
@@ -8069,7 +8124,7 @@ def route_best_bets_parlays():
     fmt = str(request.args.get("format") or "").strip().lower()
     if fmt == "json":
         return _redirect_with_request_params("/api/betting-card", extra_params={"section": "games"}, drop_params={"format"})
-    return _redirect_with_request_params("/betting-card", extra_params={"section": "games"})
+    return _redirect_with_request_params("/", extra_params={"section": "games"})
 
 
 @app.route("/props/best-bets-parlays")
@@ -8077,7 +8132,7 @@ def route_props_best_bets_parlays():
     fmt = str(request.args.get("format") or "").strip().lower()
     if fmt == "json":
         return _redirect_with_request_params("/api/betting-card", extra_params={"section": "props"}, drop_params={"format"})
-    return _redirect_with_request_params("/betting-card", extra_params={"section": "props"})
+    return _redirect_with_request_params("/", extra_params={"section": "props"})
 
 
 @app.route("/api/best-bets-parlays")
@@ -8201,12 +8256,12 @@ def api_props_best_bets_parlays_alias():
 
 @app.route("/betting-recap")
 def route_betting_recap():
-    return _redirect_with_request_params("/betting-card", drop_params={"since", "until"})
+    return _redirect_with_request_params("/", drop_params={"since", "until"})
 
 
 @app.route("/reconciliation")
 def route_reconciliation():
-    return _redirect_with_request_params("/betting-card", drop_params={"since", "until"})
+    return _redirect_with_request_params("/", drop_params={"since", "until"})
 
 
 @app.route("/features")
@@ -15032,10 +15087,11 @@ def _cards_prop_row_player_key(row: dict[str, Any]) -> tuple[str, str] | None:
 
 def _cards_prop_playable_via_sleeve_policy(row: dict[str, Any]) -> bool:
     sleeve_policy = _cards_prop_sleeve_policy(row)
-    if not isinstance(sleeve_policy, dict):
-        return False
     if not _cards_prop_has_complete_canonical_inputs(row):
         return False
+
+    if not isinstance(sleeve_policy, dict):
+        return _cards_locked_policy_qualifies(row, market_type="prop", tier="playable")
 
     team_side_required = str(sleeve_policy.get("team_side") or "").strip().lower()
     if team_side_required:
@@ -15109,6 +15165,9 @@ def _cards_select_prop_buckets(rows: list[dict[str, Any]]) -> tuple[list[dict[st
     ranked = [_cards_locked_policy_annotate(row) for row in rows if isinstance(row, dict)]
     ranked.sort(key=_cards_locked_policy_sort_key, reverse=True)
 
+    policy = _NBA_CARDS_LOCKED_POLICY
+    official_cap_total = int(policy.get("prop_official_cap_per_game") or 0)
+    playable_cap_total = int(policy.get("prop_cap_per_game") or 0)
     official: list[dict[str, Any]] = []
     playable: list[dict[str, Any]] = []
     official_by_sleeve: dict[str, int] = {}
@@ -15121,22 +15180,25 @@ def _cards_select_prop_buckets(rows: list[dict[str, Any]]) -> tuple[list[dict[st
         player_key = _cards_prop_row_player_key(row)
 
         if _cards_prop_official_via_sleeve_policy(row):
-            if player_key is not None and player_key in official_players:
-                continue
-            if sleeve_key:
-                official_cap = int((sleeve_policy or {}).get("official_max_per_game") or _NBA_CARDS_LOCKED_POLICY.get("prop_official_cap_per_game") or 0)
-                if official_cap > 0 and int(official_by_sleeve.get(sleeve_key, 0)) >= official_cap:
+            if official_cap_total <= 0 or len(official) < official_cap_total:
+                if player_key is not None and player_key in official_players:
                     continue
-            selected = dict(row, card_bucket="official")
-            if sleeve_key:
-                selected["playable_sleeve"] = sleeve_key
-                official_by_sleeve[sleeve_key] = int(official_by_sleeve.get(sleeve_key, 0) + 1)
-            if player_key is not None:
-                official_players.add(player_key)
-            official.append(selected)
-            continue
+                if sleeve_key:
+                    official_cap = int((sleeve_policy or {}).get("official_max_per_game") or policy.get("prop_official_cap_per_game") or 0)
+                    if official_cap > 0 and int(official_by_sleeve.get(sleeve_key, 0)) >= official_cap:
+                        continue
+                selected = dict(row, card_bucket="official")
+                if sleeve_key:
+                    selected["playable_sleeve"] = sleeve_key
+                    official_by_sleeve[sleeve_key] = int(official_by_sleeve.get(sleeve_key, 0) + 1)
+                if player_key is not None:
+                    official_players.add(player_key)
+                official.append(selected)
+                continue
 
         if not _cards_prop_playable_via_sleeve_policy(row):
+            continue
+        if playable_cap_total > 0 and len(playable) >= playable_cap_total:
             continue
         if player_key is not None and player_key in official_players:
             continue
@@ -15154,6 +15216,19 @@ def _cards_select_prop_buckets(rows: list[dict[str, Any]]) -> tuple[list[dict[st
         if player_key is not None:
             playable_players.add(player_key)
         playable.append(selected)
+
+    if not official and not playable:
+        for row in ranked:
+            comp = _cards_locked_policy_components(row)
+            has_positive_signal = bool(
+                _cards_locked_policy_has_support_signal(row, comp)
+                or float(comp.get("ev_pct") or 0.0) > 0.0
+                or float(comp.get("priority") or 0.0) > 0.0
+            )
+            if not has_positive_signal:
+                continue
+            official.append(dict(row, card_bucket="official"))
+            break
 
     for idx, row in enumerate(official, start=1):
         row["card_rank"] = idx
@@ -18020,9 +18095,16 @@ def api_cards():
                 player_key = _norm_player_name_for_keys(row.get("player"))
                 if not team_key or not player_key:
                     continue
-                picks = row.get("picks") if isinstance(row.get("picks"), list) else []
-                if not picks and isinstance(row.get("best"), dict):
+                picks: list[dict[str, Any]] = []
+                effective_pick = _season_betting_card_effective_prop_row(row)
+                if isinstance(effective_pick, dict) and effective_pick:
+                    picks = [effective_pick]
+                elif isinstance(row.get("best"), dict):
                     picks = [row.get("best")]
+                elif isinstance(row.get("top_play"), dict):
+                    picks = [row.get("top_play")]
+                elif isinstance(row.get("picks"), list):
+                    picks = [pick for pick in row.get("picks") if isinstance(pick, dict)]
                 for rank, pick in enumerate(picks, start=1):
                     if not isinstance(pick, dict):
                         continue
@@ -18802,6 +18884,71 @@ def api_cards():
         if allowed_books and excluded_books:
             allowed_books = {bk for bk in allowed_books if bk not in excluded_books}
 
+        def _enrich_cards_prop_recommendations(prop_rows_by_side: dict[str, list[dict[str, Any]]] | None) -> None:
+            for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
+                rows = prop_rows_by_side.get(side_key) if isinstance(prop_rows_by_side, dict) else []
+                if not isinstance(rows, list):
+                    continue
+                for row in rows:
+                    try:
+                        if not isinstance(row, dict):
+                            continue
+                        player_name = str(row.get("player") or "").strip()
+                        player_pred = None
+                        if player_name and isinstance(best_bets_prop_prediction_lookup, dict):
+                            player_pred = best_bets_prop_prediction_lookup.get((_norm_player_name(player_name), str(team_tri or "").strip().upper()))
+                        _flatten_prop_recommendation_row(
+                            row,
+                            team_tri=team_tri,
+                            home_tri=home_tri,
+                            away_tri=away_tri,
+                            date_str=d,
+                            player_sim=(player_pred if isinstance(player_pred, dict) else None),
+                        )
+
+                        best = row.get("best") if isinstance(row.get("best"), dict) else None
+                        if not isinstance(best, dict):
+                            effective_pick = _season_betting_card_effective_prop_row(row)
+                            if isinstance(effective_pick, dict) and effective_pick:
+                                row["best"] = dict(effective_pick)
+                                best = row["best"]
+
+                        if isinstance(best, dict):
+                            player_name = str(row.get("player") or best.get("player") or best.get("player_name") or "").strip()
+                            player_key = _norm_player_name(player_name)
+                            source_row = props_recs_source_lookup.get((str(team_tri or "").strip().upper(), player_key))
+                            support_fields = _prop_source_support_fields(
+                                source_row,
+                                market=str(best.get("market") or ""),
+                                side=str(best.get("side") or ""),
+                                line=_safe_float(best.get("line")),
+                            )
+                            reason_payload = _decorate_prop_recommendation_payload(
+                                player_name=player_name,
+                                team_tri=team_tri,
+                                top_play=best,
+                                date_str=d,
+                                prop_prediction_lookup=best_bets_prop_prediction_lookup,
+                                game_context=best_bets_game_context,
+                                injury_snapshot=best_bets_injury_snapshot,
+                                slate_total_median=best_bets_slate_total_median,
+                                support_fields=support_fields,
+                            )
+                            if isinstance(reason_payload, dict):
+                                row.update(reason_payload)
+                                row["top_play_reasons"] = list(reason_payload.get("top_play_reasons") or reason_payload.get("reasons") or [])
+                                best["reasons"] = list(reason_payload.get("reasons") or [])
+                                for key in ("basketball_summary", "basketball_reasons", "model_reasons", "market_reasons"):
+                                    value = reason_payload.get(key)
+                                    if isinstance(value, list):
+                                        best[key] = list(value)
+                                    elif value is not None:
+                                        best[key] = value
+
+                        _attach_recon_to_prop_recommendation(row, team_tri)
+                    except Exception:
+                        continue
+
         prop_recommendations_snapshot = cards_prop_recommendations_index.get((home_tri, away_tri)) if props_source in {"auto", "snapshot"} else None
         use_source_prop_recommendations = (
             props_source == "source"
@@ -18822,7 +18969,7 @@ def api_cards():
                     "home": [dict(row) for row in (prop_recommendations_snapshot.get("home") or []) if isinstance(row, dict)],
                     "away": [dict(row) for row in (prop_recommendations_snapshot.get("away") or []) if isinstance(row, dict)],
                 }
-            elif props_source == "auto" and built_home <= 0 and built_away <= 0 and not game_started:
+            elif props_source == "auto" and built_home <= 0 and built_away <= 0:
                 prop_recommendations = _sim_vs_line_prop_recommendations(
                     players_out,
                     props_recs_by_team,
@@ -18852,151 +18999,8 @@ def api_cards():
                 excluded_books=excluded_books,
             )
 
-            try:
-                for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
-                    rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
-                    if not isinstance(rows, list):
-                        continue
-                    for row in rows:
-                        try:
-                            if not isinstance(row, dict):
-                                continue
-                            player_name = str(row.get("player") or "").strip()
-                            player_pred = None
-                            if player_name and isinstance(best_bets_prop_prediction_lookup, dict):
-                                player_pred = best_bets_prop_prediction_lookup.get((_norm_player_name(player_name), str(team_tri or "").strip().upper()))
-                            _flatten_prop_recommendation_row(
-                                row,
-                                team_tri=team_tri,
-                                home_tri=home_tri,
-                                away_tri=away_tri,
-                                date_str=d,
-                                player_sim=(player_pred if isinstance(player_pred, dict) else None),
-                            )
-                            best = row.get("best") if isinstance(row.get("best"), dict) else None
-                            if not isinstance(best, dict):
-                                continue
-                            player_name = str(row.get("player") or best.get("player") or best.get("player_name") or "").strip()
-                            player_key = _norm_player_name(player_name)
-                            source_row = props_recs_source_lookup.get((str(team_tri or "").strip().upper(), player_key))
-                            support_fields = _prop_source_support_fields(
-                                source_row,
-                                market=str(best.get("market") or ""),
-                                side=str(best.get("side") or ""),
-                                line=_safe_float(best.get("line")),
-                            )
-                            reason_payload = _decorate_prop_recommendation_payload(
-                                player_name=player_name,
-                                team_tri=team_tri,
-                                top_play=best,
-                                date_str=d,
-                                prop_prediction_lookup=best_bets_prop_prediction_lookup,
-                                game_context=best_bets_game_context,
-                                injury_snapshot=best_bets_injury_snapshot,
-                                slate_total_median=best_bets_slate_total_median,
-                                support_fields=support_fields,
-                            )
-                            if not isinstance(reason_payload, dict):
-                                continue
-                            row.update(reason_payload)
-                            row["top_play_reasons"] = list(reason_payload.get("top_play_reasons") or reason_payload.get("reasons") or [])
-                            best["reasons"] = list(reason_payload.get("reasons") or [])
-                            for key in ("basketball_summary", "basketball_reasons", "model_reasons", "market_reasons"):
-                                value = reason_payload.get(key)
-                                if isinstance(value, list):
-                                    best[key] = list(value)
-                                elif value is not None:
-                                    best[key] = value
-                            _attach_recon_to_prop_recommendation(row, team_tri)
-                        except Exception:
-                            continue
-            except Exception:
-                pass
-
         try:
-            for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
-                rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
-                if not isinstance(rows, list):
-                    continue
-                for row in rows:
-                    try:
-                        if not isinstance(row, dict):
-                            continue
-                        player_name = str(row.get("player") or "").strip()
-                        player_pred = None
-                        if player_name and isinstance(best_bets_prop_prediction_lookup, dict):
-                            player_pred = best_bets_prop_prediction_lookup.get((_norm_player_name(player_name), str(team_tri or "").strip().upper()))
-                        _flatten_prop_recommendation_row(
-                            row,
-                            team_tri=team_tri,
-                            home_tri=home_tri,
-                            away_tri=away_tri,
-                            date_str=d,
-                            player_sim=(player_pred if isinstance(player_pred, dict) else None),
-                        )
-                        best = row.get("best") if isinstance(row.get("best"), dict) else None
-                        if not isinstance(best, dict):
-                            continue
-                        player_name = str(row.get("player") or best.get("player") or best.get("player_name") or "").strip()
-                        player_key = _norm_player_name(player_name)
-                        source_row = props_recs_source_lookup.get((str(team_tri or "").strip().upper(), player_key))
-                        support_fields = _prop_source_support_fields(
-                            source_row,
-                            market=str(best.get("market") or ""),
-                            side=str(best.get("side") or ""),
-                            line=_safe_float(best.get("line")),
-                        )
-                        reason_payload = _decorate_prop_recommendation_payload(
-                            player_name=player_name,
-                            team_tri=team_tri,
-                            top_play=best,
-                            date_str=d,
-                            prop_prediction_lookup=best_bets_prop_prediction_lookup,
-                            game_context=best_bets_game_context,
-                            injury_snapshot=best_bets_injury_snapshot,
-                            slate_total_median=best_bets_slate_total_median,
-                            support_fields=support_fields,
-                        )
-                        if not isinstance(reason_payload, dict):
-                            continue
-                        row.update(reason_payload)
-                        row["top_play_reasons"] = list(reason_payload.get("top_play_reasons") or reason_payload.get("reasons") or [])
-                        best["reasons"] = list(reason_payload.get("reasons") or [])
-                        for key in ("basketball_summary", "basketball_reasons", "model_reasons", "market_reasons"):
-                            value = reason_payload.get(key)
-                            if isinstance(value, list):
-                                best[key] = list(value)
-                            elif value is not None:
-                                best[key] = value
-                    except Exception:
-                        continue
-        except Exception:
-            pass
-
-        try:
-            for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
-                rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
-                if not isinstance(rows, list):
-                    continue
-                for row in rows:
-                    try:
-                        if not isinstance(row, dict):
-                            continue
-                        player_name = str(row.get("player") or "").strip()
-                        player_pred = None
-                        if player_name and isinstance(best_bets_prop_prediction_lookup, dict):
-                            player_pred = best_bets_prop_prediction_lookup.get((_norm_player_name(player_name), str(team_tri or "").strip().upper()))
-                        _flatten_prop_recommendation_row(
-                            row,
-                            team_tri=team_tri,
-                            home_tri=home_tri,
-                            away_tri=away_tri,
-                            date_str=d,
-                            player_sim=(player_pred if isinstance(player_pred, dict) else None),
-                        )
-                        _attach_recon_to_prop_recommendation(row, team_tri)
-                    except Exception:
-                        continue
+            _enrich_cards_prop_recommendations(prop_recommendations)
         except Exception:
             pass
 
@@ -37843,13 +37847,26 @@ def api_live_lens_tuning():
     """NCAAB-parity endpoint: thresholds used by client-side Live Lens signals."""
     ttl = _parse_ttl_param(request, default=300, lo=1, hi=3600)
     now = time.time()
-    override_path = _live_lens_artifacts_dir() / "live_lens_tuning_override.json"
+    override_path = _live_preferred_artifact_path("live_lens_tuning_override.json")
+    optimized_path = _live_latest_adjustments_optimized_path()
     try:
-        override_mtime = int(override_path.stat().st_mtime) if override_path.exists() else 0
+        override_mtime = int(override_path.stat().st_mtime) if isinstance(override_path, Path) and override_path.exists() else 0
     except Exception:
         override_mtime = 0
+    try:
+        optimized_mtime = int(optimized_path.stat().st_mtime) if isinstance(optimized_path, Path) and optimized_path.exists() else 0
+    except Exception:
+        optimized_mtime = 0
 
-    cache_key = f"{ttl}:{override_mtime}"
+    cache_key = ":".join(
+        [
+            str(ttl),
+            str(override_path or ""),
+            str(override_mtime),
+            str(optimized_path or ""),
+            str(optimized_mtime),
+        ]
+    )
     ent = _live_tuning_cache.get(cache_key)
     if ent and (now - ent[0] < ttl):
         return jsonify(ent[1])
@@ -37955,8 +37972,34 @@ def api_live_lens_tuning():
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
 
+    if isinstance(optimized_path, Path) and optimized_path.exists():
+        try:
+            optimized_payload = json.loads(optimized_path.read_text(encoding="utf-8"))
+        except Exception:
+            optimized_payload = None
+        if isinstance(optimized_payload, dict):
+            best = optimized_payload.get("best") if isinstance(optimized_payload.get("best"), dict) else None
+            params = best.get("params") if isinstance(best, dict) and isinstance(best.get("params"), dict) else None
+            if isinstance(params, dict) and isinstance(payload.get("adjustments"), dict):
+                base_adj = payload["adjustments"].get("game_total") if isinstance(payload["adjustments"].get("game_total"), dict) else {}
+                payload["adjustments"]["game_total"] = {**base_adj, **params}
+            trained = payload.get("trained") if isinstance(payload.get("trained"), dict) else {}
+            optimized_meta: dict[str, Any] = {
+                "path": optimized_path.name,
+                "generated_at": optimized_payload.get("generated_at"),
+                "window": optimized_payload.get("window"),
+            }
+            if isinstance(best, dict):
+                optimized_meta["best"] = {
+                    key: best.get(key)
+                    for key in ("bets", "win", "loss", "push", "profit", "roi_per_bet")
+                    if best.get(key) is not None
+                }
+            trained["game_total_optimization"] = optimized_meta
+            payload["trained"] = trained
+
     # Optional server-side override so we can apply tuned knobs without redeploying.
-    if override_path.exists():
+    if isinstance(override_path, Path) and override_path.exists():
         try:
             o = json.loads(override_path.read_text(encoding="utf-8"))
         except Exception:
@@ -37991,6 +38034,11 @@ def api_live_lens_tuning():
             oef = o.get("endgame_foul")
             if isinstance(oef, dict) and isinstance(payload.get("endgame_foul"), dict):
                 payload["endgame_foul"] = {**payload["endgame_foul"], **oef}
+
+            trained = o.get("trained")
+            if isinstance(trained, dict):
+                existing_trained = payload.get("trained") if isinstance(payload.get("trained"), dict) else {}
+                payload["trained"] = {**existing_trained, **trained}
 
     _live_tuning_cache[cache_key] = (now, payload)
     return jsonify(payload)
@@ -38156,6 +38204,12 @@ def _send_processed_artifact(filename: str):
     return send_from_directory(str(base), filename, as_attachment=True)
 
 
+def _send_artifact_path(fp: Path):
+    if not isinstance(fp, Path) or not fp.exists():
+        return jsonify({"ok": False, "error": "missing"}), 404
+    return send_file(str(fp), as_attachment=True, download_name=fp.name)
+
+
 def _write_processed_artifact(filename: str, raw: bytes) -> tuple[bool, str]:
     base = _live_lens_artifacts_dir()
     base.mkdir(parents=True, exist_ok=True)
@@ -38305,6 +38359,21 @@ def api_download_live_lens_tuning():
     return _send_processed_artifact("live_lens_tuning_override.json")
 
 
+@app.route("/api/download_live_lens_adjustments_optimized")
+def api_download_live_lens_adjustments_optimized():
+        """Download a dated Live Lens optimized adjustments JSON.
+
+        Query params:
+            - filename: optional explicit live_lens_adjustments_optimized_<start>_<end>.json
+                If omitted, serves the latest preferred file (repo copy preferred over active).
+        """
+        requested = _live_lens_optimized_filename(request.args.get("filename"))
+        fp = _live_preferred_artifact_path(requested) if requested else _live_latest_adjustments_optimized_path()
+        if fp is None:
+                return jsonify({"ok": False, "error": "missing", "file": requested or "latest"}), 404
+        return _send_artifact_path(fp)
+
+
 @app.route("/api/upload_live_lens_signals", methods=["POST"])
 def api_upload_live_lens_signals():
     """Upload (overwrite) Live Lens signals JSONL for a date.
@@ -38410,6 +38479,32 @@ def api_upload_live_lens_tuning():
     if not ok2:
         return jsonify({"ok": False, "error": info}), 500
     return jsonify({"ok": True, "path": info, "bytes": len(raw)})
+
+
+@app.route("/api/upload_live_lens_adjustments_optimized", methods=["POST"])
+def api_upload_live_lens_adjustments_optimized():
+    """Upload (overwrite) a dated Live Lens optimized adjustments JSON.
+
+    Requires LIVE_LENS_ADMIN_TOKEN (header X-Admin-Token or Bearer token).
+    Preserves the uploaded filename after validating the expected optimizer pattern.
+    """
+    ok, payload, code = _check_live_lens_admin_token()
+    if not ok:
+        return jsonify(payload), code
+
+    f = request.files.get("file")
+    if f is None:
+        return jsonify({"error": "missing file"}), 400
+
+    filename = _live_lens_optimized_filename(getattr(f, "filename", None))
+    if not filename:
+        return jsonify({"error": "invalid filename"}), 400
+
+    raw = f.read() or b""
+    ok2, info = _write_processed_artifact(filename, raw)
+    if not ok2:
+        return jsonify({"ok": False, "error": info}), 500
+    return jsonify({"ok": True, "file": filename, "path": info, "bytes": len(raw)})
 
 
 @app.route("/api/live/log", methods=["POST"])
