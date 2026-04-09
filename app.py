@@ -14802,7 +14802,7 @@ _NBA_CARDS_LOCKED_POLICY: dict[str, Any] = {
     "game_market_min_sim": 20.0,
     "game_market_min_prob_edge": 0.0,
     "game_market_ml_min_price": -350.0,
-    "prop_official_cap_per_game": 1,
+        "prop_official_cap_per_game": 2,
     "prop_cap_per_game": 3,
     "prop_lite_cap_per_game": 2,
     "prop_min_official": 60.0,
@@ -14811,6 +14811,11 @@ _NBA_CARDS_LOCKED_POLICY: dict[str, Any] = {
     "prop_min_sim": 24.0,
     "prop_min_prob_edge": 0.015,
     "prop_min_win_prob": 0.53,
+    "prop_generic_official_min_score": 72.0,
+    "prop_generic_official_min_trend": 40.0,
+    "prop_generic_official_min_sim": 40.0,
+    "prop_generic_official_min_prob_edge": 0.03,
+    "prop_generic_official_min_win_prob": 0.58,
     "prop_lite_min_official": 17.0,
     "prop_lite_min_playable": 12.0,
 }
@@ -15016,7 +15021,21 @@ def _cards_locked_policy_qualifies(row: dict[str, Any], *, market_type: str, tie
 
     if market_type == "prop":
         if tier == "official":
-            return False
+            if not _cards_locked_policy_has_rich_inputs(row):
+                return False
+            if not _cards_locked_policy_has_support_signal(row, comp):
+                return False
+            if score < float(policy.get("prop_generic_official_min_score") or 0.0):
+                return False
+            if trend < float(policy.get("prop_generic_official_min_trend") or 0.0):
+                return False
+            if sim < float(policy.get("prop_generic_official_min_sim") or 0.0):
+                return False
+            if p_win is None or float(p_win) < float(policy.get("prop_generic_official_min_win_prob") or 0.0):
+                return False
+            if prob_edge is None or float(prob_edge) < float(policy.get("prop_generic_official_min_prob_edge") or 0.0):
+                return False
+            return True
         if not _cards_locked_policy_has_rich_inputs(row):
             if not _cards_locked_policy_has_support_signal(row, comp):
                 return False
@@ -15139,18 +15158,19 @@ def _cards_prop_playable_via_sleeve_policy(row: dict[str, Any]) -> bool:
 
 def _cards_prop_official_via_sleeve_policy(row: dict[str, Any]) -> bool:
     sleeve_policy = _cards_prop_sleeve_policy(row)
-    if not isinstance(sleeve_policy, dict) or not bool(sleeve_policy.get("official")):
-        return False
     if not _cards_prop_has_complete_canonical_inputs(row):
         return False
     if not _cards_locked_policy_has_rich_inputs(row):
         return False
 
-    team_side_required = str(sleeve_policy.get("team_side") or "").strip().lower()
+    team_side_required = str((sleeve_policy or {}).get("team_side") or "").strip().lower()
     if team_side_required:
         row_team_side = str(row.get("team_side") or "").strip().lower()
         if row_team_side != team_side_required:
             return False
+
+    if not isinstance(sleeve_policy, dict) or not bool(sleeve_policy.get("official")):
+        return _cards_locked_policy_qualifies(row, market_type="prop", tier="official")
 
     policy = _NBA_CARDS_LOCKED_POLICY
     comp = _cards_locked_policy_components(row)
