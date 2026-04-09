@@ -2,15 +2,16 @@
   "date": "2026-04-09",
   "team_counts": {
     "BKN": 7,
-    "CHI": 5,
+    "BOS": 1,
+    "CHI": 6,
     "GSW": 6,
     "HOU": 2,
     "IND": 5,
     "LAL": 3,
     "MIA": 2,
-    "PHI": 2,
+    "PHI": 3,
     "TOR": 1,
-    "WAS": 4
+    "WAS": 6
   },
   "players": [
     {
@@ -29,6 +30,11 @@
       "status": "OUT"
     },
     {
+      "player": "Joel Embiid",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
       "player": "Kristaps Porziņģis",
       "team": "GSW",
       "status": "OUT"
@@ -41,6 +47,11 @@
     {
       "player": "Terry Rozier",
       "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaylen Brown",
+      "team": "BOS",
       "status": "OUT"
     },
     {
@@ -99,6 +110,11 @@
       "status": "OUT"
     },
     {
+      "player": "Isaac Okoro",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
       "player": "Aaron Nesmith",
       "team": "IND",
       "status": "OUT"
@@ -114,6 +130,11 @@
       "status": "OUT"
     },
     {
+      "player": "Anthony Gill",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
       "player": "Moses Moody",
       "team": "GSW",
       "status": "OUT"
@@ -121,6 +142,11 @@
     {
       "player": "Day'Ron Sharpe",
       "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Justin Champagnie",
+      "team": "WAS",
       "status": "OUT"
     },
     {
