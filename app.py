@@ -7467,6 +7467,7 @@ def _season_betting_card_fetch_recap_items(date_strs: list[str]) -> list[dict[st
             "since": dates[0],
             "until": dates[-1],
             "include_legacy": 1,
+            "include_picks": 0,
         }
     )
     try:
@@ -20500,6 +20501,7 @@ def _recommendations_recaps():
             return jsonify({"version": "recaps-v1", "window": {"since": ds.date().isoformat(), "until": de.date().isoformat()}, "items": []})
 
         include_legacy = str(request.args.get("include_legacy") or "0").strip().lower() in {"1", "true", "yes"}
+        include_picks = str(request.args.get("include_picks") or "1").strip().lower() in {"1", "true", "yes"}
 
         # Discover dates. Default: snapshots-only to avoid confusing legacy scoring / market shapes.
         rec_map: dict[str, Path] = {}
@@ -20704,75 +20706,75 @@ def _recommendations_recaps():
                                 b["profit_total"] += profit
 
                         # Pick-level details for UI
-                        try:
-                            # Attach actuals and closing lines if available
-                            home_pts = float(hp) if (hp is not None and not pd.isna(hp)) else None
-                            away_pts = float(ap) if (ap is not None and not pd.isna(ap)) else None
-                            final_total = (home_pts + away_pts) if (home_pts is not None and away_pts is not None) else None
-                            final_margin = (home_pts - away_pts) if (home_pts is not None and away_pts is not None) else None
-
-                            closing_home_spread = None
-                            closing_total = None
-                            closing_home_ml = None
-                            closing_away_ml = None
-                            if isinstance(godds, pd.DataFrame) and not godds.empty:
-                                try:
-                                    o = godds[(godds.get("home_team").astype(str) == home) & (godds.get("visitor_team").astype(str) == away)]
-                                    if not o.empty:
-                                        closing_home_spread = o.iloc[0].get("home_spread")
-                                        closing_total = o.iloc[0].get("total")
-                                        closing_home_ml = o.iloc[0].get("home_ml")
-                                        closing_away_ml = o.iloc[0].get("away_ml")
-                                except Exception:
-                                    closing_home_spread = closing_total = closing_home_ml = closing_away_ml = None
-
-                            # Recommendation score: prefer explicit score/best_edge_value.
-                            # If we're not using an authoritative snapshot, do NOT derive a faux 0-100 score
-                            # from EV/edge, because that produces misleading low numbers like 2-6/100.
-                            score_val = None
+                        if include_picks:
                             try:
-                                if "score" in rec.columns:
-                                    score_val = r.get("score")
-                                elif "best_edge_value" in rec.columns:
-                                    score_val = r.get("best_edge_value")
-                                if score_val is not None and not pd.isna(score_val):
-                                    score_val = float(score_val)
-                                else:
-                                    score_val = None
-                            except Exception:
-                                score_val = None
-                            # Keep score_val as None if not explicitly provided.
+                                # Attach actuals and closing lines if available.
+                                home_pts = float(hp) if (hp is not None and not pd.isna(hp)) else None
+                                away_pts = float(ap) if (ap is not None and not pd.isna(ap)) else None
+                                final_total = (home_pts + away_pts) if (home_pts is not None and away_pts is not None) else None
+                                final_margin = (home_pts - away_pts) if (home_pts is not None and away_pts is not None) else None
 
-                            games_out["picks"].append({
-                                "game_id": (None if ("game_id" not in rec.columns) else (None if pd.isna(r.get("game_id")) else r.get("game_id"))),
-                                "market": market,
-                                "home": home,
-                                "away": away,
-                                "side": side,
-                                "line": (None if pd.isna(r.get("line")) else r.get("line")) if "line" in rec.columns else (r.get("line") if hasattr(r, "get") else None),
-                                "price": (None if pd.isna(r.get("price")) else r.get("price")) if "price" in rec.columns else (r.get("price") if hasattr(r, "get") else None),
-                                "ev": (None if pd.isna(ev) else ev),
-                                "edge": (None if pd.isna(edge) else edge),
-                                "score": score_val,
-                                "tier": tier,
-                                "why_explain": (None if ("why_explain" not in rec.columns) else (None if pd.isna(r.get("why_explain")) else r.get("why_explain"))),
-                                "score_explain": (None if ("score_explain" not in rec.columns) else (None if pd.isna(r.get("score_explain")) else r.get("score_explain"))),
-                                "score_components": (None if ("score_components" not in rec.columns) else (None if pd.isna(r.get("score_components")) else r.get("score_components"))),
-                                "home_pts": home_pts,
-                                "away_pts": away_pts,
-                                "final_total": final_total,
-                                "final_margin": final_margin,
-                                "closing_home_spread": (None if closing_home_spread is None or (isinstance(closing_home_spread, float) and pd.isna(closing_home_spread)) else closing_home_spread),
-                                "closing_total": (None if closing_total is None or (isinstance(closing_total, float) and pd.isna(closing_total)) else closing_total),
-                                "closing_home_ml": (None if closing_home_ml is None or (isinstance(closing_home_ml, float) and pd.isna(closing_home_ml)) else closing_home_ml),
-                                "closing_away_ml": (None if closing_away_ml is None or (isinstance(closing_away_ml, float) and pd.isna(closing_away_ml)) else closing_away_ml),
-                                "resolved": bool(resolved),
-                                "result": ("Push" if is_push else ("Win" if is_win else "Loss")) if resolved else None,
-                                "stake": float(stake) if resolved else None,
-                                "profit": float(profit) if resolved else None,
-                            })
-                        except Exception:
-                            pass
+                                closing_home_spread = None
+                                closing_total = None
+                                closing_home_ml = None
+                                closing_away_ml = None
+                                if isinstance(godds, pd.DataFrame) and not godds.empty:
+                                    try:
+                                        o = godds[(godds.get("home_team").astype(str) == home) & (godds.get("visitor_team").astype(str) == away)]
+                                        if not o.empty:
+                                            closing_home_spread = o.iloc[0].get("home_spread")
+                                            closing_total = o.iloc[0].get("total")
+                                            closing_home_ml = o.iloc[0].get("home_ml")
+                                            closing_away_ml = o.iloc[0].get("away_ml")
+                                    except Exception:
+                                        closing_home_spread = closing_total = closing_home_ml = closing_away_ml = None
+
+                                # Recommendation score: prefer explicit score/best_edge_value.
+                                # If we're not using an authoritative snapshot, do NOT derive a faux 0-100 score
+                                # from EV/edge, because that produces misleading low numbers like 2-6/100.
+                                score_val = None
+                                try:
+                                    if "score" in rec.columns:
+                                        score_val = r.get("score")
+                                    elif "best_edge_value" in rec.columns:
+                                        score_val = r.get("best_edge_value")
+                                    if score_val is not None and not pd.isna(score_val):
+                                        score_val = float(score_val)
+                                    else:
+                                        score_val = None
+                                except Exception:
+                                    score_val = None
+
+                                games_out["picks"].append({
+                                    "game_id": (None if ("game_id" not in rec.columns) else (None if pd.isna(r.get("game_id")) else r.get("game_id"))),
+                                    "market": market,
+                                    "home": home,
+                                    "away": away,
+                                    "side": side,
+                                    "line": (None if pd.isna(r.get("line")) else r.get("line")) if "line" in rec.columns else (r.get("line") if hasattr(r, "get") else None),
+                                    "price": (None if pd.isna(r.get("price")) else r.get("price")) if "price" in rec.columns else (r.get("price") if hasattr(r, "get") else None),
+                                    "ev": (None if pd.isna(ev) else ev),
+                                    "edge": (None if pd.isna(edge) else edge),
+                                    "score": score_val,
+                                    "tier": tier,
+                                    "why_explain": (None if ("why_explain" not in rec.columns) else (None if pd.isna(r.get("why_explain")) else r.get("why_explain"))),
+                                    "score_explain": (None if ("score_explain" not in rec.columns) else (None if pd.isna(r.get("score_explain")) else r.get("score_explain"))),
+                                    "score_components": (None if ("score_components" not in rec.columns) else (None if pd.isna(r.get("score_components")) else r.get("score_components"))),
+                                    "home_pts": home_pts,
+                                    "away_pts": away_pts,
+                                    "final_total": final_total,
+                                    "final_margin": final_margin,
+                                    "closing_home_spread": (None if closing_home_spread is None or (isinstance(closing_home_spread, float) and pd.isna(closing_home_spread)) else closing_home_spread),
+                                    "closing_total": (None if closing_total is None or (isinstance(closing_total, float) and pd.isna(closing_total)) else closing_total),
+                                    "closing_home_ml": (None if closing_home_ml is None or (isinstance(closing_home_ml, float) and pd.isna(closing_home_ml)) else closing_home_ml),
+                                    "closing_away_ml": (None if closing_away_ml is None or (isinstance(closing_away_ml, float) and pd.isna(closing_away_ml)) else closing_away_ml),
+                                    "resolved": bool(resolved),
+                                    "result": ("Push" if is_push else ("Win" if is_win else "Loss")) if resolved else None,
+                                    "stake": float(stake) if resolved else None,
+                                    "profit": float(profit) if resolved else None,
+                                })
+                            except Exception:
+                                pass
                     except Exception:
                         continue
 
@@ -20992,7 +20994,8 @@ def _recommendations_recaps():
                                     b["stake_total"] += stake
                                     b["profit_total"] += profit
 
-                        props_out["picks"].append(pick_detail)
+                        if include_picks:
+                            props_out["picks"].append(pick_detail)
                     except Exception:
                         continue
 

@@ -271,9 +271,47 @@
     }[key] || titleCase(key);
   }
 
+  function normalizeLogoTri(tri) {
+    const raw = String(tri || '').trim().toUpperCase();
+    if (!raw) {
+      return '';
+    }
+    return {
+      BRO: 'BKN',
+      CHO: 'CHA',
+      GOL: 'GSW',
+      NJN: 'BKN',
+      NOH: 'NOP',
+      NOK: 'NOP',
+      PHO: 'PHX',
+      SAN: 'SAS',
+      UTH: 'UTA',
+    }[raw] || raw;
+  }
+
   function logoForTri(tri) {
-    const key = String(tri || '').trim().toUpperCase();
+    const key = normalizeLogoTri(tri);
     return key ? `/web/assets/logos/${encodeURIComponent(key)}.svg` : '';
+  }
+
+  function logoBadgeDataUrl(tri) {
+    const key = normalizeLogoTri(tri) || 'NBA';
+    const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#10243d" />
+  <text x="32" y="37" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="700" fill="#f5efe2">${key}</text>
+</svg>`;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg.trim())}`;
+  }
+
+  function logoImgMarkup(teamTri, className, altText) {
+    const logo = logoForTri(teamTri);
+    if (!logo) {
+      return '';
+    }
+    const fallback = logoBadgeDataUrl(teamTri);
+    const alt = String(altText || `${normalizeLogoTri(teamTri) || 'Team'} logo`);
+    return `<img class="${escapeHtml(className)}" src="${escapeHtml(logo)}" alt="${escapeHtml(alt)}" loading="lazy" onerror="if(this.dataset.fallbackApplied==='1'){this.onerror=null;this.style.display='none';return;}this.dataset.fallbackApplied='1';this.src='${fallback}';" />`;
   }
 
   function cardId(game) {
@@ -2088,7 +2126,6 @@
         return '';
       }
       const photo = String(safeItem.photo || safeItem.player_photo || '').trim();
-      const logo = logoForTri(safeItem.team_tri);
       const opponentTri = String(safeItem.opponent_tri || '').trim().toUpperCase();
       const market = marketLabel(safeItem.market);
       const side = livePropPrimarySide(safeItem) || String(safeItem.side || '').trim().toUpperCase();
@@ -2114,7 +2151,7 @@
             <div class="cards-props-strip-card__identity">
               <div class="cards-props-strip-card__media">
                 ${photo ? `<img class="cards-props-strip-card__photo" src="${escapeHtml(photo)}" alt="${escapeHtml(String(safeItem.player || 'Player'))}" />` : `<div class="cards-props-strip-card__photo is-fallback">${escapeHtml(String(safeItem.team_tri || '?'))}</div>`}
-                ${logo ? `<img class="cards-props-strip-card__logo" src="${escapeHtml(logo)}" alt="${escapeHtml(String(safeItem.team_tri || ''))} logo" />` : ''}
+                ${logoImgMarkup(safeItem.team_tri, 'cards-props-strip-card__logo', `${String(safeItem.team_tri || '')} logo`)}
               </div>
               <div class="cards-props-strip-card__copy">
                 <div class="cards-props-strip-card__name">${escapeHtml(String(safeItem.player || 'Unknown player'))}</div>
@@ -3055,18 +3092,15 @@
   }
 
   function stripLogoMarkup(teamTri) {
-    const logo = logoForTri(teamTri);
-    return logo
-      ? `<img class="cards-strip-logo" src="${escapeHtml(logo)}" alt="${escapeHtml(teamTri)} logo" />`
-      : '';
+    return logoImgMarkup(teamTri, 'cards-strip-logo', `${teamTri} logo`);
   }
 
   function teamHeaderMarkup(teamTri, teamName) {
-    const logo = logoForTri(teamTri);
+    const logoMarkup = logoImgMarkup(teamTri, 'cards-logo', `${teamTri || teamName || 'Team'} logo`);
     return `
       <div class="cards-team-line">
-        ${logo
-          ? `<img class="cards-logo" src="${escapeHtml(logo)}" alt="${escapeHtml(teamTri || teamName || 'Team')} logo" />`
+        ${logoMarkup
+          ? logoMarkup
           : `<span class="cards-logo-fallback">${escapeHtml(String(teamTri || teamName || 'TM').slice(0, 3).toUpperCase())}</span>`}
         <div class="cards-team-meta">
           <div class="cards-team-code">${escapeHtml(teamTri || 'TBD')}</div>
@@ -3286,7 +3320,7 @@
   }
 
   function renderActualBoxSection(teamTri, teamName, players, liveState) {
-    const logo = logoForTri(teamTri);
+    const logoMarkup = logoImgMarkup(teamTri, 'cards-box-team__logo', `${teamTri} logo`);
     const totals = actualTeamTotals(players);
     const liveStatus = liveState?.final ? 'Final' : (liveState?.in_progress ? 'Live' : 'Awaiting tipoff');
     const tableMarkup = safeArray(players).length
@@ -3316,7 +3350,7 @@
           <span class="cards-overview-badge ${liveState?.final ? 'is-final' : (liveState?.in_progress ? 'is-live' : '')}">${escapeHtml(liveStatus)}</span>
         </div>
         <div class="cards-box-team-head">
-          ${logo ? `<img class="cards-box-team__logo" src="${escapeHtml(logo)}" alt="${escapeHtml(teamTri)} logo" />` : ''}
+          ${logoMarkup}
           <div>
             <div class="cards-box-team-title">${escapeHtml(teamName || teamTri)}</div>
             <div class="cards-mini-copy">${escapeHtml(teamTri)} live player box</div>
@@ -3350,7 +3384,7 @@
   }
 
   function renderBoxSection(teamTri, teamName, players, injuries, missingPlayers) {
-    const logo = logoForTri(teamTri);
+    const logoMarkup = logoImgMarkup(teamTri, 'cards-box-team__logo', `${teamTri} logo`);
     const totals = teamSimTotals(players);
     const injuryBits = safeArray(injuries).map((item) => `<span class="box-injury">${escapeHtml(item.player_name || 'Player')} ${escapeHtml(item.injury_status || 'OUT')}</span>`).join('');
     const missingBits = safeArray(missingPlayers).slice(0, 6).map((item) => `<span class="box-missing">Prop-only ${escapeHtml(item.player_name || 'Player')}</span>`).join('');
@@ -3381,7 +3415,7 @@
           <span class="cards-chip">${safeArray(players).length} rows</span>
         </div>
         <div class="cards-box-team-head">
-          ${logo ? `<img class="cards-box-team__logo" src="${escapeHtml(logo)}" alt="${escapeHtml(teamTri)} logo" />` : ''}
+          ${logoMarkup}
           <div>
             <div class="cards-box-team-title">${escapeHtml(teamName || teamTri)}</div>
             <div class="cards-mini-copy">${escapeHtml(teamTri)} projected player box</div>
