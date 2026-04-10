@@ -240,6 +240,32 @@ _live_pbp_actions_cache: dict[str, tuple[float, list[dict[str, Any]]]] = _Capped
 _live_lens_override_cache: tuple[float, str, float, dict[str, Any] | None] = (0.0, "", 0.0, None)  # (loaded_at, path, mtime, obj)
 _roster_pid_by_team_nk_cache: tuple[int, dict[tuple[str, str], int]] | None = None
 
+# Season betting-card caches (short TTL to reduce repeated expensive manifest/day rebuilds).
+_season_betting_card_manifest_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="SEASON_BETTING_CARD_MANIFEST_CACHE_MAX_ITEMS",
+    default_max=12,
+    lo=0,
+    hi=200,
+)
+_season_betting_card_day_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="SEASON_BETTING_CARD_DAY_CACHE_MAX_ITEMS",
+    default_max=24,
+    lo=0,
+    hi=500,
+)
+_season_betting_card_cards_cache: dict[str, tuple[float, dict[str, Any] | None]] = _CappedDict(
+    max_items_env="SEASON_BETTING_CARD_CARDS_CACHE_MAX_ITEMS",
+    default_max=24,
+    lo=0,
+    hi=500,
+)
+_season_betting_card_recap_cache: dict[str, tuple[float, list[dict[str, Any]]]] = _CappedDict(
+    max_items_env="SEASON_BETTING_CARD_RECAP_CACHE_MAX_ITEMS",
+    default_max=12,
+    lo=0,
+    hi=200,
+)
+
 # Processed artifact caches for live endpoints (avoid re-reading CSVs on every poll)
 _live_processed_cache: dict[str, tuple[int, Any]] = _CappedDict(
     max_items_env="LIVE_PROCESSED_CACHE_MAX_ITEMS",
@@ -6496,16 +6522,49 @@ def _season_betting_card_candidate_dates(season: int, requested_date: str | None
     return sorted(seen)
 
 
+def _season_betting_card_cache_ttl_seconds() -> int:
+    return _env_int_clamped("SEASON_BETTING_CARD_CACHE_TTL_SEC", 120, 10, 1800)
+
+
+def _season_betting_card_cache_get(cache: dict[str, tuple[float, Any]], key: str, ttl_sec: int) -> Any:
+    try:
+        ent = cache.get(str(key))
+        now = time.time()
+        if ent and (now - float(ent[0]) < float(ttl_sec)):
+            return ent[1]
+    except Exception:
+        return None
+    return None
+
+
+def _season_betting_card_cache_set(cache: dict[str, tuple[float, Any]], key: str, value: Any) -> None:
+    try:
+        cache[str(key)] = (time.time(), value)
+    except Exception:
+        pass
+
+
 def _season_betting_card_fetch_cards_payload(date_str: str) -> dict[str, Any] | None:
+    ttl_sec = _season_betting_card_cache_ttl_seconds()
+    cache_key = str(date_str or "").strip()
+    cached = _season_betting_card_cache_get(_season_betting_card_cards_cache, cache_key, ttl_sec)
+    if isinstance(cached, dict):
+        return cached
+    if cached is None and cache_key in _season_betting_card_cards_cache:
+        return None
     try:
         with app.test_request_context(f"/api/cards?date={date_str}&props_source=source"):
             payload, status_code = _response_json_value(api_cards())
         if status_code and status_code >= 400:
+            _season_betting_card_cache_set(_season_betting_card_cards_cache, cache_key, None)
             return None
         if not isinstance(payload, dict):
+            _season_betting_card_cache_set(_season_betting_card_cards_cache, cache_key, None)
             return None
+        _season_betting_card_cache_set(_season_betting_card_cards_cache, cache_key, payload)
         return payload
     except Exception:
+        _season_betting_card_cache_set(_season_betting_card_cards_cache, cache_key, None)
         return None
 
 
@@ -7462,6 +7521,12 @@ def _season_betting_card_fetch_recap_items(date_strs: list[str]) -> list[dict[st
     if not dates:
         return []
 
+    ttl_sec = _season_betting_card_cache_ttl_seconds()
+    cache_key = "|".join(dates)
+    cached = _season_betting_card_cache_get(_season_betting_card_recap_cache, cache_key, ttl_sec)
+    if isinstance(cached, list):
+        return [dict(item) for item in cached if isinstance(item, dict)]
+
     params = urlencode(
         {
             "since": dates[0],
@@ -7483,7 +7548,9 @@ def _season_betting_card_fetch_recap_items(date_strs: list[str]) -> list[dict[st
             for item in items
             if isinstance(item, dict) and str(item.get("date") or "").strip()
         }
-        return [by_date[date_str] for date_str in dates if date_str in by_date]
+        resolved = [by_date[date_str] for date_str in dates if date_str in by_date]
+        _season_betting_card_cache_set(_season_betting_card_recap_cache, cache_key, resolved)
+        return resolved
     except Exception:
         return []
 
@@ -7495,11 +7562,17 @@ def _season_betting_card_day_payload(
     *,
     include_prop_insights: bool = False,
 ) -> dict[str, Any] | None:
+    ttl_sec = _season_betting_card_cache_ttl_seconds()
+    cache_key = f"{int(season)}|{str(profile or '').strip().lower()}|{str(date_str or '').strip()}|{1 if include_prop_insights else 0}"
+    cached = _season_betting_card_cache_get(_season_betting_card_day_cache, cache_key, ttl_sec)
+    if isinstance(cached, dict):
+        return cached
+
     cards_payload = _season_betting_card_fetch_cards_payload(date_str)
     if not isinstance(cards_payload, dict):
         return None
 
-    return _season_betting_card_day_payload_from_cards(
+    payload = _season_betting_card_day_payload_from_cards(
         season,
         date_str,
         profile,
@@ -7507,6 +7580,9 @@ def _season_betting_card_day_payload(
         include_games=True,
         include_prop_insights=include_prop_insights,
     )
+    if isinstance(payload, dict):
+        _season_betting_card_cache_set(_season_betting_card_day_cache, cache_key, payload)
+    return payload
 
 
 def _season_betting_card_day_payload_from_cards(
@@ -7682,6 +7758,12 @@ def _season_betting_card_day_payload_from_cards(
 
 
 def _season_betting_card_manifest(season: int, profile: str, requested_date: str | None = None) -> dict[str, Any]:
+    ttl_sec = _season_betting_card_cache_ttl_seconds()
+    cache_key = f"{int(season)}|{str(profile or '').strip().lower()}|{str(requested_date or '').strip()}"
+    cached = _season_betting_card_cache_get(_season_betting_card_manifest_cache, cache_key, ttl_sec)
+    if isinstance(cached, dict):
+        return cached
+
     candidate_dates = _season_betting_card_candidate_dates(season, requested_date=requested_date)
     days_full: list[dict[str, Any]] = []
     recap_items = _season_betting_card_fetch_recap_items(candidate_dates)
@@ -7826,7 +7908,7 @@ def _season_betting_card_manifest(season: int, profile: str, requested_date: str
     first_date = day_rows[0]["date"] if day_rows else None
     last_date = day_rows[-1]["date"] if day_rows else None
     months = [{"month": month, "days": count} for month, count in sorted(month_counts.items())]
-    return _to_jsonable(
+    payload = _to_jsonable(
         {
             "season": int(season),
             "profile": profile,
@@ -7864,6 +7946,9 @@ def _season_betting_card_manifest(season: int, profile: str, requested_date: str
             "days": day_rows,
         }
     )
+    if isinstance(payload, dict):
+        _season_betting_card_cache_set(_season_betting_card_manifest_cache, cache_key, payload)
+    return payload
 
 
 @app.route("/api/cards-v2")
