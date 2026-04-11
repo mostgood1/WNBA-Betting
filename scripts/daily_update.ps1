@@ -1409,10 +1409,34 @@ try {
 }
 
 try {
-  Write-Log "Checking expected dressed players (fail-fast)"
-  $rcDress = Invoke-PyMod -plist @('-m','nba_betting.cli','check-dressed','--date', $Date)
-  Write-Log ("check-dressed exit code: {0}" -f $rcDress)
-  if ($rcDress -ne 0) { throw "check-dressed failed (exit=$rcDress)" }
+  if ($NoSlateDay) {
+    Write-Log ("Checking expected dressed players skipped: no slate for {0}" -f $Date)
+  } else {
+    Write-Log "Checking expected dressed players (fail-fast)"
+    $rcDress = Invoke-PyMod -plist @('-m','nba_betting.cli','check-dressed','--date', $Date)
+    Write-Log ("check-dressed exit code: {0}" -f $rcDress)
+    if ($rcDress -ne 0) {
+      $dressSummaryPath = Join-Path $RepoRoot ("data/processed/dressed_summary_{0}.json" -f $Date)
+      $dressIssues = @()
+      try {
+        if (Test-Path $dressSummaryPath) {
+          $dressSummary = Get-Content -Path $dressSummaryPath -Raw | ConvertFrom-Json
+          if ($null -ne $dressSummary -and $null -ne $dressSummary.issues) {
+            $dressIssues = @($dressSummary.issues | ForEach-Object { [string]$_ })
+          }
+        }
+      } catch {
+        $dressIssues = @()
+      }
+
+      if ($dressIssues -contains 'slate_empty') {
+        $NoSlateDay = $true
+        Write-Log ("check-dressed reported slate_empty for {0}; treating as a no-slate day and continuing" -f $Date)
+      } else {
+        throw "check-dressed failed (exit=$rcDress)"
+      }
+    }
+  }
 } catch {
   Write-Log ("Dressed-to-play gate failed: {0}" -f $_.Exception.Message)
   throw
