@@ -2,8 +2,8 @@
   "date": "2026-04-15",
   "team_counts": {
     "GSW": 3,
-    "LAC": 2,
-    "PHI": 2
+    "LAC": 1,
+    "PHI": 1
   },
   "players": [
     {
@@ -27,21 +27,26 @@
       "status": "OUT"
     },
     {
-      "player": "Johni Broome",
-      "team": "PHI",
-      "status": "OUT"
-    },
-    {
       "player": "Quinten Post",
       "team": "GSW",
       "status": "OUT"
-    },
-    {
-      "player": "Yanic Konan Niederhäuser",
-      "team": "LAC",
-      "status": "OUT"
     }
   ],
-  "team_key_outs": {},
-  "team_impact": {}
+  "team_key_outs": {
+    "GSW": [
+      "Moses Moody",
+      "Quinten Post",
+      "Jimmy Butler III"
+    ],
+    "LAC": [
+      "Bradley Beal"
+    ],
+    "PHI": [
+      "Joel Embiid"
+    ]
+  },
+  "team_impact": {
+    "GSW": 56.43333333333334,
+    "PHI": 49.56
+  }
 }

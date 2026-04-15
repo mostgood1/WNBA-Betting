@@ -412,6 +412,7 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
     pid = _find_col(logs, PLAYER_ID_COLS)
     pname = _find_col(logs, PLAYER_NAME_COLS)
     tcol = _find_col(logs, TEAM_COLS)
+    matchup_col = _find_col(logs, [MATCHUP_COL])
     
     # Core stats
     pts = _find_col(logs, NUM_COL_MAP["PTS"])
@@ -481,6 +482,31 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
         g = g.copy()
         g["minutes"] = g[minc]
         denom = g["minutes"].replace(0, np.nan)
+        g["season_game_number"] = np.arange(1, len(g) + 1, dtype=float)
+        g["days_rest"] = g[dcol].diff().dt.days.astype(float)
+
+        recent_7 = []
+        recent_14 = []
+        dates = pd.to_datetime(g[dcol])
+        for idx, game_date in enumerate(dates):
+            prior = dates.iloc[:idx]
+            if len(prior) == 0:
+                recent_7.append(0.0)
+                recent_14.append(0.0)
+                continue
+            delta_days = (game_date - prior).dt.days
+            recent_7.append(float(((delta_days > 0) & (delta_days <= 7)).sum()))
+            recent_14.append(float(((delta_days > 0) & (delta_days <= 14)).sum()))
+        g["games_last7"] = recent_7
+        g["games_last14"] = recent_14
+
+        if matchup_col is not None and matchup_col in g.columns:
+            matchup_context = g[matchup_col].apply(_parse_matchup_context)
+            g["is_home"] = matchup_context.map(lambda t: t[0]).astype(float)
+            g["opp_team"] = matchup_context.map(lambda t: t[1])
+        else:
+            g["is_home"] = 0.0
+            g["opp_team"] = None
 
         g["_pts_per_min"] = g[pts] / denom
         g["_reb_per_min"] = g[reb] / denom
@@ -527,6 +553,11 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
             "player_name": g.iloc[-1][_find_col(hist, PLAYER_NAME_COLS)] if _find_col(hist, PLAYER_NAME_COLS) else None,
             "team": g.iloc[-1][_find_col(hist, TEAM_COLS)] if _find_col(hist, TEAM_COLS) else None,
             "asof_date": target_date.date(),
+            "is_home": 0.0,
+            "days_rest": float((target_date.normalize() - g[dcol].iloc[-1].normalize()).days) if len(g) > 0 else np.nan,
+            "games_last7": float(((target_date - g[dcol]) <= pd.Timedelta(days=7)).sum()) if len(g) > 0 else 0.0,
+            "games_last14": float(((target_date - g[dcol]) <= pd.Timedelta(days=14)).sum()) if len(g) > 0 else 0.0,
+            "season_game_number": float(len(g) + 1),
         }
         
         # Lag1 features for all stats
@@ -553,6 +584,7 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
         # Rolling features for all stats
         for w in windows:
             rec[f"roll{w}_min"] = g["minutes"].rolling(w, min_periods=1).mean().iloc[-1]
+            rec[f"roll{w}_min_std"] = g["minutes"].rolling(w, min_periods=2).std().iloc[-1]
             for stat_name, stat_col in stat_map.items():
                 if stat_col is not None and stat_col in g.columns:
                     rec[f"roll{w}_{stat_name}"] = g[stat_col].rolling(w, min_periods=1).mean().iloc[-1]
@@ -562,7 +594,9 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
             for feat_name, feat_col in derived_map.items():
                 if feat_col in g.columns:
                     rec[f"roll{w}_{feat_name}"] = g[feat_col].rolling(w, min_periods=1).mean().iloc[-1]
+                    rec[f"roll{w}_{feat_name}_std"] = g[feat_col].rolling(w, min_periods=2).std().iloc[-1]
                 else:
                     rec[f"roll{w}_{feat_name}"] = np.nan
+                    rec[f"roll{w}_{feat_name}_std"] = np.nan
         rows.append(rec)
     return pd.DataFrame(rows)

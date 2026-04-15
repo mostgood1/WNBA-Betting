@@ -447,6 +447,7 @@ def train_props_models_npu(alpha: float = 1.0):
         print(f"✅ Saved {target} ONNX model to {onnx_path}")
     
     print("🎯 NPU model conversion complete!")
+    return models
 
 
 def predict_props_npu(features_df: pd.DataFrame) -> pd.DataFrame:

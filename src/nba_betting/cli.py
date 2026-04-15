@@ -4892,6 +4892,12 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                             slate_applied = True
             except Exception:
                 pass
+        try:
+            if "home" in feats.columns:
+                feats = feats.copy()
+                feats["is_home"] = pd.to_numeric(feats["home"], errors="coerce").fillna(0.0).astype(float)
+        except Exception:
+            pass
     
     # Optional: exclude clearly inactive players based on ESPN injuries DB (OUT)
     try:

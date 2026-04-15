@@ -14,6 +14,7 @@ from .config import paths
 from .features_enhanced import build_features_enhanced
 from .player_logs import fetch_player_logs
 from .props_features import build_props_features
+from .props_npu import train_props_models_npu
 from .props_train import train_props_models
 from .schedule import fetch_schedule_2025_26
 from .scrape_nba_api import current_season_end_year, fetch_games_nba_api
@@ -216,6 +217,13 @@ def run_playoff_transition(
 
     props_features_df = build_props_features()
     props_models = train_props_models(alpha=1.0)
+    try:
+        props_models_npu = train_props_models_npu(alpha=1.0)
+        if isinstance(props_models_npu, dict) and props_models_npu:
+            props_models = props_models_npu
+    except Exception as exc:
+        # Keep the retune usable even if ONNX export tooling is unavailable locally.
+        props_models = props_models
 
     tools_dir = paths.root / "tools"
     calibrate_games = _run_python_script(

@@ -374,7 +374,10 @@ class PureONNXPredictor:
         # Validate feature columns
         missing_cols = [col for col in self.feature_columns if col not in features_df.columns]
         if missing_cols:
-            raise ValueError(f"Missing feature columns: {missing_cols[:5]}... ({len(missing_cols)} total)")
+            features_df = features_df.copy()
+            for col in missing_cols:
+                features_df[col] = 0.0
+            print(f"[WARN] Added {len(missing_cols)} missing feature columns with 0.0 defaults: {missing_cols[:5]}...")
         
         # Prepare features array
         X = features_df[self.feature_columns].fillna(0.0).values.astype(np.float32)
