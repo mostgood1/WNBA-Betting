@@ -3408,7 +3408,7 @@ try {
     Write-Log 'Skipping cards props snapshot build (DAILY_SKIP_CARDS_PROPS_SNAPSHOT=1)'
   } else {
     $cardsPropsSource = [string]$env:DAILY_CARDS_PROPS_SNAPSHOT_SOURCE
-    if ([string]::IsNullOrWhiteSpace($cardsPropsSource)) { $cardsPropsSource = 'auto' }
+    if ([string]::IsNullOrWhiteSpace($cardsPropsSource)) { $cardsPropsSource = 'source' }
     $cardsPropsSource = $cardsPropsSource.Trim().ToLowerInvariant()
     if (@('auto', 'source', 'runtime', 'snapshot') -notcontains $cardsPropsSource) { $cardsPropsSource = 'auto' }
     $cardsPropsOut = Join-Path $RepoRoot ("data/processed/cards_props_snapshot_{0}.json" -f $Date)

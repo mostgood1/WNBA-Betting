@@ -3489,6 +3489,11 @@
             return;
           }
           const bucket = index === 0 ? (row.card_bucket || 'playable') : 'playable';
+          const rowMarket = String(row?.market || row?.best?.market || '').toLowerCase();
+          const rowSide = String(row?.side || row?.best?.side || '').toUpperCase();
+          const pickMarket = String(pick.market || '').toLowerCase();
+          const pickSide = String(pick.side || '').toUpperCase();
+          const pickMatchesRow = index === 0 || (pickMarket === rowMarket && pickSide === rowSide);
           rows.push({
             key: '',
             cardId: cardId(game),
@@ -3496,9 +3501,9 @@
             sideKey,
             player: row.player,
             playerPhoto: row.player_photo || row.photo,
-            market: String(pick.market || '').toLowerCase(),
+            market: pickMarket,
             marketLabel: marketLabel(pick.market),
-            side: String(pick.side || '').toUpperCase(),
+            side: pickSide,
             line: Number(pick.line),
             price: pick.price,
             book: pick.book,
@@ -3506,8 +3511,8 @@
             pWin: pick.p_win ?? row.p_win,
             simMu: pick.sim_mu,
             simSd: pick.sim_sd,
-            summary: row.basketball_summary || pick.basketball_summary || row.display_pick || '',
-            reasons: safeArray(pick.reasons).length ? safeArray(pick.reasons) : safeArray(row.top_play_reasons),
+            summary: pick.basketball_summary || (pickMatchesRow ? (row.basketball_summary || row.display_pick || '') : (row.display_pick || '')),
+            reasons: safeArray(pick.reasons).length ? safeArray(pick.reasons) : (pickMatchesRow ? safeArray(row.top_play_reasons) : []),
             matchup: row.matchup,
             rank: index + 1,
             primary: index === 0,

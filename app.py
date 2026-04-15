@@ -16261,6 +16261,14 @@ def _build_cards_prop_recommendations_from_source(
             return None
         return market, side, line
 
+    def _source_play_same_market_side(
+        left: tuple[str, str, float | None] | None,
+        right: tuple[str, str, float | None] | None,
+    ) -> bool:
+        if left is None or right is None:
+            return False
+        return left[0] == right[0] and left[1] == right[1]
+
     def _source_play_sort_key(play: dict[str, Any]) -> tuple[float, float, float, float]:
         ev_pct = _safe_float(play.get("ev_pct"))
         if ev_pct is None:
@@ -16332,9 +16340,21 @@ def _build_cards_prop_recommendations_from_source(
                 best_row.setdefault("team", team_tri)
 
                 play_identity = _source_play_identity(best_row)
-                play_reasons = list(top_play_reasons) if play_identity is not None and play_identity == best_identity else []
+                play_reasons = list(top_play_reasons) if _source_play_same_market_side(play_identity, best_identity) else []
                 if play_reasons and not isinstance(best_row.get("reasons"), list):
                     best_row["reasons"] = list(play_reasons)
+
+                matching_picks = [
+                    dict(pick)
+                    for pick in picks
+                    if _source_play_same_market_side(_source_play_identity(pick), play_identity)
+                ]
+                if not matching_picks:
+                    matching_picks = [dict(best_row)]
+
+                top_play_baseline = _safe_float(best_row.get("model_baseline"))
+                if top_play_baseline is None and _source_play_same_market_side(play_identity, best_identity):
+                    top_play_baseline = _safe_float(source_row.get("top_play_baseline"))
 
                 ev_pct = _safe_float(best_row.get("ev_pct"))
                 if ev_pct is None:
@@ -16354,12 +16374,12 @@ def _build_cards_prop_recommendations_from_source(
                             "player": player_name,
                             "team": team_tri,
                             "best": best_row,
-                            "picks": picks,
+                            "picks": matching_picks,
                             "top_play_reasons": play_reasons,
                             "why_explain": str(source_row.get("top_play_explain") or "").strip() or None if play_reasons else None,
-                            "top_play_baseline": _safe_float(source_row.get("top_play_baseline")),
-                            "top_play_consensus": _safe_float(source_row.get("top_play_consensus")) if play_reasons else None,
-                            "top_play_line_adv": _safe_float(source_row.get("top_play_line_adv")) if play_reasons else None,
+                            "top_play_baseline": top_play_baseline,
+                            "top_play_consensus": _safe_float(source_row.get("top_play_consensus")) if play_identity is not None and play_identity == best_identity else None,
+                            "top_play_line_adv": _safe_float(source_row.get("top_play_line_adv")) if play_identity is not None and play_identity == best_identity else None,
                             "recommendation_priority_score": recommendation_priority_score,
                             "source": "props_recommendations",
                         },
