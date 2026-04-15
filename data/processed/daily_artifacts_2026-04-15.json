@@ -29,23 +29,20 @@
   "slate_games": 2,
   "smart_sim_count": 2,
   "rotations_dir_exists": true,
-  "rotations_expected_games_yesterday": 2,
-  "rotations_have_games_yesterday": 0,
+  "rotations_expected_games_yesterday": 1,
+  "rotations_have_games_yesterday": 1,
   "rotations_min_coverage": 0.7,
-  "rotations_coverage_yesterday": 0.0,
-  "rotations_missing_game_ids_yesterday": [
-    "0052500111",
+  "rotations_coverage_yesterday": 1.0,
+  "rotations_missing_game_ids_yesterday": [],
+  "rotations_excused_no_event_game_ids_yesterday": [
     "0052500121"
   ],
-  "rotations_excused_no_event_game_ids_yesterday": [],
   "rotations_error": null,
   "require_odds": true,
   "require_smartsim": true,
   "require_props_lines": false,
-  "require_rotations_espn": false,
-  "warnings": [
-    "optional artifact partial: rotations_espn stints (0/2)"
-  ],
+  "require_rotations_espn": true,
+  "warnings": [],
   "missing": [],
   "ok": true
 }
