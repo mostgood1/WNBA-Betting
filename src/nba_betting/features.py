@@ -14,6 +14,8 @@ def build_features(games: pd.DataFrame) -> pd.DataFrame:
     df["date"] = pd.to_datetime(df["date"]) 
     df = df.sort_values(["date"])  # chronological
 
+    season_start = df["date"].min().normalize() if not df.empty else None
+
     # rest days
     for side, team_col in (("home", "home_team"), ("visitor", "visitor_team")):
         last_dates = {}
@@ -69,10 +71,19 @@ def build_features(games: pd.DataFrame) -> pd.DataFrame:
     v_g_last3 = []
     h_g_last5 = []
     v_g_last5 = []
+    h_g_last7 = []
+    v_g_last7 = []
     h_3in4 = []
     v_3in4 = []
     h_4in6 = []
     v_4in6 = []
+    h_margin_5 = []
+    v_margin_5 = []
+    h_game_num = []
+    v_game_num = []
+
+    margin_hist = defaultdict(lambda: deque(maxlen=5))
+    team_games_played = defaultdict(int)
 
     for _, row in df.iterrows():
         d = pd.to_datetime(row["date"]).normalize()
@@ -93,25 +104,38 @@ def build_features(games: pd.DataFrame) -> pd.DataFrame:
         vg3 = count_recent(v, 3)
         hg5 = count_recent(h, 5)
         vg5 = count_recent(v, 5)
+        hg7 = count_recent(h, 7)
+        vg7 = count_recent(v, 7)
         h_g_last3.append(hg3)
         v_g_last3.append(vg3)
         h_g_last5.append(hg5)
         v_g_last5.append(vg5)
+        h_g_last7.append(hg7)
+        v_g_last7.append(vg7)
         # Fatigue flags: playing today would make it 3-in-4 (>=2 in last 3) or 4-in-6 (>=3 in last 5)
         h_3in4.append(1 if hg3 >= 2 else 0)
         v_3in4.append(1 if vg3 >= 2 else 0)
         h_4in6.append(1 if hg5 >= 3 else 0)
         v_4in6.append(1 if vg5 >= 3 else 0)
+        h_margin_5.append(mean_or_nan(margin_hist[h]))
+        v_margin_5.append(mean_or_nan(margin_hist[v]))
+        h_game_num.append(team_games_played[h] + 1)
+        v_game_num.append(team_games_played[v] + 1)
 
         # Post-game update with final scores if present
         if pd.notna(row.get("home_pts")) and pd.notna(row.get("visitor_pts")):
             try:
+                margin = int(row["home_pts"]) - int(row["visitor_pts"])
                 pf_hist[h].append(int(row["home_pts"]))
                 pa_hist[h].append(int(row["visitor_pts"]))
                 pf_hist[v].append(int(row["visitor_pts"]))
                 pa_hist[v].append(int(row["home_pts"]))
+                margin_hist[h].append(margin)
+                margin_hist[v].append(-margin)
                 recent_dates[h].append(d)
                 recent_dates[v].append(d)
+                team_games_played[h] += 1
+                team_games_played[v] += 1
             except Exception:
                 pass
 
@@ -123,10 +147,25 @@ def build_features(games: pd.DataFrame) -> pd.DataFrame:
     df["visitor_games_last3"] = v_g_last3
     df["home_games_last5"] = h_g_last5
     df["visitor_games_last5"] = v_g_last5
+    df["home_games_last7"] = h_g_last7
+    df["visitor_games_last7"] = v_g_last7
     df["home_3in4"] = h_3in4
     df["visitor_3in4"] = v_3in4
     df["home_4in6"] = h_4in6
     df["visitor_4in6"] = v_4in6
+    df["home_form_margin_5"] = h_margin_5
+    df["visitor_form_margin_5"] = v_margin_5
+    df["form_margin_diff"] = df["home_form_margin_5"] - df["visitor_form_margin_5"]
+    df["home_season_game_number"] = h_game_num
+    df["visitor_season_game_number"] = v_game_num
+    df["season_game_number_diff"] = df["home_season_game_number"] - df["visitor_season_game_number"]
+    if season_start is not None:
+        df["season_day_number"] = (df["date"].dt.normalize() - season_start).dt.days.astype(float)
+        df["season_progress"] = ((df["home_season_game_number"] + df["visitor_season_game_number"]) / 2.0) / 82.0
+    else:
+        df["season_day_number"] = np.nan
+        df["season_progress"] = np.nan
+    df["rest_advantage"] = pd.to_numeric(df["home_rest_days"], errors="coerce") - pd.to_numeric(df["visitor_rest_days"], errors="coerce")
 
     # targets
     df["target_home_win"] = (df["home_pts"] > df["visitor_pts"]).astype("Int64")

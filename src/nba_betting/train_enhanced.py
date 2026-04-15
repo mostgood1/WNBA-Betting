@@ -26,6 +26,18 @@ def _time_series_cv(X, y, n_splits=5):
         yield tr, te
 
 
+def _recency_sample_weights(df: pd.DataFrame, half_life_days: float = 30.0) -> np.ndarray:
+    if "date" not in df.columns or df.empty:
+        return np.ones(len(df), dtype=float)
+    dates = pd.to_datetime(df["date"], errors="coerce")
+    if dates.notna().sum() <= 1:
+        return np.ones(len(df), dtype=float)
+    max_date = dates.max()
+    age_days = (max_date - dates).dt.days.fillna(0).astype(float)
+    weights = np.power(0.5, age_days / max(float(half_life_days), 1.0))
+    return np.clip(weights.to_numpy(dtype=float), 0.35, 1.0)
+
+
 def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
     """
     Train models with enhanced features (45 features) or baseline (17 features).
@@ -68,10 +80,12 @@ def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
         print(f"   Missing: {missing_feats[:5]}{'...' if len(missing_feats) > 5 else ''}")
     
     X = df[use_feats].fillna(0)
+    sample_weights = _recency_sample_weights(df)
     print(f"\nTraining Data:")
     print(f"   Games: {len(X):,}")
     print(f"   Features: {len(use_feats)}")
     print(f"   Missing values filled: {X.isnull().sum().sum()}")
+    print(f"   Recency weights: min={sample_weights.min():.3f} max={sample_weights.max():.3f}")
     
     # ========================================================================
     # 1. WIN PROBABILITY MODEL
@@ -88,6 +102,7 @@ def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
     for tr, te in _time_series_cv(X, y_win):
         Xtr, Xte = X.iloc[tr], X.iloc[te]
         ytr, yte = y_win.iloc[tr], y_win.iloc[te]
+        wtr = sample_weights[tr]
         for c in Cs:
             pipe = Pipeline([
                 ("scaler", StandardScaler()),
@@ -98,7 +113,7 @@ def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
                     class_weight='balanced'  # Handle any class imbalance
                 ))
             ])
-            pipe.fit(Xtr, ytr)
+            pipe.fit(Xtr, ytr, logreg__sample_weight=wtr)
             p = pipe.predict_proba(Xte)[:, 1]
             c_losses[c].append(log_loss(yte, p, labels=[0, 1]))
     
@@ -118,7 +133,7 @@ def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
             class_weight='balanced'
         ))
     ])
-    clf.fit(X, y_win)
+    clf.fit(X, y_win, logreg__sample_weight=sample_weights)
     cv_losses = list(c_losses[best_c])
     
     # Check probability distribution to detect overconfidence
@@ -146,12 +161,13 @@ def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
     for tr, te in _time_series_cv(X, y_margin):
         Xtr, Xte = X.iloc[tr], X.iloc[te]
         ytr, yte = y_margin.iloc[tr], y_margin.iloc[te]
+        wtr = sample_weights[tr]
         for a in ridge_alphas:
             pipe = Pipeline([
                 ("scaler", StandardScaler()),
                 ("ridge", Ridge(alpha=a))
             ])
-            pipe.fit(Xtr, ytr)
+            pipe.fit(Xtr, ytr, ridge__sample_weight=wtr)
             pred = pipe.predict(Xte)
             rmse = float(np.sqrt(mean_squared_error(yte, pred)))
             alpha_rmse_m[a].append(rmse)
@@ -166,7 +182,7 @@ def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
         ("scaler", StandardScaler()),
         ("ridge", Ridge(alpha=best_alpha_m))
     ])
-    reg_margin.fit(X, y_margin)
+    reg_margin.fit(X, y_margin, ridge__sample_weight=sample_weights)
     cv_rmse_m = list(alpha_rmse_m[best_alpha_m])
     
     # ========================================================================
@@ -180,12 +196,13 @@ def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
     for tr, te in _time_series_cv(X, y_total):
         Xtr, Xte = X.iloc[tr], X.iloc[te]
         ytr, yte = y_total.iloc[tr], y_total.iloc[te]
+        wtr = sample_weights[tr]
         for a in ridge_alphas:
             pipe = Pipeline([
                 ("scaler", StandardScaler()),
                 ("ridge", Ridge(alpha=a))
             ])
-            pipe.fit(Xtr, ytr)
+            pipe.fit(Xtr, ytr, ridge__sample_weight=wtr)
             pred = pipe.predict(Xte)
             rmse = float(np.sqrt(mean_squared_error(yte, pred)))
             alpha_rmse_t[a].append(rmse)
@@ -200,7 +217,7 @@ def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
         ("scaler", StandardScaler()),
         ("ridge", Ridge(alpha=best_alpha_t))
     ])
-    reg_total.fit(X, y_total)
+    reg_total.fit(X, y_total, ridge__sample_weight=sample_weights)
     cv_rmse_t = list(alpha_rmse_t[best_alpha_t])
     
     # ========================================================================
@@ -234,17 +251,17 @@ def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
                 C=best_c,
                 class_weight='balanced'
             ))
-        ]).fit(Xh, y_hw)
+        ]).fit(Xh, y_hw, logreg__sample_weight=sample_weights[mask.to_numpy()])
         
         reg_hm = Pipeline([
             ("scaler", StandardScaler()),
             ("ridge", Ridge(alpha=best_alpha_m))
-        ]).fit(Xh, y_hm)
+        ]).fit(Xh, y_hm, ridge__sample_weight=sample_weights[mask.to_numpy()])
         
         reg_ht = Pipeline([
             ("scaler", StandardScaler()),
             ("ridge", Ridge(alpha=best_alpha_t))
-        ]).fit(Xh, y_ht)
+        ]).fit(Xh, y_ht, ridge__sample_weight=sample_weights[mask.to_numpy()])
         
         models_halves[half] = {"win": clf_h, "margin": reg_hm, "total": reg_ht}
         print(f"   {half.upper()}: Trained on {len(Xh):,} games")
@@ -280,17 +297,17 @@ def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
                 C=best_c,
                 class_weight='balanced'
             ))
-        ]).fit(Xq, y_qw)
+        ]).fit(Xq, y_qw, logreg__sample_weight=sample_weights[mask.to_numpy()])
         
         reg_qm = Pipeline([
             ("scaler", StandardScaler()),
             ("ridge", Ridge(alpha=best_alpha_m))
-        ]).fit(Xq, y_qm)
+        ]).fit(Xq, y_qm, ridge__sample_weight=sample_weights[mask.to_numpy()])
         
         reg_qt = Pipeline([
             ("scaler", StandardScaler()),
             ("ridge", Ridge(alpha=best_alpha_t))
-        ]).fit(Xq, y_qt)
+        ]).fit(Xq, y_qt, ridge__sample_weight=sample_weights[mask.to_numpy()])
         
         models_quarters[q] = {"win": clf_q, "margin": reg_qm, "total": reg_qt}
         print(f"   {q.upper()}: Trained on {len(Xq):,} games")
@@ -330,6 +347,7 @@ def train_models_enhanced(df: pd.DataFrame, use_enhanced_features: bool = True):
         "best_alpha_total": best_alpha_t,
         "halves_models": len(models_halves),
         "quarters_models": len(models_quarters),
+        "sample_weight_min": float(sample_weights.min()) if len(sample_weights) else None,
     }
     
     print("\n" + "="*70)

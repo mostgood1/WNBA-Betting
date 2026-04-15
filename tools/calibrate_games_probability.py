@@ -20,8 +20,8 @@ DEFAULT_OUT_JSON = PROC_DIR / "games_prob_calibration.json"
 DEFAULT_OUT_BINS = PROC_DIR / "reliability_games.csv"
 
 
-def collect_window(days: int) -> pd.DataFrame:
-    today = date.today()
+def collect_window(days: int, end_date: date | None = None) -> pd.DataFrame:
+    today = end_date or date.today()
     rows = []
     for i in range(days):
         d = today - timedelta(days=i)
@@ -82,8 +82,8 @@ def fit_isotonic(xs: np.ndarray, ys: np.ndarray) -> Tuple[np.ndarray, np.ndarray
     return grid, preds
 
 
-def main(days: int = 60, bins: int = 10) -> None:
-    df = collect_window(days)
+def main(days: int = 60, bins: int = 10, end: date | None = None) -> None:
+    df = collect_window(days, end_date=end)
     if df.empty:
         print(json.dumps({"ok": False, "reason": "no-data"}))
         return
@@ -116,5 +116,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=60)
     ap.add_argument("--bins", type=int, default=10)
+    ap.add_argument("--end", type=str, default="")
     args = ap.parse_args()
-    main(days=args.days, bins=args.bins)
+    end_date = date.fromisoformat(args.end) if str(args.end).strip() else None
+    main(days=args.days, bins=args.bins, end=end_date)

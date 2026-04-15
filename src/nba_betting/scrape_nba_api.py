@@ -21,6 +21,11 @@ def season_to_str(season_end_year: int) -> str:
     return f"{start}-{str(season_end_year)[-2:]}"
 
 
+def current_season_end_year(reference: Optional[datetime] = None) -> int:
+    now = reference or datetime.now()
+    return now.year + 1 if now.month >= 7 else now.year
+
+
 def fetch_games_nba_api(last_n: int = 10, rate_delay: float = 0.6, with_periods: bool = True, verbose: bool = False, max_workers: int = 1) -> pd.DataFrame:
     # Ensure fresh, browser-like headers to reduce blocks/timeouts
     try:
@@ -34,8 +39,8 @@ def fetch_games_nba_api(last_n: int = 10, rate_delay: float = 0.6, with_periods:
         })
     except Exception:
         pass
-    now_year = datetime.now().year
-    seasons = list(range(now_year - last_n, now_year))
+    current_end_year = current_season_end_year()
+    seasons = list(range(current_end_year - last_n + 1, current_end_year + 1))
     records: list[dict] = []
     # Build abbreviation -> full name map
     team_list = static_teams.get_teams()
@@ -219,6 +224,7 @@ def fetch_games_nba_api(last_n: int = 10, rate_delay: float = 0.6, with_periods:
     out = pd.DataFrame.from_records(records)
     if out.empty:
         return out
+    out["game_id"] = out["game_id"].astype(str)
 
     # 2) Optional: fetch period line scores with concurrency + resume
     if with_periods:
@@ -243,6 +249,7 @@ def fetch_games_nba_api(last_n: int = 10, rate_delay: float = 0.6, with_periods:
         ]
         to_fetch_ids = out["game_id"].unique().tolist()
         if prev is not None and "game_id" in prev.columns:
+            prev["game_id"] = prev["game_id"].astype(str)
             prev_small = prev[[c for c in ["game_id","home_team","visitor_team"] + list(period_cols) if c in prev.columns]].copy()
             out = out.merge(prev_small, on=["game_id","home_team","visitor_team"], how="left", suffixes=("", "_prev"))
             if "home_q1" in out.columns:
@@ -417,6 +424,7 @@ def fetch_games_nba_api(last_n: int = 10, rate_delay: float = 0.6, with_periods:
             base = None
 
     if base is not None and "game_id" in base.columns:
+        base["game_id"] = base["game_id"].astype(str)
         base = base[~base["game_id"].isin(out["game_id"])].copy()
         out_save = pd.concat([base, out], ignore_index=True)
     else:

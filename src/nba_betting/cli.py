@@ -3405,6 +3405,44 @@ def train_props_cmd(alpha: float):
         console.print(f"Failed to train props models: {e}", style="red")
 
 
+@cli.command("playoff-retune")
+@click.option("--date", "date_str", type=str, required=False, help="Reference date YYYY-MM-DD; defaults to today")
+@click.option("--season", type=str, required=False, help="Season string like 2025-26; defaults from --date")
+@click.option("--refresh-player-logs/--no-refresh-player-logs", default=False, show_default=True, help="Refresh current-season player logs before rebuilding props features")
+@click.option("--retune-live-lens/--no-retune-live-lens", default=True, show_default=True, help="Retune game and prop live lens thresholds from the full regular season")
+def playoff_retune_cmd(date_str: str | None, season: str | None, refresh_player_logs: bool, retune_live_lens: bool):
+    """Retrain and retune games, props, and live lens from the completed regular season for playoff transition."""
+    console.rule("Playoff Retune")
+    import datetime as _dt
+    from .playoff_transition import run_playoff_transition
+
+    try:
+        target_date = _dt.datetime.strptime(date_str, "%Y-%m-%d").date() if date_str else _dt.date.today()
+    except Exception:
+        console.print("Invalid --date (expected YYYY-MM-DD)", style="red")
+        return
+
+    try:
+        summary = run_playoff_transition(
+            target_date=target_date,
+            season=season,
+            refresh_player_logs=bool(refresh_player_logs),
+            retune_live_lens=bool(retune_live_lens),
+        )
+    except Exception as e:
+        console.print(f"Playoff retune failed: {e}", style="red")
+        return
+
+    console.print({
+        "season": summary.get("season"),
+        "regular_season_start": summary.get("regular_season_start"),
+        "regular_season_end": summary.get("regular_season_end"),
+        "games_trained": summary.get("games_trained"),
+        "props_feature_rows": summary.get("props_feature_rows"),
+        "summary_path": summary.get("summary_path"),
+    })
+
+
 @cli.command("train-props-pure")
 @click.option("--targets", type=str, default="t_stl,t_blk,t_tov", show_default=True, help="Comma-separated targets to train with pure linear fallback")
 @click.option("--alpha", type=float, default=1.0, show_default=True, help="Ridge regularization strength")

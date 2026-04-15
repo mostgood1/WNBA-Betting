@@ -20,6 +20,18 @@ def _time_series_cv(X, y, n_splits=5):
         yield tr, te
 
 
+def _recency_sample_weights(df: pd.DataFrame, half_life_days: float = 30.0) -> np.ndarray:
+    if "date" not in df.columns or df.empty:
+        return np.ones(len(df), dtype=float)
+    dates = pd.to_datetime(df["date"], errors="coerce")
+    if dates.notna().sum() <= 1:
+        return np.ones(len(df), dtype=float)
+    max_date = dates.max()
+    age_days = (max_date - dates).dt.days.fillna(0).astype(float)
+    weights = np.power(0.5, age_days / max(float(half_life_days), 1.0))
+    return np.clip(weights.to_numpy(dtype=float), 0.35, 1.0)
+
+
 def train_models(df: pd.DataFrame):
     # split features/targets
     base_feats = [
@@ -27,14 +39,20 @@ def train_models(df: pd.DataFrame):
         "home_rest_days", "visitor_rest_days", "home_b2b", "visitor_b2b",
         # Rolling form
         "home_form_off_5", "home_form_def_5", "visitor_form_off_5", "visitor_form_def_5",
+        "home_form_margin_5", "visitor_form_margin_5", "form_margin_diff",
         # Schedule intensity
         "home_games_last3", "visitor_games_last3", "home_games_last5", "visitor_games_last5",
+        "home_games_last7", "visitor_games_last7",
         "home_3in4", "visitor_3in4", "home_4in6", "visitor_4in6",
+        "home_season_game_number", "visitor_season_game_number",
+        "season_game_number_diff", "season_day_number", "season_progress",
+        "rest_advantage",
     ]
     df = df.dropna(subset=["target_home_win", "target_margin", "target_total"])  # keep fully known games
     # Keep only columns that actually exist (period columns may not). This prevents KeyError if older features are missing.
     use_feats = [c for c in base_feats if c in df.columns]
     X = df[use_feats].fillna(0)
+    sample_weights = _recency_sample_weights(df)
 
     # Win probability with scaling + small C grid over saga solver
     y_win = df["target_home_win"].astype(int)
@@ -43,12 +61,13 @@ def train_models(df: pd.DataFrame):
     for tr, te in _time_series_cv(X, y_win):
         Xtr, Xte = X.iloc[tr], X.iloc[te]
         ytr, yte = y_win.iloc[tr], y_win.iloc[te]
+        wtr = sample_weights[tr]
         for c in Cs:
             pipe = Pipeline([
                 ("scaler", StandardScaler()),
                 ("logreg", LogisticRegression(solver="saga", max_iter=5000, C=c))
             ])
-            pipe.fit(Xtr, ytr)
+            pipe.fit(Xtr, ytr, logreg__sample_weight=wtr)
             p = pipe.predict_proba(Xte)[:, 1]
             c_losses[c].append(log_loss(yte, p, labels=[0, 1]))
     mean_c = {c: float(np.mean(v)) for c, v in c_losses.items()}
@@ -57,7 +76,7 @@ def train_models(df: pd.DataFrame):
         ("scaler", StandardScaler()),
         ("logreg", LogisticRegression(solver="saga", max_iter=5000, C=best_c))
     ])
-    clf.fit(X, y_win)
+    clf.fit(X, y_win, logreg__sample_weight=sample_weights)
     cv_losses = list(c_losses[best_c])
 
     # Spread (margin) regression with scaling + small alpha grid
@@ -67,12 +86,13 @@ def train_models(df: pd.DataFrame):
     for tr, te in _time_series_cv(X, y_margin):
         Xtr, Xte = X.iloc[tr], X.iloc[te]
         ytr, yte = y_margin.iloc[tr], y_margin.iloc[te]
+        wtr = sample_weights[tr]
         for a in ridge_alphas:
             pipe = Pipeline([
                 ("scaler", StandardScaler()),
                 ("ridge", Ridge(alpha=a))
             ])
-            pipe.fit(Xtr, ytr)
+            pipe.fit(Xtr, ytr, ridge__sample_weight=wtr)
             pred = pipe.predict(Xte)
             rmse = float(np.sqrt(mean_squared_error(yte, pred)))
             alpha_rmse_m[a].append(rmse)
@@ -82,7 +102,7 @@ def train_models(df: pd.DataFrame):
         ("scaler", StandardScaler()),
         ("ridge", Ridge(alpha=best_alpha_m))
     ])
-    reg_margin.fit(X, y_margin)
+    reg_margin.fit(X, y_margin, ridge__sample_weight=sample_weights)
     cv_rmse_m = list(alpha_rmse_m[best_alpha_m])
 
     # Totals regression with scaling + small alpha grid
@@ -91,12 +111,13 @@ def train_models(df: pd.DataFrame):
     for tr, te in _time_series_cv(X, y_total):
         Xtr, Xte = X.iloc[tr], X.iloc[te]
         ytr, yte = y_total.iloc[tr], y_total.iloc[te]
+        wtr = sample_weights[tr]
         for a in ridge_alphas:
             pipe = Pipeline([
                 ("scaler", StandardScaler()),
                 ("ridge", Ridge(alpha=a))
             ])
-            pipe.fit(Xtr, ytr)
+            pipe.fit(Xtr, ytr, ridge__sample_weight=wtr)
             pred = pipe.predict(Xte)
             rmse = float(np.sqrt(mean_squared_error(yte, pred)))
             alpha_rmse_t[a].append(rmse)
@@ -106,7 +127,7 @@ def train_models(df: pd.DataFrame):
         ("scaler", StandardScaler()),
         ("ridge", Ridge(alpha=best_alpha_t))
     ])
-    reg_total.fit(X, y_total)
+    reg_total.fit(X, y_total, ridge__sample_weight=sample_weights)
     cv_rmse_t = list(alpha_rmse_t[best_alpha_t])
 
     # Halves models (same features baseline)
@@ -122,9 +143,10 @@ def train_models(df: pd.DataFrame):
         y_hw = df.loc[mask, f"target_{half}_home_win"].astype(int)
         y_hm = df.loc[mask, f"target_{half}_margin"].astype(float)
         y_ht = df.loc[mask, f"target_{half}_total"].astype(float)
-        clf_h = Pipeline([("scaler", StandardScaler()), ("logreg", LogisticRegression(solver="saga", max_iter=5000, C=best_c))]).fit(Xh, y_hw)
-        reg_hm = Pipeline([("scaler", StandardScaler()), ("ridge", Ridge(alpha=5.0))]).fit(Xh, y_hm)
-        reg_ht = Pipeline([("scaler", StandardScaler()), ("ridge", Ridge(alpha=5.0))]).fit(Xh, y_ht)
+        weights_h = sample_weights[mask.to_numpy()]
+        clf_h = Pipeline([("scaler", StandardScaler()), ("logreg", LogisticRegression(solver="saga", max_iter=5000, C=best_c))]).fit(Xh, y_hw, logreg__sample_weight=weights_h)
+        reg_hm = Pipeline([("scaler", StandardScaler()), ("ridge", Ridge(alpha=5.0))]).fit(Xh, y_hm, ridge__sample_weight=weights_h)
+        reg_ht = Pipeline([("scaler", StandardScaler()), ("ridge", Ridge(alpha=5.0))]).fit(Xh, y_ht, ridge__sample_weight=weights_h)
         models_halves[half] = {"win": clf_h, "margin": reg_hm, "total": reg_ht}
 
     # Quarter models
@@ -140,9 +162,10 @@ def train_models(df: pd.DataFrame):
         y_qw = df.loc[mask, f"target_{q}_home_win"].astype(int)
         y_qm = df.loc[mask, f"target_{q}_margin"].astype(float)
         y_qt = df.loc[mask, f"target_{q}_total"].astype(float)
-        clf_q = Pipeline([("scaler", StandardScaler()), ("logreg", LogisticRegression(solver="saga", max_iter=5000, C=best_c))]).fit(Xq, y_qw)
-        reg_qm = Pipeline([("scaler", StandardScaler()), ("ridge", Ridge(alpha=5.0))]).fit(Xq, y_qm)
-        reg_qt = Pipeline([("scaler", StandardScaler()), ("ridge", Ridge(alpha=5.0))]).fit(Xq, y_qt)
+        weights_q = sample_weights[mask.to_numpy()]
+        clf_q = Pipeline([("scaler", StandardScaler()), ("logreg", LogisticRegression(solver="saga", max_iter=5000, C=best_c))]).fit(Xq, y_qw, logreg__sample_weight=weights_q)
+        reg_qm = Pipeline([("scaler", StandardScaler()), ("ridge", Ridge(alpha=5.0))]).fit(Xq, y_qm, ridge__sample_weight=weights_q)
+        reg_qt = Pipeline([("scaler", StandardScaler()), ("ridge", Ridge(alpha=5.0))]).fit(Xq, y_qt, ridge__sample_weight=weights_q)
         models_quarters[q] = {"win": clf_q, "margin": reg_qm, "total": reg_qt}
 
     # Save models and metrics

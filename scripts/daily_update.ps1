@@ -98,6 +98,137 @@ function Resolve-NbaSeasonYear {
   return $dt.Year
 }
 
+function Resolve-RegularSeasonEndDate {
+  param(
+    [string]$SeasonValue,
+    [string]$RepoRootPath
+  )
+
+  if ([string]::IsNullOrWhiteSpace($SeasonValue) -or [string]::IsNullOrWhiteSpace($RepoRootPath)) {
+    return $null
+  }
+
+  $seasonBits = $SeasonValue.Split('-', 2)
+  if ($seasonBits.Length -lt 1 -or [string]::IsNullOrWhiteSpace($seasonBits[0])) {
+    return $null
+  }
+
+  $startYear = $seasonBits[0].Trim()
+  if ($startYear.Length -lt 2) {
+    return $null
+  }
+
+  $seasonTag = $SeasonValue.Replace('-', '_')
+  $candidates = @(
+    (Join-Path $RepoRootPath ("data/processed/schedule_{0}.csv" -f $seasonTag)),
+    (Join-Path $RepoRootPath ("data/raw/schedule_{0}.csv" -f $seasonTag))
+  )
+
+  $schedulePath = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+  if ([string]::IsNullOrWhiteSpace($schedulePath)) {
+    return $null
+  }
+
+  try {
+    $seasonSuffix = $startYear.Substring($startYear.Length - 2)
+    $regularPrefixes = @(
+      ("002{0}" -f $seasonSuffix),
+      ("2{0}" -f $seasonSuffix)
+    )
+    $rows = Import-Csv -Path $schedulePath
+    $dates = @(
+      $rows |
+        Where-Object {
+          $gid = [string]$_.game_id
+          if ([string]::IsNullOrWhiteSpace($gid)) { return $false }
+          $digits = ($gid -replace '[^0-9]', '')
+          if ([string]::IsNullOrWhiteSpace($digits)) { return $false }
+          return ($regularPrefixes | Where-Object { $digits.StartsWith($_) } | Select-Object -First 1) -ne $null
+        } |
+        ForEach-Object {
+          try {
+            [datetime]::ParseExact([string]$_.date_est, 'yyyy-MM-dd', $null)
+          } catch {
+            $null
+          }
+        } |
+        Where-Object { $null -ne $_ }
+    )
+    if ($dates.Count -le 0) {
+      return $null
+    }
+    return (($dates | Sort-Object | Select-Object -Last 1).ToString('yyyy-MM-dd'))
+  } catch {
+    return $null
+  }
+}
+
+function Get-PlayoffRetuneDecision {
+  param(
+    [string]$DateValue,
+    [string]$SeasonValue,
+    [string]$RepoRootPath
+  )
+
+  $decision = [ordered]@{
+    Run = $false
+    Reason = ''
+    RegularSeasonEnd = $null
+    ExistingSummary = $null
+  }
+
+  try {
+    if ($null -ne $env:DAILY_SKIP_PLAYOFF_RETUNE -and $env:DAILY_SKIP_PLAYOFF_RETUNE -match '^(1|true|yes)$') {
+      $decision.Reason = 'Skipping playoff retune (DAILY_SKIP_PLAYOFF_RETUNE=1)'
+      return $decision
+    }
+
+    if ([string]::IsNullOrWhiteSpace($DateValue) -or [string]::IsNullOrWhiteSpace($SeasonValue)) {
+      $decision.Reason = 'Skipping playoff retune (date/season unavailable)'
+      return $decision
+    }
+
+    $regularSeasonEnd = Resolve-RegularSeasonEndDate -SeasonValue $SeasonValue -RepoRootPath $RepoRootPath
+    $decision.RegularSeasonEnd = $regularSeasonEnd
+    if ([string]::IsNullOrWhiteSpace($regularSeasonEnd)) {
+      $decision.Reason = ("Skipping playoff retune (could not resolve regular-season end for {0})" -f $SeasonValue)
+      return $decision
+    }
+
+    $targetDate = [datetime]::ParseExact($DateValue, 'yyyy-MM-dd', $null)
+    $regularSeasonEndDate = [datetime]::ParseExact($regularSeasonEnd, 'yyyy-MM-dd', $null)
+    $forceRetune = ($null -ne $env:DAILY_FORCE_PLAYOFF_RETUNE -and $env:DAILY_FORCE_PLAYOFF_RETUNE -match '^(1|true|yes)$')
+
+    if (-not $forceRetune -and $targetDate.Date -le $regularSeasonEndDate.Date) {
+      $decision.Reason = ("Skipping playoff retune (date {0} is still within regular season ending {1})" -f $DateValue, $regularSeasonEnd)
+      return $decision
+    }
+
+    $existing = Get-ChildItem -Path (Join-Path $RepoRootPath ("data/processed/playoff_transition_{0}_*.json" -f $SeasonValue)) -ErrorAction SilentlyContinue |
+      Sort-Object -Property LastWriteTimeUtc -Descending |
+      Select-Object -First 1
+    if ($null -ne $existing) {
+      $decision.ExistingSummary = $existing.FullName
+    }
+
+    if (-not $forceRetune -and $null -ne $existing) {
+      $decision.Reason = ("Skipping playoff retune (existing season summary found: {0})" -f $existing.FullName)
+      return $decision
+    }
+
+    $decision.Run = $true
+    if ($forceRetune) {
+      $decision.Reason = ("Running playoff retune (forced) for {0}; regular season ended {1}" -f $SeasonValue, $regularSeasonEnd)
+    } else {
+      $decision.Reason = ("Running playoff retune for {0}; regular season ended {1}" -f $SeasonValue, $regularSeasonEnd)
+    }
+    return $decision
+  } catch {
+    $decision.Reason = ("Skipping playoff retune (decision failed: {0})" -f $_.Exception.Message)
+    return $decision
+  }
+}
+
 function Import-CsvSafe {
   param([string]$Path)
 
@@ -1346,6 +1477,42 @@ try {
 } catch {
   Write-Log ("Player logs prerequisite failed: {0}" -f $_.Exception.Message)
   throw
+}
+
+# 0.55) One-time playoff transition retune after the regular season completes.
+try {
+  $playoffRetune = Get-PlayoffRetuneDecision -DateValue $Date -SeasonValue $seasonStr -RepoRootPath $RepoRoot
+  Write-Log $playoffRetune.Reason
+  if ($playoffRetune.Run) {
+    $playoffRetuneTimeoutSeconds = 1800
+    try {
+      $prtTo = $env:DAILY_PLAYOFF_RETUNE_TIMEOUT_SEC
+      if ($null -ne $prtTo -and $prtTo -ne '') {
+        $playoffRetuneTimeoutSeconds = [int]$prtTo
+      }
+    } catch { $playoffRetuneTimeoutSeconds = 1800 }
+    if ($playoffRetuneTimeoutSeconds -lt 300) { $playoffRetuneTimeoutSeconds = 300 }
+    if ($playoffRetuneTimeoutSeconds -gt 7200) { $playoffRetuneTimeoutSeconds = 7200 }
+
+    $retuneArgs = @('-m','nba_betting.cli','playoff-retune','--date', $Date)
+    if (-not [string]::IsNullOrWhiteSpace($seasonStr)) {
+      $retuneArgs += @('--season', $seasonStr)
+    }
+    $rcPlayoffRetune = Invoke-PyModWithTimeout -plist $retuneArgs -TimeoutSeconds $playoffRetuneTimeoutSeconds -Label 'playoff_retune'
+    Write-Log ("playoff-retune exit code: {0}" -f $rcPlayoffRetune)
+    if ($rcPlayoffRetune -ne 0) {
+      if ($null -ne $env:DAILY_FORCE_PLAYOFF_RETUNE -and $env:DAILY_FORCE_PLAYOFF_RETUNE -match '^(1|true|yes)$') {
+        throw ("playoff-retune failed with exit code {0}" -f $rcPlayoffRetune)
+      }
+      Write-Log ("WARNING: playoff-retune failed (exit={0}); continuing with existing models/artifacts" -f $rcPlayoffRetune)
+    }
+  }
+} catch {
+  if ($null -ne $env:DAILY_FORCE_PLAYOFF_RETUNE -and $env:DAILY_FORCE_PLAYOFF_RETUNE -match '^(1|true|yes)$') {
+    Write-Log ("Playoff retune prerequisite failed: {0}" -f $_.Exception.Message)
+    throw
+  }
+  Write-Log ("Playoff retune error (non-fatal): {0}" -f $_.Exception.Message)
 }
 
 # 0.6) Trade-deadline hardening: fetch injuries + build league_status + validate expected dressed players

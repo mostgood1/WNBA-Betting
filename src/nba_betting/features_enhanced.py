@@ -286,10 +286,15 @@ def get_enhanced_feature_columns() -> list[str]:
         "home_b2b", "visitor_b2b",
         "home_form_off_5", "home_form_def_5",
         "visitor_form_off_5", "visitor_form_def_5",
+        "home_form_margin_5", "visitor_form_margin_5", "form_margin_diff",
         "home_games_last3", "visitor_games_last3",
         "home_games_last5", "visitor_games_last5",
+        "home_games_last7", "visitor_games_last7",
         "home_3in4", "visitor_3in4",
         "home_4in6", "visitor_4in6",
+        "home_season_game_number", "visitor_season_game_number",
+        "season_game_number_diff", "season_day_number", "season_progress",
+        "rest_advantage",
     ]
     
     advanced_features = [
