@@ -1,0 +1,5 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-04-19,2026-04-19T17:10:00Z,Boston Celtics,Philadelphia 76ers,-558.7960722779031,558.7960722779029,-12.5,12.5,-110,-110,213.5,100.74385138573662,-100.74385138573662,10,10,9,7,oddsapi_consensus
+2026-04-19,2026-04-20T01:10:00Z,San Antonio Spurs,Portland Trail Blazers,-421.44363682926576,421.44363682926587,-11.0,11.0,-110,-110,222.0,-100.21226915729144,100.21226915729144,10,10,6,6,oddsapi_consensus
+2026-04-19,2026-04-19T22:40:00Z,Detroit Pistons,Orlando Magic,-305.19902480147306,305.19902480147294,-8.5,8.5,-115,-105,218.0,-100.0,-100.0,10,10,10,5,oddsapi_consensus
+2026-04-19,2026-04-19T19:40:00Z,Oklahoma City Thunder,Phoenix Suns,-591.5502198637644,591.5502198637637,-13.5,13.5,-110,-110,215.5,-100.0,-100.0,9,9,5,7,oddsapi_consensus
