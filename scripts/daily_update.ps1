@@ -594,6 +594,45 @@ function Get-DateScopedManagedRemoteArtifacts {
   return @($paths | Sort-Object -Unique)
 }
 
+function Get-DateScopedManagedRenderArtifacts {
+  param(
+    [string]$TargetDate,
+    [string]$BaseUrl
+  )
+
+  if ([string]::IsNullOrWhiteSpace($TargetDate) -or [string]::IsNullOrWhiteSpace($BaseUrl)) {
+    return [pscustomobject]@{ Success = $false; Items = @() }
+  }
+
+  $base = $BaseUrl.TrimEnd('/')
+  $patterns = @(
+    "*_$TargetDate.csv",
+    "*_$TargetDate.json",
+    "smart_sim_${TargetDate}_*.json",
+    "daily_artifacts_${TargetDate}.json"
+  )
+
+  $items = @()
+  foreach ($pattern in $patterns) {
+    try {
+      $uri = "{0}/api/list/processed?pattern={1}" -f $base, [System.Uri]::EscapeDataString($pattern)
+      $resp = Invoke-RestMethod -Uri $uri -Method Get -TimeoutSec 30
+      foreach ($item in @($resp.items)) {
+        $name = [string]$item.name
+        if ([string]::IsNullOrWhiteSpace($name)) { continue }
+        if (Test-ManagedProcessedArtifactName -Name $name) {
+          $items += $name
+        }
+      }
+    } catch {
+      Write-Log ("Render sync: failed to list artifacts for {0} with pattern {1}: {2}" -f $TargetDate, $pattern, $_.Exception.Message)
+      return [pscustomobject]@{ Success = $false; Items = @() }
+    }
+  }
+
+  return [pscustomobject]@{ Success = $true; Items = @($items | Sort-Object -Unique) }
+}
+
 function Restore-ManagedArtifactsFromRemote {
   param(
     [string[]]$RemotePaths,
@@ -621,6 +660,44 @@ function Restore-ManagedArtifactsFromRemote {
     }
     [System.IO.File]::WriteAllText($dest, $content, [System.Text.UTF8Encoding]::new($false))
   }
+}
+
+function Restore-ManagedArtifactsFromRender {
+  param(
+    [string[]]$Names,
+    [string]$BaseUrl
+  )
+
+  if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
+    return 0
+  }
+
+  $base = $BaseUrl.TrimEnd('/')
+  $restored = 0
+  foreach ($name in @($Names)) {
+    if ([string]::IsNullOrWhiteSpace($name)) { continue }
+
+    $dest = Join-Path $RepoRoot (Join-Path 'data\processed' $name)
+    $destDir = Split-Path -Parent $dest
+    if (-not (Test-Path $destDir)) {
+      New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+    }
+
+    $tmp = [System.IO.Path]::GetTempFileName()
+    try {
+      $uri = "{0}/api/processed/download?name={1}" -f $base, [System.Uri]::EscapeDataString($name)
+      Invoke-WebRequest -Uri $uri -Method Get -OutFile $tmp -TimeoutSec 60 | Out-Null
+      Move-Item -Path $tmp -Destination $dest -Force
+      $restored += 1
+    } catch {
+      if (Test-Path $tmp) {
+        Remove-Item -Path $tmp -Force -ErrorAction SilentlyContinue
+      }
+      Write-Log ("Render sync: failed to download {0}: {1}" -f $name, $_.Exception.Message)
+    }
+  }
+
+  return $restored
 }
 
 function Sync-DateScopedManagedArtifactsFromRemote {
@@ -658,6 +735,46 @@ function Sync-DateScopedManagedArtifactsFromRemote {
 
   Restore-ManagedArtifactsFromRemote -RemotePaths $remotePaths -RemoteRef $remoteRef
   Write-Log ("Git sync: restored {0} managed artifacts for {1} from {2}" -f $remotePaths.Count, $TargetDate, $remoteRef)
+}
+
+function Sync-DateScopedManagedArtifactsFromRender {
+  param(
+    [string]$TargetDate,
+    [string]$BaseUrl
+  )
+
+  if ([string]::IsNullOrWhiteSpace($TargetDate) -or [string]::IsNullOrWhiteSpace($BaseUrl)) {
+    return [pscustomobject]@{ Success = $false; RemoteCount = 0; RestoredCount = 0 }
+  }
+
+  $localFiles = @(Get-DateScopedManagedLocalArtifacts -TargetDate $TargetDate)
+  $renderList = Get-DateScopedManagedRenderArtifacts -TargetDate $TargetDate -BaseUrl $BaseUrl
+  if (-not $renderList.Success) {
+    return [pscustomobject]@{ Success = $false; RemoteCount = 0; RestoredCount = 0 }
+  }
+
+  $remoteNames = @($renderList.Items)
+  if ($localFiles.Count -eq 0 -and $remoteNames.Count -eq 0) {
+    Write-Log ("Render sync: no managed date-scoped artifacts found locally or on Render for {0}" -f $TargetDate)
+    return [pscustomobject]@{ Success = $true; RemoteCount = 0; RestoredCount = 0 }
+  }
+
+  foreach ($file in $localFiles) {
+    try {
+      Remove-Item -Path $file.FullName -Force -ErrorAction Stop
+    } catch {
+      Write-Log ("Render sync: failed to remove local artifact {0}: {1}" -f $file.FullName, $_.Exception.Message)
+    }
+  }
+
+  if ($remoteNames.Count -le 0) {
+    Write-Log ("Render sync: cleared local managed artifacts for {0}; none exist on Render" -f $TargetDate)
+    return [pscustomobject]@{ Success = $true; RemoteCount = 0; RestoredCount = 0 }
+  }
+
+  $restored = Restore-ManagedArtifactsFromRender -Names $remoteNames -BaseUrl $BaseUrl
+  Write-Log ("Render sync: restored {0}/{1} managed artifacts for {2} from {3}" -f $restored, $remoteNames.Count, $TargetDate, $BaseUrl)
+  return [pscustomobject]@{ Success = $true; RemoteCount = $remoteNames.Count; RestoredCount = $restored }
 }
 
 # Load .env (if present) into the current PowerShell process environment so child Python sees keys (e.g., ODDS_API_KEY)
@@ -866,7 +983,13 @@ if ($GitSyncFirst) {
       if (-not $didFastForwardPull) {
         $syncDates = @(Get-DailyManagedSyncDates -BaseDate $Date -FutureDays $LookAheadDays)
         foreach ($syncDate in $syncDates) {
-          Sync-DateScopedManagedArtifactsFromRemote -TargetDate $syncDate -Remote 'origin' -Branch 'main'
+          $renderSync = $null
+          if (-not [string]::IsNullOrWhiteSpace($RemoteBaseUrl)) {
+            $renderSync = Sync-DateScopedManagedArtifactsFromRender -TargetDate $syncDate -BaseUrl $RemoteBaseUrl
+          }
+          if ($null -eq $renderSync -or -not $renderSync.Success) {
+            Sync-DateScopedManagedArtifactsFromRemote -TargetDate $syncDate -Remote 'origin' -Branch 'main'
+          }
         }
       }
     }

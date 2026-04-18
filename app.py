@@ -3489,6 +3489,7 @@ def _enforce_minimal_ui_allowlist():
             "/api/cards-v2",
             "/api/cards/sim-detail",
             "/api/cards/props-strip",
+            "/api/processed/download",
             "/api/betting-card",
             "/api/betting-card/recap",
             "/api/betting-recap",
@@ -5688,6 +5689,55 @@ def _add_cache_headers(resp, seconds: int = 60):
         pass
     return resp
 
+
+def _is_managed_processed_artifact_name(name: str) -> bool:
+    try:
+        candidate = Path(str(name or "").strip()).name
+        if not candidate or candidate != str(name or "").strip():
+            return False
+        if "/" in candidate or "\\" in candidate or ".." in candidate:
+            return False
+        if not (candidate.endswith(".csv") or candidate.endswith(".json")):
+            return False
+        allowed_prefixes = (
+            "predictions_",
+            "recommendations_",
+            "cards_props_snapshot_",
+            "cards_sim_detail_",
+            "recon_games_",
+            "recon_quarters_",
+            "recon_props_",
+            "recon_players_",
+            "boxscores_",
+            "boxscore_",
+            "pbp_reconcile_",
+            "tip_winner_probs_",
+            "first_basket_probs_",
+            "first_basket_recs_",
+            "early_threes_",
+            "pbp_metrics_daily_",
+            "finals_",
+            "closing_lines_",
+            "market_",
+            "odds_",
+            "game_odds_",
+            "period_lines_",
+            "game_cards_",
+            "games_predictions_npu_",
+            "oddsapi_player_props_",
+            "props_edges_",
+            "props_predictions_",
+            "props_recommendations_",
+            "live_player_lens_tuning_",
+            "smart_sim_",
+            "daily_artifacts_",
+            "injuries_counts_",
+            "league_status_",
+        )
+        return any(candidate.startswith(prefix) for prefix in allowed_prefixes)
+    except Exception:
+        return False
+
 @app.route("/api/list/processed")
 def api_list_processed():
     """List files in data/processed matching a glob pattern.
@@ -5713,6 +5763,26 @@ def api_list_processed():
                 except Exception:
                     continue
         resp = jsonify({"pattern": pat, "count": len(items), "items": items})
+        return _add_cache_headers(resp, seconds=30)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/processed/download")
+def api_processed_download():
+    """Serve a managed processed artifact by exact basename.
+
+    Query params:
+      - name: exact file name under data/processed
+    """
+    try:
+        name = (request.args.get("name") or "").strip()
+        if not _is_managed_processed_artifact_name(name):
+            return jsonify({"error": "not found"}), 404
+        fp = DATA_PROCESSED_DIR / name
+        if not fp.exists() or not fp.is_file():
+            return jsonify({"error": "not found"}), 404
+        resp = send_from_directory(str(DATA_PROCESSED_DIR), name, as_attachment=False)
         return _add_cache_headers(resp, seconds=30)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
