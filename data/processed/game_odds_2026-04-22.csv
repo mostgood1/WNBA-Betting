@@ -1,3 +1,3 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-04-22,2026-04-23T01:40:00Z,Oklahoma City Thunder,Phoenix Suns,-1097.5512583299103,1097.551258329909,-17.0,17.0,-110,-110,215.0,-101.55732331874736,101.55732331874741,10,10,6,6,oddsapi_consensus
-2026-04-22,2026-04-22T23:00:00Z,Detroit Pistons,Orlando Magic,-359.94913037436817,359.94913037436805,-9.5,9.5,-110,-110,218.5,100.38580991145663,-100.38580991145663,10,10,9,9,oddsapi_consensus
+2026-04-22,2026-04-23T01:40:00Z,Oklahoma City Thunder,Phoenix Suns,-1058.030114068588,1058.0301140685883,-17.0,17.0,-110,-110,215.5,-100.16434191335071,100.16434191335073,11,11,8,11,oddsapi_consensus
+2026-04-22,2026-04-22T23:10:00Z,Detroit Pistons,Orlando Magic,-324.2620816574218,324.26208165742196,-8.5,8.5,-115,-105,218.5,100.50914783865888,-100.50914783865888,11,11,9,11,oddsapi_consensus
