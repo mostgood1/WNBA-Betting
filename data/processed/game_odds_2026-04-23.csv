@@ -1,0 +1,4 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-04-23,2026-04-23T23:10:00Z,Atlanta Hawks,New York Knicks,100.54869149677957,-100.54869149677957,-1.0,1.0,-110,-110,216.5,101.23050116071995,-101.23050116071992,8,8,3,6,oddsapi_consensus
+2026-04-23,2026-04-24T00:10:00Z,Toronto Raptors,Cleveland Cavaliers,137.86678620272252,-137.86678620272255,3.0,-3.0,-110,-110,219.5,100.34698126301178,-100.34698126301178,10,10,8,5,oddsapi_consensus
+2026-04-23,2026-04-24T01:30:00Z,Minnesota Timberwolves,Denver Nuggets,122.45529662644462,-122.45529662644466,2.0,-2.0,-105,-115,234.0,-100.0,-100.0,10,10,5,4,oddsapi_consensus
