@@ -182,6 +182,13 @@ class GameTotalAdjParams:
     pace_cap_points: float
     eff_cap_points: float
     min_elapsed_min: float
+    endgame_min_sec_left: float
+    endgame_min_abs_margin: float
+    endgame_max_abs_margin: float
+    endgame_max_abs_points: float
+    endgame_points_at_full_intensity: float
+    endgame_under_edge_reversion_frac: float
+    endgame_under_edge_reversion_cap_points: float
 
 
 def _apply_adjustment(
@@ -192,6 +199,8 @@ def _apply_adjustment(
     exp_home_pace: float | None,
     exp_away_pace: float | None,
     elapsed_min: float | None,
+    remaining_min: float | None,
+    margin_home: float | None,
     p: GameTotalAdjParams,
 ) -> float:
     # Mirrors the frontend `adjustGameTotalDiffWithContext()` logic:
@@ -237,8 +246,36 @@ def _apply_adjustment(
         eff_pen = _clamp(float(eff_points) * float(p.eff_weight), -float(p.eff_cap_points), float(p.eff_cap_points))
 
     if rd > 0.5:
-        return rd + max(0.0, pace_boost) - max(0.0, eff_pen)
-    return rd - max(0.0, -pace_boost) + max(0.0, -eff_pen)
+        adj = rd + max(0.0, pace_boost) - max(0.0, eff_pen)
+    else:
+        adj = rd - max(0.0, -pace_boost) + max(0.0, -eff_pen)
+
+    if remaining_min is not None and margin_home is not None:
+        sec_left = float(max(0.0, remaining_min) * 60.0)
+        abs_margin = abs(float(margin_home))
+        if (
+            sec_left <= float(p.endgame_min_sec_left)
+            and abs_margin >= float(p.endgame_min_abs_margin)
+            and abs_margin <= float(p.endgame_max_abs_margin)
+        ):
+            margin_span = max(1.0, float(p.endgame_max_abs_margin) - float(p.endgame_min_abs_margin))
+            time_weight = _clamp(1.0 - (sec_left / max(1.0, float(p.endgame_min_sec_left))), 0.0, 1.0)
+            margin_weight = _clamp(1.0 - ((abs_margin - float(p.endgame_min_abs_margin)) / margin_span), 0.0, 1.0)
+            intensity = float(time_weight * margin_weight)
+            foul_adj = _clamp(
+                float(p.endgame_points_at_full_intensity) * intensity,
+                -float(p.endgame_max_abs_points),
+                float(p.endgame_max_abs_points),
+            )
+            adj = float(adj + foul_adj)
+            if adj < 0.0:
+                reversion = min(
+                    abs(float(adj)) * max(0.0, float(p.endgame_under_edge_reversion_frac)),
+                    max(0.0, float(p.endgame_under_edge_reversion_cap_points)),
+                )
+                adj = float(adj + reversion)
+
+    return float(adj)
 
 
 def _candidate_grid(
@@ -261,6 +298,13 @@ def _candidate_grid(
                                 pace_cap_points=float(c1),
                                 eff_cap_points=float(c2),
                                 min_elapsed_min=float(me),
+                                endgame_min_sec_left=180.0,
+                                endgame_min_abs_margin=1.0,
+                                endgame_max_abs_margin=12.0,
+                                endgame_max_abs_points=6.0,
+                                endgame_points_at_full_intensity=6.0,
+                                endgame_under_edge_reversion_frac=0.5,
+                                endgame_under_edge_reversion_cap_points=4.0,
                             )
                         )
     return out
@@ -273,6 +317,11 @@ def main() -> int:
     ap.add_argument("--bet-threshold", type=float, default=6.0, help="Absolute adjusted edge required to bet")
     ap.add_argument("--juice", type=float, default=110.0, help="Assumed juice for ROI calc (e.g. 110 for -110)")
     ap.add_argument("--min-bets", type=int, default=25, help="Minimum bets required for a candidate to be considered")
+    ap.add_argument(
+        "--focus-endgame",
+        action="store_true",
+        help="Restrict optimization to late close-game total snapshots (remaining<=3, abs margin 1..12).",
+    )
     ap.add_argument(
         "--out",
         type=str,
@@ -391,6 +440,8 @@ def main() -> int:
                 "exp_home_pace": _to_float(ctx.get("exp_home_pace")),
                 "exp_away_pace": _to_float(ctx.get("exp_away_pace")),
                 "elapsed_min": _to_float(ctx.get("elapsed_min")) if _to_float(ctx.get("elapsed_min")) is not None else _to_float(rec.get("elapsed")),
+                "remaining_min": _to_float(rec.get("remaining")) if _to_float(rec.get("remaining")) is not None else _to_float(ctx.get("remaining")),
+                "margin_home": _to_float(rec.get("margin_home")),
             }
         )
 
@@ -413,6 +464,27 @@ def main() -> int:
         return 0
 
     df = pd.DataFrame.from_records(records)
+
+    if bool(args.focus_endgame):
+        rem = pd.to_numeric(df.get("remaining_min"), errors="coerce")
+        margin = pd.to_numeric(df.get("margin_home"), errors="coerce").abs()
+        df = df[(rem.notna()) & (margin.notna()) & (rem <= 3.0) & (margin >= 1.0) & (margin <= 12.0)].copy()
+
+    if df.empty:
+        print(
+            json.dumps(
+                {
+                    "ok": True,
+                    "rows": 0,
+                    "note": "No rows after optional focus filter",
+                    "focus_endgame": bool(args.focus_endgame),
+                    "present_signal_days": present_signal_days,
+                    "missing_signal_days": missing_signal_days,
+                },
+                indent=2,
+            )
+        )
+        return 0
 
     bet_thr = float(args.bet_threshold)
     min_bets = int(args.min_bets)
@@ -447,13 +519,45 @@ def main() -> int:
     base = _eval_from_edges(df["edge_adj_logged"].to_numpy(dtype=float))
 
     # Candidate search space (intentionally small; expand once we have more signal volume)
-    grid = _candidate_grid(
-        pace_ws=[0.0, 0.1, 0.25, 0.4],
-        eff_ws=[0.0, 0.1, 0.25, 0.4],
-        pace_caps=[1.5, 3.0, 4.5],
-        eff_caps=[2.0, 4.0, 6.0],
-        min_elapsed_mins=[0.0, 3.0, 6.0, 9.0],
-    )
+    if bool(args.focus_endgame):
+        grid = _candidate_grid(
+            pace_ws=[0.0, 0.1, 0.25],
+            eff_ws=[0.0, 0.1, 0.25],
+            pace_caps=[1.5, 3.0],
+            eff_caps=[2.0, 4.0],
+            min_elapsed_mins=[0.0, 3.0, 6.0],
+        )
+        expanded_grid: list[GameTotalAdjParams] = []
+        for p in grid:
+            for endgame_sec in [120.0, 180.0]:
+                for points_full in [3.0, 4.5, 6.0]:
+                    for revert_frac in [0.2, 0.35, 0.5]:
+                        for revert_cap in [1.5, 2.5, 4.0]:
+                            expanded_grid.append(
+                                GameTotalAdjParams(
+                                    pace_weight=p.pace_weight,
+                                    eff_weight=p.eff_weight,
+                                    pace_cap_points=p.pace_cap_points,
+                                    eff_cap_points=p.eff_cap_points,
+                                    min_elapsed_min=p.min_elapsed_min,
+                                    endgame_min_sec_left=endgame_sec,
+                                    endgame_min_abs_margin=1.0,
+                                    endgame_max_abs_margin=12.0,
+                                    endgame_max_abs_points=points_full,
+                                    endgame_points_at_full_intensity=points_full,
+                                    endgame_under_edge_reversion_frac=revert_frac,
+                                    endgame_under_edge_reversion_cap_points=revert_cap,
+                                )
+                            )
+        grid = expanded_grid
+    else:
+        grid = _candidate_grid(
+            pace_ws=[0.0, 0.1, 0.25, 0.4],
+            eff_ws=[0.0, 0.1, 0.25, 0.4],
+            pace_caps=[1.5, 3.0, 4.5],
+            eff_caps=[2.0, 4.0, 6.0],
+            min_elapsed_mins=[0.0, 3.0, 6.0, 9.0],
+        )
 
     best: dict[str, Any] | None = None
     best_key: tuple[float, float, int] | None = None
@@ -466,6 +570,8 @@ def main() -> int:
     hpace = df["exp_home_pace"].to_numpy(dtype=float, copy=True)
     apace = df["exp_away_pace"].to_numpy(dtype=float, copy=True)
     elapsed = df["elapsed_min"].to_numpy(dtype=float, copy=True)
+    remaining = df["remaining_min"].to_numpy(dtype=float, copy=True)
+    margin_home = df["margin_home"].to_numpy(dtype=float, copy=True)
 
     # Treat NaNs as missing
     pace_ratio[~np.isfinite(pace_ratio)] = np.nan
@@ -473,6 +579,8 @@ def main() -> int:
     hpace[~np.isfinite(hpace)] = np.nan
     apace[~np.isfinite(apace)] = np.nan
     elapsed[~np.isfinite(elapsed)] = np.nan
+    remaining[~np.isfinite(remaining)] = np.nan
+    margin_home[~np.isfinite(margin_home)] = np.nan
 
     for p in grid:
         # Compute candidate adjusted edge for each logged snapshot.
@@ -483,6 +591,8 @@ def main() -> int:
             hp = None if not np.isfinite(hpace[i]) else float(hpace[i])
             ap = None if not np.isfinite(apace[i]) else float(apace[i])
             el = None if not np.isfinite(elapsed[i]) else float(elapsed[i])
+            rm = None if not np.isfinite(remaining[i]) else float(remaining[i])
+            mh = None if not np.isfinite(margin_home[i]) else float(margin_home[i])
             adj[i] = _apply_adjustment(
                 raw_diff=float(raw[i]),
                 line_total=float(line[i]),
@@ -491,6 +601,8 @@ def main() -> int:
                 exp_home_pace=hp,
                 exp_away_pace=ap,
                 elapsed_min=el,
+                remaining_min=rm,
+                margin_home=mh,
                 p=p,
             )
 
@@ -513,6 +625,13 @@ def main() -> int:
                     "pace_cap_points": float(p.pace_cap_points),
                     "eff_cap_points": float(p.eff_cap_points),
                     "min_elapsed_min": float(p.min_elapsed_min),
+                    "endgame_min_sec_left": float(p.endgame_min_sec_left),
+                    "endgame_min_abs_margin": float(p.endgame_min_abs_margin),
+                    "endgame_max_abs_margin": float(p.endgame_max_abs_margin),
+                    "endgame_max_abs_points": float(p.endgame_max_abs_points),
+                    "endgame_points_at_full_intensity": float(p.endgame_points_at_full_intensity),
+                    "endgame_under_edge_reversion_frac": float(p.endgame_under_edge_reversion_frac),
+                    "endgame_under_edge_reversion_cap_points": float(p.endgame_under_edge_reversion_cap_points),
                 },
                 **metrics,
             }
@@ -530,6 +649,7 @@ def main() -> int:
             "juice": float(args.juice),
             "bet_threshold": float(args.bet_threshold),
             "min_bets": int(args.min_bets),
+            "focus_endgame": bool(args.focus_endgame),
             "note": "This simulates which bets would have fired from logged snapshots (WATCH+BET), and counts at most one bet per game (earliest qualifying snapshot) to avoid overcounting repeated logs.",
         },
         "best": best,
@@ -563,9 +683,27 @@ def main() -> int:
         adj = dict(adj)
         adj["game_total"] = {
             "enabled": True,
-            **best["params"],
+            **{
+                key: best["params"][key]
+                for key in ["pace_weight", "eff_weight", "pace_cap_points", "eff_cap_points", "min_elapsed_min"]
+            },
         }
         override["adjustments"] = adj
+
+        existing_endgame = override.get("endgame_foul")
+        if not isinstance(existing_endgame, dict):
+            existing_endgame = {}
+        override["endgame_foul"] = {
+            **existing_endgame,
+            "enabled": True,
+            "min_sec_left": float(best["params"].get("endgame_min_sec_left", 180.0)),
+            "min_abs_margin": float(best["params"].get("endgame_min_abs_margin", 1.0)),
+            "max_abs_margin": float(best["params"].get("endgame_max_abs_margin", 12.0)),
+            "max_abs_points": float(best["params"].get("endgame_max_abs_points", 6.0)),
+            "points_at_full_intensity": float(best["params"].get("endgame_points_at_full_intensity", 6.0)),
+            "under_edge_reversion_frac": float(best["params"].get("endgame_under_edge_reversion_frac", 0.5)),
+            "under_edge_reversion_cap_points": float(best["params"].get("endgame_under_edge_reversion_cap_points", 4.0)),
+        }
 
         override["trained"] = {
             "window": {"start": start.isoformat(), "end": end.isoformat()},

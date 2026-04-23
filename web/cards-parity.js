@@ -545,6 +545,7 @@
       ml: marketThreshold('ml', 0.03, 0.06),
       adjustments: tuning?.adjustments || {},
       recentWindow: tuning?.recent_window || {},
+      endgameFoul: tuning?.endgame_foul || {},
     };
   }
 
@@ -890,13 +891,57 @@
         projection += recentAdj;
       }
 
-      const edge = projection - lineTotal;
+      let edge = projection - lineTotal;
+      const endgameCfg = thresholds.endgameFoul || {};
+      const endgameEnabled = endgameCfg?.enabled !== false;
+      const endgameSecLeft = Number.isFinite(remainingMinutes) ? remainingMinutes * 60 : null;
+      const endgameMinSec = Number(endgameCfg?.min_sec_left);
+      const endgameMinMargin = Number(endgameCfg?.min_abs_margin);
+      const endgameMaxMargin = Number(endgameCfg?.max_abs_margin);
+      const inEndgameWindow = endgameEnabled
+        && Number.isFinite(currentPeriod) && currentPeriod >= 4
+        && Number.isFinite(endgameSecLeft)
+        && Number.isFinite(currentMargin)
+        && Number.isFinite(endgameMinSec)
+        && endgameSecLeft <= endgameMinSec
+        && Math.abs(currentMargin) >= (Number.isFinite(endgameMinMargin) ? endgameMinMargin : 1)
+        && Math.abs(currentMargin) <= (Number.isFinite(endgameMaxMargin) ? endgameMaxMargin : 12);
+      let endgameAdj = 0;
+      let endgameReversion = 0;
+      if (inEndgameWindow) {
+        const maxAbsPoints = Number(endgameCfg?.max_abs_points);
+        const pointsAtFullIntensity = Number(endgameCfg?.points_at_full_intensity);
+        const minMargin = Number.isFinite(endgameMinMargin) ? endgameMinMargin : 1;
+        const maxMargin = Number.isFinite(endgameMaxMargin) ? endgameMaxMargin : 12;
+        const marginSpan = Math.max(1, maxMargin - minMargin);
+        const timeWeight = clampNumber(1 - (endgameSecLeft / Math.max(1, endgameMinSec)), 0, 1);
+        const marginWeight = clampNumber(1 - ((Math.abs(currentMargin) - minMargin) / marginSpan), 0, 1);
+        const intensity = timeWeight * marginWeight;
+        const rawAdj = (Number.isFinite(pointsAtFullIntensity) ? pointsAtFullIntensity : 6) * intensity;
+        const adjCap = Number.isFinite(maxAbsPoints) ? maxAbsPoints : 6;
+        endgameAdj = clampNumber(rawAdj, -adjCap, adjCap);
+        projection += endgameAdj;
+        edge = projection - lineTotal;
+
+        if (edge < 0) {
+          const reversionFrac = Number(endgameCfg?.under_edge_reversion_frac);
+          const reversionCap = Number(endgameCfg?.under_edge_reversion_cap_points);
+          const frac = Number.isFinite(reversionFrac) ? reversionFrac : 0.5;
+          const cap = Number.isFinite(reversionCap) ? reversionCap : 4;
+          endgameReversion = Math.min(Math.abs(edge) * Math.max(0, frac), Math.max(0, cap));
+          edge += endgameReversion;
+        }
+      }
+
       const side = edge > 1 ? 'Over' : (edge < -1 ? 'Under' : 'No edge');
       const klass = Number.isFinite(totalGate) && elapsedForRate < totalGate
         ? 'WAIT'
         : classifyLens(Math.abs(edge), thresholds.total.watch, thresholds.total.bet);
       const priorDetail = Number.isFinite(pregameTotal) ? `Prior ${fmtNumber(pregameTotal, 1)}` : null;
-      totalSignal = buildSignal('total', 'G', klass, side, edge, lineTotal, projection, [priorDetail, `Total ${fmtInteger(currentTotal)}`].filter(Boolean).join(' · '));
+      const endgameDetail = inEndgameWindow
+        ? `Endgame ${fmtSigned(endgameAdj - endgameReversion, 1)}`
+        : null;
+      totalSignal = buildSignal('total', 'G', klass, side, edge, lineTotal, projection, [priorDetail, `Total ${fmtInteger(currentTotal)}`, endgameDetail].filter(Boolean).join(' · '));
       totalSignal.score = signalScore(Math.abs(edge), thresholds.total.bet);
     }
 
