@@ -3545,6 +3545,7 @@ def _enforce_minimal_ui_allowlist():
             "/api/upload_live_lens_tuning",
             "/api/download_live_lens_adjustments_optimized",
             "/api/upload_live_lens_adjustments_optimized",
+            "/api/cron/live-lens-artifact",
             "/api/live_player_boxscore",
             "/api/live_player_lens",
         }
@@ -38426,6 +38427,40 @@ def _send_artifact_path(fp: Path):
     return send_file(str(fp), as_attachment=True, download_name=fp.name)
 
 
+def _cron_live_lens_artifact_path(kind: str, ds: str | None) -> Path | None:
+    kind_norm = str(kind or "").strip().lower()
+    date_norm = str(ds or "").strip()
+
+    reports_dir = DATA_PROCESSED_DIR / "reports"
+    dated_reports = {
+        "audit_md": "live_lens_audit_{date}.md",
+        "audit_csv": "live_lens_scored_{date}.csv",
+        "roi_md": "live_lens_roi_{date}.md",
+        "roi_csv": "live_lens_roi_scored_{date}.csv",
+    }
+    dated_processed = {
+        "recon_games": "recon_games_{date}.csv",
+        "recon_quarters": "recon_quarters_{date}.csv",
+        "recon_players": "recon_players_{date}.csv",
+        "recon_props": "recon_props_{date}.csv",
+    }
+    static_reports = {
+        "driver_rollup": reports_dir / "live_lens_driver_tag_rollup.md",
+    }
+
+    if kind_norm in dated_reports:
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date_norm):
+            return None
+        return reports_dir / dated_reports[kind_norm].format(date=date_norm)
+
+    if kind_norm in dated_processed:
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date_norm):
+            return None
+        return DATA_PROCESSED_DIR / dated_processed[kind_norm].format(date=date_norm)
+
+    return static_reports.get(kind_norm)
+
+
 def _write_processed_artifact(filename: str, raw: bytes) -> tuple[bool, str]:
     base = _live_lens_artifacts_dir()
     base.mkdir(parents=True, exist_ok=True)
@@ -38588,6 +38623,27 @@ def api_download_live_lens_adjustments_optimized():
         if fp is None:
                 return jsonify({"ok": False, "error": "missing", "file": requested or "latest"}), 404
         return _send_artifact_path(fp)
+
+
+@app.route("/api/cron/live-lens-artifact", methods=["GET"])
+def api_cron_live_lens_artifact():
+    """Download a private Live Lens report or recon artifact.
+
+    Auth: CRON_TOKEN or ADMIN_KEY.
+    Query params:
+      - kind: one of audit_md, audit_csv, roi_md, roi_csv, driver_rollup,
+              recon_games, recon_quarters, recon_players, recon_props
+      - date: YYYY-MM-DD for dated artifacts
+    """
+    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+        return jsonify({"error": "unauthorized"}), 401
+
+    kind = str(request.args.get("kind") or "").strip().lower()
+    ds = str(request.args.get("date") or "").strip()
+    fp = _cron_live_lens_artifact_path(kind, ds)
+    if fp is None:
+        return jsonify({"error": "invalid artifact request", "kind": kind or None, "date": ds or None}), 400
+    return _send_artifact_path(fp)
 
 
 @app.route("/api/upload_live_lens_signals", methods=["POST"])
