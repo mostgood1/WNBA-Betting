@@ -1455,6 +1455,7 @@ body.cards-app-shell .toggle-chip input {
 .cards-live-opportunity-list {
   display: grid;
   gap: 4px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-live-lens-tile {
@@ -1462,6 +1463,10 @@ body.cards-app-shell .toggle-chip input {
   padding: 6px 7px;
   border-radius: 10px;
   gap: 3px;
+}
+
+.cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-live-opportunity-list {
+  align-items: stretch;
 }
 
 .cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-live-lens-tile__edge {
@@ -1491,6 +1496,12 @@ body.cards-app-shell .toggle-chip input {
 
 .cards-overview-grid > .cards-panel-card:first-child .cards-live-opportunity-stack .cards-market-kicker {
   letter-spacing: 0.08em;
+}
+
+@media (max-width: 900px) {
+  .cards-live-opportunity-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .cards-live-lens-tile {

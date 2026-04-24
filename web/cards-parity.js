@@ -576,6 +576,13 @@
         return q1 + q2;
       }
     }
+    if (periodKey === 'h2') {
+      const q3 = Number(periods?.q3?.total_mean);
+      const q4 = Number(periods?.q4?.total_mean);
+      if (Number.isFinite(q3) && Number.isFinite(q4)) {
+        return q3 + q4;
+      }
+    }
     return null;
   }
 
@@ -592,11 +599,13 @@
 
   function halfTotalSoFar(liveState, pbpStats) {
     const currentPeriod = Number(liveState?.period);
-    if (!Number.isFinite(currentPeriod) || currentPeriod > 2) {
+    if (!Number.isFinite(currentPeriod) || currentPeriod < 1 || currentPeriod > 4) {
       return null;
     }
     const q1 = livePeriodTotalFromLinescore(liveState, 1);
     const q2Linescore = livePeriodTotalFromLinescore(liveState, 2);
+    const q3 = livePeriodTotalFromLinescore(liveState, 3);
+    const q4Linescore = livePeriodTotalFromLinescore(liveState, 4);
     const currentQuarter = Number(pbpStats?.pbp_quarters?.current?.q_total);
     if (currentPeriod === 1) {
       return Number(currentQuarter);
@@ -604,6 +613,13 @@
     if (currentPeriod === 2) {
       const secondQuarter = Number.isFinite(currentQuarter) ? currentQuarter : q2Linescore;
       return Number.isFinite(q1) && Number.isFinite(secondQuarter) ? q1 + secondQuarter : null;
+    }
+    if (currentPeriod === 3) {
+      return Number(currentQuarter);
+    }
+    if (currentPeriod === 4) {
+      const fourthQuarter = Number.isFinite(currentQuarter) ? currentQuarter : q4Linescore;
+      return Number.isFinite(q3) && Number.isFinite(fourthQuarter) ? q3 + fourthQuarter : null;
     }
     return null;
   }
@@ -670,36 +686,26 @@
   }
 
   function featuredSignalSelection(signals) {
-    const ranked = rankSignals(signals).filter((signal) => signal?.klass === 'BET' || signal?.klass === 'WATCH');
-    if (!ranked.length) {
-      return [null, null, null, null, null, null];
+    const signalMap = safeObjectFromEntries(safeArray(signals).filter(Boolean).map((signal) => [String(signal.key || ''), signal]));
+    return [
+      { sliceLabel: 'Current period', marketLabel: 'ML', signal: signalMap.quarter_ml || null },
+      { sliceLabel: 'Current period', marketLabel: 'ATS', signal: signalMap.quarter_ats || null },
+      { sliceLabel: 'Current period', marketLabel: 'Total', signal: signalMap.quarter_total || null },
+      { sliceLabel: 'Current half', marketLabel: 'ML', signal: signalMap.half_ml || null },
+      { sliceLabel: 'Current half', marketLabel: 'ATS', signal: signalMap.half_ats || null },
+      { sliceLabel: 'Current half', marketLabel: 'Total', signal: signalMap.half_total || null },
+      { sliceLabel: 'Full game', marketLabel: 'ML', signal: signalMap.ml || null },
+      { sliceLabel: 'Full game', marketLabel: 'ATS', signal: signalMap.ats || null },
+      { sliceLabel: 'Full game', marketLabel: 'Total', signal: signalMap.total || null },
+    ];
+  }
+
+  function safeObjectFromEntries(entries) {
+    try {
+      return Object.fromEntries(entries || []);
+    } catch (_error) {
+      return {};
     }
-
-    const selected = [];
-    const selectedKeys = new Set();
-    const requiredLanes = ['ml', 'ats', 'total'];
-
-    requiredLanes.forEach((lane) => {
-      const signal = ranked.find((entry) => signalLaneKey(entry) === lane && !selectedKeys.has(entry?.key));
-      if (signal) {
-        selected.push(signal);
-        selectedKeys.add(signal.key);
-      } else {
-        selected.push(null);
-      }
-    });
-
-    while (selected.length < 6) {
-      const wildcard = ranked.find((entry) => !selectedKeys.has(entry?.key));
-      if (!wildcard) {
-        selected.push(null);
-        continue;
-      }
-      selected.push(wildcard);
-      selectedKeys.add(wildcard.key);
-    }
-
-    return selected;
   }
 
   function completedMarginBeforePeriod(liveState, beforePeriod) {
@@ -735,6 +741,13 @@
       const q2 = Number(periods?.q2?.margin_mean);
       if (Number.isFinite(q1) && Number.isFinite(q2)) {
         return q1 + q2;
+      }
+    }
+    if (periodKey === 'h2') {
+      const q3 = Number(periods?.q3?.margin_mean);
+      const q4 = Number(periods?.q4?.margin_mean);
+      if (Number.isFinite(q3) && Number.isFinite(q4)) {
+        return q3 + q4;
       }
     }
     return null;
@@ -813,6 +826,10 @@
     const currentQuarterKey = Number.isFinite(currentPeriod) && currentPeriod >= 1 && currentPeriod <= 4
       ? `q${Math.floor(currentPeriod)}`
       : null;
+    const currentHalfKey = Number.isFinite(currentPeriod) && currentPeriod >= 1 && currentPeriod <= 4
+      ? (currentPeriod <= 2 ? 'h1' : 'h2')
+      : null;
+    const currentHalfLabel = currentHalfKey === 'h2' ? '2H' : '1H';
     const pregameContext = game?.sim?.context || {};
 
     function bucketForTeam(source, teamTri, sideKey) {
@@ -970,11 +987,13 @@
     }
 
     let halfSignal = null;
-    if (liveState.in_progress && Number.isFinite(currentPeriod) && currentPeriod <= 2) {
-      const halfLine = Number(periodTotals?.h1);
+    if (liveState.in_progress && currentHalfKey) {
+      const halfLine = Number(periodTotals?.[currentHalfKey]);
       const halfActual = halfTotalSoFar(liveState, pbpStats);
-      const halfSim = simPeriodMean(game, 'h1');
-      const halfMinutesElapsed = Number.isFinite(elapsedMinutes) ? elapsedMinutes : null;
+      const halfSim = simPeriodMean(game, currentHalfKey);
+      const halfMinutesElapsed = Number.isFinite(elapsedMinutes)
+        ? (currentHalfKey === 'h2' ? Math.max(0, elapsedMinutes - 24) : elapsedMinutes)
+        : null;
       const halfMinutesRemaining = Number.isFinite(halfMinutesElapsed) ? Math.max(0, 24 - Math.min(24, halfMinutesElapsed)) : null;
       if (Number.isFinite(halfLine) && Number.isFinite(halfActual) && Number.isFinite(halfMinutesElapsed) && Number(halfMinutesRemaining) > 0) {
         const elapsedForRate = Math.max(halfMinutesElapsed, 1);
@@ -987,7 +1006,7 @@
         const edge = projection - halfLine;
         const side = edge > 1 ? 'Over' : (edge < -1 ? 'Under' : 'No edge');
         const klass = classifyLens(Math.abs(edge), thresholds.half_total.watch, thresholds.half_total.bet);
-        halfSignal = buildSignal('half_total', '1H', klass, side, edge, halfLine, projection, `Total ${fmtInteger(halfActual)}`);
+        halfSignal = buildSignal('half_total', currentHalfLabel, klass, side, edge, halfLine, projection, `Total ${fmtInteger(halfActual)}`);
         halfSignal.score = signalScore(Math.abs(edge), thresholds.half_total.bet);
       }
     }
@@ -1019,11 +1038,15 @@
 
     let halfAtsSignal = null;
     let halfMlSignal = null;
-    if (liveState.in_progress && Number.isFinite(currentPeriod) && currentPeriod <= 2) {
-      const halfSpread = Number(liveLines?.lines?.period_spreads?.h1);
-      const actualHalfMargin = Number.isFinite(currentMargin) ? currentMargin : null;
-      const simHalfMargin = simPeriodMargin(game, 'h1');
-      const halfMinutesElapsed = Number.isFinite(elapsedMinutes) ? elapsedMinutes : null;
+    if (liveState.in_progress && currentHalfKey) {
+      const halfSpread = Number(liveLines?.lines?.period_spreads?.[currentHalfKey]);
+      const actualHalfMargin = Number.isFinite(currentMargin)
+        ? (currentHalfKey === 'h2' ? currentMargin - completedMarginBeforePeriod(liveState, 3) : currentMargin)
+        : null;
+      const simHalfMargin = simPeriodMargin(game, currentHalfKey);
+      const halfMinutesElapsed = Number.isFinite(elapsedMinutes)
+        ? (currentHalfKey === 'h2' ? Math.max(0, elapsedMinutes - 24) : elapsedMinutes)
+        : null;
       const halfMinutesRemaining = Number.isFinite(halfMinutesElapsed) ? Math.max(0, 24 - Math.min(24, halfMinutesElapsed)) : null;
       if (Number.isFinite(actualHalfMargin) && Number.isFinite(halfMinutesElapsed) && Number(halfMinutesRemaining) > 0) {
         const blendWeight = clampNumber(halfMinutesElapsed / 24, 0.18, 1);
@@ -1040,11 +1063,11 @@
           const line = pickHome ? halfSpread : -halfSpread;
           const projection = pickHome ? projectedHalfMargin : -projectedHalfMargin;
           const klass = classifyLens(Math.abs(edge), thresholds.ats.watch, thresholds.ats.bet);
-          halfAtsSignal = buildSignal('half_ats', '1H ATS', klass, side, edge, line, projection, `Margin ${fmtSigned(projectedHalfMargin, 1)}`);
+          halfAtsSignal = buildSignal('half_ats', `${currentHalfLabel} ATS`, klass, side, edge, line, projection, `Margin ${fmtSigned(projectedHalfMargin, 1)}`);
           halfAtsSignal.score = signalScore(Math.abs(edge), thresholds.ats.bet);
         }
 
-        const halfMlThresholds = derivedPeriodMlThresholds('h1');
+        const halfMlThresholds = derivedPeriodMlThresholds(currentHalfKey);
         const pHomeHalf = projectedWinProbFromMargin(projectedHalfMargin, halfMinutesRemaining);
         if (Number.isFinite(pHomeHalf)) {
           const homeEdge = pHomeHalf - 0.5;
@@ -1054,7 +1077,7 @@
           const side = pickHome ? game?.home_tri : game?.away_tri;
           const projection = pickHome ? pHomeHalf : (1 - pHomeHalf);
           const klass = classifyLens(Math.abs(edge), halfMlThresholds.watch, halfMlThresholds.bet);
-          halfMlSignal = buildSignal('half_ml', '1H ML', klass, side, edge, 0.5, projection, `Model ${fmtPercent(projection, 0)}`);
+          halfMlSignal = buildSignal('half_ml', `${currentHalfLabel} ML`, klass, side, edge, 0.5, projection, `Model ${fmtPercent(projection, 0)}`);
           halfMlSignal.score = signalScore(Math.abs(edge), halfMlThresholds.bet);
         }
       }
@@ -1382,12 +1405,15 @@
     return `<span class="${liveSignalChipClass(signal)}" title="${escapeHtml(signal.detail || signal.compactLabel || '')}">${escapeHtml(signal.compactLabel || signal.label || 'Signal')}</span>`;
   }
 
-  function renderLiveSignalTile(signal) {
+  function renderLiveSignalTile(slot) {
+    const signal = slot?.signal || null;
+    const sliceLabel = String(slot?.sliceLabel || 'Signal');
+    const marketLabel = String(slot?.marketLabel || 'Signal');
     if (!signal) {
       return `
         <div class="cards-live-lens-tile is-empty">
-          <div class="cards-market-kicker">Signal</div>
-          <div class="cards-market-main">No live edge</div>
+          <div class="cards-market-kicker">${escapeHtml(sliceLabel)}</div>
+          <div class="cards-market-main">${escapeHtml(marketLabel)}</div>
           <div class="cards-mini-copy">Waiting for in-game data.</div>
         </div>
       `;
@@ -1398,10 +1424,10 @@
     return `
       <div class="cards-live-lens-tile ${signal.klass === 'BET' ? 'is-bet' : (signal.klass === 'WATCH' ? 'is-watch' : '')}">
         <div class="cards-live-lens-tile__head">
-          <div class="cards-market-kicker">${escapeHtml(signal.label)}</div>
+          <div class="cards-market-kicker">${escapeHtml(`${sliceLabel} · ${marketLabel}`)}</div>
           <span class="${liveSignalChipClass(signal)}">${escapeHtml(signal.klass)}</span>
         </div>
-        <div class="cards-market-main">${escapeHtml(signal.side || 'No edge')}</div>
+        <div class="cards-market-main">${escapeHtml(signal.side || marketLabel)}</div>
         <div class="cards-live-lens-tile__edge">${escapeHtml(edgeText)}</div>
         <div class="cards-mini-copy">${escapeHtml(signal.detail || 'No live edge detail')}</div>
       </div>
@@ -3334,7 +3360,7 @@
 
   function renderGamePanel(game) {
     const liveLens = getLiveLens(game);
-    const liveSignalTiles = safeArray(liveLens?.topSignals).slice(0, 6);
+    const liveSignalTiles = safeArray(liveLens?.topSignals).slice(0, 9);
     return `
       <div class="cards-overview-grid">
         <div class="cards-panel-card">
