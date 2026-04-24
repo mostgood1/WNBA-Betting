@@ -20,7 +20,6 @@ Write-Info "BaseUrl = $BaseUrl  Date = $Date"
 if ($RunDailyUpdate) {
   try {
     $root = Split-Path -Parent $MyInvocation.MyCommand.Path
-    $repoRoot = (Resolve-Path (Join-Path $root '..')).Path
     $scriptPath = Join-Path $root 'daily_update.ps1'
     if (Test-Path $scriptPath) {
       Write-Info "Running local daily_update.ps1 before checks..."
@@ -94,4 +93,26 @@ try {
   Write-Info ("Recommendations: games={0} props={1}" -f $games, $props)
 } catch {
   Write-Warn ("Recommendations check failed: {0}" -f $_.Exception.Message)
+}
+
+# Validate cards page + season betting-card page wiring and portfolio payloads.
+try {
+  $root = Split-Path -Parent $MyInvocation.MyCommand.Path
+  $repoRoot = (Resolve-Path (Join-Path $root '..')).Path
+  $validatorPath = Join-Path $repoRoot 'tools\validate_cards_portfolio_render.py'
+  $venvPython = Join-Path $repoRoot '.venv\Scripts\python.exe'
+  $pythonExe = if (Test-Path $venvPython) { $venvPython } else { 'python' }
+  if (Test-Path $validatorPath) {
+    Write-Info 'Validating cards and betting-card render inputs...'
+    & $pythonExe $validatorPath --date $Date --base-url $BaseUrl --profile retuned --props-source source
+    if ($LASTEXITCODE -ne 0) {
+      Write-Warn ("cards portfolio render validator failed with exit code {0}" -f $LASTEXITCODE)
+    } else {
+      Write-Info 'Cards portfolio render validator passed'
+    }
+  } else {
+    Write-Warn 'validate_cards_portfolio_render.py not found; skipping cards render validation'
+  }
+} catch {
+  Write-Warn ("Cards portfolio render validation failed: {0}" -f $_.Exception.Message)
 }

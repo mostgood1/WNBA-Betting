@@ -3948,6 +3948,33 @@ try {
             return $null
           }
 
+            # 7.26) Validate cards + betting-card portfolio render payloads (fail fast)
+            try {
+              $skipCardsRenderValidation = $env:DAILY_SKIP_CARDS_PORTFOLIO_RENDER_VALIDATION
+              if ($null -ne $skipCardsRenderValidation -and $skipCardsRenderValidation -match '^(1|true|yes)$') {
+                Write-Log 'Skipping cards portfolio render validation (DAILY_SKIP_CARDS_PORTFOLIO_RENDER_VALIDATION=1)'
+              } else {
+                $cardsRenderTimeout = $env:DAILY_CARDS_PORTFOLIO_RENDER_TIMEOUT_SEC
+                if ($null -eq $cardsRenderTimeout -or $cardsRenderTimeout -eq '') { $cardsRenderTimeout = '180' }
+                try { $cardsRenderTimeoutInt = [int]$cardsRenderTimeout } catch { $cardsRenderTimeoutInt = 180 }
+                if ($cardsRenderTimeoutInt -lt 30) { $cardsRenderTimeoutInt = 30 }
+                Write-Log ("Validating cards + betting-card portfolio render inputs for {0}" -f $Date)
+                $rcCardsRender = Invoke-PyModWithTimeout -plist @(
+                  'tools/validate_cards_portfolio_render.py',
+                  '--date', $Date,
+                  '--profile', 'retuned',
+                  '--props-source', 'source'
+                ) -TimeoutSeconds $cardsRenderTimeoutInt -Label 'validate_cards_portfolio_render'
+                Write-Log ("validate_cards_portfolio_render exit code: {0}" -f $rcCardsRender)
+                if ($rcCardsRender -ne 0) {
+                  throw ("cards portfolio render validation failed (exit={0})" -f $rcCardsRender)
+                }
+              }
+            } catch {
+              Write-Log ("Cards portfolio render validation failed: {0}" -f $_.Exception.Message)
+              throw
+            }
+
           Write-Log ("Live Lens: reconciling remote JSONLs {0}..{1} -> {2} (remote={3})" -f $startD.ToString('yyyy-MM-dd'), $endD.ToString('yyyy-MM-dd'), $LiveLensDir, $remote)
 
           for ($d = $startD; $d -le $endD; $d = $d.AddDays(1)) {
