@@ -197,38 +197,108 @@ class _CappedDict(dict):
         self._prune()
 
 # ---- Live Lens caches (TTL) ----
-_live_cdn_scoreboard_cache: dict[str, tuple[float, dict[str, Any]]] = {}
-_live_espn_scoreboard_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_cdn_scoreboard_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_CDN_SCOREBOARD_CACHE_MAX_ITEMS",
+    default_max=8,
+    lo=0,
+    hi=200,
+)
+_live_espn_scoreboard_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_ESPN_SCOREBOARD_CACHE_MAX_ITEMS",
+    default_max=8,
+    lo=0,
+    hi=200,
+)
 _live_espn_summary_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
     max_items_env="LIVE_ESPN_SUMMARY_CACHE_MAX_ITEMS",
     default_max=8,
     lo=0,
     hi=200,
 )
-_live_game_cache: dict[str, tuple[float, dict[str, Any]]] = {}
-_live_bovada_lines_cache: dict[str, tuple[float, list[dict[str, Any]]]] = {}
-_live_oddsapi_period_cache: dict[str, tuple[float, dict[str, Any]]] = {}
-_live_oddsapi_player_props_cache: dict[str, tuple[float, dict[str, Any]]] = {}
-_live_oddsapi_player_props_event_cache: dict[str, tuple[float, dict[str, Any]]] = {}
-_live_oddsapi_player_props_markets_cache: dict[str, tuple[float, list[str]]] = {}
+_live_game_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_GAME_CACHE_MAX_ITEMS",
+    default_max=24,
+    lo=0,
+    hi=500,
+)
+_live_bovada_lines_cache: dict[str, tuple[float, list[dict[str, Any]]]] = _CappedDict(
+    max_items_env="LIVE_BOVADA_LINES_CACHE_MAX_ITEMS",
+    default_max=8,
+    lo=0,
+    hi=200,
+)
+_live_oddsapi_period_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_ODDSAPI_PERIOD_CACHE_MAX_ITEMS",
+    default_max=16,
+    lo=0,
+    hi=500,
+)
+_live_oddsapi_player_props_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_ODDSAPI_PLAYER_PROPS_CACHE_MAX_ITEMS",
+    default_max=16,
+    lo=0,
+    hi=500,
+)
+_live_oddsapi_player_props_event_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_ODDSAPI_PLAYER_PROPS_EVENT_CACHE_MAX_ITEMS",
+    default_max=32,
+    lo=0,
+    hi=500,
+)
+_live_oddsapi_player_props_markets_cache: dict[str, tuple[float, list[str]]] = _CappedDict(
+    max_items_env="LIVE_ODDSAPI_PLAYER_PROPS_MARKETS_CACHE_MAX_ITEMS",
+    default_max=32,
+    lo=0,
+    hi=500,
+)
 _live_sim_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
     max_items_env="LIVE_SIM_CACHE_MAX_ITEMS",
     default_max=16,
     lo=0,
     hi=500,
 )
-_live_state_cache: dict[str, tuple[float, dict[str, Any]]] = {}
-_live_pbp_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
-_live_lines_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
-_live_players_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
-_live_player_lens_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_state_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_STATE_CACHE_MAX_ITEMS",
+    default_max=24,
+    lo=0,
+    hi=500,
+)
+_live_pbp_multi_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_PBP_MULTI_CACHE_MAX_ITEMS",
+    default_max=12,
+    lo=0,
+    hi=200,
+)
+_live_lines_multi_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_LINES_MULTI_CACHE_MAX_ITEMS",
+    default_max=12,
+    lo=0,
+    hi=200,
+)
+_live_players_multi_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_PLAYERS_MULTI_CACHE_MAX_ITEMS",
+    default_max=12,
+    lo=0,
+    hi=200,
+)
+_live_player_lens_multi_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_PLAYER_LENS_MULTI_CACHE_MAX_ITEMS",
+    default_max=12,
+    lo=0,
+    hi=200,
+)
 
 # ---- Live Lens cron tick (best-effort throttling) ----
 _live_lens_tick_last_logged: dict[str, str] = {}
 _live_lens_tick_last_proj_logged: dict[str, str] = {}
 _live_lens_tick_first_bet_logged: dict[str, str] = {}
 _live_lens_tick_lock = threading.Lock()
-_live_tuning_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_tuning_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_TUNING_CACHE_MAX_ITEMS",
+    default_max=8,
+    lo=0,
+    hi=100,
+)
 
 # Additional small caches used by /api/live_player_lens
 _live_pbp_actions_cache: dict[str, tuple[float, list[dict[str, Any]]]] = _CappedDict(
