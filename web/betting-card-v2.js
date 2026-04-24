@@ -92,6 +92,17 @@
     return `${(num * 100).toFixed(digits == null ? 1 : digits)}%`;
   }
 
+  function formatCurrency(value, digits) {
+    const num = toNumber(value);
+    if (num == null) return '-';
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: digits == null ? 0 : digits,
+      maximumFractionDigits: digits == null ? 0 : digits,
+    }).format(num);
+  }
+
   function formatUnits(value, digits) {
     const num = toNumber(value);
     if (num == null) return '-';
@@ -222,6 +233,36 @@
       <div class="season-day-sleeve-strip">
         ${sleeves.map((item) => `<span class="season-sleeve-pill is-summary">${escapeHtml(`${item.label} ${formatNumber(item.count, 0)}`)}</span>`).join('')}
       </div>`;
+  }
+
+  function portfolioSummary(day) {
+    const portfolio = day?.pregame_portfolio;
+    if (!portfolio || !portfolio.enabled) return null;
+    return portfolio;
+  }
+
+  function renderPortfolioSummaryPills(day) {
+    const portfolio = portfolioSummary(day);
+    if (!portfolio) return '';
+    const pills = [];
+    pills.push(`Portfolio ${formatNumber(portfolio.selected, 0)}/${formatNumber(portfolio.candidates, 0)} selected`);
+    if (toNumber(portfolio.selected_stake_total) != null) pills.push(`${formatCurrency(portfolio.selected_stake_total)} staked`);
+    if (toNumber(portfolio.bankroll) != null) pills.push(`${formatCurrency(portfolio.bankroll)} bankroll`);
+    if (toNumber(portfolio.reserve_pct) != null) pills.push(`${formatPercent(portfolio.reserve_pct, 0)} reserve`);
+    if (!pills.length) return '';
+    return `
+      <div class="season-day-sleeve-strip">
+        ${pills.map((item) => `<span class="season-sleeve-pill is-summary">${escapeHtml(item)}</span>`).join('')}
+      </div>`;
+  }
+
+  function portfolioRowMeta(row) {
+    const bits = [];
+    const rank = toNumber(row?.portfolio_rank);
+    const stake = toNumber(row?.stake_amount);
+    if (rank != null) bits.push(`Portfolio #${formatNumber(rank, 0)}`);
+    if (stake != null) bits.push(`Stake ${formatCurrency(stake)}`);
+    return bits;
   }
 
   function insightValue(row, group, key) {
@@ -719,17 +760,20 @@
     const unresolved = Number(state.day?.summary?.unresolved_n || 0);
     const playableUnresolved = Number(state.day?.summary?.playable_unresolved_n || 0);
     const playableTotal = Number(playableCounts?.combined || 0);
+    const portfolio = portfolioSummary(state.day);
     root.dayTitle.textContent = formatDateLong(state.day.date);
     root.dayMeta.textContent = [
       `${games.length} games`,
       `${formatNumber(counts?.combined, 0)} locked-card picks${playableTotal ? ` | +${formatNumber(playableTotal, 0)} playable` : ''}`,
+      portfolio ? `${formatNumber(portfolio.selected, 0)} portfolio-selected` : '',
       profileLabel(state.day?.profile || state.profile),
       String(state.day?.source_kind || 'season_manifest'),
-    ].join(' | ');
+    ].filter(Boolean).join(' | ');
     root.dayActions.innerHTML = `
       <a class="cards-nav-pill" href="/betting-card?date=${encodeURIComponent(state.day.date)}">Open daily cards</a>
+      ${renderPortfolioSummaryPills(state.day)}
       ${renderPlayableSleeveSummary(playableRows)}`;
-    root.dayMetrics.innerHTML = [
+    const metricCards = [
       metricCard('Games', formatNumber(games.length, 0), 'Matchups with betting-card action'),
       metricCard('Locked card', formatNumber(counts?.combined, 0), `Tot ${counts?.totals ?? 0} | ML ${counts?.ml ?? 0} | Spr ${counts?.spreads ?? 0} | Props ${counts?.player_props ?? 0}`),
       metricCard('Playable adds', formatNumber(playableCounts?.combined, 0), `${formatNumber(playableCombined?.n, 0)} settled | ${formatNumber(playableUnresolved, 0)} unresolved`),
@@ -737,7 +781,11 @@
       metricCard('Locked ROI', formatPercent(combined?.roi, 1), `${formatNumber(combined?.stake_u, 2)}u staked`),
       metricCard('Settled', formatNumber(combined?.n, 0), `${formatNumber(unresolved, 0)} locked unresolved`),
       metricCard('Cap profile', String(state.day?.cap_profile || '-'), 'Locked betting-card view'),
-    ].join('');
+    ];
+    if (portfolio) {
+      metricCards.splice(2, 0, metricCard('Portfolio stake', formatCurrency(portfolio.selected_stake_total), `${formatNumber(portfolio.selected, 0)} picks | ${formatCurrency(portfolio.bankroll)} bankroll`));
+    }
+    root.dayMetrics.innerHTML = metricCards.join('');
   }
 
   function pickTableRows(items) {
@@ -746,6 +794,7 @@
       const row = item.row || {};
       const bucket = String(item.bucket || row?.card_bucket || 'official').toLowerCase();
       const sleeve = formatPlayableSleeve(row?.playable_sleeve);
+      const portfolioMeta = portfolioRowMeta(row);
       const gameLabel = `${game?.away?.abbr || 'Away'} @ ${game?.home?.abbr || 'Home'}`;
       const gameMeta = [game?.start_time ? `Tip-off ${game.start_time}` : '', String(game?.status?.abstract || '').trim()].filter(Boolean).join(' | ');
       const actualText = row?.settlement?.actual != null ? `Actual ${formatLine(row.settlement.actual)}` : 'Settlement unavailable';
@@ -758,6 +807,7 @@
           <td>
             <div class="season-betting-cell-main">${escapeHtml(marketLabel(row))}</div>
             <div class="season-betting-cell-sub">${escapeHtml(bucket === 'playable' ? 'Playable addition' : String(row?.market_family_label || 'Betting card'))}</div>
+            ${bucket !== 'playable' && portfolioMeta.length ? `<div class="season-betting-tag-row">${portfolioMeta.map((bit) => `<span class="season-sleeve-pill is-summary">${escapeHtml(bit)}</span>`).join('')}</div>` : ''}
             ${bucket === 'playable' && sleeve ? `<div class="season-betting-tag-row"><span class="season-sleeve-pill">${escapeHtml(sleeve)}</span></div>` : ''}
           </td>
           <td>
@@ -781,6 +831,7 @@
       const game = item.game || {};
       const bucket = String(item.bucket || row?.card_bucket || 'official').toLowerCase();
       const sleeve = formatPlayableSleeve(row?.playable_sleeve);
+      const portfolioMeta = portfolioRowMeta(row);
       const gameLabel = `${game?.away?.abbr || 'Away'} @ ${game?.home?.abbr || 'Home'}`;
       const actualText = row?.settlement?.actual != null ? `Actual ${formatLine(row.settlement.actual)}` : 'Settlement unavailable';
       return `
@@ -789,6 +840,7 @@
             <div>
               <div class="betting-card-mobile-value">${escapeHtml(gameLabel)}</div>
               <div class="season-inline-note">${escapeHtml(marketLabel(row))} | ${escapeHtml(bucket === 'playable' ? 'Playable addition' : String(row?.market_family_label || 'Betting card'))}</div>
+              ${bucket !== 'playable' && portfolioMeta.length ? `<div class="season-betting-tag-row">${portfolioMeta.map((bit) => `<span class="season-sleeve-pill is-summary">${escapeHtml(bit)}</span>`).join('')}</div>` : ''}
               ${bucket === 'playable' && sleeve ? `<div class="season-betting-tag-row"><span class="season-sleeve-pill">${escapeHtml(sleeve)}</span></div>` : ''}
             </div>
             <span class="season-ticket-pill ${resultTone(row)}">${escapeHtml(resultLabel(row))}</span>
@@ -881,6 +933,7 @@
     root.games.innerHTML = games.map((game) => {
       const rows = officialRowsForGame(game);
       const playableRows = playableRowsForGame(game);
+      const hasPortfolioRows = rows.some((row) => toNumber(row?.portfolio_rank) != null || toNumber(row?.stake_amount) != null);
       const combined = ((game?.betting || {}).results || {}).combined || {};
       const playableCombined = ((game?.betting || {}).playable_results || {}).combined || {};
       const score = game?.matchup?.score || {};
@@ -919,6 +972,7 @@
             </div>
             <section class="season-breakdown-card season-game-betting-card">
               <div class="season-breakdown-title">Locked card</div>
+              ${hasPortfolioRows ? '<div class="season-inline-note">Locked picks on this card were selected by the pregame portfolio ranker, with bankroll-aware stake sizing shown on each row.</div>' : ''}
               ${rows.length ? `
                 <div class="season-calibration-table-wrap">
                   <table class="season-calibration-table season-game-betting-table">
