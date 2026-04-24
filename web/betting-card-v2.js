@@ -1027,6 +1027,7 @@
     if (!dateStr) return;
     state.selectedDate = String(dateStr);
     state.dayPicksMode = 'official';
+    const requestedDate = state.selectedDate;
     updateUrl();
     updateNavLinks();
     if (root.dayMeta) root.dayMeta.textContent = 'Loading betting-card detail...';
@@ -1035,12 +1036,21 @@
     if (root.games) root.games.innerHTML = '<div class="cards-loading-state">Loading betting-card games...</div>';
     try {
       const basePath = `/api/season/${encodeURIComponent(state.season)}/betting-card/day/${encodeURIComponent(state.selectedDate)}?profile=${encodeURIComponent(state.profile)}`;
-      try {
-        state.day = await fetchJson(`${basePath}&include_prop_insights=1`);
-      } catch (_detailedError) {
-        state.day = await fetchJson(basePath);
+      state.day = await fetchJson(basePath);
+      if (state.selectedDate !== requestedDate) {
+        return;
       }
       renderDay();
+      try {
+        const detailedDay = await fetchJson(`${basePath}&include_prop_insights=1`);
+        if (state.selectedDate !== requestedDate) {
+          return;
+        }
+        state.day = detailedDay;
+        renderDay();
+      } catch (_detailedError) {
+        // Keep the fast-loaded board visible if the heavier insights request is slow or unavailable.
+      }
     } catch (error) {
       const message = error && error.message ? error.message : 'Unknown error';
       if (root.dayMeta) root.dayMeta.textContent = `Failed to load ${state.selectedDate}.`;
