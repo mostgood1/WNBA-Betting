@@ -114,6 +114,9 @@ predictions.csv
 # Local-only / scratch outputs (do not commit)
 _tmp_game_cards_*.json
 tmp_smoke_endpoints*.py
+poll_script.py
+temp_[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
+temp_artifacts/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/recon_*.csv
 
 # Local backtest / walkforward artifacts (keep out of git)
 # Note: these match the whitelisted `props_edges_*.csv` prefix, so we explicitly re-ignore them.
