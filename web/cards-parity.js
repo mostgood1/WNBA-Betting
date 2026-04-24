@@ -178,6 +178,19 @@
     return Number.isFinite(number) ? `${number.toFixed(digits)}%` : '--';
   }
 
+  function fmtCurrency(value, digits = 0) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) {
+      return '--';
+    }
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    }).format(number);
+  }
+
   function fmtAmerican(value) {
     const number = Number(value);
     if (!Number.isFinite(number)) {
@@ -1555,12 +1568,30 @@
     return '';
   }
 
+  function currentPregamePortfolio() {
+    const portfolio = state.payload?.pregame_portfolio;
+    if (!portfolio || mode === 'live' || !portfolio.enabled) {
+      return null;
+    }
+    return portfolio;
+  }
+
   function renderHeaderMeta() {
     const games = safeArray(state.payload?.games);
     const counts = slateCounts(games);
     const boardDate = currentBoardDate();
     if (headerMeta) {
-      const headline = `${games.length} games · ${counts.upcomingCount} upcoming · ${counts.liveCount} live · ${counts.officialCount} official`;
+      const portfolio = currentPregamePortfolio();
+      const headlineParts = [
+        `${games.length} games`,
+        `${counts.upcomingCount} upcoming`,
+        `${counts.liveCount} live`,
+        `${counts.officialCount} official`,
+      ];
+      if (portfolio && Number.isFinite(Number(portfolio.selected))) {
+        headlineParts.push(`${Number(portfolio.selected)} portfolio picks`);
+      }
+      const headline = headlineParts.join(' · ');
       const lookaheadText = payloadLookaheadText();
       headerMeta.textContent = lookaheadText
         ? `${headline} · ${lookaheadText}`
@@ -1578,11 +1609,24 @@
     }
     const games = safeArray(state.payload?.games);
     const counts = slateCounts(games);
+    const portfolio = currentPregamePortfolio();
     const pills = [
       sourceMetaPill(currentBoardDate()),
       sourceMetaPill(mode === 'live' ? 'Live board' : 'Pregame board', mode === 'live' ? 'live' : 'soft'),
       sourceMetaPill(`${counts.propsCount} props-ready games`, counts.propsCount ? 'accent' : 'soft'),
     ];
+    if (portfolio) {
+      pills.push(sourceMetaPill(`Portfolio ${Number(portfolio.selected || 0)}/${Number(portfolio.candidates || 0)} selected`, 'accent'));
+      if (Number.isFinite(Number(portfolio.selected_stake_total))) {
+        pills.push(sourceMetaPill(`${fmtCurrency(portfolio.selected_stake_total)} staked`, 'soft'));
+      }
+      if (Number.isFinite(Number(portfolio.bankroll))) {
+        pills.push(sourceMetaPill(`${fmtCurrency(portfolio.bankroll)} bankroll`, 'soft'));
+      }
+      if (Number.isFinite(Number(portfolio.reserve_pct))) {
+        pills.push(sourceMetaPill(`${fmtPercent(portfolio.reserve_pct, 0)} reserve`, 'soft'));
+      }
+    }
     if (state.payload?.lookahead_applied) {
       pills.push(sourceMetaPill('Showing next available slate', 'warn'));
     }
@@ -2572,6 +2616,8 @@
           <div class="cards-callout-meta">
             <span class="cards-chip cards-chip--accent">EV ${fmtPercentValue(row.ev)}</span>
             <span class="cards-chip">${fmtPercent(row.probability, 0)}</span>
+            ${Number.isFinite(Number(row.stakeAmount)) ? `<span class="cards-chip">Stake ${escapeHtml(fmtCurrency(row.stakeAmount))}</span>` : ''}
+            ${Number.isFinite(Number(row.portfolioRank)) ? `<span class="cards-chip">#${escapeHtml(fmtInteger(row.portfolioRank))}</span>` : ''}
           </div>
         </button>
       </li>
@@ -2587,6 +2633,8 @@
           <div class="cards-callout-meta">
             <span class="cards-chip cards-chip--accent">EV ${fmtPercentValue(row.evPct)}</span>
             <span class="cards-chip">${fmtPercent(row.pWin, 0)}</span>
+            ${Number.isFinite(Number(row.stakeAmount)) ? `<span class="cards-chip">Stake ${escapeHtml(fmtCurrency(row.stakeAmount))}</span>` : ''}
+            ${Number.isFinite(Number(row.portfolioRank)) ? `<span class="cards-chip">#${escapeHtml(fmtInteger(row.portfolioRank))}</span>` : ''}
           </div>
         </button>
       </li>
@@ -2619,6 +2667,9 @@
           ev: row.ev_pct,
           sub: row.basketball_summary || row.why_explain || `Score ${fmtNumber(row.recommendation_priority_score ?? row.score, 1)}`,
           bucket: row.card_bucket || 'playable',
+          stakeAmount: row.stake_amount,
+          portfolioRank: row.portfolio_rank,
+          portfolioScore: row.portfolio_score,
         }));
     }
 
@@ -2655,6 +2706,9 @@
         ev: Number(row.pick.ev) * 100,
         sub: row.sub,
         bucket: row.bucket,
+        stakeAmount: null,
+        portfolioRank: null,
+        portfolioScore: null,
       }));
   }
 
@@ -3585,6 +3639,9 @@
             recommendationPriorityScore: row.recommendation_priority_score,
             score: row.score,
             tier: row.tier,
+            stakeAmount: pickMatchesRow ? row.stake_amount : null,
+            portfolioRank: pickMatchesRow ? row.portfolio_rank : null,
+            portfolioScore: pickMatchesRow ? row.portfolio_score : null,
           });
         });
       });

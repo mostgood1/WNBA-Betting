@@ -6391,7 +6391,8 @@ def _betting_card_v2_game_lines(game: dict[str, Any]) -> dict[str, Any]:
 
 
 def _betting_card_v2_game_markets(game: dict[str, Any], section: str) -> dict[str, Any]:
-    game_recs = [row for row in (game.get("game_market_recommendations") or []) if isinstance(row, dict)]
+    all_game_recs = [row for row in (game.get("game_market_recommendations") or []) if isinstance(row, dict)]
+    game_recs = [row for row in all_game_recs if str(row.get("card_bucket") or "official").strip().lower() == "official"] or all_game_recs
     prop_map = game.get("prop_recommendations") if isinstance(game.get("prop_recommendations"), dict) else {}
     player_props: list[dict[str, Any]] = []
     for side in ("away", "home"):
@@ -7688,18 +7689,21 @@ def _season_betting_card_day_payload_from_cards(
 
         for raw_row in (game.get("game_market_recommendations") or []):
             if isinstance(raw_row, dict):
-                official_rows.append(
-                    _season_betting_card_normalize_row(
-                        raw_row,
-                        home_tri,
-                        away_tri,
-                        home_name,
-                        away_name,
-                        date_str=date_str,
-                        matchup_ctx=matchup_ctx,
-                        include_prop_insights=include_prop_insights,
-                    )
+                normalized_row = _season_betting_card_normalize_row(
+                    raw_row,
+                    home_tri,
+                    away_tri,
+                    home_name,
+                    away_name,
+                    date_str=date_str,
+                    matchup_ctx=matchup_ctx,
+                    include_prop_insights=include_prop_insights,
                 )
+                if str(normalized_row.get("card_bucket") or "").strip().lower() == "playable":
+                    playable_rows.append(normalized_row)
+                else:
+                    normalized_row["card_bucket"] = "official"
+                    official_rows.append(normalized_row)
 
         prop_map = game.get("prop_recommendations") if isinstance(game.get("prop_recommendations"), dict) else {}
         for team_side in ("away", "home"):
@@ -15057,6 +15061,25 @@ _NBA_CARDS_PROP_SLEEVE_POLICY: dict[str, dict[str, Any]] = {
     },
 }
 
+_NBA_PREGAME_PORTFOLIO_POLICY: dict[str, Any] = {
+    "enabled": True,
+    "bankroll": 500.0,
+    "reserve_pct": 0.10,
+    "min_stake": 30.0,
+    "max_stake": 90.0,
+    "max_official_plays": 8,
+    "max_per_matchup": 2,
+    "max_per_team": 2,
+    "max_per_market_family": 2,
+    "max_per_prop_market": 2,
+    "max_prop_plays": 6,
+    "min_game_plays": 2,
+    "min_game_selected_score": 0.50,
+    "corr_penalty_scale": 1.4,
+    "min_selected_score": 0.43,
+    "official_bonus": 0.04,
+}
+
 
 def _cards_policy_number(row: dict[str, Any] | None, *keys: str) -> float | None:
     if not isinstance(row, dict):
@@ -15430,6 +15453,310 @@ def _cards_select_prop_buckets(rows: list[dict[str, Any]]) -> tuple[list[dict[st
     for idx, row in enumerate(playable, start=1):
         row["card_rank"] = idx
     return official, playable
+
+
+def _pregame_card_market_family(candidate: dict[str, Any]) -> str:
+    market = str(candidate.get("market") or "").strip().upper()
+    kind = str(candidate.get("kind") or "").strip().lower()
+    if kind == "prop":
+        return f"prop:{market.lower()}"
+    return f"game:{market}"
+
+
+def _pregame_card_base_score(row: dict[str, Any]) -> float:
+    comp = _cards_locked_policy_components(row)
+    score = max(0.0, min(1.0, float(comp.get("score") or 0.0) / 100.0))
+    ev_pct = _cards_policy_number(row, "ev_pct")
+    if ev_pct is None:
+        ev = _cards_policy_number(row, "ev")
+        if ev is not None:
+            ev_pct = float(ev) * 100.0
+    ev_norm = max(0.0, min(1.0, float(ev_pct or 0.0) / 12.0))
+    prob_edge = comp.get("prob_edge")
+    if prob_edge is None:
+        prob_edge = _safe_float(row.get("edge"))
+    prob_norm = max(0.0, min(1.0, float(prob_edge or 0.0) / 0.08))
+    bucket = str(row.get("card_bucket") or "").strip().lower()
+    bonus = float(_NBA_PREGAME_PORTFOLIO_POLICY.get("official_bonus") or 0.0) if bucket == "official" else 0.0
+    return round((0.65 * score) + (0.20 * ev_norm) + (0.15 * prob_norm) + bonus, 6)
+
+
+def _pregame_card_team_key(game: dict[str, Any], row: dict[str, Any], kind: str) -> str | None:
+    home_tri = str(game.get("home_tri") or "").strip().upper()
+    away_tri = str(game.get("away_tri") or "").strip().upper()
+    if kind == "prop":
+        team_key = str(row.get("team") or row.get("team_tri") or "").strip().upper()
+        return team_key or None
+    selection = str(row.get("selection") or row.get("side") or "").strip().lower()
+    if selection in {"home", home_tri.lower()}:
+        return home_tri or None
+    if selection in {"away", away_tri.lower()}:
+        return away_tri or None
+    return None
+
+
+def _pregame_card_candidate_identity(game: dict[str, Any], row: dict[str, Any], kind: str) -> tuple[Any, ...]:
+    home_tri = str(game.get("home_tri") or "").strip().upper()
+    away_tri = str(game.get("away_tri") or "").strip().upper()
+    if kind == "prop":
+        best = row.get("best") if isinstance(row.get("best"), dict) else {}
+        market = str(best.get("market") or row.get("market") or "").strip().lower()
+        side = str(best.get("side") or row.get("selection") or row.get("side") or "").strip().upper()
+        line = _safe_float(best.get("line") if best.get("line") is not None else row.get("line"))
+        team_key = str(row.get("team") or row.get("team_tri") or "").strip().upper()
+        player_key = _norm_player_name(str(row.get("player") or row.get("player_name") or ""))
+        return ("prop", home_tri, away_tri, team_key, player_key, market, side, float(line) if line is not None else None)
+    market = str(row.get("market") or "").strip().upper()
+    selection = str(row.get("selection") or row.get("side") or "").strip().lower()
+    line = _safe_float(row.get("line"))
+    return ("game", home_tri, away_tri, market, selection, float(line) if line is not None else None)
+
+
+def _pregame_card_pair_penalty(left: dict[str, Any], right: dict[str, Any]) -> float:
+    penalty = 0.0
+    if left.get("matchup_key") == right.get("matchup_key"):
+        penalty += 0.08
+    if left.get("team_key") and left.get("team_key") == right.get("team_key"):
+        penalty += 0.08
+    if left.get("market_family") == right.get("market_family"):
+        penalty += 0.10
+    if left.get("kind") == "prop" and right.get("kind") == "prop":
+        if left.get("prop_market") and left.get("prop_market") == right.get("prop_market"):
+            penalty += 0.08
+        if left.get("player_key") and left.get("player_key") == right.get("player_key"):
+            penalty += 0.25
+    if left.get("kind") != right.get("kind") and left.get("matchup_key") == right.get("matchup_key"):
+        penalty += 0.04
+    return min(0.35, max(0.0, penalty))
+
+
+def _pregame_card_allocate_stakes(selected: list[dict[str, Any]], *, bankroll: float, reserve_pct: float, min_stake: float, max_stake: float) -> list[float]:
+    if not selected:
+        return []
+    available = max(0.0, float(bankroll) * (1.0 - float(reserve_pct)))
+    if available <= 0:
+        return [0.0 for _ in selected]
+    weights = [max(0.1, float(item.get("selected_score") or item.get("base_score") or 0.1)) for item in selected]
+    total_weight = sum(weights)
+    if total_weight <= 0:
+        weights = [1.0 for _ in selected]
+        total_weight = float(len(selected))
+    stakes = [available * (weight / total_weight) for weight in weights]
+    stakes = [min(float(max_stake), max(float(min_stake), float(stake))) for stake in stakes]
+    total_stake = sum(stakes)
+    if total_stake > available and total_stake > 0:
+        scale = available / total_stake
+        stakes = [round(stake * scale, 2) for stake in stakes]
+    else:
+        stakes = [round(stake, 2) for stake in stakes]
+    return stakes
+
+
+def _apply_pregame_card_portfolio(games: list[dict[str, Any]]) -> dict[str, Any]:
+    policy = _NBA_PREGAME_PORTFOLIO_POLICY
+    if not bool(policy.get("enabled")):
+        return {"enabled": False, "selected": 0, "candidates": 0}
+
+    candidates: list[dict[str, Any]] = []
+    for game in games:
+        if not isinstance(game, dict) or bool(game.get("plays_locked")):
+            continue
+        home_tri = str(game.get("home_tri") or "").strip().upper()
+        away_tri = str(game.get("away_tri") or "").strip().upper()
+        matchup_key = f"{away_tri}@{home_tri}" if home_tri and away_tri else None
+        for row in (game.get("game_market_recommendations") or []):
+            if not isinstance(row, dict):
+                continue
+            bucket = str(row.get("card_bucket") or "official").strip().lower() or "official"
+            if bucket not in {"official", "playable"}:
+                continue
+            market = str(row.get("market") or "").strip().upper()
+            candidates.append(
+                {
+                    "kind": "game",
+                    "row": row,
+                    "game": game,
+                    "matchup_key": matchup_key,
+                    "team_key": _pregame_card_team_key(game, row, "game"),
+                    "market_family": f"game:{market}",
+                    "prop_market": None,
+                    "player_key": None,
+                    "identity": _pregame_card_candidate_identity(game, row, "game"),
+                    "base_score": _pregame_card_base_score(row),
+                }
+            )
+        prop_map = game.get("prop_recommendations") if isinstance(game.get("prop_recommendations"), dict) else {}
+        for side_key in ("away", "home"):
+            for row in (prop_map.get(side_key) or []):
+                if not isinstance(row, dict):
+                    continue
+                bucket = str(row.get("card_bucket") or "").strip().lower()
+                if bucket not in {"official", "playable"}:
+                    continue
+                best = row.get("best") if isinstance(row.get("best"), dict) else {}
+                prop_market = str(best.get("market") or row.get("market") or "").strip().lower() or None
+                candidates.append(
+                    {
+                        "kind": "prop",
+                        "row": row,
+                        "game": game,
+                        "matchup_key": matchup_key,
+                        "team_key": _pregame_card_team_key(game, row, "prop"),
+                        "market_family": f"prop:{prop_market or 'unknown'}",
+                        "prop_market": prop_market,
+                        "player_key": _cards_prop_row_player_key(row),
+                        "identity": _pregame_card_candidate_identity(game, row, "prop"),
+                        "base_score": _pregame_card_base_score(row),
+                    }
+                )
+
+    if not candidates:
+        return {
+            "enabled": True,
+            "bankroll": float(policy.get("bankroll") or 0.0),
+            "selected": 0,
+            "candidates": 0,
+        }
+
+    for candidate in candidates:
+        row = candidate["row"]
+        row["portfolio_selected"] = False
+        row["portfolio_rank"] = None
+        row["portfolio_score"] = round(float(candidate.get("base_score") or 0.0), 6)
+        row["stake_amount"] = None
+        row["stake_pct"] = None
+
+    ranked = sorted(candidates, key=lambda item: float(item.get("base_score") or 0.0), reverse=True)
+    bankroll = float(policy.get("bankroll") or 0.0)
+    reserve_pct = float(policy.get("reserve_pct") or 0.0)
+    min_stake = float(policy.get("min_stake") or 0.0)
+    max_stake = float(policy.get("max_stake") or 0.0)
+    max_total = int(policy.get("max_official_plays") or 0)
+    if min_stake > 0 and bankroll > 0:
+        affordable_cap = int(max(1, math.floor((bankroll * max(0.0, 1.0 - reserve_pct)) / min_stake)))
+        if max_total > 0:
+            max_total = min(max_total, affordable_cap)
+        else:
+            max_total = affordable_cap
+
+    selected: list[dict[str, Any]] = []
+    matchup_counts: dict[str, int] = {}
+    team_counts: dict[str, int] = {}
+    market_family_counts: dict[str, int] = {}
+    prop_market_counts: dict[str, int] = {}
+    kind_counts: dict[str, int] = {}
+    seen_identity: set[tuple[Any, ...]] = set()
+    min_selected_score = float(policy.get("min_selected_score") or 0.0)
+    min_game_selected_score = float(policy.get("min_game_selected_score") or min_selected_score)
+    corr_scale = float(policy.get("corr_penalty_scale") or 0.0)
+
+    def _try_select(candidate: dict[str, Any], *, require_game_floor: bool = False) -> bool:
+        nonlocal selected
+        if max_total > 0 and len(selected) >= max_total:
+            return False
+        identity = candidate.get("identity")
+        if identity in seen_identity:
+            return False
+        matchup_key = str(candidate.get("matchup_key") or "").strip()
+        team_key = str(candidate.get("team_key") or "").strip().upper()
+        market_family = str(candidate.get("market_family") or "").strip()
+        prop_market = str(candidate.get("prop_market") or "").strip().lower()
+        kind = str(candidate.get("kind") or "").strip().lower()
+        if matchup_key and int(matchup_counts.get(matchup_key, 0)) >= int(policy.get("max_per_matchup") or 0):
+            return False
+        if team_key and int(team_counts.get(team_key, 0)) >= int(policy.get("max_per_team") or 0):
+            return False
+        if market_family and int(market_family_counts.get(market_family, 0)) >= int(policy.get("max_per_market_family") or 0):
+            return False
+        if prop_market and int(prop_market_counts.get(prop_market, 0)) >= int(policy.get("max_per_prop_market") or 0):
+            return False
+        if kind == "prop" and int(kind_counts.get("prop", 0)) >= int(policy.get("max_prop_plays") or 0):
+            return False
+        pair_penalty = corr_scale * sum(_pregame_card_pair_penalty(candidate, existing) for existing in selected)
+        selected_score = round(max(0.0, float(candidate.get("base_score") or 0.0) - float(pair_penalty)), 6)
+        threshold = min_game_selected_score if require_game_floor else min_selected_score
+        if selected and selected_score < threshold:
+            return False
+        candidate["selected_score"] = selected_score
+        selected.append(candidate)
+        seen_identity.add(identity)
+        if matchup_key:
+            matchup_counts[matchup_key] = int(matchup_counts.get(matchup_key, 0) + 1)
+        if team_key:
+            team_counts[team_key] = int(team_counts.get(team_key, 0) + 1)
+        if market_family:
+            market_family_counts[market_family] = int(market_family_counts.get(market_family, 0) + 1)
+        if prop_market:
+            prop_market_counts[prop_market] = int(prop_market_counts.get(prop_market, 0) + 1)
+        if kind:
+            kind_counts[kind] = int(kind_counts.get(kind, 0) + 1)
+        return True
+
+    required_games = int(policy.get("min_game_plays") or 0)
+    if required_games > 0:
+        for candidate in ranked:
+            if len(selected) >= required_games:
+                break
+            if str(candidate.get("kind") or "") != "game":
+                continue
+            _try_select(candidate, require_game_floor=True)
+
+    for candidate in ranked:
+        if max_total > 0 and len(selected) >= max_total:
+            break
+        _try_select(candidate)
+
+    if not selected and ranked:
+        fallback = dict(ranked[0])
+        fallback["selected_score"] = float(fallback.get("base_score") or 0.0)
+        selected = [fallback]
+
+    stakes = _pregame_card_allocate_stakes(
+        selected,
+        bankroll=bankroll,
+        reserve_pct=reserve_pct,
+        min_stake=min_stake,
+        max_stake=max_stake,
+    )
+    selected_identity = {candidate.get("identity") for candidate in selected}
+    selected_rank_lookup: dict[tuple[Any, ...], tuple[int, float, float]] = {}
+    for idx, candidate in enumerate(selected, start=1):
+        stake_amount = float(stakes[idx - 1]) if idx - 1 < len(stakes) else 0.0
+        stake_pct = round((stake_amount / bankroll), 4) if bankroll > 0 else None
+        selected_rank_lookup[candidate.get("identity")] = (idx, float(candidate.get("selected_score") or candidate.get("base_score") or 0.0), stake_amount)
+        row = candidate["row"]
+        row["card_bucket"] = "official"
+        row["card_rank"] = idx
+        row["portfolio_selected"] = True
+        row["portfolio_rank"] = idx
+        row["portfolio_score"] = round(float(candidate.get("selected_score") or candidate.get("base_score") or 0.0), 6)
+        row["stake_amount"] = round(stake_amount, 2)
+        row["stake_pct"] = stake_pct
+
+    playable_rank = 0
+    for candidate in ranked:
+        row = candidate["row"]
+        if candidate.get("identity") in selected_identity:
+            continue
+        playable_rank += 1
+        row["card_bucket"] = "playable"
+        row["card_rank"] = playable_rank
+        row["portfolio_selected"] = False
+        row["portfolio_rank"] = None
+        row["portfolio_score"] = round(float(candidate.get("base_score") or 0.0), 6)
+        row["stake_amount"] = None
+        row["stake_pct"] = None
+
+    return {
+        "enabled": True,
+        "bankroll": bankroll,
+        "reserve_pct": reserve_pct,
+        "min_stake": min_stake,
+        "max_stake": max_stake,
+        "candidates": len(candidates),
+        "selected": len(selected),
+        "selected_stake_total": round(sum(float(item[2]) for item in selected_rank_lookup.values()), 2),
+    }
 
 
 def _cards_prop_recommendations_need_bucket_refresh(
@@ -16212,16 +16539,32 @@ def _build_cards_game_market_recommendations(
         by_market.setdefault(market_key, []).append(row)
 
     official: list[dict[str, Any]] = []
+    playable: list[dict[str, Any]] = []
     for rows in by_market.values():
         ranked = sorted((_cards_locked_policy_annotate(row) for row in rows), key=_cards_locked_policy_sort_key, reverse=True)
         selected = next((row for row in ranked if _cards_locked_policy_qualifies(row, market_type="game", tier="official")), None)
         if selected is not None:
             official.append(dict(selected, card_bucket="official"))
+        fallback = next(
+            (
+                row
+                for row in ranked
+                if _cards_locked_policy_qualifies(row, market_type="game", tier="playable")
+                and _pregame_card_candidate_identity({"home_tri": home_tri, "away_tri": away_tri}, row, "game")
+                != (_pregame_card_candidate_identity({"home_tri": home_tri, "away_tri": away_tri}, selected, "game") if isinstance(selected, dict) else None)
+            ),
+            None,
+        )
+        if fallback is not None:
+            playable.append(dict(fallback, card_bucket="playable"))
 
     ordered_official = sorted(official, key=_cards_locked_policy_sort_key, reverse=True)
     for idx, row in enumerate(ordered_official, start=1):
         row["card_rank"] = idx
-    return ordered_official
+    ordered_playable = sorted(playable, key=_cards_locked_policy_sort_key, reverse=True)
+    for idx, row in enumerate(ordered_playable, start=1):
+        row["card_rank"] = idx
+    return ordered_official + ordered_playable
 
 
 def _prop_recommendation_identity(row: dict[str, Any]) -> tuple[str, str, str, str, float | None] | None:
@@ -19416,6 +19759,11 @@ def api_cards():
 
     games.sort(key=_sort_key)
 
+    try:
+        pregame_portfolio = _apply_pregame_card_portfolio(games)
+    except Exception:
+        pregame_portfolio = {"enabled": False, "selected": 0, "candidates": 0}
+
     return jsonify(
         _to_jsonable(
             {
@@ -19423,6 +19771,7 @@ def api_cards():
                 "requested_date": requested_date,
                 "lookahead_applied": bool(d != requested_date),
                 "players_included": bool(include_players),
+                "pregame_portfolio": pregame_portfolio,
                 "games": games,
             }
         )
