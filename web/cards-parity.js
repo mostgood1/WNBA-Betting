@@ -544,6 +544,7 @@
       ats: marketThreshold('ats', 2.0, 4.0),
       ml: marketThreshold('ml', 0.03, 0.06),
       adjustments: tuning?.adjustments || {},
+      atsGame: tuning?.adjustments?.ats_game || {},
       recentWindow: tuning?.recent_window || {},
       endgameFoul: tuning?.endgame_foul || {},
     };
@@ -934,15 +935,25 @@
       }
 
       const side = edge > 1 ? 'Over' : (edge < -1 ? 'Under' : 'No edge');
+      const totalAdjCfg = thresholds.adjustments?.game_total || {};
+      const lateElapsedMin = Number(totalAdjCfg?.late_elapsed_min);
+      const lateWatchMult = Number(totalAdjCfg?.late_watch_multiplier);
+      const lateBetMult = Number(totalAdjCfg?.late_bet_multiplier);
+      const totalWatchThreshold = Number.isFinite(lateElapsedMin) && elapsedForRate >= lateElapsedMin
+        ? thresholds.total.watch * (Number.isFinite(lateWatchMult) && lateWatchMult > 0 ? lateWatchMult : 1)
+        : thresholds.total.watch;
+      const totalBetThreshold = Number.isFinite(lateElapsedMin) && elapsedForRate >= lateElapsedMin
+        ? thresholds.total.bet * (Number.isFinite(lateBetMult) && lateBetMult > 0 ? lateBetMult : 1)
+        : thresholds.total.bet;
       const klass = Number.isFinite(totalGate) && elapsedForRate < totalGate
         ? 'WAIT'
-        : classifyLens(Math.abs(edge), thresholds.total.watch, thresholds.total.bet);
+        : classifyLens(Math.abs(edge), totalWatchThreshold, totalBetThreshold);
       const priorDetail = Number.isFinite(pregameTotal) ? `Prior ${fmtNumber(pregameTotal, 1)}` : null;
       const endgameDetail = inEndgameWindow
         ? `Endgame ${fmtSigned(endgameAdj - endgameReversion, 1)}`
         : null;
       totalSignal = buildSignal('total', 'G', klass, side, edge, lineTotal, projection, [priorDetail, `Total ${fmtInteger(currentTotal)}`, endgameDetail].filter(Boolean).join(' · '));
-      totalSignal.score = signalScore(Math.abs(edge), thresholds.total.bet);
+      totalSignal.score = signalScore(Math.abs(edge), totalBetThreshold);
     }
 
     let halfSignal = null;
@@ -1082,7 +1093,15 @@
     }
 
     let atsSignal = null;
-    if (liveState.in_progress && Number.isFinite(currentMargin) && Number.isFinite(homeSpread) && Number.isFinite(elapsedMinutes)) {
+    const atsGameCfg = thresholds.atsGame || {};
+    const atsDisableAfterElapsed = Number(atsGameCfg?.disable_after_elapsed_min);
+    if (
+      liveState.in_progress
+      && Number.isFinite(currentMargin)
+      && Number.isFinite(homeSpread)
+      && Number.isFinite(elapsedMinutes)
+      && !(Number.isFinite(atsDisableAfterElapsed) && elapsedMinutes >= atsDisableAfterElapsed)
+    ) {
       const blendWeight = clampNumber(Math.max(elapsedMinutes, 0) / 48, 0, 1);
       const projectedMargin = Number.isFinite(pregameMargin)
         ? ((1 - blendWeight) * pregameMargin) + (blendWeight * currentMargin)

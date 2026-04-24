@@ -1,12 +1,18 @@
 {
   "adjustments": {
+    "ats_game": {
+      "disable_after_elapsed_min": 24.0
+    },
     "game_total": {
       "enabled": true,
       "pace_weight": 0.1,
       "eff_weight": 0.0,
       "pace_cap_points": 3.0,
       "eff_cap_points": 2.0,
-      "min_elapsed_min": 0.0
+      "min_elapsed_min": 0.0,
+      "late_elapsed_min": 24.0,
+      "late_watch_multiplier": 1.15,
+      "late_bet_multiplier": 1.15
     }
   },
   "generated_at": "2026-04-15T15:15:41Z",
