@@ -1,0 +1,43 @@
+date,market,horizon,klass,game_id,home,away,player,stat,side,line,actual,price,outcome,profit_u,remaining,rem_bucket,received_at,strength
+2026-04-15,player_prop,live,BET,,PHI,ORL,Tyrese Maxey,pra,UNDER,39.0,,-124.0,,,,,2026-04-15T23:45:15Z,18.40934892157917
+2026-04-15,player_prop,live,BET,,PHI,ORL,Tyrese Maxey,pts,UNDER,28.5,,-117.5,,,,,2026-04-15T23:45:15Z,17.008935301233706
+2026-04-15,player_prop,live,BET,,PHI,ORL,Franz Wagner,pra,UNDER,24.0,,-108.5,,,,,2026-04-15T23:45:15Z,11.461425776755728
+2026-04-15,player_prop,live,BET,,PHI,ORL,Franz Wagner,pts,UNDER,16.5,,-111.5,,,,,2026-04-15T23:45:15Z,7.993454135969911
+2026-04-15,player_prop,live,BET,,PHI,ORL,Paolo Banchero,pra,UNDER,38.5,,-114.0,,,,,2026-04-15T23:45:15Z,7.192150030836359
+2026-04-15,player_prop,live,BET,,PHI,ORL,Kelly Oubre Jr.,pts,OVER,18.5,,101.0,,,,,2026-04-15T23:45:15Z,6.645868599825548
+2026-04-15,player_prop,live,BET,,PHI,ORL,Paul George,pts,UNDER,19.5,,-110.0,,,,,2026-04-15T23:45:15Z,6.392090403078617
+2026-04-15,player_prop,live,BET,,PHI,ORL,Paul George,pra,UNDER,29.5,,-106.0,,,,,2026-04-15T23:45:15Z,6.324364969824067
+2026-04-15,player_prop,live,BET,,PHI,ORL,Paolo Banchero,pts,UNDER,26.0,,-115.5,,,,,2026-04-15T23:50:17Z,6.689667004598334
+2026-04-15,player_prop,live,BET,,PHI,ORL,Jalen Suggs,pra,UNDER,21.5,,-104.5,,,,,2026-04-15T23:55:11Z,5.086445481355636
+2026-04-15,player_prop,live,BET,,PHI,ORL,VJ Edgecombe,reb,OVER,8.5,,104.5,,,,,2026-04-16T00:00:07Z,5.651471397359501
+2026-04-15,player_prop,live,BET,,PHI,ORL,Tristan da Silva,pts,OVER,6.0,,-123.5,,,,,2026-04-16T00:05:10Z,5.321822051686567
+2026-04-15,player_prop,live,BET,,PHI,ORL,Dominick Barlow,pra,OVER,10.5,,-130.0,,,,,2026-04-16T00:10:12Z,7.437009597022822
+2026-04-15,player_prop,live,BET,,PHI,ORL,Quentin Grimes,pra,OVER,16.5,,-130.0,,,,,2026-04-16T00:30:07Z,5.425627437634649
+2026-04-15,player_prop,live,BET,,PHI,ORL,Andre Drummond,pra,UNDER,23.0,,-110.0,,,,,2026-04-16T00:35:08Z,5.774385409177601
+2026-04-15,player_prop,live,BET,,PHI,ORL,Kelly Oubre Jr.,pra,UNDER,23.5,,-110.0,,,,,2026-04-16T00:50:13Z,5.997661952433113
+2026-04-15,player_prop,live,BET,,PHI,ORL,Andre Drummond,reb,UNDER,12.0,,-110.0,,,,,2026-04-16T00:50:13Z,5.162120299465844
+2026-04-15,player_prop,live,BET,,PHI,ORL,Goga Bitadze,pts,UNDER,9.5,,-110.0,,,,,2026-04-16T01:15:11Z,5.017029878636039
+2026-04-15,player_prop,live,BET,,PHI,ORL,Desmond Bane,pra,UNDER,38.0,,-130.0,,,,,2026-04-16T01:30:14Z,5.067391445492646
+2026-04-15,player_prop,live,BET,,PHI,ORL,Desmond Bane,pts,UNDER,34.5,,-110.0,,,,,2026-04-16T01:40:08Z,7.188010462536372
+2026-04-15,player_prop,live,BET,,PHI,ORL,VJ Edgecombe,pra,UNDER,34.5,,-110.0,,,,,2026-04-16T01:55:08Z,6.0745236783803165
+2026-04-15,player_prop,live,BET,,LAC,GSW,Stephen Curry,pra,UNDER,34.5,,-115.5,,,,,2026-04-16T02:20:10Z,32.263285714285715
+2026-04-15,player_prop,live,BET,,LAC,GSW,Stephen Curry,pts,UNDER,26.5,,-115.0,,,,,2026-04-16T02:20:10Z,24.932285714285715
+2026-04-15,player_prop,live,BET,,LAC,GSW,Kawhi Leonard,pra,UNDER,40.0,,-120.0,,,,,2026-04-16T02:20:10Z,16.104
+2026-04-15,player_prop,live,BET,,LAC,GSW,Kawhi Leonard,pts,UNDER,28.0,,-107.0,,,,,2026-04-16T02:20:10Z,14.229625000000002
+2026-04-15,player_prop,live,BET,,LAC,GSW,Gui Santos,pra,OVER,20.0,,-116.5,,,,,2026-04-16T02:20:10Z,12.247270994397248
+2026-04-15,player_prop,live,BET,,LAC,GSW,Gui Santos,pts,OVER,12.5,,-115.0,,,,,2026-04-16T02:20:10Z,10.905572738862183
+2026-04-15,player_prop,live,BET,,LAC,GSW,Kristaps Porzingis,pra,UNDER,24.0,,-114.5,,,,,2026-04-16T02:20:10Z,9.04242857142857
+2026-04-15,player_prop,live,BET,,LAC,GSW,Kristaps Porzingis,pts,UNDER,16.5,,-125.0,,,,,2026-04-16T02:20:10Z,6.783428571428571
+2026-04-15,player_prop,live,BET,,LAC,GSW,Brook Lopez,pra,OVER,19.5,,-105.0,,,,,2026-04-16T02:25:12Z,5.1129999999999995
+2026-04-15,player_prop,live,BET,,LAC,GSW,Darius Garland,pts,OVER,24.5,,-110.0,,,,,2026-04-16T02:25:12Z,5.048000000000002
+2026-04-15,player_prop,live,BET,,LAC,GSW,Brandin Podziemski,pts,OVER,15.5,,-118.0,,,,,2026-04-16T02:30:18Z,7.388605828149593
+2026-04-15,player_prop,live,BET,,LAC,GSW,Brandin Podziemski,pra,OVER,25.0,,-113.5,,,,,2026-04-16T02:30:18Z,7.155144622872555
+2026-04-15,player_prop,live,BET,,LAC,GSW,Draymond Green,pra,OVER,21.0,,-115.0,,,,,2026-04-16T02:35:12Z,6.962175202207256
+2026-04-15,player_prop,live,BET,,LAC,GSW,Derrick Jones Jr.,pra,UNDER,12.5,,-110.0,,,,,2026-04-16T02:40:10Z,5.630775462962963
+2026-04-15,player_prop,live,BET,,LAC,GSW,Jordan Miller,pra,OVER,16.5,,105.0,,,,,2026-04-16T02:45:13Z,5.7178
+2026-04-15,player_prop,live,BET,,LAC,GSW,Darius Garland,pra,UNDER,33.5,,-111.0,,,,,2026-04-16T02:55:10Z,5.137244444444441
+2026-04-15,player_prop,live,BET,,LAC,GSW,Darius Garland,pts,UNDER,22.5,,-118.5,,,,,2026-04-16T03:20:08Z,5.2528333333333315
+2026-04-15,player_prop,live,BET,,LAC,GSW,Brook Lopez,pra,UNDER,22.0,,-110.0,,,,,2026-04-16T03:50:10Z,5.169644789867586
+2026-04-15,player_prop,live,BET,,LAC,GSW,Bennedict Mathurin,pra,UNDER,27.0,,-110.0,,,,,2026-04-16T04:10:12Z,5.789666666666669
+2026-04-15,player_prop,live,BET,,LAC,GSW,Derrick Jones Jr.,pts,UNDER,17.0,,-110.0,,,,,2026-04-16T04:10:12Z,5.228444444444445
+2026-04-15,player_prop,live,BET,,LAC,GSW,Al Horford,pts,UNDER,18.5,,-110.0,,,,,2026-04-16T04:40:13Z,5.624245496642928
