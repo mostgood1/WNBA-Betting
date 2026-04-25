@@ -143,7 +143,8 @@ function Resolve-RegularSeasonEndDate {
           if ([string]::IsNullOrWhiteSpace($gid)) { return $false }
           $digits = ($gid -replace '[^0-9]', '')
           if ([string]::IsNullOrWhiteSpace($digits)) { return $false }
-          return $null -ne ($regularPrefixes | Where-Object { $digits.StartsWith($_) } | Select-Object -First 1)
+          $matchedPrefix = $regularPrefixes | Where-Object { $digits.StartsWith($_) } | Select-Object -First 1
+          return [bool]$matchedPrefix
         } |
         ForEach-Object {
           try {
@@ -3825,54 +3826,54 @@ try {
     Write-Log ("Building season betting-card artifacts for season={0}, date={1}, profile={2}" -f $bettingCardSeason, $Date, $bettingCardProfile)
 
     $tmpPyBettingCard = Join-Path $LogPath ("build_season_betting_card_artifacts_{0}.py" -f $Stamp)
-    $pyBettingCard = @"
-import json
-import shutil
-import sys
-from pathlib import Path
-
-repo_root = Path(r"{REPO_PLACEHOLDER}")
-if str(repo_root) not in sys.path:
-    sys.path.insert(0, str(repo_root))
-
-import app
-
-season = int(r"{SEASON_PLACEHOLDER}")
-profile = r"{PROFILE_PLACEHOLDER}"
-date_str = r"{DATE_PLACEHOLDER}"
-manifest_out = Path(r"{MANIFEST_OUT_PLACEHOLDER}")
-manifest_generic_out = Path(r"{MANIFEST_GENERIC_OUT_PLACEHOLDER}")
-day_out = Path(r"{DAY_OUT_PLACEHOLDER}")
-day_insights_out = Path(r"{DAY_INSIGHTS_OUT_PLACEHOLDER}")
-
-client = app.app.test_client()
-
-def fetch_json(path: str) -> dict:
-    resp = client.get(path)
-    if resp is None:
-        raise RuntimeError(f"No response for {path}")
-    if int(resp.status_code or 0) >= 400:
-        raise RuntimeError(f"{path} returned status {resp.status_code}")
-    payload = resp.get_json(silent=True)
-    if not isinstance(payload, dict):
-        raise RuntimeError(f"{path} returned non-dict payload")
-    return payload
-
-manifest_payload = fetch_json(f"/api/season/{season}/betting-card?profile={profile}&date={date_str}")
-day_payload = fetch_json(f"/api/season/{season}/betting-card/day/{date_str}?profile={profile}")
-day_insights_payload = fetch_json(f"/api/season/{season}/betting-card/day/{date_str}?profile={profile}&include_prop_insights=1")
-
-for out_path, payload in (
-    (manifest_out, manifest_payload),
-    (day_out, day_payload),
-    (day_insights_out, day_insights_payload),
-):
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-
-shutil.copyfile(manifest_out, manifest_generic_out)
-print("OK")
-"@
+    $pyBettingCard = @(
+      'import json',
+      'import shutil',
+      'import sys',
+      'from pathlib import Path',
+      '',
+      'repo_root = Path(r"{REPO_PLACEHOLDER}")',
+      'if str(repo_root) not in sys.path:',
+      '    sys.path.insert(0, str(repo_root))',
+      '',
+      'import app',
+      '',
+      'season = int(r"{SEASON_PLACEHOLDER}")',
+      'profile = r"{PROFILE_PLACEHOLDER}"',
+      'date_str = r"{DATE_PLACEHOLDER}"',
+      'manifest_out = Path(r"{MANIFEST_OUT_PLACEHOLDER}")',
+      'manifest_generic_out = Path(r"{MANIFEST_GENERIC_OUT_PLACEHOLDER}")',
+      'day_out = Path(r"{DAY_OUT_PLACEHOLDER}")',
+      'day_insights_out = Path(r"{DAY_INSIGHTS_OUT_PLACEHOLDER}")',
+      '',
+      'client = app.app.test_client()',
+      '',
+      'def fetch_json(path: str) -> dict:',
+      '    resp = client.get(path)',
+      '    if resp is None:',
+      '        raise RuntimeError(f"No response for {path}")',
+      '    if int(resp.status_code or 0) >= 400:',
+      '        raise RuntimeError(f"{path} returned status {resp.status_code}")',
+      '    payload = resp.get_json(silent=True)',
+      '    if not isinstance(payload, dict):',
+      '        raise RuntimeError(f"{path} returned non-dict payload")',
+      '    return payload',
+      '',
+      'manifest_payload = fetch_json(f"/api/season/{season}/betting-card?profile={profile}&date={date_str}")',
+      'day_payload = fetch_json(f"/api/season/{season}/betting-card/day/{date_str}?profile={profile}")',
+      'day_insights_payload = fetch_json(f"/api/season/{season}/betting-card/day/{date_str}?profile={profile}&include_prop_insights=1")',
+      '',
+      'for out_path, payload in (',
+      '    (manifest_out, manifest_payload),',
+      '    (day_out, day_payload),',
+      '    (day_insights_out, day_insights_payload),',
+      '):',
+      '    out_path.parent.mkdir(parents=True, exist_ok=True)',
+      '    out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")',
+      '',
+      'shutil.copyfile(manifest_out, manifest_generic_out)',
+      'print("OK")'
+    ) -join "`r`n"
     $pyBettingCard = $pyBettingCard.Replace('{REPO_PLACEHOLDER}', $RepoRoot)
     $pyBettingCard = $pyBettingCard.Replace('{SEASON_PLACEHOLDER}', [string]$bettingCardSeason)
     $pyBettingCard = $pyBettingCard.Replace('{PROFILE_PLACEHOLDER}', $bettingCardProfile)
