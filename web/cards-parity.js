@@ -232,6 +232,31 @@
     }).format(date);
   }
 
+  function formatTimestampShort(value) {
+    const text = String(value || '').trim();
+    if (!text) return '-';
+    const parsed = new Date(text);
+    if (Number.isNaN(parsed.getTime())) return text;
+    return new Intl.DateTimeFormat(undefined, {
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(parsed);
+  }
+
+  function liveRowFreshnessText(row, fallbackLabel) {
+    const updatedAt = row?.lastSeenAt ? formatTimestampShort(row.lastSeenAt) : '';
+    if (updatedAt && updatedAt !== '-') {
+      return `Updated ${updatedAt}`;
+    }
+    const activeSince = row?.firstSeenAt ? formatTimestampShort(row.firstSeenAt) : '';
+    if (activeSince && activeSince !== '-') {
+      return `Active since ${activeSince}`;
+    }
+    return String(fallbackLabel || 'Live');
+  }
+
     function scheduledStatusText(game) {
       const rawCandidates = [
         game?.matchup?.displayState,
@@ -2071,6 +2096,20 @@
   }
 
   function livePropSortScore(item) {
+    const priority = Number(item?.recommendation_priority_score ?? item?.recommendationPriorityScore);
+    if (Number.isFinite(priority)) {
+      return {
+        backendPriority: priority,
+        hasPace: 0,
+        paceRank: -1,
+        hasSim: 0,
+        simRank: -1,
+        strengthRank: -1,
+        bettableRank: -1,
+        evRank: -999,
+        probRank: -1,
+      };
+    }
     const paceProj = Number(item?.pace_proj);
     const simValue = finiteFirst(item?.sim_mu_adjusted, item?.sim_mu);
     const line = Number(item?.line);
@@ -2091,6 +2130,7 @@
     const probRank = Number.isFinite(winProb) ? winProb : -1;
 
     return {
+      backendPriority: Number.NEGATIVE_INFINITY,
       hasPace: hasPace ? 1 : 0,
       paceRank,
       hasSim: hasSim ? 1 : 0,
@@ -2140,7 +2180,8 @@
         const edgeRight = finiteFirst(right?.pace_vs_line, right?.sim_vs_line_adjusted, right?.sim_vs_line, ((Number(right?.pace_proj) - Number(right?.line)) || 0));
         return Math.abs(edgeRight) - Math.abs(edgeLeft);
       }
-      return (rightRank.hasPace - leftRank.hasPace)
+      return (rightRank.backendPriority - leftRank.backendPriority)
+        || (rightRank.hasPace - leftRank.hasPace)
         || (rightRank.paceRank - leftRank.paceRank)
         || (rightRank.hasSim - leftRank.hasSim)
         || (rightRank.simRank - leftRank.simRank)
@@ -2410,6 +2451,8 @@
               price: String(row?.ev_side || row?.lean).toUpperCase() === 'UNDER' ? row?.price_under : row?.price_over,
               ev_pct: Number.isFinite(Number(row?.ev)) ? Number(row.ev) * 100 : null,
               probability: row?.win_prob,
+              recommendation_priority_score: row?.recommendation_priority_score,
+              live_rank_probability: row?.live_rank_probability,
               klass: row?.klass,
               line_source: row?.line_source,
               status_label: status?.final ? 'Final' : (status?.in_progress ? `Q${status?.period || '-'} ${status?.clock || ''}`.trim() : 'Live'),
@@ -2426,6 +2469,9 @@
               bettable_score: row?.bettable_score,
               line_live: row?.line_live,
               line_pregame: row?.line_pregame,
+              first_seen_at: row?.first_seen_at,
+              last_seen_at: row?.last_seen_at,
+              seen_observations: row?.seen_observations,
               pregame_team_total_ratio: row?.pregame_team_total_ratio,
               pregame_game_total_ratio: row?.pregame_game_total_ratio,
               pregame_stat_multiplier: row?.pregame_stat_multiplier,
@@ -2529,10 +2575,25 @@
     }
     const items = sortedPropsStripItems(safePropsStripItems(state.propsStripPayload?.items));
     const matched = items.filter((item) => stripCardTarget(item) === matchup);
-    if (!Number.isFinite(Number(limit)) || Number(limit) <= 0) {
-      return matched;
+    const ranked = matched.filter((item) => Number.isFinite(Number(item?.recommendation_priority_score ?? item?.recommendationPriorityScore)));
+    const pool = ranked.length ? ranked : matched;
+    const limited = [];
+    const perPlayerCounts = new Map();
+    for (const item of pool) {
+      const playerKey = String(item?.player || '').trim().toUpperCase();
+      const seen = Number(perPlayerCounts.get(playerKey) || 0);
+      if (playerKey && seen >= 2) {
+        continue;
+      }
+      limited.push(item);
+      if (playerKey) {
+        perPlayerCounts.set(playerKey, seen + 1);
+      }
     }
-    return matched.slice(0, Number(limit));
+    if (!Number.isFinite(Number(limit)) || Number(limit) <= 0) {
+      return limited;
+    }
+    return limited.slice(0, Number(limit));
   }
 
   function livePropTeaserText(item) {
@@ -2828,6 +2889,8 @@
           actual: Number(item?.actual),
           liveProjection: Number(projection),
           liveEdge: Number(liveEdge),
+          firstSeenAt: item?.first_seen_at,
+          lastSeenAt: item?.last_seen_at,
         };
       })
       .filter(Boolean);
@@ -2909,10 +2972,10 @@
 
   function sidebarPropBoardMarkup(game) {
     const id = cardId(game);
-    const liveRows = liveOpportunityPropRows(game).slice(0, 3);
+    const liveRows = liveOpportunityPropRows(game).slice(0, 9);
     const playableRows = allPropRows(game)
       .sort((left, right) => recommendationSortScore(right) - recommendationSortScore(left))
-      .slice(0, 3);
+      .slice(0, 9);
     const rows = mode === 'live' && liveRows.length ? liveRows : playableRows;
     if (!rows.length) {
       return '<div class="cards-empty-copy">No promoted prop lanes available for this matchup.</div>';
@@ -2922,41 +2985,52 @@
         ${rows.map((row) => {
           const isLiveRow = row.bucket === 'live';
           const badgeClass = isLiveRow ? 'is-live' : '';
-          const badgeLabel = isLiveRow ? (row.actionLabel || 'Live') : (row.bucket === 'official' ? 'Official' : 'Playable');
+          const badgeLabel = isLiveRow ? (row.actionLabel || 'Live') : (row.bucket === 'official' ? 'Official' : '');
           const metrics = isLiveRow
-            ? []
+            ? [
+              { label: 'Actual', value: Number.isFinite(Number(row.actual)) ? fmtNumber(row.actual, 1) : '-' },
+              { label: 'Projected', value: Number.isFinite(Number(row.liveProjection)) ? fmtNumber(row.liveProjection, 1) : '-' },
+              { label: 'Odds', value: fmtAmerican(row.price) },
+              { label: 'Edge', value: Number.isFinite(Number(row.liveEdge)) ? fmtSigned(row.liveEdge, 1) : '-', tone: Number(row.liveEdge) >= 0 ? 'is-positive' : 'is-negative' },
+            ]
             : [
               { label: 'Line', value: `${row.side} ${fmtNumber(row.line, 1)}` },
               { label: 'Odds', value: `${fmtAmerican(row.price)} ${row.book || ''}`.trim() },
               { label: 'Win', value: fmtPercent(row.pWin, 0) },
               { label: 'EV', value: fmtPercentValue(row.evPct), tone: Number(row.evPct) >= 0 ? 'is-positive' : 'is-negative' },
             ];
-          const liveRecap = isLiveRow
-            ? String(row.summary || `${row.statusLabel || 'Live'} for ${row.player || 'this player'} in ${row.matchup || 'this matchup'}.`).trim()
+          const cardLabel = isLiveRow ? 'Player live lens' : `${row.teamTri} prop`;
+          const footLeft = isLiveRow
+            ? `${row.matchup || ''}`.trim()
+            : (row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim());
+          const footRight = isLiveRow
+            ? `${liveRowFreshnessText(row, row.statusLabel || 'Live')}`
+            : `${row.teamTri} | ${row.marketLabel}`;
+          const reasonText = isLiveRow
+            ? String((safeArray(row.reasons)[0] || row.summary || '')).trim()
             : '';
           return `
             <button class="cards-prop-overview-card" type="button" data-prop-select="${escapeHtml(row.key)}" data-card-target="${escapeHtml(id)}">
               <div class="cards-lens-head">
                 <div>
-                  <div class="cards-lens-label">${escapeHtml(isLiveRow ? `${row.teamTri} live lens` : `${row.teamTri} prop`)}</div>
+                  <div class="cards-lens-label">${escapeHtml(cardLabel)}</div>
                   <div class="cards-lens-main">${escapeHtml(row.player)}</div>
                   <div class="cards-subcopy">${escapeHtml(`${row.marketLabel} ${row.side} ${fmtNumber(row.line, 1)}`)}</div>
                 </div>
-                <span class="cards-lens-badge ${badgeClass}">${escapeHtml(badgeLabel)}</span>
+                ${badgeLabel ? `<span class="cards-lens-badge ${badgeClass}">${escapeHtml(badgeLabel)}</span>` : ''}
               </div>
-              ${isLiveRow
-                ? `<div class="cards-callout-copy">${escapeHtml(liveRecap)}</div>`
-                : `<div class="cards-prop-overview-metrics">
+              <div class="cards-prop-overview-metrics">
                 ${metrics.map((metric) => `
                   <div class="cards-data-pair ${metric.tone || ''}">
                     <span>${escapeHtml(metric.label)}</span>
                     <strong>${escapeHtml(metric.value)}</strong>
                   </div>
                 `).join('')}
-              </div>`}
+              </div>
+              ${reasonText ? `<div class="cards-live-lens-reasons"><div class="cards-live-lens-reason">${escapeHtml(reasonText)}</div></div>` : ''}
               <div class="cards-prop-overview-foot">
-                <span>${escapeHtml(isLiveRow ? `${row.statusLabel || 'Live'}${row.matchup ? ` · ${row.matchup}` : ''}` : (row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim()))}</span>
-                <span>${escapeHtml(`${row.teamTri} | ${row.marketLabel}`)}</span>
+                <span>${escapeHtml(footLeft)}</span>
+                <span>${escapeHtml(footRight)}</span>
               </div>
             </button>
           `;
@@ -4378,7 +4452,6 @@
         renderBoard();
       }
 
-      void loadPropsStrip(resolvedDate, { silent, games: payload.games || [] });
       if (mode === 'live') {
         void loadLiveGameLens(resolvedDate, payload.games || [], { silent }).then(() => {
           if ((state.payload?.date || state.date) === resolvedDate) {

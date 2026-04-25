@@ -1784,18 +1784,20 @@ body[data-viewport='phone'] .cards-scoreboard {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  margin-top: 8px;
 }
 
 .cards-prop-overview-card {
+  appearance: none;
   display: grid;
   gap: 8px;
+  width: 100%;
   padding: 9px 10px;
   border: 1px solid rgba(132, 166, 196, 0.12);
   border-radius: 14px;
   background: rgba(10, 21, 34, 0.9);
   color: var(--cards-text);
   text-align: left;
+  font: inherit;
   cursor: pointer;
 }
 

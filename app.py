@@ -824,6 +824,159 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         except Exception:
             return dt.isoformat(timespec="seconds") + "Z"
 
+    def _registry_safe_id(value: Any) -> str:
+        raw = str(value or "").strip() or matchup_key
+        safe = "".join(ch if ch.isalnum() else "_" for ch in raw)
+        safe = safe.strip("_")
+        return safe[:160] or "matchup"
+
+    def _registry_path_for_event(event_value: Any) -> Path:
+        base_dir = DATA_PROCESSED_DIR / "live_lens_registry"
+        return base_dir / f"oddsapi_props_{str(date_str).strip()}_{_registry_safe_id(event_value)}.json"
+
+    def _load_registry(path: Path) -> dict[str, Any]:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(payload, dict):
+                return payload
+        except Exception:
+            pass
+        return {
+            "markets": {},
+            "short_markets": {},
+            "all_markets": {},
+        }
+
+    def _write_registry(path: Path, payload: dict[str, Any]) -> None:
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            tmp_path = path.with_name(path.name + ".tmp")
+            tmp_path.write_text(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True), encoding="utf-8")
+            tmp_path.replace(path)
+        except Exception:
+            pass
+
+    def _normalize_price_entry(value: Any) -> dict[str, float]:
+        out_prices: dict[str, float] = {}
+        if isinstance(value, dict):
+            over = _safe_float(value.get("over"))
+            under = _safe_float(value.get("under"))
+            if over is not None:
+                out_prices["over"] = float(over)
+            if under is not None:
+                out_prices["under"] = float(under)
+        return out_prices
+
+    def _update_registry_bucket(
+        bucket: dict[str, Any],
+        *,
+        current_lines: dict[str, Any],
+        current_prices: dict[str, Any],
+        current_last_updates: dict[str, Any],
+        default_observed_at: Any,
+    ) -> None:
+        keys = {
+            str(key).strip()
+            for key in list(current_lines.keys()) + list(current_prices.keys()) + list(current_last_updates.keys())
+            if str(key).strip()
+        }
+        fallback_dt = _parse_iso_utc_naive(default_observed_at) or datetime.utcnow()
+        for key in keys:
+            observed_dt = _parse_iso_utc_naive(current_last_updates.get(key)) or fallback_dt
+            observed_at = _dt_to_z(observed_dt)
+            entry = bucket.get(key)
+            if not isinstance(entry, dict):
+                entry = {}
+
+            first_dt = _parse_iso_utc_naive(entry.get("first_seen_at"))
+            last_dt = _parse_iso_utc_naive(entry.get("last_seen_at"))
+            line_value = _safe_float(current_lines.get(key))
+            price_value = _normalize_price_entry(current_prices.get(key))
+
+            if first_dt is None or observed_dt < first_dt:
+                entry["first_seen_at"] = observed_at
+                if line_value is not None:
+                    entry["first_line"] = float(line_value)
+                if price_value:
+                    entry["first_prices"] = dict(price_value)
+            else:
+                if entry.get("first_line") is None and line_value is not None:
+                    entry["first_line"] = float(line_value)
+                if not isinstance(entry.get("first_prices"), dict) and price_value:
+                    entry["first_prices"] = dict(price_value)
+
+            if last_dt is None or observed_dt >= last_dt:
+                entry["last_seen_at"] = observed_at
+                if line_value is not None:
+                    entry["last_line"] = float(line_value)
+                if price_value:
+                    entry["last_prices"] = dict(price_value)
+            else:
+                if entry.get("last_line") is None and line_value is not None:
+                    entry["last_line"] = float(line_value)
+                if not isinstance(entry.get("last_prices"), dict) and price_value:
+                    entry["last_prices"] = dict(price_value)
+
+            try:
+                entry["observations"] = int(entry.get("observations") or 0) + 1
+            except Exception:
+                entry["observations"] = 1
+            bucket[key] = entry
+
+    def _extract_registry_bucket(bucket: Any) -> dict[str, dict[str, Any]]:
+        first_seen_at: dict[str, str] = {}
+        last_seen_at: dict[str, str] = {}
+        first_line: dict[str, float] = {}
+        last_line: dict[str, float] = {}
+        first_prices: dict[str, dict[str, float]] = {}
+        last_prices: dict[str, dict[str, float]] = {}
+        observations: dict[str, int] = {}
+        if not isinstance(bucket, dict):
+            return {
+                "first_seen_at": first_seen_at,
+                "last_seen_at": last_seen_at,
+                "first_line": first_line,
+                "last_line": last_line,
+                "first_prices": first_prices,
+                "last_prices": last_prices,
+                "observations": observations,
+            }
+        for raw_key, raw_entry in bucket.items():
+            key = str(raw_key or "").strip()
+            if not key or not isinstance(raw_entry, dict):
+                continue
+            first_seen = str(raw_entry.get("first_seen_at") or "").strip()
+            last_seen = str(raw_entry.get("last_seen_at") or "").strip()
+            if first_seen:
+                first_seen_at[key] = first_seen
+            if last_seen:
+                last_seen_at[key] = last_seen
+            first_line_val = _safe_float(raw_entry.get("first_line"))
+            last_line_val = _safe_float(raw_entry.get("last_line"))
+            if first_line_val is not None:
+                first_line[key] = float(first_line_val)
+            if last_line_val is not None:
+                last_line[key] = float(last_line_val)
+            first_price_val = _normalize_price_entry(raw_entry.get("first_prices"))
+            last_price_val = _normalize_price_entry(raw_entry.get("last_prices"))
+            if first_price_val:
+                first_prices[key] = first_price_val
+            if last_price_val:
+                last_prices[key] = last_price_val
+            try:
+                observations[key] = int(raw_entry.get("observations") or 0)
+            except Exception:
+                pass
+        return {
+            "first_seen_at": first_seen_at,
+            "last_seen_at": last_seen_at,
+            "first_line": first_line,
+            "last_line": last_line,
+            "first_prices": first_prices,
+            "last_prices": last_prices,
+            "observations": observations,
+        }
+
     want_all_markets = str(os.environ.get("LIVE_PLAYER_PROPS_ALL_MARKETS", "1")).strip().lower() in {"1", "true", "yes"}
     try:
         markets_batch = int(float(str(os.environ.get("LIVE_PLAYER_PROPS_MARKETS_BATCH", "20")).strip()))
@@ -1016,6 +1169,7 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         if cur:
             outc.append(cur)
         return outc
+
 
     # Collect points + prices across books; reduce with median.
     # Core (lens) keys: (name_key, stat_key)
@@ -1336,8 +1490,29 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         "all_points_n_by_key": {},
         "last_update_max": None,
         "last_update_by_key": {},
+        "first_seen_at_by_key": {},
+        "last_seen_at_by_key": {},
+        "first_line_by_key": {},
+        "last_line_by_key": {},
+        "first_prices_by_key": {},
+        "last_prices_by_key": {},
+        "observations_by_key": {},
         "short_last_update_by_key": short_last_update_by_key_out,
+        "short_first_seen_at_by_key": {},
+        "short_last_seen_at_by_key": {},
+        "short_first_line_by_key": {},
+        "short_last_line_by_key": {},
+        "short_first_prices_by_key": {},
+        "short_last_prices_by_key": {},
+        "short_observations_by_key": {},
         "all_last_update_by_key": {},
+        "all_first_seen_at_by_key": {},
+        "all_last_seen_at_by_key": {},
+        "all_first_line_by_key": {},
+        "all_last_line_by_key": {},
+        "all_first_prices_by_key": {},
+        "all_last_prices_by_key": {},
+        "all_observations_by_key": {},
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
 
@@ -1414,8 +1589,199 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     except Exception:
         out["all_last_update_by_key"] = {}
 
+    # Persist lightweight market history so the live lens can expose MLB-style
+    # first/last seen context across repeated live refreshes.
+    try:
+        registry_path = _registry_path_for_event(event_id)
+        registry_payload = _load_registry(registry_path)
+        registry_payload["event_id"] = str(event_id)
+        registry_payload["date"] = str(date_str)
+        registry_payload["updated_at"] = str(out.get("generated_at") or "")
+
+        markets_bucket = registry_payload.setdefault("markets", {})
+        if not isinstance(markets_bucket, dict):
+            markets_bucket = {}
+            registry_payload["markets"] = markets_bucket
+        _update_registry_bucket(
+            markets_bucket,
+            current_lines=out.get("lines") if isinstance(out.get("lines"), dict) else {},
+            current_prices=out.get("prices") if isinstance(out.get("prices"), dict) else {},
+            current_last_updates=out.get("last_update_by_key") if isinstance(out.get("last_update_by_key"), dict) else {},
+            default_observed_at=out.get("last_update_max") or out.get("generated_at"),
+        )
+
+        short_bucket = registry_payload.setdefault("short_markets", {})
+        if not isinstance(short_bucket, dict):
+            short_bucket = {}
+            registry_payload["short_markets"] = short_bucket
+        _update_registry_bucket(
+            short_bucket,
+            current_lines=out.get("short_lines") if isinstance(out.get("short_lines"), dict) else {},
+            current_prices=out.get("short_prices") if isinstance(out.get("short_prices"), dict) else {},
+            current_last_updates=out.get("short_last_update_by_key") if isinstance(out.get("short_last_update_by_key"), dict) else {},
+            default_observed_at=out.get("last_update_max") or out.get("generated_at"),
+        )
+
+        all_bucket = registry_payload.setdefault("all_markets", {})
+        if not isinstance(all_bucket, dict):
+            all_bucket = {}
+            registry_payload["all_markets"] = all_bucket
+        _update_registry_bucket(
+            all_bucket,
+            current_lines=out.get("all_lines") if isinstance(out.get("all_lines"), dict) else {},
+            current_prices=out.get("all_prices") if isinstance(out.get("all_prices"), dict) else {},
+            current_last_updates=out.get("all_last_update_by_key") if isinstance(out.get("all_last_update_by_key"), dict) else {},
+            default_observed_at=out.get("last_update_max") or out.get("generated_at"),
+        )
+
+        _write_registry(registry_path, registry_payload)
+
+        registry_maps = _extract_registry_bucket(markets_bucket)
+        out["first_seen_at_by_key"] = registry_maps.get("first_seen_at") or {}
+        out["last_seen_at_by_key"] = registry_maps.get("last_seen_at") or {}
+        out["first_line_by_key"] = registry_maps.get("first_line") or {}
+        out["last_line_by_key"] = registry_maps.get("last_line") or {}
+        out["first_prices_by_key"] = registry_maps.get("first_prices") or {}
+        out["last_prices_by_key"] = registry_maps.get("last_prices") or {}
+        out["observations_by_key"] = registry_maps.get("observations") or {}
+
+        short_registry_maps = _extract_registry_bucket(short_bucket)
+        out["short_first_seen_at_by_key"] = short_registry_maps.get("first_seen_at") or {}
+        out["short_last_seen_at_by_key"] = short_registry_maps.get("last_seen_at") or {}
+        out["short_first_line_by_key"] = short_registry_maps.get("first_line") or {}
+        out["short_last_line_by_key"] = short_registry_maps.get("last_line") or {}
+        out["short_first_prices_by_key"] = short_registry_maps.get("first_prices") or {}
+        out["short_last_prices_by_key"] = short_registry_maps.get("last_prices") or {}
+        out["short_observations_by_key"] = short_registry_maps.get("observations") or {}
+
+        all_registry_maps = _extract_registry_bucket(all_bucket)
+        out["all_first_seen_at_by_key"] = all_registry_maps.get("first_seen_at") or {}
+        out["all_last_seen_at_by_key"] = all_registry_maps.get("last_seen_at") or {}
+        out["all_first_line_by_key"] = all_registry_maps.get("first_line") or {}
+        out["all_last_line_by_key"] = all_registry_maps.get("last_line") or {}
+        out["all_first_prices_by_key"] = all_registry_maps.get("first_prices") or {}
+        out["all_last_prices_by_key"] = all_registry_maps.get("last_prices") or {}
+        out["all_observations_by_key"] = all_registry_maps.get("observations") or {}
+    except Exception:
+        pass
+
     _live_oddsapi_player_props_cache[matchup_key] = (now, out)
     return out
+
+
+def _live_prop_progress_fraction(elapsed_min: Any) -> float:
+    try:
+        value = float(elapsed_min)
+    except Exception:
+        value = 0.0
+    if not math.isfinite(value):
+        value = 0.0
+    return float(max(0.0, min(1.0, value / 48.0)))
+
+
+def _live_prop_selected_gap(selected_side: Any, over_gap: Any) -> float:
+    side = str(selected_side or "").strip().upper()
+    gap = _safe_float(over_gap)
+    if gap is None:
+        return 0.0
+    if side == "UNDER":
+        return float(-gap)
+    return float(gap)
+
+
+def _live_prop_rank_probability(
+    *,
+    selected_side: Any,
+    selected_prob: Any,
+    selected_implied_prob: Any,
+    pace_gap: Any,
+    sim_gap: Any,
+    pregame_gap: Any,
+    current_gap: Any,
+    progress_fraction: Any,
+    score_diff_team: Any,
+    bettable_score: Any,
+    edge_sigma: Any,
+    line_live_age_sec: Any,
+    first_seen_age_sec: Any,
+    seen_observations: Any,
+) -> float | None:
+    prob = _safe_float(selected_prob)
+    implied = _safe_float(selected_implied_prob)
+    if prob is None:
+        return None
+
+    pace_selected = _live_prop_selected_gap(selected_side, pace_gap)
+    sim_selected = _live_prop_selected_gap(selected_side, sim_gap)
+    pregame_selected = _live_prop_selected_gap(selected_side, pregame_gap)
+    current_selected = _live_prop_selected_gap(selected_side, current_gap)
+    progress = _live_prop_progress_fraction(progress_fraction * 48.0 if _safe_float(progress_fraction) is not None and float(progress_fraction) <= 1.0 else progress_fraction)
+    score_delta = _safe_float(score_diff_team) or 0.0
+    bettable = _safe_float(bettable_score) or 0.0
+    edge_sigma_val = _safe_float(edge_sigma) or 0.0
+    line_age = _safe_float(line_live_age_sec)
+    first_seen_age = _safe_float(first_seen_age_sec)
+    obs = _safe_float(seen_observations) or 0.0
+
+    freshness = 0.55
+    if line_age is not None:
+        freshness = max(0.0, min(1.0, 1.0 - (float(line_age) / 900.0)))
+
+    persistence = 0.0
+    if first_seen_age is not None:
+        persistence += max(0.0, min(1.0, float(first_seen_age) / 240.0)) * 0.6
+    if obs > 0.0:
+        persistence += max(0.0, min(1.0, float(obs) / 4.0)) * 0.4
+    persistence = max(0.0, min(1.0, persistence))
+
+    market_edge = 0.0
+    if implied is not None:
+        market_edge = float(prob) - float(implied)
+
+    side = str(selected_side or "").strip().upper()
+    current_support = max(0.0, min(1.4, float(current_selected) / 2.5))
+    late_under_penalty = 0.0
+    if side == "UNDER":
+        late_under_penalty = max(0.0, min(1.0, (progress - 0.55) / 0.30))
+        # Keep very strong unders viable, but suppress the common late-game
+        # under bias when the current cushion is modest.
+        late_under_penalty *= max(0.25, 1.0 - (0.55 * current_support))
+
+    # MLB parity: treat live gaps as centered/scaled features instead of letting
+    # raw NBA stat deltas linearly saturate the score.
+    prob_term = max(-1.5, min(1.5, (float(prob) - 0.5) / 0.18))
+    market_edge_term = max(-1.25, min(1.25, float(market_edge) / 0.12))
+    pace_term = max(-1.4, min(1.4, float(pace_selected) / 3.5))
+    sim_term = max(-1.4, min(1.4, float(sim_selected) / 6.0))
+    pregame_term = max(-1.2, min(1.2, float(pregame_selected) / 6.0))
+    current_term = max(-1.1, min(1.1, float(current_selected) / 2.5))
+    edge_sigma_term = max(0.0, min(1.4, float(edge_sigma_val)))
+    game_script_term = max(0.0, min(1.2, abs(float(score_delta)) / 10.0))
+
+    score = -0.78
+    score += 0.95 * prob_term
+    score += 0.65 * market_edge_term
+    score += 0.26 * pace_term
+    score += 0.22 * sim_term
+    score += 0.14 * pregame_term
+    score += 0.10 * current_term
+    score += 0.34 * (bettable - 0.5)
+    score += 0.14 * edge_sigma_term
+    score += 0.10 * (freshness - 0.5)
+    score += 0.12 * (persistence - 0.5)
+    score -= 0.16 * progress
+    score -= 0.08 * game_script_term
+    score -= 0.24 * late_under_penalty
+
+    try:
+        model_prob = 1.0 / (1.0 + math.exp(-float(score)))
+    except OverflowError:
+        model_prob = 0.0 if float(score) < 0.0 else 1.0
+    blended = (0.45 * float(prob)) + (0.55 * float(model_prob))
+    if side == "UNDER" and late_under_penalty > 0.0:
+        under_cap = 0.88 - (0.18 * late_under_penalty) + (0.05 * current_support)
+        blended = min(float(blended), max(0.60, min(0.88, under_cap)))
+    return float(max(0.03, min(0.88, blended)))
 
 
 def _live_append_snapshot(kind: str, date_str: str, record: dict[str, Any]) -> None:
@@ -36809,6 +37175,13 @@ def api_live_player_lens():
         live_prop_short_lines: dict[str, Any] = {}
         live_prop_short_prices: dict[str, Any] = {}
         live_prop_short_last_update_by_key: dict[str, Any] = {}
+        live_prop_short_first_seen_by_key: dict[str, Any] = {}
+        live_prop_short_last_seen_by_key: dict[str, Any] = {}
+        live_prop_short_first_line_by_key: dict[str, Any] = {}
+        live_prop_short_last_line_by_key: dict[str, Any] = {}
+        live_prop_short_first_prices_by_key: dict[str, Any] = {}
+        live_prop_short_last_prices_by_key: dict[str, Any] = {}
+        live_prop_short_observations_by_key: dict[str, Any] = {}
         live_prop_short_points_span_by_key: dict[str, Any] = {}
         live_prop_short_points_n_by_key: dict[str, Any] = {}
         live_prop_all_lines: dict[str, Any] = {}
@@ -36817,6 +37190,13 @@ def api_live_player_lens():
         live_prop_all_points_span_by_key: dict[str, Any] = {}
         live_prop_all_points_n_by_key: dict[str, Any] = {}
         live_prop_last_update_by_key: dict[str, Any] = {}
+        live_prop_first_seen_by_key: dict[str, Any] = {}
+        live_prop_last_seen_by_key: dict[str, Any] = {}
+        live_prop_first_line_by_key: dict[str, Any] = {}
+        live_prop_last_line_by_key: dict[str, Any] = {}
+        live_prop_first_prices_by_key: dict[str, Any] = {}
+        live_prop_last_prices_by_key: dict[str, Any] = {}
+        live_prop_observations_by_key: dict[str, Any] = {}
         live_prop_last_update_max: str | None = None
         live_prop_points_span_by_key: dict[str, Any] = {}
         live_prop_points_n_by_key: dict[str, Any] = {}
@@ -36831,6 +37211,27 @@ def api_live_player_lens():
                     live_prop_short_last_update_by_key = (
                         live_prop_meta.get("short_last_update_by_key") if isinstance(live_prop_meta.get("short_last_update_by_key"), dict) else {}
                     )
+                    live_prop_short_first_seen_by_key = (
+                        live_prop_meta.get("short_first_seen_at_by_key") if isinstance(live_prop_meta.get("short_first_seen_at_by_key"), dict) else {}
+                    )
+                    live_prop_short_last_seen_by_key = (
+                        live_prop_meta.get("short_last_seen_at_by_key") if isinstance(live_prop_meta.get("short_last_seen_at_by_key"), dict) else {}
+                    )
+                    live_prop_short_first_line_by_key = (
+                        live_prop_meta.get("short_first_line_by_key") if isinstance(live_prop_meta.get("short_first_line_by_key"), dict) else {}
+                    )
+                    live_prop_short_last_line_by_key = (
+                        live_prop_meta.get("short_last_line_by_key") if isinstance(live_prop_meta.get("short_last_line_by_key"), dict) else {}
+                    )
+                    live_prop_short_first_prices_by_key = (
+                        live_prop_meta.get("short_first_prices_by_key") if isinstance(live_prop_meta.get("short_first_prices_by_key"), dict) else {}
+                    )
+                    live_prop_short_last_prices_by_key = (
+                        live_prop_meta.get("short_last_prices_by_key") if isinstance(live_prop_meta.get("short_last_prices_by_key"), dict) else {}
+                    )
+                    live_prop_short_observations_by_key = (
+                        live_prop_meta.get("short_observations_by_key") if isinstance(live_prop_meta.get("short_observations_by_key"), dict) else {}
+                    )
                     live_prop_short_points_span_by_key = (
                         live_prop_meta.get("short_points_span_by_key") if isinstance(live_prop_meta.get("short_points_span_by_key"), dict) else {}
                     )
@@ -36844,6 +37245,13 @@ def api_live_player_lens():
                         live_prop_all_points_span_by_key = live_prop_meta.get("all_points_span_by_key") if isinstance(live_prop_meta.get("all_points_span_by_key"), dict) else {}
                         live_prop_all_points_n_by_key = live_prop_meta.get("all_points_n_by_key") if isinstance(live_prop_meta.get("all_points_n_by_key"), dict) else {}
                     live_prop_last_update_by_key = live_prop_meta.get("last_update_by_key") if isinstance(live_prop_meta.get("last_update_by_key"), dict) else {}
+                    live_prop_first_seen_by_key = live_prop_meta.get("first_seen_at_by_key") if isinstance(live_prop_meta.get("first_seen_at_by_key"), dict) else {}
+                    live_prop_last_seen_by_key = live_prop_meta.get("last_seen_at_by_key") if isinstance(live_prop_meta.get("last_seen_at_by_key"), dict) else {}
+                    live_prop_first_line_by_key = live_prop_meta.get("first_line_by_key") if isinstance(live_prop_meta.get("first_line_by_key"), dict) else {}
+                    live_prop_last_line_by_key = live_prop_meta.get("last_line_by_key") if isinstance(live_prop_meta.get("last_line_by_key"), dict) else {}
+                    live_prop_first_prices_by_key = live_prop_meta.get("first_prices_by_key") if isinstance(live_prop_meta.get("first_prices_by_key"), dict) else {}
+                    live_prop_last_prices_by_key = live_prop_meta.get("last_prices_by_key") if isinstance(live_prop_meta.get("last_prices_by_key"), dict) else {}
+                    live_prop_observations_by_key = live_prop_meta.get("observations_by_key") if isinstance(live_prop_meta.get("observations_by_key"), dict) else {}
                     live_prop_points_span_by_key = live_prop_meta.get("points_span_by_key") if isinstance(live_prop_meta.get("points_span_by_key"), dict) else {}
                     live_prop_points_n_by_key = live_prop_meta.get("points_n_by_key") if isinstance(live_prop_meta.get("points_n_by_key"), dict) else {}
                     try:
@@ -36857,6 +37265,13 @@ def api_live_player_lens():
             live_prop_short_lines = {}
             live_prop_short_prices = {}
             live_prop_short_last_update_by_key = {}
+            live_prop_short_first_seen_by_key = {}
+            live_prop_short_last_seen_by_key = {}
+            live_prop_short_first_line_by_key = {}
+            live_prop_short_last_line_by_key = {}
+            live_prop_short_first_prices_by_key = {}
+            live_prop_short_last_prices_by_key = {}
+            live_prop_short_observations_by_key = {}
             live_prop_short_points_span_by_key = {}
             live_prop_short_points_n_by_key = {}
             live_prop_all_lines = {}
@@ -36865,6 +37280,13 @@ def api_live_player_lens():
             live_prop_all_points_span_by_key = {}
             live_prop_all_points_n_by_key = {}
             live_prop_last_update_by_key = {}
+            live_prop_first_seen_by_key = {}
+            live_prop_last_seen_by_key = {}
+            live_prop_first_line_by_key = {}
+            live_prop_last_line_by_key = {}
+            live_prop_first_prices_by_key = {}
+            live_prop_last_prices_by_key = {}
+            live_prop_observations_by_key = {}
             live_prop_last_update_max = None
             live_prop_points_span_by_key = {}
             live_prop_points_n_by_key = {}
@@ -37359,6 +37781,17 @@ def api_live_player_lens():
                         line_live_age_sec = None
                         line_live_span = None
                         line_live_n = None
+                        line_live_first_seen_at = None
+                        line_live_first_seen_age_sec = None
+                        line_live_last_seen_at = None
+                        line_live_last_seen_age_sec = None
+                        line_live_first_line = None
+                        line_live_last_line = None
+                        line_live_first_price_over = None
+                        line_live_first_price_under = None
+                        line_live_last_price_over = None
+                        line_live_last_price_under = None
+                        line_live_observations = None
                         line_live_filtered = False
                         line_live_filter_reason = None
                         try:
@@ -37414,6 +37847,64 @@ def api_live_player_lens():
                         except Exception:
                             line_live_as_of = None
                             line_live_age_sec = None
+
+                        # Persistent registry context from repeated live OddsAPI observations.
+                        try:
+                            if line_live_key:
+                                first_seen_map = live_prop_first_seen_by_key
+                                last_seen_map = live_prop_last_seen_by_key
+                                first_line_map = live_prop_first_line_by_key
+                                last_line_map = live_prop_last_line_by_key
+                                first_prices_map = live_prop_first_prices_by_key
+                                last_prices_map = live_prop_last_prices_by_key
+                                observations_map = live_prop_observations_by_key
+                                if line_live_key not in first_seen_map and line_live_key not in last_seen_map:
+                                    first_seen_map = live_prop_short_first_seen_by_key
+                                    last_seen_map = live_prop_short_last_seen_by_key
+                                    first_line_map = live_prop_short_first_line_by_key
+                                    last_line_map = live_prop_short_last_line_by_key
+                                    first_prices_map = live_prop_short_first_prices_by_key
+                                    last_prices_map = live_prop_short_last_prices_by_key
+                                    observations_map = live_prop_short_observations_by_key
+
+                                first_seen_raw = first_seen_map.get(line_live_key) if isinstance(first_seen_map, dict) else None
+                                last_seen_raw = last_seen_map.get(line_live_key) if isinstance(last_seen_map, dict) else None
+                                if first_seen_raw:
+                                    line_live_first_seen_at = str(first_seen_raw)
+                                    dt = datetime.fromisoformat(str(first_seen_raw).replace("Z", "+00:00"))
+                                    if dt.tzinfo is not None:
+                                        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+                                    line_live_first_seen_age_sec = float((datetime.utcnow() - dt).total_seconds())
+                                if last_seen_raw:
+                                    line_live_last_seen_at = str(last_seen_raw)
+                                    dt = datetime.fromisoformat(str(last_seen_raw).replace("Z", "+00:00"))
+                                    if dt.tzinfo is not None:
+                                        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+                                    line_live_last_seen_age_sec = float((datetime.utcnow() - dt).total_seconds())
+
+                                line_live_first_line = _safe_float(first_line_map.get(line_live_key)) if isinstance(first_line_map, dict) else None
+                                line_live_last_line = _safe_float(last_line_map.get(line_live_key)) if isinstance(last_line_map, dict) else None
+                                fp = first_prices_map.get(line_live_key) if isinstance(first_prices_map, dict) else None
+                                lp = last_prices_map.get(line_live_key) if isinstance(last_prices_map, dict) else None
+                                if isinstance(fp, dict):
+                                    line_live_first_price_over = _safe_float(fp.get("over"))
+                                    line_live_first_price_under = _safe_float(fp.get("under"))
+                                if isinstance(lp, dict):
+                                    line_live_last_price_over = _safe_float(lp.get("over"))
+                                    line_live_last_price_under = _safe_float(lp.get("under"))
+                                line_live_observations = _safe_int(observations_map.get(line_live_key)) if isinstance(observations_map, dict) else None
+                        except Exception:
+                            line_live_first_seen_at = None
+                            line_live_first_seen_age_sec = None
+                            line_live_last_seen_at = None
+                            line_live_last_seen_age_sec = None
+                            line_live_first_line = None
+                            line_live_last_line = None
+                            line_live_first_price_over = None
+                            line_live_first_price_under = None
+                            line_live_last_price_over = None
+                            line_live_last_price_under = None
+                            line_live_observations = None
 
                         # Fallback: if per-market last_update is missing, use the best-effort
                         # max last_update across all returned markets for the event.
@@ -37942,6 +38433,15 @@ def api_live_player_lens():
                         sim_vs_line = (sim_mu - float(line_used)) if (sim_mu is not None and line_used is not None) else None
                         sim_vs_line_adjusted = (sim_mu_for_projection - float(line_used)) if (sim_mu_for_projection is not None and line_used is not None) else None
 
+                        score_diff_team = None
+                        try:
+                            if margin is not None:
+                                score_diff_team = float(margin) if str(team or "").upper().strip() == str(home or "").upper().strip() else float(-margin)
+                        except Exception:
+                            score_diff_team = None
+
+                        progress_fraction = _live_prop_progress_fraction(elapsed_min)
+
                         lean = None
                         strength = None
                         strength_sigma = None
@@ -38019,6 +38519,12 @@ def api_live_player_lens():
                         price_hold = None
                         edge_sigma = None
                         klass_raw = klass
+                        live_rank_probability = None
+                        recommendation_priority_score = None
+                        selected_pregame_gap = None
+                        selected_current_gap = None
+                        selected_pace_gap = None
+                        selected_sim_gap = None
                         try:
                             gate_neg_ev = str(os.environ.get("LIVE_PLAYER_LENS_GATE_NEGATIVE_EV", "0")).strip().lower() in {"1", "true", "yes"}
                         except Exception:
@@ -38150,6 +38656,47 @@ def api_live_player_lens():
                             edge_sigma = None
                             klass_raw = klass
 
+                        try:
+                            selected_side = str(ev_side or lean or "").strip().upper()
+                            pregame_gap_over = None
+                            if sim_mu_for_projection is not None and line_pregame is not None:
+                                pregame_gap_over = float(sim_mu_for_projection) - float(line_pregame)
+                            current_gap_over = None
+                            if actual is not None and line_used is not None:
+                                current_gap_over = float(actual) - float(line_used)
+                            selected_pregame_gap = _live_prop_selected_gap(selected_side, pregame_gap_over)
+                            selected_current_gap = _live_prop_selected_gap(selected_side, current_gap_over)
+                            selected_pace_gap = _live_prop_selected_gap(selected_side, pace_vs_line)
+                            selected_sim_gap = _live_prop_selected_gap(selected_side, sim_vs_line_adjusted if sim_vs_line_adjusted is not None else sim_vs_line)
+                            live_rank_probability = _live_prop_rank_probability(
+                                selected_side=selected_side,
+                                selected_prob=win_prob_side,
+                                selected_implied_prob=implied_prob_side,
+                                pace_gap=pace_vs_line,
+                                sim_gap=sim_vs_line_adjusted if sim_vs_line_adjusted is not None else sim_vs_line,
+                                pregame_gap=pregame_gap_over,
+                                current_gap=current_gap_over,
+                                progress_fraction=progress_fraction,
+                                score_diff_team=score_diff_team,
+                                bettable_score=bettable_score,
+                                edge_sigma=edge_sigma,
+                                line_live_age_sec=line_live_age_sec,
+                                first_seen_age_sec=line_live_first_seen_age_sec,
+                                seen_observations=line_live_observations,
+                            )
+                            if live_rank_probability is not None:
+                                recommendation_priority_score = round(float(live_rank_probability) * 100.0, 3)
+                        except Exception:
+                            live_rank_probability = None
+                            recommendation_priority_score = None
+                            selected_pregame_gap = None
+                            selected_current_gap = None
+                            selected_pace_gap = None
+                            selected_sim_gap = None
+
+                        if klass not in {"BET", "WATCH"}:
+                            recommendation_priority_score = None
+
                         rows.append({
                             "team_tri": team,
                             "player": player,
@@ -38171,6 +38718,17 @@ def api_live_player_lens():
                             "line_live_age_sec": line_live_age_sec,
                             "line_live_span": line_live_span,
                             "line_live_n": line_live_n,
+                            "first_seen_at": line_live_first_seen_at,
+                            "first_seen_age_sec": line_live_first_seen_age_sec,
+                            "last_seen_at": line_live_last_seen_at or line_live_as_of,
+                            "last_seen_age_sec": line_live_last_seen_age_sec if line_live_last_seen_age_sec is not None else line_live_age_sec,
+                            "first_seen_line": float(line_live_first_line) if line_live_first_line is not None else None,
+                            "last_seen_line": float(line_live_last_line) if line_live_last_line is not None else (float(line_live) if line_live is not None else None),
+                            "first_seen_price_over": line_live_first_price_over,
+                            "first_seen_price_under": line_live_first_price_under,
+                            "last_seen_price_over": line_live_last_price_over,
+                            "last_seen_price_under": line_live_last_price_under,
+                            "seen_observations": line_live_observations,
                             "line_live_filtered": bool(line_live_filtered),
                             "line_live_filter_reason": line_live_filter_reason,
                             "line_pregame": float(line_pregame) if line_pregame is not None else None,
@@ -38185,6 +38743,9 @@ def api_live_player_lens():
                             "win_prob": win_prob_side,
                             "implied_prob": implied_prob_side,
                             "ev": ev_best,
+                            "live_rank_probability": live_rank_probability,
+                            "recommendation_priority_score": recommendation_priority_score,
+                            "score_adj": live_rank_probability,
                             "exp_min": exp_min,
                             "exp_min_eff": exp_min_eff,
                             "exp_min_rot": exp_min_rot,
@@ -38211,6 +38772,12 @@ def api_live_player_lens():
                             "bettable_reasons": bettable_reasons,
                             "price_hold": price_hold,
                             "edge_sigma": edge_sigma,
+                            "progress_fraction": progress_fraction,
+                            "score_diff_team": score_diff_team,
+                            "selected_pregame_gap": selected_pregame_gap,
+                            "selected_current_gap": selected_current_gap,
+                            "selected_pace_gap": selected_pace_gap,
+                            "selected_sim_gap": selected_sim_gap,
                             "_usage_window_sec": recent_window_sec,
                             "pace_mult": pace_mult_used,
                             "role_mult": role_mult_used,
@@ -38243,7 +38810,46 @@ def api_live_player_lens():
 
         # Sort: strongest pacing divergence first, then minutes
         try:
-            rows.sort(key=lambda r: (float(r.get("strength") or 0.0), float(r.get("mp") or 0.0)), reverse=True)
+            rows.sort(
+                key=lambda r: (
+                    float(r.get("recommendation_priority_score") or float("-inf")),
+                    float(r.get("win_prob") or float("-inf")),
+                    float(r.get("edge_sigma") or float("-inf")),
+                    float(r.get("bettable_score") or float("-inf")),
+                    float(r.get("strength") or float("-inf")),
+                    float(r.get("mp") or float("-inf")),
+                ),
+                reverse=True,
+            )
+
+            player_rank_seen: dict[str, int] = {}
+            for row in rows:
+                base_priority = _safe_float(row.get("recommendation_priority_score"))
+                if base_priority is None:
+                    continue
+                player_key = str(row.get("player") or "").strip().upper()
+                if not player_key:
+                    continue
+                seen_count = int(player_rank_seen.get(player_key) or 0)
+                player_rank_seen[player_key] = seen_count + 1
+                if seen_count <= 0:
+                    continue
+                duplicate_penalty = min(26.0, 11.0 * float(seen_count))
+                adjusted_priority = max(0.5, float(base_priority) - duplicate_penalty)
+                row["recommendation_priority_score"] = round(adjusted_priority, 3)
+                row["live_rank_probability"] = round(adjusted_priority / 100.0, 6)
+
+            rows.sort(
+                key=lambda r: (
+                    float(r.get("recommendation_priority_score") or float("-inf")),
+                    float(r.get("win_prob") or float("-inf")),
+                    float(r.get("edge_sigma") or float("-inf")),
+                    float(r.get("bettable_score") or float("-inf")),
+                    float(r.get("strength") or float("-inf")),
+                    float(r.get("mp") or float("-inf")),
+                ),
+                reverse=True,
+            )
         except Exception:
             pass
 
