@@ -6686,6 +6686,39 @@ def _season_betting_card_cache_set(cache: dict[str, tuple[float, Any]], key: str
         pass
 
 
+def _season_betting_card_profile_key(profile: str | None) -> str:
+    profile_key = re.sub(r"[^a-z0-9_-]+", "_", str(profile or "retuned").strip().lower()).strip("_")
+    return profile_key or "retuned"
+
+
+def _season_betting_card_manifest_artifact_candidates(season: int, profile: str, requested_date: str | None = None) -> list[Path]:
+    profile_key = _season_betting_card_profile_key(profile)
+    paths: list[Path] = []
+    if requested_date:
+        paths.append(DATA_PROCESSED_DIR / f"season_betting_card_manifest_{int(season)}_{profile_key}_{str(requested_date).strip()}.json")
+    paths.append(DATA_PROCESSED_DIR / f"season_betting_card_manifest_{int(season)}_{profile_key}.json")
+    return paths
+
+
+def _season_betting_card_day_artifact_candidates(season: int, profile: str, date_str: str, *, include_prop_insights: bool) -> list[Path]:
+    profile_key = _season_betting_card_profile_key(profile)
+    suffix = "_insights" if include_prop_insights else ""
+    return [DATA_PROCESSED_DIR / f"season_betting_card_day_{int(season)}_{profile_key}_{str(date_str).strip()}{suffix}.json"]
+
+
+def _season_betting_card_load_artifact(paths: list[Path]) -> dict[str, Any] | None:
+    for fp in (paths or []):
+        try:
+            if not isinstance(fp, Path) or not fp.exists():
+                continue
+            payload = json.loads(fp.read_text(encoding="utf-8"))
+            if isinstance(payload, dict):
+                return payload
+        except Exception:
+            continue
+    return None
+
+
 def _season_betting_card_fetch_cards_payload(date_str: str) -> dict[str, Any] | None:
     ttl_sec = _season_betting_card_cache_ttl_seconds()
     cache_key = str(date_str or "").strip()
@@ -7709,6 +7742,17 @@ def _season_betting_card_day_payload(
     *,
     include_prop_insights: bool = False,
 ) -> dict[str, Any] | None:
+    artifact_payload = _season_betting_card_load_artifact(
+        _season_betting_card_day_artifact_candidates(
+            season,
+            profile,
+            date_str,
+            include_prop_insights=include_prop_insights,
+        )
+    )
+    if isinstance(artifact_payload, dict):
+        return artifact_payload
+
     ttl_sec = _season_betting_card_cache_ttl_seconds()
     cache_key = f"{int(season)}|{str(profile or '').strip().lower()}|{str(date_str or '').strip()}|{1 if include_prop_insights else 0}"
     cached = _season_betting_card_cache_get(_season_betting_card_day_cache, cache_key, ttl_sec)
@@ -7909,6 +7953,12 @@ def _season_betting_card_day_payload_from_cards(
 
 
 def _season_betting_card_manifest(season: int, profile: str, requested_date: str | None = None) -> dict[str, Any]:
+    artifact_payload = _season_betting_card_load_artifact(
+        _season_betting_card_manifest_artifact_candidates(season, profile, requested_date=requested_date)
+    )
+    if isinstance(artifact_payload, dict):
+        return artifact_payload
+
     ttl_sec = _season_betting_card_cache_ttl_seconds()
     cache_key = f"{int(season)}|{str(profile or '').strip().lower()}|{str(requested_date or '').strip()}"
     cached = _season_betting_card_cache_get(_season_betting_card_manifest_cache, cache_key, ttl_sec)

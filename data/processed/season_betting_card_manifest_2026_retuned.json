@@ -1,0 +1,6027 @@
+{
+  "available_profiles": [
+    "retuned"
+  ],
+  "days": [
+    {
+      "all_results": {
+        "combined": {
+          "losses": 14,
+          "n": 28,
+          "profit_u": 6.343,
+          "pushes": 0,
+          "roi": 0.2265,
+          "stake_u": 28.0,
+          "wins": 14
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-01",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 14,
+          "n": 28,
+          "profit_u": 6.343,
+          "pushes": 0,
+          "roi": 0.2265,
+          "stake_u": 28.0,
+          "wins": 14
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 19,
+          "n": 32,
+          "profit_u": -1.776,
+          "pushes": 0,
+          "roi": -0.0555,
+          "stake_u": 32.0,
+          "wins": 13
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-02",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 19,
+          "n": 32,
+          "profit_u": -1.776,
+          "pushes": 0,
+          "roi": -0.0555,
+          "stake_u": 32.0,
+          "wins": 13
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 14,
+          "n": 31,
+          "profit_u": 15.56,
+          "pushes": 0,
+          "roi": 0.5019,
+          "stake_u": 31.0,
+          "wins": 17
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-03",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 14,
+          "n": 31,
+          "profit_u": 15.56,
+          "pushes": 0,
+          "roi": 0.5019,
+          "stake_u": 31.0,
+          "wins": 17
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 22,
+          "n": 29,
+          "profit_u": -14.774,
+          "pushes": 0,
+          "roi": -0.5094,
+          "stake_u": 29.0,
+          "wins": 7
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-04",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 22,
+          "n": 29,
+          "profit_u": -14.774,
+          "pushes": 0,
+          "roi": -0.5094,
+          "stake_u": 29.0,
+          "wins": 7
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 17,
+          "n": 31,
+          "profit_u": 6.265,
+          "pushes": 0,
+          "roi": 0.2021,
+          "stake_u": 31.0,
+          "wins": 14
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-05",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 17,
+          "n": 31,
+          "profit_u": 6.265,
+          "pushes": 0,
+          "roi": 0.2021,
+          "stake_u": 31.0,
+          "wins": 14
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 12,
+          "n": 30,
+          "profit_u": 13.469,
+          "pushes": 0,
+          "roi": 0.449,
+          "stake_u": 30.0,
+          "wins": 18
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-06",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 12,
+          "n": 30,
+          "profit_u": 13.469,
+          "pushes": 0,
+          "roi": 0.449,
+          "stake_u": 30.0,
+          "wins": 18
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 22,
+          "n": 32,
+          "profit_u": -8.959,
+          "pushes": 0,
+          "roi": -0.28,
+          "stake_u": 32.0,
+          "wins": 10
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-07",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 22,
+          "n": 32,
+          "profit_u": -8.959,
+          "pushes": 0,
+          "roi": -0.28,
+          "stake_u": 32.0,
+          "wins": 10
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 15,
+          "n": 21,
+          "profit_u": -7.782,
+          "pushes": 0,
+          "roi": -0.3706,
+          "stake_u": 21.0,
+          "wins": 6
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-08",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 15,
+          "n": 21,
+          "profit_u": -7.782,
+          "pushes": 0,
+          "roi": -0.3706,
+          "stake_u": 21.0,
+          "wins": 6
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 13,
+          "n": 33,
+          "profit_u": 12.08,
+          "pushes": 0,
+          "roi": 0.3661,
+          "stake_u": 33.0,
+          "wins": 20
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-09",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 13,
+          "n": 33,
+          "profit_u": 12.08,
+          "pushes": 0,
+          "roi": 0.3661,
+          "stake_u": 33.0,
+          "wins": 20
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 12,
+          "n": 28,
+          "profit_u": 9.097,
+          "pushes": 0,
+          "roi": 0.3249,
+          "stake_u": 28.0,
+          "wins": 16
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-10",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 12,
+          "n": 28,
+          "profit_u": 9.097,
+          "pushes": 0,
+          "roi": 0.3249,
+          "stake_u": 28.0,
+          "wins": 16
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 3,
+          "n": 6,
+          "profit_u": 3.621,
+          "pushes": 0,
+          "roi": 0.6035,
+          "stake_u": 6.0,
+          "wins": 3
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-11",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 3,
+          "n": 6,
+          "profit_u": 3.621,
+          "pushes": 0,
+          "roi": 0.6035,
+          "stake_u": 6.0,
+          "wins": 3
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 15,
+          "n": 28,
+          "profit_u": 3.044,
+          "pushes": 0,
+          "roi": 0.1087,
+          "stake_u": 28.0,
+          "wins": 13
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-12",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 15,
+          "n": 28,
+          "profit_u": 3.044,
+          "pushes": 0,
+          "roi": 0.1087,
+          "stake_u": 28.0,
+          "wins": 13
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 20,
+          "n": 31,
+          "profit_u": -7.009,
+          "pushes": 0,
+          "roi": -0.2261,
+          "stake_u": 31.0,
+          "wins": 11
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-13",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 20,
+          "n": 31,
+          "profit_u": -7.009,
+          "pushes": 0,
+          "roi": -0.2261,
+          "stake_u": 31.0,
+          "wins": 11
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 8,
+          "n": 21,
+          "profit_u": 10.523,
+          "pushes": 0,
+          "roi": 0.5011,
+          "stake_u": 21.0,
+          "wins": 13
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-14",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 8,
+          "n": 21,
+          "profit_u": 10.523,
+          "pushes": 0,
+          "roi": 0.5011,
+          "stake_u": 21.0,
+          "wins": 13
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 14,
+          "n": 27,
+          "profit_u": 2.297,
+          "pushes": 0,
+          "roi": 0.0851,
+          "stake_u": 27.0,
+          "wins": 13
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-15",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 14,
+          "n": 27,
+          "profit_u": 2.297,
+          "pushes": 0,
+          "roi": 0.0851,
+          "stake_u": 27.0,
+          "wins": 13
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 3,
+          "n": 9,
+          "profit_u": 4.589,
+          "pushes": 0,
+          "roi": 0.5099,
+          "stake_u": 9.0,
+          "wins": 6
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-16",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 3,
+          "n": 9,
+          "profit_u": 4.589,
+          "pushes": 0,
+          "roi": 0.5099,
+          "stake_u": 9.0,
+          "wins": 6
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 17,
+          "n": 31,
+          "profit_u": 11.047,
+          "pushes": 0,
+          "roi": 0.3564,
+          "stake_u": 31.0,
+          "wins": 14
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-17",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 17,
+          "n": 31,
+          "profit_u": 11.047,
+          "pushes": 0,
+          "roi": 0.3564,
+          "stake_u": 31.0,
+          "wins": 14
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 8,
+          "n": 23,
+          "profit_u": 15.621,
+          "pushes": 0,
+          "roi": 0.6792,
+          "stake_u": 23.0,
+          "wins": 15
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-18",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 8,
+          "n": 23,
+          "profit_u": 15.621,
+          "pushes": 0,
+          "roi": 0.6792,
+          "stake_u": 23.0,
+          "wins": 15
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 15,
+          "n": 27,
+          "profit_u": 4.759,
+          "pushes": 0,
+          "roi": 0.1763,
+          "stake_u": 27.0,
+          "wins": 12
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-19",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 15,
+          "n": 27,
+          "profit_u": 4.759,
+          "pushes": 0,
+          "roi": 0.1763,
+          "stake_u": 27.0,
+          "wins": 12
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 3,
+          "n": 8,
+          "profit_u": 1.76,
+          "pushes": 0,
+          "roi": 0.22,
+          "stake_u": 8.0,
+          "wins": 5
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-20",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 3,
+          "n": 8,
+          "profit_u": 1.76,
+          "pushes": 0,
+          "roi": 0.22,
+          "stake_u": 8.0,
+          "wins": 5
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 4,
+          "n": 6,
+          "profit_u": -2.333,
+          "pushes": 0,
+          "roi": -0.3888,
+          "stake_u": 6.0,
+          "wins": 2
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-21",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 4,
+          "n": 6,
+          "profit_u": -2.333,
+          "pushes": 0,
+          "roi": -0.3888,
+          "stake_u": 6.0,
+          "wins": 2
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 15,
+          "n": 25,
+          "profit_u": -0.834,
+          "pushes": 0,
+          "roi": -0.0334,
+          "stake_u": 25.0,
+          "wins": 10
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-22",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 15,
+          "n": 25,
+          "profit_u": -0.834,
+          "pushes": 0,
+          "roi": -0.0334,
+          "stake_u": 25.0,
+          "wins": 10
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 16,
+          "n": 29,
+          "profit_u": 9.753,
+          "pushes": 0,
+          "roi": 0.3363,
+          "stake_u": 29.0,
+          "wins": 13
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-23",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 16,
+          "n": 29,
+          "profit_u": 9.753,
+          "pushes": 0,
+          "roi": 0.3363,
+          "stake_u": 29.0,
+          "wins": 13
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 14,
+          "n": 25,
+          "profit_u": -2.583,
+          "pushes": 0,
+          "roi": -0.1033,
+          "stake_u": 25.0,
+          "wins": 11
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-24",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 14,
+          "n": 25,
+          "profit_u": -2.583,
+          "pushes": 0,
+          "roi": -0.1033,
+          "stake_u": 25.0,
+          "wins": 11
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 8,
+          "n": 27,
+          "profit_u": 17.015,
+          "pushes": 0,
+          "roi": 0.6302,
+          "stake_u": 27.0,
+          "wins": 19
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-25",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 8,
+          "n": 27,
+          "profit_u": 17.015,
+          "pushes": 0,
+          "roi": 0.6302,
+          "stake_u": 27.0,
+          "wins": 19
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 14,
+          "n": 24,
+          "profit_u": 1.369,
+          "pushes": 0,
+          "roi": 0.057,
+          "stake_u": 24.0,
+          "wins": 10
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-26",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 14,
+          "n": 24,
+          "profit_u": 1.369,
+          "pushes": 0,
+          "roi": 0.057,
+          "stake_u": 24.0,
+          "wins": 10
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 16,
+          "n": 26,
+          "profit_u": -2.9,
+          "pushes": 0,
+          "roi": -0.1115,
+          "stake_u": 26.0,
+          "wins": 10
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-27",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 16,
+          "n": 26,
+          "profit_u": -2.9,
+          "pushes": 0,
+          "roi": -0.1115,
+          "stake_u": 26.0,
+          "wins": 10
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 17,
+          "n": 31,
+          "profit_u": 3.479,
+          "pushes": 0,
+          "roi": 0.1122,
+          "stake_u": 31.0,
+          "wins": 14
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-28",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 17,
+          "n": 31,
+          "profit_u": 3.479,
+          "pushes": 0,
+          "roi": 0.1122,
+          "stake_u": 31.0,
+          "wins": 14
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 17,
+          "n": 26,
+          "profit_u": -3.598,
+          "pushes": 0,
+          "roi": -0.1384,
+          "stake_u": 26.0,
+          "wins": 9
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-29",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 17,
+          "n": 26,
+          "profit_u": -3.598,
+          "pushes": 0,
+          "roi": -0.1384,
+          "stake_u": 26.0,
+          "wins": 9
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 18,
+          "n": 31,
+          "profit_u": 3.967,
+          "pushes": 0,
+          "roi": 0.128,
+          "stake_u": 31.0,
+          "wins": 13
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-30",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 18,
+          "n": 31,
+          "profit_u": 3.967,
+          "pushes": 0,
+          "roi": 0.128,
+          "stake_u": 31.0,
+          "wins": 13
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 18,
+          "n": 28,
+          "profit_u": -1.657,
+          "pushes": 0,
+          "roi": -0.0592,
+          "stake_u": 28.0,
+          "wins": 10
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-01-31",
+      "month": "2026-01",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 18,
+          "n": 28,
+          "profit_u": -1.657,
+          "pushes": 0,
+          "roi": -0.0592,
+          "stake_u": 28.0,
+          "wins": 10
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 21,
+          "n": 30,
+          "profit_u": -6.591,
+          "pushes": 1,
+          "roi": -0.2197,
+          "stake_u": 30.0,
+          "wins": 8
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-01",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 21,
+          "n": 30,
+          "profit_u": -6.591,
+          "pushes": 1,
+          "roi": -0.2197,
+          "stake_u": 30.0,
+          "wins": 8
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 11,
+          "n": 24,
+          "profit_u": 12.593,
+          "pushes": 0,
+          "roi": 0.5247,
+          "stake_u": 24.0,
+          "wins": 13
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-02",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 11,
+          "n": 24,
+          "profit_u": 12.593,
+          "pushes": 0,
+          "roi": 0.5247,
+          "stake_u": 24.0,
+          "wins": 13
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 22,
+          "n": 34,
+          "profit_u": -1.532,
+          "pushes": 0,
+          "roi": -0.0451,
+          "stake_u": 34.0,
+          "wins": 12
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-03",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 22,
+          "n": 34,
+          "profit_u": -1.532,
+          "pushes": 0,
+          "roi": -0.0451,
+          "stake_u": 34.0,
+          "wins": 12
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 18,
+          "n": 28,
+          "profit_u": -1.677,
+          "pushes": 0,
+          "roi": -0.0599,
+          "stake_u": 28.0,
+          "wins": 10
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-04",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 18,
+          "n": 28,
+          "profit_u": -1.677,
+          "pushes": 0,
+          "roi": -0.0599,
+          "stake_u": 28.0,
+          "wins": 10
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 20,
+          "n": 30,
+          "profit_u": 2.901,
+          "pushes": 0,
+          "roi": 0.0967,
+          "stake_u": 30.0,
+          "wins": 10
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-05",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 20,
+          "n": 30,
+          "profit_u": 2.901,
+          "pushes": 0,
+          "roi": 0.0967,
+          "stake_u": 30.0,
+          "wins": 10
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 16,
+          "n": 26,
+          "profit_u": -1.123,
+          "pushes": 0,
+          "roi": -0.0432,
+          "stake_u": 26.0,
+          "wins": 10
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-06",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 16,
+          "n": 26,
+          "profit_u": -1.123,
+          "pushes": 0,
+          "roi": -0.0432,
+          "stake_u": 26.0,
+          "wins": 10
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 18,
+          "n": 27,
+          "profit_u": -5.033,
+          "pushes": 0,
+          "roi": -0.1864,
+          "stake_u": 27.0,
+          "wins": 9
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-07",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 18,
+          "n": 27,
+          "profit_u": -5.033,
+          "pushes": 0,
+          "roi": -0.1864,
+          "stake_u": 27.0,
+          "wins": 9
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 3,
+          "n": 5,
+          "profit_u": -1.291,
+          "pushes": 0,
+          "roi": -0.2582,
+          "stake_u": 5.0,
+          "wins": 2
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-08",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 3,
+          "n": 5,
+          "profit_u": -1.291,
+          "pushes": 0,
+          "roi": -0.2582,
+          "stake_u": 5.0,
+          "wins": 2
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 13,
+          "n": 29,
+          "profit_u": 10.905,
+          "pushes": 0,
+          "roi": 0.376,
+          "stake_u": 29.0,
+          "wins": 16
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-09",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 13,
+          "n": 29,
+          "profit_u": 10.905,
+          "pushes": 0,
+          "roi": 0.376,
+          "stake_u": 29.0,
+          "wins": 16
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 20,
+          "n": 27,
+          "profit_u": -9.289,
+          "pushes": 0,
+          "roi": -0.344,
+          "stake_u": 27.0,
+          "wins": 7
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-10",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 20,
+          "n": 27,
+          "profit_u": -9.289,
+          "pushes": 0,
+          "roi": -0.344,
+          "stake_u": 27.0,
+          "wins": 7
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 19,
+          "n": 28,
+          "profit_u": -6.605,
+          "pushes": 0,
+          "roi": -0.2359,
+          "stake_u": 28.0,
+          "wins": 9
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-11",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 19,
+          "n": 28,
+          "profit_u": -6.605,
+          "pushes": 0,
+          "roi": -0.2359,
+          "stake_u": 28.0,
+          "wins": 9
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 13,
+          "n": 21,
+          "profit_u": 0.809,
+          "pushes": 0,
+          "roi": 0.0385,
+          "stake_u": 21.0,
+          "wins": 8
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-12",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 13,
+          "n": 21,
+          "profit_u": 0.809,
+          "pushes": 0,
+          "roi": 0.0385,
+          "stake_u": 21.0,
+          "wins": 8
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 24,
+          "n": 31,
+          "profit_u": -13.673,
+          "pushes": 0,
+          "roi": -0.4411,
+          "stake_u": 31.0,
+          "wins": 7
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-19",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 24,
+          "n": 31,
+          "profit_u": -13.673,
+          "pushes": 0,
+          "roi": -0.4411,
+          "stake_u": 31.0,
+          "wins": 7
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 21,
+          "n": 31,
+          "profit_u": -7.805,
+          "pushes": 0,
+          "roi": -0.2518,
+          "stake_u": 31.0,
+          "wins": 10
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-20",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 21,
+          "n": 31,
+          "profit_u": -7.805,
+          "pushes": 0,
+          "roi": -0.2518,
+          "stake_u": 31.0,
+          "wins": 10
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 15,
+          "n": 29,
+          "profit_u": 7.927,
+          "pushes": 0,
+          "roi": 0.2733,
+          "stake_u": 29.0,
+          "wins": 14
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-21",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 15,
+          "n": 29,
+          "profit_u": 7.927,
+          "pushes": 0,
+          "roi": 0.2733,
+          "stake_u": 29.0,
+          "wins": 14
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 17,
+          "n": 28,
+          "profit_u": -1.445,
+          "pushes": 0,
+          "roi": -0.0516,
+          "stake_u": 28.0,
+          "wins": 11
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-22",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 17,
+          "n": 28,
+          "profit_u": -1.445,
+          "pushes": 0,
+          "roi": -0.0516,
+          "stake_u": 28.0,
+          "wins": 11
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 20,
+          "n": 24,
+          "profit_u": -13.241,
+          "pushes": 0,
+          "roi": -0.5517,
+          "stake_u": 24.0,
+          "wins": 4
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-23",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 20,
+          "n": 24,
+          "profit_u": -13.241,
+          "pushes": 0,
+          "roi": -0.5517,
+          "stake_u": 24.0,
+          "wins": 4
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 3,
+          "n": 7,
+          "profit_u": 0.636,
+          "pushes": 0,
+          "roi": 0.0909,
+          "stake_u": 7.0,
+          "wins": 4
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-24",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 3,
+          "n": 7,
+          "profit_u": 0.636,
+          "pushes": 0,
+          "roi": 0.0909,
+          "stake_u": 7.0,
+          "wins": 4
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 3,
+          "n": 5,
+          "profit_u": -1.182,
+          "pushes": 0,
+          "roi": -0.2364,
+          "stake_u": 5.0,
+          "wins": 2
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-25",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 3,
+          "n": 5,
+          "profit_u": -1.182,
+          "pushes": 0,
+          "roi": -0.2364,
+          "stake_u": 5.0,
+          "wins": 2
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-26",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 15,
+          "n": 24,
+          "profit_u": -1.541,
+          "pushes": 0,
+          "roi": -0.0642,
+          "stake_u": 24.0,
+          "wins": 9
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-27",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 15,
+          "n": 24,
+          "profit_u": -1.541,
+          "pushes": 0,
+          "roi": -0.0642,
+          "stake_u": 24.0,
+          "wins": 9
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 18,
+          "n": 27,
+          "profit_u": -5.152,
+          "pushes": 0,
+          "roi": -0.1908,
+          "stake_u": 27.0,
+          "wins": 9
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-02-28",
+      "month": "2026-02",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 18,
+          "n": 27,
+          "profit_u": -5.152,
+          "pushes": 0,
+          "roi": -0.1908,
+          "stake_u": 27.0,
+          "wins": 9
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 13,
+          "n": 29,
+          "profit_u": 8.564,
+          "pushes": 0,
+          "roi": 0.2953,
+          "stake_u": 29.0,
+          "wins": 16
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-01",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 13,
+          "n": 29,
+          "profit_u": 8.564,
+          "pushes": 0,
+          "roi": 0.2953,
+          "stake_u": 29.0,
+          "wins": 16
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 16,
+          "n": 23,
+          "profit_u": -3.741,
+          "pushes": 0,
+          "roi": -0.1627,
+          "stake_u": 23.0,
+          "wins": 7
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-02",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 16,
+          "n": 23,
+          "profit_u": -3.741,
+          "pushes": 0,
+          "roi": -0.1627,
+          "stake_u": 23.0,
+          "wins": 7
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 17,
+          "n": 33,
+          "profit_u": 5.355,
+          "pushes": 0,
+          "roi": 0.1623,
+          "stake_u": 33.0,
+          "wins": 16
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-03",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 17,
+          "n": 33,
+          "profit_u": 5.355,
+          "pushes": 0,
+          "roi": 0.1623,
+          "stake_u": 33.0,
+          "wins": 16
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 19,
+          "n": 27,
+          "profit_u": -12.176,
+          "pushes": 1,
+          "roi": -0.451,
+          "stake_u": 27.0,
+          "wins": 7
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-04",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 19,
+          "n": 27,
+          "profit_u": -12.176,
+          "pushes": 1,
+          "roi": -0.451,
+          "stake_u": 27.0,
+          "wins": 7
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 11,
+          "n": 32,
+          "profit_u": 11.492,
+          "pushes": 0,
+          "roi": 0.3591,
+          "stake_u": 32.0,
+          "wins": 21
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-05",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 11,
+          "n": 32,
+          "profit_u": 11.492,
+          "pushes": 0,
+          "roi": 0.3591,
+          "stake_u": 32.0,
+          "wins": 21
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 19,
+          "n": 30,
+          "profit_u": -7.689,
+          "pushes": 0,
+          "roi": -0.2563,
+          "stake_u": 30.0,
+          "wins": 11
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-06",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 19,
+          "n": 30,
+          "profit_u": -7.689,
+          "pushes": 0,
+          "roi": -0.2563,
+          "stake_u": 30.0,
+          "wins": 11
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 14,
+          "n": 26,
+          "profit_u": -2.409,
+          "pushes": 0,
+          "roi": -0.0927,
+          "stake_u": 26.0,
+          "wins": 12
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-07",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 14,
+          "n": 26,
+          "profit_u": -2.409,
+          "pushes": 0,
+          "roi": -0.0927,
+          "stake_u": 26.0,
+          "wins": 12
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 12,
+          "n": 23,
+          "profit_u": 0.814,
+          "pushes": 0,
+          "roi": 0.0354,
+          "stake_u": 23.0,
+          "wins": 11
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-08",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 12,
+          "n": 23,
+          "profit_u": 0.814,
+          "pushes": 0,
+          "roi": 0.0354,
+          "stake_u": 23.0,
+          "wins": 11
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 7,
+          "n": 12,
+          "profit_u": -2.264,
+          "pushes": 0,
+          "roi": -0.1887,
+          "stake_u": 12.0,
+          "wins": 5
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-09",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 7,
+          "n": 12,
+          "profit_u": -2.264,
+          "pushes": 0,
+          "roi": -0.1887,
+          "stake_u": 12.0,
+          "wins": 5
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 12,
+          "n": 24,
+          "profit_u": -1.269,
+          "pushes": 0,
+          "roi": -0.0529,
+          "stake_u": 24.0,
+          "wins": 12
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-10",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 12,
+          "n": 24,
+          "profit_u": -1.269,
+          "pushes": 0,
+          "roi": -0.0529,
+          "stake_u": 24.0,
+          "wins": 12
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 14,
+          "n": 35,
+          "profit_u": 5.34,
+          "pushes": 0,
+          "roi": 0.1526,
+          "stake_u": 35.0,
+          "wins": 21
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-11",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 14,
+          "n": 35,
+          "profit_u": 5.34,
+          "pushes": 0,
+          "roi": 0.1526,
+          "stake_u": 35.0,
+          "wins": 21
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 12,
+          "n": 21,
+          "profit_u": -3.848,
+          "pushes": 0,
+          "roi": -0.1832,
+          "stake_u": 21.0,
+          "wins": 9
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-12",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 12,
+          "n": 21,
+          "profit_u": -3.848,
+          "pushes": 0,
+          "roi": -0.1832,
+          "stake_u": 21.0,
+          "wins": 9
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 18,
+          "n": 34,
+          "profit_u": -1.507,
+          "pushes": 0,
+          "roi": -0.0443,
+          "stake_u": 34.0,
+          "wins": 16
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-13",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 18,
+          "n": 34,
+          "profit_u": -1.507,
+          "pushes": 0,
+          "roi": -0.0443,
+          "stake_u": 34.0,
+          "wins": 16
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 35,
+          "n": 62,
+          "profit_u": -7.92,
+          "pushes": 0,
+          "roi": -0.1277,
+          "stake_u": 62.0,
+          "wins": 27
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-14",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 35,
+          "n": 62,
+          "profit_u": -7.92,
+          "pushes": 0,
+          "roi": -0.1277,
+          "stake_u": 62.0,
+          "wins": 27
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 35,
+          "n": 53,
+          "profit_u": -18.568,
+          "pushes": 0,
+          "roi": -0.3503,
+          "stake_u": 53.0,
+          "wins": 18
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-15",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 35,
+          "n": 53,
+          "profit_u": -18.568,
+          "pushes": 0,
+          "roi": -0.3503,
+          "stake_u": 53.0,
+          "wins": 18
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 38,
+          "n": 63,
+          "profit_u": -14.181,
+          "pushes": 0,
+          "roi": -0.2251,
+          "stake_u": 63.0,
+          "wins": 25
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-16",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 38,
+          "n": 63,
+          "profit_u": -14.181,
+          "pushes": 0,
+          "roi": -0.2251,
+          "stake_u": 63.0,
+          "wins": 25
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 10,
+          "n": 22,
+          "profit_u": 0.527,
+          "pushes": 0,
+          "roi": 0.024,
+          "stake_u": 22.0,
+          "wins": 12
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-17",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 10,
+          "n": 22,
+          "profit_u": 0.527,
+          "pushes": 0,
+          "roi": 0.024,
+          "stake_u": 22.0,
+          "wins": 12
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 25,
+          "n": 51,
+          "profit_u": -0.293,
+          "pushes": 0,
+          "roi": -0.0057,
+          "stake_u": 51.0,
+          "wins": 26
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-18",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 25,
+          "n": 51,
+          "profit_u": -0.293,
+          "pushes": 0,
+          "roi": -0.0057,
+          "stake_u": 51.0,
+          "wins": 26
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 12,
+          "n": 30,
+          "profit_u": 8.682,
+          "pushes": 0,
+          "roi": 0.2894,
+          "stake_u": 30.0,
+          "wins": 18
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-19",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 12,
+          "n": 30,
+          "profit_u": 8.682,
+          "pushes": 0,
+          "roi": 0.2894,
+          "stake_u": 30.0,
+          "wins": 18
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 19,
+          "n": 33,
+          "profit_u": -3.622,
+          "pushes": 0,
+          "roi": -0.1098,
+          "stake_u": 33.0,
+          "wins": 14
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-20",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 19,
+          "n": 33,
+          "profit_u": -3.622,
+          "pushes": 0,
+          "roi": -0.1098,
+          "stake_u": 33.0,
+          "wins": 14
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 2,
+          "profit_u": 1.818,
+          "pushes": 0,
+          "roi": 0.909,
+          "stake_u": 2.0,
+          "wins": 2
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-21",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 2,
+          "profit_u": 1.818,
+          "pushes": 0,
+          "roi": 0.909,
+          "stake_u": 2.0,
+          "wins": 2
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 18,
+          "n": 32,
+          "profit_u": -2.935,
+          "pushes": 0,
+          "roi": -0.0917,
+          "stake_u": 32.0,
+          "wins": 14
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-22",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 18,
+          "n": 32,
+          "profit_u": -2.935,
+          "pushes": 0,
+          "roi": -0.0917,
+          "stake_u": 32.0,
+          "wins": 14
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 22,
+          "n": 39,
+          "profit_u": -3.284,
+          "pushes": 0,
+          "roi": -0.0842,
+          "stake_u": 39.0,
+          "wins": 17
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-23",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 22,
+          "n": 39,
+          "profit_u": -3.284,
+          "pushes": 0,
+          "roi": -0.0842,
+          "stake_u": 39.0,
+          "wins": 17
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 11,
+          "n": 26,
+          "profit_u": 4.677,
+          "pushes": 0,
+          "roi": 0.1799,
+          "stake_u": 26.0,
+          "wins": 15
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-24",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 11,
+          "n": 26,
+          "profit_u": 4.677,
+          "pushes": 0,
+          "roi": 0.1799,
+          "stake_u": 26.0,
+          "wins": 15
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-25",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-26",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 18,
+          "n": 40,
+          "profit_u": 5.247,
+          "pushes": 0,
+          "roi": 0.1312,
+          "stake_u": 40.0,
+          "wins": 22
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-27",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 18,
+          "n": 40,
+          "profit_u": 5.247,
+          "pushes": 0,
+          "roi": 0.1312,
+          "stake_u": 40.0,
+          "wins": 22
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 14,
+          "n": 27,
+          "profit_u": -1.342,
+          "pushes": 0,
+          "roi": -0.0497,
+          "stake_u": 27.0,
+          "wins": 13
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-28",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 14,
+          "n": 27,
+          "profit_u": -1.342,
+          "pushes": 0,
+          "roi": -0.0497,
+          "stake_u": 27.0,
+          "wins": 13
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 19,
+          "n": 31,
+          "profit_u": -5.881,
+          "pushes": 0,
+          "roi": -0.1897,
+          "stake_u": 31.0,
+          "wins": 12
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-29",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 19,
+          "n": 31,
+          "profit_u": -5.881,
+          "pushes": 0,
+          "roi": -0.1897,
+          "stake_u": 31.0,
+          "wins": 12
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 12,
+          "n": 24,
+          "profit_u": -0.543,
+          "pushes": 0,
+          "roi": -0.0226,
+          "stake_u": 24.0,
+          "wins": 12
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-30",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 12,
+          "n": 24,
+          "profit_u": -0.543,
+          "pushes": 0,
+          "roi": -0.0226,
+          "stake_u": 24.0,
+          "wins": 12
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 18,
+          "n": 38,
+          "profit_u": 4.288,
+          "pushes": 0,
+          "roi": 0.1128,
+          "stake_u": 38.0,
+          "wins": 20
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-03-31",
+      "month": "2026-03",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 18,
+          "n": 38,
+          "profit_u": 4.288,
+          "pushes": 0,
+          "roi": 0.1128,
+          "stake_u": 38.0,
+          "wins": 20
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 24,
+          "n": 38,
+          "profit_u": -8.02,
+          "pushes": 0,
+          "roi": -0.2111,
+          "stake_u": 38.0,
+          "wins": 14
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-01",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 24,
+          "n": 38,
+          "profit_u": -8.02,
+          "pushes": 0,
+          "roi": -0.2111,
+          "stake_u": 38.0,
+          "wins": 14
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 14,
+          "n": 23,
+          "profit_u": 2.06,
+          "pushes": 0,
+          "roi": 0.0896,
+          "stake_u": 23.0,
+          "wins": 9
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-02",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 14,
+          "n": 23,
+          "profit_u": 2.06,
+          "pushes": 0,
+          "roi": 0.0896,
+          "stake_u": 23.0,
+          "wins": 9
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 18,
+          "n": 33,
+          "profit_u": -1.505,
+          "pushes": 0,
+          "roi": -0.0456,
+          "stake_u": 33.0,
+          "wins": 15
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-03",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 18,
+          "n": 33,
+          "profit_u": -1.505,
+          "pushes": 0,
+          "roi": -0.0456,
+          "stake_u": 33.0,
+          "wins": 15
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-04",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 13,
+          "n": 24,
+          "profit_u": 4.171,
+          "pushes": 0,
+          "roi": 0.1738,
+          "stake_u": 24.0,
+          "wins": 11
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-05",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 13,
+          "n": 24,
+          "profit_u": 4.171,
+          "pushes": 0,
+          "roi": 0.1738,
+          "stake_u": 24.0,
+          "wins": 11
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 20,
+          "n": 31,
+          "profit_u": -8.583,
+          "pushes": 0,
+          "roi": -0.2769,
+          "stake_u": 31.0,
+          "wins": 11
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-06",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 20,
+          "n": 31,
+          "profit_u": -8.583,
+          "pushes": 0,
+          "roi": -0.2769,
+          "stake_u": 31.0,
+          "wins": 11
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 17,
+          "n": 41,
+          "profit_u": 7.2,
+          "pushes": 0,
+          "roi": 0.1756,
+          "stake_u": 41.0,
+          "wins": 24
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-07",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 17,
+          "n": 41,
+          "profit_u": 7.2,
+          "pushes": 0,
+          "roi": 0.1756,
+          "stake_u": 41.0,
+          "wins": 24
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 16,
+          "n": 30,
+          "profit_u": -1.091,
+          "pushes": 0,
+          "roi": -0.0364,
+          "stake_u": 30.0,
+          "wins": 14
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-08",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 16,
+          "n": 30,
+          "profit_u": -1.091,
+          "pushes": 0,
+          "roi": -0.0364,
+          "stake_u": 30.0,
+          "wins": 14
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 28,
+          "n": 45,
+          "profit_u": -10.913,
+          "pushes": 0,
+          "roi": -0.2425,
+          "stake_u": 45.0,
+          "wins": 17
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-09",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 28,
+          "n": 45,
+          "profit_u": -10.913,
+          "pushes": 0,
+          "roi": -0.2425,
+          "stake_u": 45.0,
+          "wins": 17
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-10",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-12",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 11,
+          "n": 17,
+          "profit_u": -5.03,
+          "pushes": 0,
+          "roi": -0.2959,
+          "stake_u": 17.0,
+          "wins": 6
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-14",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 11,
+          "n": 17,
+          "profit_u": -5.03,
+          "pushes": 0,
+          "roi": -0.2959,
+          "stake_u": 17.0,
+          "wins": 6
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 8,
+          "n": 14,
+          "profit_u": -1.597,
+          "pushes": 0,
+          "roi": -0.1141,
+          "stake_u": 14.0,
+          "wins": 6
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-15",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 8,
+          "n": 14,
+          "profit_u": -1.597,
+          "pushes": 0,
+          "roi": -0.1141,
+          "stake_u": 14.0,
+          "wins": 6
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 8,
+          "n": 18,
+          "profit_u": 1.992,
+          "pushes": 0,
+          "roi": 0.1107,
+          "stake_u": 18.0,
+          "wins": 10
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-17",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 8,
+          "n": 18,
+          "profit_u": 1.992,
+          "pushes": 0,
+          "roi": 0.1107,
+          "stake_u": 18.0,
+          "wins": 10
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-18",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-19",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-20",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-21",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-22",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-23",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-24",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 27,
+        "ml": 0,
+        "player_props": 19,
+        "spreads": 4,
+        "totals": 4
+      },
+      "all_unresolved_breakdown": {
+        "pending": 27
+      },
+      "all_unresolved_n": 27,
+      "date": "2026-04-25",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "playable_selected_counts": {
+        "combined": 19,
+        "ml": 0,
+        "player_props": 13,
+        "spreads": 3,
+        "totals": 3
+      },
+      "playable_unresolved_breakdown": {
+        "pending": 19
+      },
+      "playable_unresolved_n": 19,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 8,
+        "ml": 0,
+        "player_props": 6,
+        "spreads": 1,
+        "totals": 1
+      },
+      "unresolved_n": 8
+    },
+    {
+      "all_results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "all_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "all_unresolved_breakdown": {},
+      "all_unresolved_n": 0,
+      "date": "2026-04-26",
+      "month": "2026-04",
+      "playable_results": {
+        "combined": {}
+      },
+      "playable_selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "playable_unresolved_breakdown": {},
+      "playable_unresolved_n": 0,
+      "results": {
+        "combined": {
+          "losses": 0,
+          "n": 0,
+          "profit_u": 0.0,
+          "pushes": 0,
+          "roi": null,
+          "stake_u": 0.0,
+          "wins": 0
+        }
+      },
+      "selected_counts": {
+        "combined": 0,
+        "ml": 0,
+        "player_props": 0,
+        "spreads": 0,
+        "totals": 0
+      },
+      "unresolved_n": 0
+    }
+  ],
+  "meta": {
+    "first_date": "2026-01-01",
+    "last_date": "2026-04-26",
+    "partial": false
+  },
+  "months": [
+    {
+      "days": 31,
+      "month": "2026-01"
+    },
+    {
+      "days": 22,
+      "month": "2026-02"
+    },
+    {
+      "days": 31,
+      "month": "2026-03"
+    },
+    {
+      "days": 23,
+      "month": "2026-04"
+    }
+  ],
+  "profile": "retuned",
+  "season": 2026,
+  "summary": {
+    "all_results": {
+      "combined": {
+        "losses": 1420,
+        "n": 2535,
+        "profit_u": 2.06,
+        "pushes": 2,
+        "roi": 0.0008,
+        "stake_u": 2535.0,
+        "wins": 1113
+      }
+    },
+    "all_selected_counts": {
+      "combined": 27,
+      "ml": 0,
+      "player_props": 19,
+      "spreads": 4,
+      "totals": 4
+    },
+    "all_settled_recommendations": 2535,
+    "all_unresolved_breakdown": {
+      "pending": 27
+    },
+    "all_unresolved_recommendations": 27,
+    "cards": 107,
+    "combined": {
+      "losses": 1420,
+      "n": 2535,
+      "profit_u": 2.06,
+      "pushes": 2,
+      "roi": 0.0008,
+      "stake_u": 2535.0,
+      "wins": 1113
+    },
+    "daily": {
+      "best_day": {
+        "date": "2026-01-25",
+        "profit_u": 17.015
+      },
+      "mean_u": 0.019,
+      "median_u": 0.0,
+      "worst_day": {
+        "date": "2026-03-15",
+        "profit_u": -18.568
+      }
+    },
+    "playable_results": {
+      "combined": {
+        "losses": 0,
+        "n": 0,
+        "profit_u": 0.0,
+        "pushes": 0,
+        "roi": null,
+        "stake_u": 0.0,
+        "wins": 0
+      }
+    },
+    "playable_selected_counts": {
+      "combined": 19,
+      "ml": 0,
+      "player_props": 13,
+      "spreads": 3,
+      "totals": 3
+    },
+    "playable_settled_recommendations": 0,
+    "playable_unresolved_breakdown": {
+      "pending": 19
+    },
+    "playable_unresolved_recommendations": 19,
+    "results": {
+      "combined": {
+        "losses": 1420,
+        "n": 2535,
+        "profit_u": 2.06,
+        "pushes": 2,
+        "roi": 0.0008,
+        "stake_u": 2535.0,
+        "wins": 1113
+      }
+    },
+    "selected_counts": {
+      "combined": 8,
+      "ml": 0,
+      "player_props": 6,
+      "spreads": 1,
+      "totals": 1
+    },
+    "settled_recommendations": 2535,
+    "unresolved_recommendations": 8
+  }
+}

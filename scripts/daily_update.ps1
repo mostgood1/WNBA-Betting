@@ -3808,6 +3808,97 @@ print("OK")
   Write-Log ("Cards sim detail snapshot build failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 7.255) Build season betting-card manifest/day artifacts for Render consumption
+try {
+  $skipBettingCardPrebuild = $env:DAILY_SKIP_SEASON_BETTING_CARD_PREBUILD
+  if ($null -ne $skipBettingCardPrebuild -and $skipBettingCardPrebuild -match '^(1|true|yes)$') {
+    Write-Log 'Skipping season betting-card prebuild (DAILY_SKIP_SEASON_BETTING_CARD_PREBUILD=1)'
+  } else {
+    $bettingCardProfile = [string]$env:DAILY_SEASON_BETTING_CARD_PROFILE
+    if ([string]::IsNullOrWhiteSpace($bettingCardProfile)) { $bettingCardProfile = 'retuned' }
+    $bettingCardProfile = $bettingCardProfile.Trim().ToLowerInvariant()
+    $bettingCardSeason = Resolve-NbaSeasonYear -DateValue $Date
+    $manifestOut = Join-Path $RepoRoot ("data/processed/season_betting_card_manifest_{0}_{1}_{2}.json" -f $bettingCardSeason, $bettingCardProfile, $Date)
+    $manifestGenericOut = Join-Path $RepoRoot ("data/processed/season_betting_card_manifest_{0}_{1}.json" -f $bettingCardSeason, $bettingCardProfile)
+    $dayOut = Join-Path $RepoRoot ("data/processed/season_betting_card_day_{0}_{1}_{2}.json" -f $bettingCardSeason, $bettingCardProfile, $Date)
+    $dayInsightsOut = Join-Path $RepoRoot ("data/processed/season_betting_card_day_{0}_{1}_{2}_insights.json" -f $bettingCardSeason, $bettingCardProfile, $Date)
+    Write-Log ("Building season betting-card artifacts for season={0}, date={1}, profile={2}" -f $bettingCardSeason, $Date, $bettingCardProfile)
+
+    $tmpPyBettingCard = Join-Path $LogPath ("build_season_betting_card_artifacts_{0}.py" -f $Stamp)
+    $pyBettingCard = @"
+import json
+import shutil
+import sys
+from pathlib import Path
+
+repo_root = Path(r"{REPO_PLACEHOLDER}")
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+
+import app
+
+season = int(r"{SEASON_PLACEHOLDER}")
+profile = r"{PROFILE_PLACEHOLDER}"
+date_str = r"{DATE_PLACEHOLDER}"
+manifest_out = Path(r"{MANIFEST_OUT_PLACEHOLDER}")
+manifest_generic_out = Path(r"{MANIFEST_GENERIC_OUT_PLACEHOLDER}")
+day_out = Path(r"{DAY_OUT_PLACEHOLDER}")
+day_insights_out = Path(r"{DAY_INSIGHTS_OUT_PLACEHOLDER}")
+
+client = app.app.test_client()
+
+def fetch_json(path: str) -> dict:
+    resp = client.get(path)
+    if resp is None:
+        raise RuntimeError(f"No response for {path}")
+    if int(resp.status_code or 0) >= 400:
+        raise RuntimeError(f"{path} returned status {resp.status_code}")
+    payload = resp.get_json(silent=True)
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"{path} returned non-dict payload")
+    return payload
+
+manifest_payload = fetch_json(f"/api/season/{season}/betting-card?profile={profile}&date={date_str}")
+day_payload = fetch_json(f"/api/season/{season}/betting-card/day/{date_str}?profile={profile}")
+day_insights_payload = fetch_json(f"/api/season/{season}/betting-card/day/{date_str}?profile={profile}&include_prop_insights=1")
+
+for out_path, payload in (
+    (manifest_out, manifest_payload),
+    (day_out, day_payload),
+    (day_insights_out, day_insights_payload),
+):
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+shutil.copyfile(manifest_out, manifest_generic_out)
+print("OK")
+"@
+    $pyBettingCard = $pyBettingCard.Replace('{REPO_PLACEHOLDER}', $RepoRoot)
+    $pyBettingCard = $pyBettingCard.Replace('{SEASON_PLACEHOLDER}', [string]$bettingCardSeason)
+    $pyBettingCard = $pyBettingCard.Replace('{PROFILE_PLACEHOLDER}', $bettingCardProfile)
+    $pyBettingCard = $pyBettingCard.Replace('{DATE_PLACEHOLDER}', $Date)
+    $pyBettingCard = $pyBettingCard.Replace('{MANIFEST_OUT_PLACEHOLDER}', $manifestOut)
+    $pyBettingCard = $pyBettingCard.Replace('{MANIFEST_GENERIC_OUT_PLACEHOLDER}', $manifestGenericOut)
+    $pyBettingCard = $pyBettingCard.Replace('{DAY_OUT_PLACEHOLDER}', $dayOut)
+    $pyBettingCard = $pyBettingCard.Replace('{DAY_INSIGHTS_OUT_PLACEHOLDER}', $dayInsightsOut)
+    Set-Content -Path $tmpPyBettingCard -Value $pyBettingCard -Encoding UTF8
+    $outBettingCard = & $Python $tmpPyBettingCard 2>&1 | Tee-Object -FilePath $LogFile -Append
+    if ($outBettingCard -notmatch 'OK') {
+      throw ("Season betting-card artifact build returned: {0}" -f $outBettingCard)
+    }
+
+    foreach ($artifactPath in @($manifestOut, $manifestGenericOut, $dayOut, $dayInsightsOut)) {
+      if (-not (Test-Path $artifactPath)) {
+        throw ("Missing season betting-card artifact after build: {0}" -f $artifactPath)
+      }
+      Write-Log ("Wrote {0}" -f $artifactPath)
+    }
+  }
+} catch {
+  Write-Log ("Season betting-card prebuild failed: {0}" -f $_.Exception.Message)
+  throw
+}
+
 # 8) End-to-end artifact validation (writes data/processed/daily_artifacts_<date>.json)
 try {
   $fail = $env:DAILY_FAIL_ON_MISSING_ARTIFACTS
