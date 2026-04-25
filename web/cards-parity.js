@@ -1,10 +1,27 @@
 (function () {
+  function viewportMode() {
+    const width = Math.max(window.innerWidth || 0, document.documentElement?.clientWidth || 0);
+    if (width <= 767) return 'phone';
+    if (width <= 1180) return 'tablet';
+    return 'desktop';
+  }
+
+  function applyViewportMode() {
+    const mode = viewportMode();
+    document.body?.setAttribute('data-viewport', mode);
+    document.documentElement?.setAttribute('data-viewport', mode);
+    return mode;
+  }
+
   const scoreboardRoot = document.getElementById('cardsScoreboard');
   const gridRoot = document.getElementById('cardsGrid');
   const boardShell = document.querySelector('.cards-page-shell') || document.body;
   if (!scoreboardRoot || !gridRoot) {
     return;
   }
+
+  applyViewportMode();
+  window.addEventListener('resize', applyViewportMode, { passive: true });
 
   const mode = document.body?.dataset?.pageMode === 'live' ? 'live' : 'pregame';
   const datePicker = document.getElementById('datePicker');

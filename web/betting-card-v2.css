@@ -122,9 +122,9 @@ a {
 }
 
 .season-shell {
-  width: min(1480px, calc(100vw - 40px));
+  width: min(1480px, calc(100vw - clamp(16px, 3.4vw, 40px)));
   margin: 0 auto;
-  padding: 36px 0 56px;
+  padding: clamp(20px, 3.8vw, 36px) 0 clamp(36px, 6vw, 56px);
 }
 
 .season-header {
@@ -675,6 +675,147 @@ a {
 .season-error {
   border-style: solid;
   border-color: rgba(255, 107, 107, 0.35);
+}
+
+body[data-viewport='tablet'] .season-shell {
+  width: min(100vw - 28px, 1480px);
+  padding-top: 24px;
+}
+
+body[data-viewport='tablet'] .season-layout {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+body[data-viewport='tablet'] .season-day-rail {
+  position: static;
+  order: -1;
+  padding: 18px;
+}
+
+body[data-viewport='tablet'] .season-day-list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, 260px);
+  gap: 12px;
+  max-height: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 0 6px;
+  scroll-snap-type: x proximity;
+}
+
+body[data-viewport='tablet'] .season-day-entry {
+  scroll-snap-align: start;
+}
+
+body[data-viewport='tablet'] .season-day-button {
+  min-height: 120px;
+  display: grid;
+  align-content: start;
+}
+
+body[data-viewport='tablet'] .season-summary-grid,
+body[data-viewport='tablet'] .season-day-metrics,
+body[data-viewport='tablet'] .season-stat-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body[data-viewport='tablet'] .season-header,
+body[data-viewport='tablet'] .season-day-head {
+  gap: 18px;
+}
+
+body[data-viewport='tablet'] .season-header-actions,
+body[data-viewport='tablet'] .season-day-actions {
+  justify-content: flex-start;
+}
+
+body[data-viewport='tablet'] .season-calibration-table-wrap {
+  margin-inline: -4px;
+  padding: 0 4px 4px;
+}
+
+body[data-viewport='tablet'] .season-calibration-table {
+  min-width: 900px;
+}
+
+body[data-viewport='tablet'] .season-breakdown-panel,
+body[data-viewport='tablet'] .season-day-rail,
+body[data-viewport='tablet'] .season-game-card {
+  border-radius: 20px;
+}
+
+body[data-viewport='phone'] .season-shell {
+  width: min(100vw - 16px, 1480px);
+  padding: 18px 0 32px;
+}
+
+body[data-viewport='phone'] .season-layout {
+  grid-template-columns: 1fr;
+}
+
+body[data-viewport='phone'] .season-header {
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+body[data-viewport='phone'] .season-title-row,
+body[data-viewport='phone'] .season-header-actions,
+body[data-viewport='phone'] .season-day-actions,
+body[data-viewport='phone'] .season-day-head,
+body[data-viewport='phone'] .season-game-head {
+  width: 100%;
+}
+
+body[data-viewport='phone'] .season-header-actions,
+body[data-viewport='phone'] .season-day-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+body[data-viewport='phone'] .season-header-actions .cards-nav-pill,
+body[data-viewport='phone'] .season-day-actions .cards-nav-pill {
+  width: 100%;
+}
+
+body[data-viewport='phone'] .season-summary-grid,
+body[data-viewport='phone'] .season-day-metrics,
+body[data-viewport='phone'] .season-stat-grid,
+body[data-viewport='phone'] .betting-card-mobile-grid {
+  grid-template-columns: 1fr;
+}
+
+body[data-viewport='phone'] .season-day-rail {
+  position: static;
+  order: 2;
+}
+
+body[data-viewport='phone'] .season-day-list {
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
+}
+
+body[data-viewport='phone'] .season-scorebox {
+  width: 100%;
+  min-width: 0;
+}
+
+body[data-viewport='phone'] .season-breakdown-panel,
+body[data-viewport='phone'] .season-day-rail,
+body[data-viewport='phone'] .season-game-card {
+  padding: 16px;
+  border-radius: 18px;
+}
+
+body[data-viewport='phone'] .season-calibration-table-wrap {
+  display: none;
+}
+
+body[data-viewport='phone'] .betting-card-mobile-list {
+  display: grid;
+  gap: 12px;
 }
 
 @media (max-width: 1080px) {

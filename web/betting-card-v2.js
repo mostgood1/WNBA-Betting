@@ -1,4 +1,18 @@
 (function () {
+  function viewportMode() {
+    const width = Math.max(window.innerWidth || 0, document.documentElement?.clientWidth || 0);
+    if (width <= 767) return 'phone';
+    if (width <= 1180) return 'tablet';
+    return 'desktop';
+  }
+
+  function applyViewportMode() {
+    const mode = viewportMode();
+    document.body?.setAttribute('data-viewport', mode);
+    document.documentElement?.setAttribute('data-viewport', mode);
+    return mode;
+  }
+
   function parseSeasonFromPath() {
     const match = window.location.pathname.match(/\/season\/(\d+)\/betting-card\/?$/);
     return match ? Number(match[1]) : Number(new Date().getFullYear());
@@ -64,6 +78,9 @@
     dailyLink: document.getElementById('bettingCardDailyLink'),
     liveAuditLink: document.getElementById('bettingCardLiveAuditLink'),
   };
+
+  applyViewportMode();
+  window.addEventListener('resize', applyViewportMode, { passive: true });
 
   function escapeHtml(value) {
     return String(value == null ? '' : value)

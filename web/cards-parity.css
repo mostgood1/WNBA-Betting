@@ -413,9 +413,9 @@ body.cards-app-shell .toggle-chip input {
 .cards-shell {
   display: grid;
   gap: 0;
-  width: min(1640px, calc(100vw - 16px));
+  width: min(1640px, calc(100vw - clamp(12px, 2.6vw, 24px)));
   margin: 0 auto;
-  padding: 10px 0 24px;
+  padding: clamp(10px, 2.6vw, 18px) 0 24px;
 }
 
 .cards-toolbar-rail {
@@ -670,6 +670,212 @@ body.cards-app-shell .toggle-chip input {
   min-width: 0;
   justify-items: center;
   margin-top: 12px;
+}
+
+body[data-viewport='tablet'] .cards-header,
+body[data-viewport='tablet'] .cards-title-row {
+  justify-content: flex-start;
+}
+
+body[data-viewport='tablet'] .cards-title-row {
+  width: 100%;
+}
+
+body[data-viewport='tablet'] .cards-header-meta {
+  white-space: normal;
+  text-align: left;
+}
+
+body[data-viewport='tablet'] .cards-control-card {
+  justify-items: stretch;
+  padding: 14px;
+}
+
+body[data-viewport='tablet'] .cards-date-form {
+  width: 100%;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+body[data-viewport='tablet'] .cards-date-form input,
+body[data-viewport='tablet'] .cards-date-form button,
+body[data-viewport='tablet'] .cards-nav-pill {
+  min-width: 0;
+  white-space: normal;
+  text-align: center;
+}
+
+body[data-viewport='tablet'] .cards-date-form input {
+  flex: 0 1 200px;
+}
+
+body[data-viewport='tablet'] .cards-toolbar-rail,
+body[data-viewport='tablet'] .cards-source-meta,
+body[data-viewport='tablet'] .cards-filters,
+body[data-viewport='tablet'] .cards-toolbar {
+  justify-content: flex-start;
+}
+
+body[data-viewport='tablet'] .cards-scoreboard {
+  grid-auto-columns: minmax(280px, 34vw);
+  padding-bottom: 8px;
+  scroll-snap-type: x proximity;
+}
+
+body[data-viewport='tablet'] .cards-scoreboard__item {
+  scroll-snap-align: start;
+}
+
+body[data-viewport='tablet'] .cards-game-card {
+  width: 100%;
+  padding: 16px;
+}
+
+body[data-viewport='tablet'] .cards-grid {
+  gap: 16px;
+}
+
+body[data-viewport='phone'] .cards-header,
+body[data-viewport='phone'] .cards-title-row {
+  justify-content: center;
+}
+
+body[data-viewport='phone'] .cards-title-row h1 {
+  font-size: clamp(28px, 10vw, 44px);
+}
+
+body[data-viewport='phone'] .cards-control-card,
+body[data-viewport='phone'] .cards-date-form,
+body[data-viewport='phone'] .cards-source-meta,
+body[data-viewport='phone'] .cards-toolbar,
+body[data-viewport='phone'] .cards-filters,
+body[data-viewport='phone'] .cards-strip-head,
+body[data-viewport='phone'] .cards-head-left,
+body[data-viewport='phone'] .cards-status-cluster,
+body[data-viewport='phone'] .cards-score-meta,
+body[data-viewport='phone'] .cards-props-strip-headline,
+body[data-viewport='phone'] .cards-props-strip-card__top,
+body[data-viewport='phone'] .cards-props-strip-card__identity,
+body[data-viewport='phone'] .cards-tabs {
+  min-width: 0;
+}
+
+body[data-viewport='phone'] .cards-date-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: 8px;
+  overflow: visible;
+  justify-content: stretch;
+}
+
+body[data-viewport='phone'] .cards-date-form > * {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+body[data-viewport='phone'] .cards-form-pill {
+  display: none;
+}
+
+body[data-viewport='phone'] .cards-date-form input {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 100%;
+}
+
+body[data-viewport='phone'] .cards-date-form button {
+  grid-column: 1 / -1;
+}
+
+body[data-viewport='phone'] .cards-nav-pill {
+  min-height: 40px;
+  padding-inline: 12px;
+  flex: 1 1 calc(50% - 8px);
+  min-width: 0;
+  white-space: normal;
+  text-align: center;
+}
+
+body[data-viewport='phone'] .cards-source-meta {
+  width: 100%;
+}
+
+body[data-viewport='phone'] .cards-header-meta {
+  white-space: normal;
+  text-align: center;
+}
+
+body[data-viewport='phone'] .cards-source-meta-pill,
+body[data-viewport='phone'] .cards-chip,
+body[data-viewport='phone'] .cards-pill,
+body[data-viewport='phone'] .cards-warning,
+body[data-viewport='phone'] .cards-context {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+body[data-viewport='phone'] .cards-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+body[data-viewport='phone'] .cards-filter-pill {
+  justify-content: center;
+  min-width: 0;
+}
+
+body[data-viewport='phone'] .cards-head-matchup {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: 8px;
+}
+
+body[data-viewport='phone'] .cards-head-team {
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 1px solid rgba(132, 166, 196, 0.12);
+  border-radius: 16px;
+  background: rgba(6, 14, 23, 0.6);
+}
+
+body[data-viewport='phone'] .cards-status-cluster {
+  width: 100%;
+  gap: 6px;
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: start;
+}
+
+body[data-viewport='phone'] .cards-market-grid,
+body[data-viewport='phone'] .cards-market-row--tiles,
+body[data-viewport='phone'] .cards-market-row,
+body[data-viewport='phone'] .cards-mini-metrics,
+body[data-viewport='phone'] .cards-box-totals,
+body[data-viewport='phone'] .ladders-summary-grid,
+body[data-viewport='phone'] .ladders-stat-grid,
+body[data-viewport='phone'] .cards-callout-grid,
+body[data-viewport='phone'] .cards-lens-grid,
+body[data-viewport='phone'] .cards-player-grid,
+body[data-viewport='phone'] .cards-team-grid,
+body[data-viewport='phone'] .cards-prop-list,
+body[data-viewport='phone'] .cards-props-grid,
+body[data-viewport='phone'] .cards-detail-grid,
+body[data-viewport='phone'] .cards-overview-grid,
+body[data-viewport='phone'] .cards-box-grid,
+body[data-viewport='phone'] .cards-score-ribbon {
+  grid-template-columns: 1fr;
+}
+
+body[data-viewport='phone'] .cards-scoreboard {
+  grid-auto-columns: minmax(84vw, 1fr);
 }
 
 .cards-game-card {
