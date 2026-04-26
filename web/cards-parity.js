@@ -2726,23 +2726,39 @@
         </button>
       </li>
     `);
-    const propRows = officialPropRows(game).map((row) => `
+    const propRows = officialPropRows(game).map((row) => {
+      const liveRow = matchingLivePropRow(game, row);
+      const summaryText = liveRow
+        ? [row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim(), liveRowFreshnessText(liveRow, liveRow.statusLabel || 'Live')].filter(Boolean).join(' · ')
+        : (row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim());
+      const metricsMarkup = liveRow
+        ? `
+            <span class="cards-chip">Actual ${escapeHtml(Number.isFinite(Number(liveRow.actual)) ? fmtNumber(liveRow.actual, 1) : '-')}</span>
+            <span class="cards-chip">Projected ${escapeHtml(Number.isFinite(Number(liveRow.liveProjection)) ? fmtNumber(liveRow.liveProjection, 1) : '-')}</span>
+            <span class="cards-chip">Odds ${escapeHtml(fmtAmerican(liveRow.price))}</span>
+            <span class="cards-chip">Edge ${escapeHtml(Number.isFinite(Number(liveRow.liveEdge)) ? fmtSigned(liveRow.liveEdge, 1) : '-')}</span>
+          `
+        : `
+            <span class="cards-chip cards-chip--accent">EV ${escapeHtml(fmtPercentValue(row.evPct))}</span>
+            <span class="cards-chip">${escapeHtml(fmtPercent(row.pWin, 0))}</span>
+          `;
+      return `
       <li>
         <button class="cards-callout-item cards-callout-button" type="button" data-prop-select="${escapeHtml(row.key)}" data-card-target="${escapeHtml(id)}">
           <div>
             <div class="cards-callout-label">${escapeHtml(row.teamTri)} prop</div>
             <div class="cards-callout-main">${escapeHtml(`${row.player} ${row.marketLabel} ${row.side} ${fmtNumber(row.line, 1)}`)}</div>
-            <div class="cards-callout-copy">${escapeHtml(row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim())}</div>
+            <div class="cards-callout-copy">${escapeHtml(summaryText)}</div>
           </div>
           <div class="cards-callout-meta">
-            <span class="cards-chip cards-chip--accent">EV ${fmtPercentValue(row.evPct)}</span>
-            <span class="cards-chip">${fmtPercent(row.pWin, 0)}</span>
+            ${metricsMarkup}
             ${Number.isFinite(Number(row.stakeAmount)) ? `<span class="cards-chip">Stake ${escapeHtml(fmtCurrency(row.stakeAmount))}</span>` : ''}
             ${Number.isFinite(Number(row.portfolioRank)) ? `<span class="cards-chip">#${escapeHtml(fmtInteger(row.portfolioRank))}</span>` : ''}
           </div>
         </button>
       </li>
-    `);
+    `;
+    });
     const items = marketRows.concat(propRows);
     if (!items.length) {
       return `
@@ -2894,6 +2910,25 @@
         };
       })
       .filter(Boolean);
+  }
+
+  function matchingLivePropRow(game, row) {
+    if (mode !== 'live' || !game || !row) {
+      return null;
+    }
+    const playerKey = normalizePlayerKey(row.player);
+    const marketKey = String(row.market || '').trim().toLowerCase();
+    const teamKey = String(row.teamTri || '').trim().toUpperCase();
+    const sideKey = String(row.side || '').trim().toUpperCase();
+    const candidates = liveOpportunityPropRows(game).filter((item) => (
+      normalizePlayerKey(item?.player) === playerKey
+      && String(item?.market || '').trim().toLowerCase() === marketKey
+      && String(item?.teamTri || '').trim().toUpperCase() === teamKey
+    ));
+    if (!candidates.length) {
+      return null;
+    }
+    return candidates.find((item) => String(item?.side || '').trim().toUpperCase() === sideKey) || candidates[0] || null;
   }
 
   function propBucketSummary(game) {
@@ -4156,21 +4191,22 @@
     }
     const simRow = playerSimRow(game, selected);
     const actualRow = playerActualRow(game, selected);
+    const matchedLiveRow = selected.bucket === 'live' ? selected : matchingLivePropRow(game, selected);
     const actualValue = actualStatValue(actualRow, selected.market);
     const simValue = Number(simRow?.[`${selected.market}_mean`] ?? selected.simMu);
     const reasonsPanel = renderLensReasons(selected);
     const laddersHref = `/prop-ladders?date=${encodeURIComponent(state.date)}&team=${encodeURIComponent(selected.teamTri)}&player=${encodeURIComponent(selected.player)}&market=${encodeURIComponent(selected.market)}`;
-    if (selected.bucket === 'live') {
-      const liveActual = Number(selected.actual);
-      const liveProjection = Number(selected.liveProjection);
-      const liveEdge = Number(selected.liveEdge);
+    if (matchedLiveRow) {
+      const liveActual = Number(matchedLiveRow.actual);
+      const liveProjection = Number(matchedLiveRow.liveProjection);
+      const liveEdge = Number(matchedLiveRow.liveEdge);
       const livePairs = [
         { label: 'Actual', value: Number.isFinite(liveActual) ? fmtNumber(liveActual, 1) : '-' },
         { label: 'Projected', value: Number.isFinite(liveProjection) ? fmtNumber(liveProjection, 1) : '-' },
-        { label: 'Odds', value: Number.isFinite(Number(selected.price)) ? `${fmtAmerican(selected.price)} ${selected.book || ''}`.trim() : (selected.book || '-') },
+        { label: 'Odds', value: Number.isFinite(Number(matchedLiveRow.price)) ? `${fmtAmerican(matchedLiveRow.price)} ${matchedLiveRow.book || ''}`.trim() : (matchedLiveRow.book || '-') },
         { label: 'Edge', value: Number.isFinite(liveEdge) ? fmtSigned(liveEdge, 1) : '-' },
-        { label: 'Updated', value: liveRowFreshnessText(selected, selected.statusLabel || 'Live') },
-        { label: 'Active since', value: selected.firstSeenAt ? formatTimestampShort(selected.firstSeenAt) : '-' },
+        { label: 'Updated', value: liveRowFreshnessText(matchedLiveRow, matchedLiveRow.statusLabel || 'Live') },
+        { label: 'Active since', value: matchedLiveRow.firstSeenAt ? formatTimestampShort(matchedLiveRow.firstSeenAt) : '-' },
         { label: 'Line', value: `${escapeHtml(selected.side)} ${fmtNumber(selected.line, 1)}` },
         { label: 'Tier', value: propTierLabel(selected) },
       ];
@@ -4181,7 +4217,7 @@
             <div class="cards-lens-main">${escapeHtml(selected.player)} · ${escapeHtml(selected.marketLabel)} ${escapeHtml(selected.side)} ${fmtNumber(selected.line, 1)}</div>
             <div class="cards-subcopy">${escapeHtml(selected.teamTri)} · ${escapeHtml(selected.matchup || `${game.away_tri} at ${game.home_tri}`)}</div>
           </div>
-          <span class="cards-lens-badge is-live">${escapeHtml(selected.actionLabel || 'Live')}</span>
+          <span class="cards-lens-badge ${selected.bucket === 'official' ? '' : 'is-live'}">${escapeHtml(selected.bucket === 'official' ? 'Official' : (selected.actionLabel || 'Live'))}</span>
         </div>
         ${renderLensDetailGrid(livePairs)}
         ${reasonsPanel}
