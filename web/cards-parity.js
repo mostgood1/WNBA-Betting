@@ -2847,7 +2847,7 @@
       .slice(0, 3);
   }
 
-  function liveOpportunityPropRows(game) {
+  function liveStripPropRows(game, options = {}) {
     if (mode !== 'live') {
       return [];
     }
@@ -2855,7 +2855,13 @@
     if (!hasStartedGame(liveState)) {
       return [];
     }
-    return livePropTeaserItems(game, 0)
+    const actionableOnly = Boolean(options?.actionableOnly);
+    const matchup = gameMatchupKey(game);
+    if (!matchup) {
+      return [];
+    }
+    return sortedPropsStripItems(safePropsStripItems(state.propsStripPayload?.items))
+      .filter((item) => stripCardTarget(item) === matchup)
       .map((item, index) => {
         const teamTri = String(item?.team_tri || '').trim().toUpperCase();
         const awayTri = String(game?.away_tri || '').trim().toUpperCase();
@@ -2866,7 +2872,7 @@
         const klass = String(item?.klass || '').trim().toUpperCase();
         const projection = finiteFirst(item?.pace_proj, item?.sim_mu_adjusted, item?.sim_mu);
         const liveEdge = finiteFirst(item?.pace_vs_line, item?.sim_vs_line_adjusted, item?.sim_vs_line);
-        if (klass !== 'BET' && klass !== 'WATCH') {
+        if (actionableOnly && klass !== 'BET' && klass !== 'WATCH') {
           return null;
         }
         const statusLabel = stripStatusText(item);
@@ -2912,6 +2918,10 @@
       .filter(Boolean);
   }
 
+  function liveOpportunityPropRows(game) {
+    return liveStripPropRows(game, { actionableOnly: true });
+  }
+
   function matchingLivePropRow(game, row) {
     if (mode !== 'live' || !game || !row) {
       return null;
@@ -2920,7 +2930,7 @@
     const marketKey = String(row.market || '').trim().toLowerCase();
     const teamKey = String(row.teamTri || '').trim().toUpperCase();
     const sideKey = String(row.side || '').trim().toUpperCase();
-    const candidates = liveOpportunityPropRows(game).filter((item) => (
+    const candidates = liveStripPropRows(game, { actionableOnly: false }).filter((item) => (
       normalizePlayerKey(item?.player) === playerKey
       && String(item?.market || '').trim().toLowerCase() === marketKey
       && String(item?.teamTri || '').trim().toUpperCase() === teamKey
@@ -2928,7 +2938,19 @@
     if (!candidates.length) {
       return null;
     }
-    return candidates.find((item) => String(item?.side || '').trim().toUpperCase() === sideKey) || candidates[0] || null;
+    const sameSide = candidates.filter((item) => String(item?.side || '').trim().toUpperCase() === sideKey);
+    const pool = sameSide.length ? sameSide : candidates;
+    return [...pool].sort((left, right) => {
+      const leftClass = String(left?.actionLabel || '').trim().toUpperCase();
+      const rightClass = String(right?.actionLabel || '').trim().toUpperCase();
+      const leftPriority = leftClass === 'BET' ? 2 : (leftClass === 'WATCH' ? 1 : 0);
+      const rightPriority = rightClass === 'BET' ? 2 : (rightClass === 'WATCH' ? 1 : 0);
+      const leftLineGap = Math.abs((Number(left?.line) || 0) - (Number(row?.line) || 0));
+      const rightLineGap = Math.abs((Number(right?.line) || 0) - (Number(row?.line) || 0));
+      return (rightPriority - leftPriority)
+        || (leftLineGap - rightLineGap)
+        || ((Number(right?.pWin) || 0) - (Number(left?.pWin) || 0));
+    })[0] || null;
   }
 
   function propBucketSummary(game) {
