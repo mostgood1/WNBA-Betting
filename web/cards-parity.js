@@ -4055,15 +4055,20 @@
   function renderLensDetailPairs(selected, simRow) {
     const metricValue = simRow ? simRow[`${selected.market}_mean`] : null;
     const simValue = Number(metricValue ?? selected.simMu);
+    const actualValue = Number.isFinite(Number(selected.actual)) ? Number(selected.actual) : null;
+    const projectedValue = Number.isFinite(simValue) ? simValue : null;
+    const edgeValue = Number.isFinite(Number(selected.edge))
+      ? Number(selected.edge)
+      : (Number.isFinite(projectedValue) && Number.isFinite(Number(selected.line))
+        ? projectedValue - Number(selected.line)
+        : null);
     return [
       { label: 'Tier', value: propTierLabel(selected) },
       { label: 'Line', value: `${escapeHtml(selected.side)} ${fmtNumber(selected.line, 1)}` },
+      { label: 'Actual', value: Number.isFinite(actualValue) ? fmtNumber(actualValue, 1) : '-' },
+      { label: 'Projected', value: Number.isFinite(projectedValue) ? fmtNumber(projectedValue, 1) : '-' },
       { label: 'Odds', value: `${fmtAmerican(selected.price)} ${selected.book || ''}`.trim() },
-      { label: 'EV', value: fmtPercentValue(selected.evPct) },
-      { label: 'Win prob', value: fmtPercent(selected.pWin, 0) },
-      { label: 'Edge', value: Number.isFinite(Number(selected.edge)) ? fmtSigned(selected.edge, 1) : '-' },
-      { label: 'Model mean', value: Number.isFinite(simValue) ? fmtNumber(simValue, 1) : '-' },
-      { label: 'Sim row', value: Number.isFinite(simValue) ? fmtNumber(simValue, 1) : '-' },
+      { label: 'Edge', value: Number.isFinite(edgeValue) ? fmtSigned(edgeValue, 1) : '-' },
     ];
   }
 
@@ -4160,15 +4165,14 @@
       const liveProjection = Number(selected.liveProjection);
       const liveEdge = Number(selected.liveEdge);
       const livePairs = [
-        { label: 'Tier', value: propTierLabel(selected) },
-        { label: 'Current', value: Number.isFinite(liveActual) ? fmtNumber(liveActual, 1) : '-' },
-        { label: 'Live proj', value: Number.isFinite(liveProjection) ? fmtNumber(liveProjection, 1) : '-' },
-        { label: 'Sim row', value: Number.isFinite(simValue) ? fmtNumber(simValue, 1) : '-' },
-        { label: 'Model mean', value: Number.isFinite(Number(selected.simMu)) ? fmtNumber(selected.simMu, 1) : '-' },
-        { label: 'Line', value: `${escapeHtml(selected.side)} ${fmtNumber(selected.line, 1)}` },
+        { label: 'Actual', value: Number.isFinite(liveActual) ? fmtNumber(liveActual, 1) : '-' },
+        { label: 'Projected', value: Number.isFinite(liveProjection) ? fmtNumber(liveProjection, 1) : '-' },
         { label: 'Odds', value: Number.isFinite(Number(selected.price)) ? `${fmtAmerican(selected.price)} ${selected.book || ''}`.trim() : (selected.book || '-') },
-        { label: 'Live edge', value: Number.isFinite(liveEdge) ? fmtSigned(liveEdge, 1) : '-' },
-        { label: 'Actual row', value: Number.isFinite(actualValue) ? fmtNumber(actualValue, 1) : '-' },
+        { label: 'Edge', value: Number.isFinite(liveEdge) ? fmtSigned(liveEdge, 1) : '-' },
+        { label: 'Updated', value: liveRowFreshnessText(selected, selected.statusLabel || 'Live') },
+        { label: 'Active since', value: selected.firstSeenAt ? formatTimestampShort(selected.firstSeenAt) : '-' },
+        { label: 'Line', value: `${escapeHtml(selected.side)} ${fmtNumber(selected.line, 1)}` },
+        { label: 'Tier', value: propTierLabel(selected) },
       ];
       return `
         <div class="cards-lens-head">
@@ -4195,7 +4199,6 @@
       `;
     }
     const defaultPairs = renderLensDetailPairs(selected, simRow).concat([
-      { label: 'Actual row', value: Number.isFinite(actualValue) ? fmtNumber(actualValue, 1) : '-' },
       { label: 'Team', value: selected.teamTri || '-' },
     ]);
     return `
