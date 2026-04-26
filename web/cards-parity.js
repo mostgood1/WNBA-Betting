@@ -3823,6 +3823,10 @@
     return [row.teamTri, row.player, row.market, row.side, row.line, row.rank || ''].join('|');
   }
 
+  function propIdentityKey(row) {
+    return [row.cardId, row.teamTri, normalizePlayerKey(row.player), row.market, row.side].join('|');
+  }
+
   function allPropRows(game) {
     const rows = [];
     [['away', game.away_tri], ['home', game.home_tri]].forEach(([sideKey, teamTri]) => {
@@ -3873,10 +3877,7 @@
         });
       });
     });
-    rows.forEach((row) => {
-      row.key = propKey(row);
-    });
-    return rows.sort((left, right) => {
+    const sorted = rows.sort((left, right) => {
       if (left.bucket !== right.bucket) {
         return left.bucket === 'official' ? -1 : 1;
       }
@@ -3889,6 +3890,19 @@
       }
       return Number(right.evPct || 0) - Number(left.evPct || 0);
     });
+
+    const deduped = [];
+    const seen = new Set();
+    sorted.forEach((row) => {
+      const identity = propIdentityKey(row);
+      if (seen.has(identity)) {
+        return;
+      }
+      seen.add(identity);
+      row.key = propKey(row);
+      deduped.push(row);
+    });
+    return deduped;
   }
 
   function filteredPropRows(game) {
