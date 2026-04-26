@@ -1901,6 +1901,55 @@
     }[key] ?? null;
   }
 
+  function fallbackLivePropRow(game, row) {
+    if (mode !== 'live' || !game || !row) {
+      return null;
+    }
+    const liveState = getLiveState(game);
+    if (!hasStartedGame(liveState)) {
+      return null;
+    }
+    const actualRow = playerActualRow(game, row);
+    const simRow = playerSimRow(game, row);
+    const actual = actualStatValue(actualRow, row.market);
+    const simValue = Number(simRow?.[`${row.market}_mean`] ?? row.simMu);
+    const liveProjection = estimatedLiveProjection(actual, Number(actualRow?.mp), Number(simRow?.min_mean), simValue);
+    if (!Number.isFinite(actual) && !Number.isFinite(liveProjection)) {
+      return null;
+    }
+    return {
+      key: `fallback|${row.key}`,
+      cardId: row.cardId,
+      teamTri: row.teamTri,
+      sideKey: row.sideKey,
+      player: row.player,
+      playerPhoto: row.playerPhoto,
+      market: row.market,
+      marketLabel: row.marketLabel,
+      side: row.side,
+      line: Number(row.line),
+      price: Number(row.price),
+      book: row.book,
+      evPct: Number(row.evPct),
+      pWin: Number(row.pWin),
+      simMu: simValue,
+      summary: row.summary,
+      reasons: row.reasons,
+      matchup: row.matchup,
+      rank: row.rank,
+      primary: row.primary,
+      bucket: 'live',
+      actionLabel: 'LIVE',
+      statusLabel: liveState?.final ? 'Final' : (liveState?.status || 'Live'),
+      lineSource: 'boxscore_sim_fallback',
+      actual,
+      liveProjection,
+      liveEdge: Number.isFinite(liveProjection) && Number.isFinite(Number(row.line)) ? (liveProjection - Number(row.line)) : null,
+      firstSeenAt: null,
+      lastSeenAt: null,
+    };
+  }
+
   function livePropThresholds(market) {
     const key = String(market || '').trim().toLowerCase();
     if (key === 'pts' || key === 'pra') {
@@ -2727,7 +2776,7 @@
       </li>
     `);
     const propRows = officialPropRows(game).map((row) => {
-      const liveRow = matchingLivePropRow(game, row);
+      const liveRow = resolvedLivePropRow(game, row);
       const summaryText = liveRow
         ? [row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim(), liveRowFreshnessText(liveRow, liveRow.statusLabel || 'Live')].filter(Boolean).join(' · ')
         : (row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim());
@@ -2951,6 +3000,10 @@
         || (leftLineGap - rightLineGap)
         || ((Number(right?.pWin) || 0) - (Number(left?.pWin) || 0));
     })[0] || null;
+  }
+
+  function resolvedLivePropRow(game, row) {
+    return matchingLivePropRow(game, row) || fallbackLivePropRow(game, row);
   }
 
   function propBucketSummary(game) {
@@ -4213,7 +4266,7 @@
     }
     const simRow = playerSimRow(game, selected);
     const actualRow = playerActualRow(game, selected);
-    const matchedLiveRow = selected.bucket === 'live' ? selected : matchingLivePropRow(game, selected);
+    const matchedLiveRow = selected.bucket === 'live' ? selected : resolvedLivePropRow(game, selected);
     const actualValue = actualStatValue(actualRow, selected.market);
     const simValue = Number(simRow?.[`${selected.market}_mean`] ?? selected.simMu);
     const reasonsPanel = renderLensReasons(selected);
