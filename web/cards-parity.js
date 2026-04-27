@@ -1962,7 +1962,7 @@
     const actualRow = playerActualRow(game, row);
     const simRow = playerSimRow(game, row);
     const actual = actualStatValue(actualRow, row.market);
-    const simValue = Number(simMeanValue(simRow, row.market) ?? row.simMu);
+    const simValue = Number(simStatMean(simRow, row.market) ?? row.simMu);
     const liveProjection = estimatedLiveProjection(actual, Number(actualRow?.mp), Number(simRow?.min_mean), simValue);
     if (!Number.isFinite(actual) && !Number.isFinite(liveProjection)) {
       return null;
@@ -4393,7 +4393,7 @@
   }
 
   function renderLensDetailPairs(selected, simRow, matchedLiveRow) {
-    const metricValue = simMeanValue(simRow, selected.market);
+    const metricValue = simStatMean(simRow, selected.market);
     const simValue = Number(metricValue ?? selected.simMu);
     const actualValue = Number.isFinite(Number(selected.actual)) ? Number(selected.actual) : null;
     const projectedValue = Number.isFinite(Number(matchedLiveRow?.liveProjection)) ? Number(matchedLiveRow.liveProjection) : (Number.isFinite(simValue) ? simValue : null);
