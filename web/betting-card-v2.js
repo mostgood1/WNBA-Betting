@@ -127,6 +127,21 @@
     return num > 0 ? `+${fixed}u` : `${fixed}u`;
   }
 
+  function formatStakeUnits(value, digits) {
+    const num = toNumber(value);
+    if (num == null) return '-';
+    const fixed = num.toFixed(digits == null ? 2 : digits).replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1');
+    return `${fixed}U`;
+  }
+
+  function portfolioUnits(portfolio, unitKey, amountKey) {
+    const direct = toNumber(portfolio?.[unitKey]);
+    if (direct != null) return direct;
+    const amount = toNumber(portfolio?.[amountKey]);
+    const unitSize = toNumber(portfolio?.unit_size);
+    return amount != null && unitSize != null && unitSize > 0 ? amount / unitSize : null;
+  }
+
   function formatSignedPoints(value, digits) {
     const num = toNumber(value);
     if (num == null) return '-';
@@ -263,8 +278,8 @@
     if (!portfolio) return '';
     const pills = [];
     pills.push(`Portfolio ${formatNumber(portfolio.selected, 0)}/${formatNumber(portfolio.candidates, 0)} selected`);
-    if (toNumber(portfolio.selected_stake_total) != null) pills.push(`${formatCurrency(portfolio.selected_stake_total)} staked`);
-    if (toNumber(portfolio.bankroll) != null) pills.push(`${formatCurrency(portfolio.bankroll)} bankroll`);
+    if (portfolioUnits(portfolio, 'selected_stake_units_total', 'selected_stake_total') != null) pills.push(`${formatStakeUnits(portfolioUnits(portfolio, 'selected_stake_units_total', 'selected_stake_total'))} risked`);
+    if (portfolioUnits(portfolio, 'bankroll_units', 'bankroll') != null) pills.push(`${formatStakeUnits(portfolioUnits(portfolio, 'bankroll_units', 'bankroll'))} bankroll`);
     if (toNumber(portfolio.reserve_pct) != null) pills.push(`${formatPercent(portfolio.reserve_pct, 0)} reserve`);
     if (!pills.length) return '';
     return `
@@ -276,9 +291,9 @@
   function portfolioRowMeta(row) {
     const bits = [];
     const rank = toNumber(row?.portfolio_rank);
-    const stake = toNumber(row?.stake_amount);
+    const stake = toNumber(row?.stake_units);
     if (rank != null) bits.push(`Portfolio #${formatNumber(rank, 0)}`);
-    if (stake != null) bits.push(`Stake ${formatCurrency(stake)}`);
+    if (stake != null) bits.push(`Risk ${formatStakeUnits(stake)}`);
     return bits;
   }
 
@@ -795,12 +810,12 @@
       metricCard('Locked card', formatNumber(counts?.combined, 0), `Tot ${counts?.totals ?? 0} | ML ${counts?.ml ?? 0} | Spr ${counts?.spreads ?? 0} | Props ${counts?.player_props ?? 0}`),
       metricCard('Playable adds', formatNumber(playableCounts?.combined, 0), `${formatNumber(playableCombined?.n, 0)} settled | ${formatNumber(playableUnresolved, 0)} unresolved`),
       metricCard('Locked profit', formatUnits(combined?.profit_u, 2), `${formatNumber(combined?.wins, 0)} wins | ${formatNumber(combined?.losses, 0)} losses`),
-      metricCard('Locked ROI', formatPercent(combined?.roi, 1), `${formatNumber(combined?.stake_u, 2)}u staked`),
+      metricCard('Locked ROI', formatPercent(combined?.roi, 1), `${formatNumber(combined?.stake_u, 2)}u risked`),
       metricCard('Settled', formatNumber(combined?.n, 0), `${formatNumber(unresolved, 0)} locked unresolved`),
       metricCard('Cap profile', String(state.day?.cap_profile || '-'), 'Locked betting-card view'),
     ];
     if (portfolio) {
-      metricCards.splice(2, 0, metricCard('Portfolio stake', formatCurrency(portfolio.selected_stake_total), `${formatNumber(portfolio.selected, 0)} picks | ${formatCurrency(portfolio.bankroll)} bankroll`));
+      metricCards.splice(2, 0, metricCard('Units risked', formatStakeUnits(portfolioUnits(portfolio, 'selected_stake_units_total', 'selected_stake_total')), `${formatNumber(portfolio.selected, 0)} picks | ${formatStakeUnits(portfolioUnits(portfolio, 'bankroll_units', 'bankroll'))} bankroll`));
     }
     root.dayMetrics.innerHTML = metricCards.join('');
   }
@@ -984,12 +999,12 @@
               ${metricCard('Locked picks', formatNumber(rows.length, 0), 'Official card only')}
               ${metricCard('Playable adds', formatNumber(playableRows.length, 0), `${formatNumber(playableCombined?.n, 0)} settled`) }
               ${metricCard('Locked profit', formatUnits(combined?.profit_u, 2), `${formatNumber(combined?.wins, 0)} wins | ${formatNumber(combined?.losses, 0)} losses`) }
-              ${metricCard('Locked ROI', formatPercent(combined?.roi, 1), `${formatNumber(combined?.stake_u, 2)}u staked`) }
+              ${metricCard('Locked ROI', formatPercent(combined?.roi, 1), `${formatNumber(combined?.stake_u, 2)}u risked`) }
               ${metricCard('Settled', formatNumber(combined?.n, 0), `Game ${formatNumber(game?.game_pk, 0)}`) }
             </div>
             <section class="season-breakdown-card season-game-betting-card">
               <div class="season-breakdown-title">Locked card</div>
-              ${hasPortfolioRows ? '<div class="season-inline-note">Locked picks on this card were selected by the pregame portfolio ranker, with bankroll-aware stake sizing shown on each row.</div>' : ''}
+              ${hasPortfolioRows ? '<div class="season-inline-note">Locked picks on this card were selected by the pregame portfolio ranker, with unit-based risk sizing shown on each row.</div>' : ''}
               ${rows.length ? `
                 <div class="season-calibration-table-wrap">
                   <table class="season-calibration-table season-game-betting-table">

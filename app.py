@@ -3876,6 +3876,8 @@ def _enforce_minimal_ui_allowlist():
         # Exact pages
         allowed_exact = {
             "/",
+            "/pregame",
+            "/live",
             "/betting-card",
             "/betting-recap",
             "/prop-ladders",
@@ -7867,6 +7869,7 @@ def _season_betting_card_normalize_row(
         "portfolio_rank": _safe_int(effective_row.get("portfolio_rank") if effective_row.get("portfolio_rank") is not None else source_row.get("portfolio_rank")),
         "portfolio_score": _safe_float(effective_row.get("portfolio_score") if effective_row.get("portfolio_score") is not None else source_row.get("portfolio_score")),
         "stake_amount": _safe_float(effective_row.get("stake_amount") if effective_row.get("stake_amount") is not None else source_row.get("stake_amount")),
+        "stake_units": _safe_float(effective_row.get("stake_units") if effective_row.get("stake_units") is not None else source_row.get("stake_units")),
         "stake_pct": _safe_float(effective_row.get("stake_pct") if effective_row.get("stake_pct") is not None else source_row.get("stake_pct")),
         "playable_sleeve": str(effective_row.get("playable_sleeve") or source_row.get("playable_sleeve") or "").strip().lower() or None,
         "selection": selection,
@@ -8564,11 +8567,34 @@ def api_season_betting_card_day(season: int, date_str: str):
 def root():
     return _serve_cards_page(
         "cards.html",
-        page_mode="live",
-        title="NBA Betting - Daily Betting Card",
-        heading="NBA Betting - Daily Betting Card",
+        page_mode="pregame",
+        title="NBA Game Cards",
+        heading="NBA Game Cards",
         base_path="/",
     )
+
+
+@app.route("/pregame")
+def route_pregame():
+    return _serve_cards_page(
+        "cards.html",
+        page_mode="pregame",
+        title="NBA Game Cards",
+        heading="NBA Game Cards",
+        base_path="/pregame",
+    )
+
+
+@app.route("/live")
+def route_live():
+    return _serve_cards_page(
+        "cards.html",
+        page_mode="live",
+        title="NBA Live Game Cards",
+        heading="NBA Live Game Cards",
+        base_path="/live",
+    )
+
 
 @app.route("/betting-card")
 def route_betting_card():
@@ -15556,6 +15582,7 @@ _NBA_CARDS_PROP_SLEEVE_POLICY: dict[str, dict[str, Any]] = {
 _NBA_PREGAME_PORTFOLIO_POLICY: dict[str, Any] = {
     "enabled": True,
     "bankroll": 500.0,
+    "unit_size": 50.0,
     "reserve_pct": 0.10,
     "min_stake": 30.0,
     "max_stake": 90.0,
@@ -16044,6 +16071,25 @@ def _pregame_card_allocate_stakes(selected: list[dict[str, Any]], *, bankroll: f
     return stakes
 
 
+def _pregame_portfolio_unit_size(policy: dict[str, Any] | None) -> float:
+    if isinstance(policy, dict):
+        unit_size = _safe_float(policy.get("unit_size"))
+        if unit_size is not None and unit_size > 0:
+            return float(unit_size)
+        bankroll = _safe_float(policy.get("bankroll"))
+        if bankroll is not None and bankroll > 0:
+            return round(float(bankroll) * 0.10, 2)
+    return 50.0
+
+
+def _pregame_portfolio_units(amount: float | None, unit_size: float | None) -> float | None:
+    amt = _safe_float(amount)
+    unit = _safe_float(unit_size)
+    if amt is None or unit is None or unit <= 0:
+        return None
+    return round(float(amt) / float(unit), 3)
+
+
 def _apply_pregame_card_portfolio(games: list[dict[str, Any]]) -> dict[str, Any]:
     policy = _NBA_PREGAME_PORTFOLIO_POLICY
     if not bool(policy.get("enabled")):
@@ -16103,9 +16149,13 @@ def _apply_pregame_card_portfolio(games: list[dict[str, Any]]) -> dict[str, Any]
                 )
 
     if not candidates:
+        unit_size = _pregame_portfolio_unit_size(policy)
+        bankroll = float(policy.get("bankroll") or 0.0)
         return {
             "enabled": True,
-            "bankroll": float(policy.get("bankroll") or 0.0),
+            "bankroll": bankroll,
+            "bankroll_units": _pregame_portfolio_units(bankroll, unit_size),
+            "unit_size": unit_size,
             "selected": 0,
             "candidates": 0,
         }
@@ -16116,10 +16166,12 @@ def _apply_pregame_card_portfolio(games: list[dict[str, Any]]) -> dict[str, Any]
         row["portfolio_rank"] = None
         row["portfolio_score"] = round(float(candidate.get("base_score") or 0.0), 6)
         row["stake_amount"] = None
+        row["stake_units"] = None
         row["stake_pct"] = None
 
     ranked = sorted(candidates, key=lambda item: float(item.get("base_score") or 0.0), reverse=True)
     bankroll = float(policy.get("bankroll") or 0.0)
+    unit_size = _pregame_portfolio_unit_size(policy)
     reserve_pct = float(policy.get("reserve_pct") or 0.0)
     min_stake = float(policy.get("min_stake") or 0.0)
     max_stake = float(policy.get("max_stake") or 0.0)
@@ -16214,6 +16266,7 @@ def _apply_pregame_card_portfolio(games: list[dict[str, Any]]) -> dict[str, Any]
     selected_rank_lookup: dict[tuple[Any, ...], tuple[int, float, float]] = {}
     for idx, candidate in enumerate(selected, start=1):
         stake_amount = float(stakes[idx - 1]) if idx - 1 < len(stakes) else 0.0
+        stake_units = _pregame_portfolio_units(stake_amount, unit_size)
         stake_pct = round((stake_amount / bankroll), 4) if bankroll > 0 else None
         selected_rank_lookup[candidate.get("identity")] = (idx, float(candidate.get("selected_score") or candidate.get("base_score") or 0.0), stake_amount)
         row = candidate["row"]
@@ -16223,6 +16276,7 @@ def _apply_pregame_card_portfolio(games: list[dict[str, Any]]) -> dict[str, Any]
         row["portfolio_rank"] = idx
         row["portfolio_score"] = round(float(candidate.get("selected_score") or candidate.get("base_score") or 0.0), 6)
         row["stake_amount"] = round(stake_amount, 2)
+        row["stake_units"] = stake_units
         row["stake_pct"] = stake_pct
 
     playable_rank = 0
@@ -16237,17 +16291,24 @@ def _apply_pregame_card_portfolio(games: list[dict[str, Any]]) -> dict[str, Any]
         row["portfolio_rank"] = None
         row["portfolio_score"] = round(float(candidate.get("base_score") or 0.0), 6)
         row["stake_amount"] = None
+        row["stake_units"] = None
         row["stake_pct"] = None
 
+    selected_stake_total = round(sum(float(item[2]) for item in selected_rank_lookup.values()), 2)
     return {
         "enabled": True,
         "bankroll": bankroll,
+        "bankroll_units": _pregame_portfolio_units(bankroll, unit_size),
+        "unit_size": unit_size,
         "reserve_pct": reserve_pct,
         "min_stake": min_stake,
+        "min_stake_units": _pregame_portfolio_units(min_stake, unit_size),
         "max_stake": max_stake,
+        "max_stake_units": _pregame_portfolio_units(max_stake, unit_size),
         "candidates": len(candidates),
         "selected": len(selected),
-        "selected_stake_total": round(sum(float(item[2]) for item in selected_rank_lookup.values()), 2),
+        "selected_stake_total": selected_stake_total,
+        "selected_stake_units_total": _pregame_portfolio_units(selected_stake_total, unit_size),
     }
 
 

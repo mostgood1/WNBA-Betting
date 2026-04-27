@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NBA Betting - Game Cards</title>
+  <title>NBA Game Cards</title>
   <link rel="stylesheet" href="/web/styles.css?v=20260324-1" />
-  <link rel="stylesheet" href="/web/cards-parity.css?v=20260425-1" />
+  <link rel="stylesheet" href="/web/cards-parity.css?v=20260427-tabs-tight-v10" />
 </head>
-<body data-page-mode="live" data-cards-base-path="/" class="cards-body cards-app-shell">
+<body data-page-mode="pregame" data-cards-base-path="/" class="cards-body cards-app-shell">
   <div class="site-chrome">
     <main class="site-main">
       <div class="cards-shell cards-page-shell">
@@ -25,6 +25,8 @@
             <input type="date" id="datePicker" aria-label="Select slate date" title="Select slate date" />
             <button type="button" id="applyBtn">Load</button>
             <a class="cards-nav-pill" id="cardsNextDateLink" href="/" rel="next">Next</a>
+            <a class="cards-nav-pill" id="cardsPregameLink" href="/">Pregame</a>
+            <a class="cards-nav-pill" id="cardsLiveLink" href="/live">Live</a>
             <a class="cards-nav-pill" id="cardsSeasonBettingCardLink" href="/season/2026/betting-card?profile=retuned">Betting Card</a>
             <a class="cards-nav-pill" href="/prop-ladders">Prop Ladders</a>
             <a class="cards-nav-pill" href="/live-player-props-audit">Live Prop Audit</a>
@@ -42,6 +44,10 @@
           <div class="cards-loading-strip">Loading scoreboard...</div>
         </section>
 
+        <section class="cards-props-strip-shell hidden" id="cardsPropsStrip" aria-label="Featured player props">
+          <div class="cards-loading-state">Loading player props...</div>
+        </section>
+
         <main class="cards-grid" id="cardsGrid" aria-live="polite">
           <div class="cards-loading-state">Loading cards...</div>
         </main>
@@ -49,6 +55,6 @@
     </main>
   </div>
 
-  <script src="/web/cards-parity.js?v=20260425-2"></script>
+  <script src="/web/cards-parity.js?v=20260427-tabs-tight-v10"></script>
 </body>
 </html>

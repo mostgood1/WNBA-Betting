@@ -1751,12 +1751,21 @@ def test_cards_shell_routes_use_single_main_page():
     betting_card_response = client.get("/betting-card")
 
     assert root_response.status_code == 200
-    assert pregame_response.status_code == 404
-    assert live_response.status_code == 404
+    assert pregame_response.status_code == 200
+    assert live_response.status_code == 200
     assert betting_card_response.status_code == 302
 
     root_html = root_response.get_data(as_text=True)
+    pregame_html = pregame_response.get_data(as_text=True)
+    live_html = live_response.get_data(as_text=True)
 
-    assert 'data-page-mode="live"' in root_html
-    assert 'NBA Betting - Daily Betting Card' in root_html
+    assert 'data-page-mode="pregame"' in root_html
+    assert 'NBA Game Cards' in root_html
+    assert 'id="cardsPregameLink"' in root_html
+    assert 'id="cardsLiveLink"' in root_html
+    assert 'data-page-mode="pregame"' in pregame_html
+    assert 'data-cards-base-path="/pregame"' in pregame_html
+    assert 'data-page-mode="live"' in live_html
+    assert 'data-cards-base-path="/live"' in live_html
+    assert 'id="cardsPropsStrip"' in root_html
     assert betting_card_response.headers["Location"].endswith("/")
