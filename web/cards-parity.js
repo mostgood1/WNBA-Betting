@@ -1902,7 +1902,7 @@
   }
 
   function fallbackLivePropRow(game, row) {
-    if (mode !== 'live' || !game || !row) {
+    if (!game || !row) {
       return null;
     }
     const liveState = getLiveState(game);
