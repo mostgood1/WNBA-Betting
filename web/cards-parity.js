@@ -1917,15 +1917,29 @@
     if (!row) {
       return null;
     }
+    const pts = Number(row?.pts_mean);
+    const reb = Number(row?.reb_mean);
+    const ast = Number(row?.ast_mean);
+    if (key === 'pra') {
+      return Number.isFinite(pts) && Number.isFinite(reb) && Number.isFinite(ast) ? pts + reb + ast : Number(row?.pra_mean);
+    }
+    if (key === 'pr') {
+      return Number.isFinite(pts) && Number.isFinite(reb) ? pts + reb : null;
+    }
+    if (key === 'pa') {
+      return Number.isFinite(pts) && Number.isFinite(ast) ? pts + ast : null;
+    }
+    if (key === 'ra') {
+      return Number.isFinite(reb) && Number.isFinite(ast) ? reb + ast : null;
+    }
     return {
-      pts: Number(row?.pts_mean),
-      reb: Number(row?.reb_mean),
-      ast: Number(row?.ast_mean),
+      pts,
+      reb,
+      ast,
       threes: Number(row?.threes_mean),
       stl: Number(row?.stl_mean),
       blk: Number(row?.blk_mean),
       tov: Number(row?.tov_mean),
-      pra: Number(row?.pra_mean),
     }[key] ?? null;
   }
 
@@ -1934,16 +1948,25 @@
     if (!row) {
       return null;
     }
-    if (key === 'pra' || key === 'pr') {
-      const pts = Number(row?.pts);
-      const reb = Number(row?.reb);
-      const ast = Number(row?.ast);
+    const pts = Number(row?.pts);
+    const reb = Number(row?.reb);
+    const ast = Number(row?.ast);
+    if (key === 'pra') {
       return Number.isFinite(pts) && Number.isFinite(reb) && Number.isFinite(ast) ? pts + reb + ast : null;
     }
+    if (key === 'pr') {
+      return Number.isFinite(pts) && Number.isFinite(reb) ? pts + reb : null;
+    }
+    if (key === 'pa') {
+      return Number.isFinite(pts) && Number.isFinite(ast) ? pts + ast : null;
+    }
+    if (key === 'ra') {
+      return Number.isFinite(reb) && Number.isFinite(ast) ? reb + ast : null;
+    }
     return {
-      pts: Number(row?.pts),
-      reb: Number(row?.reb),
-      ast: Number(row?.ast),
+      pts,
+      reb,
+      ast,
       threes: Number(row?.threes_made),
       stl: Number(row?.stl),
       blk: Number(row?.blk),
@@ -2863,7 +2886,7 @@
     `);
     const propRows = officialPropRows(game).map((row) => {
       const liveRow = resolvedLivePropRow(game, row);
-      const summaryText = compactCalloutSummary(liveRow
+      const summaryText = (liveRow
         ? [row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim(), liveRowFreshnessText(liveRow, liveRow.statusLabel || 'Live')].filter(Boolean).join(' · ')
         : (row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim()));
       const metricsMarkup = liveRow
@@ -3171,7 +3194,7 @@
                   <span class="cards-chip ${row.bucket === 'official' ? 'cards-chip--accent' : ''}">${row.bucket === 'official' ? 'Official' : 'Playable'}</span>
                 </div>
                 <div class="cards-playable-main">${escapeHtml(`${row.player} ${row.side} ${fmtNumber(row.line, 1)}`)}</div>
-                <div class="cards-callout-copy">${escapeHtml(`${fmtAmerican(row.price)} ${row.book || ''} · EV ${fmtPercentValue(row.evPct)} · Win ${fmtPercent(row.pWin, 0)}`.trim())}</div>
+                <div class="cards-callout-copy">${escapeHtml(row.summary || `${fmtAmerican(row.price)} ${row.book || ''} · EV ${fmtPercentValue(row.evPct)} · Win ${fmtPercent(row.pWin, 0)}`.trim())}</div>
               </button>
             `).join('')}
           </div>
