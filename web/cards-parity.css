@@ -1462,13 +1462,18 @@ body[data-viewport='phone'] .cards-scoreboard {
 }
 
 .cards-overview-grid {
-  grid-template-columns: minmax(0, 1.45fr) minmax(330px, 0.95fr);
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.95fr);
   align-items: start;
 }
 
 .cards-overview-side {
   display: grid;
   gap: 10px;
+  min-width: 0;
+}
+
+.cards-overview-side .cards-panel-card {
+  min-width: 0;
 }
 
 .cards-overview-side .cards-playable-list {
@@ -1966,6 +1971,46 @@ body[data-viewport='phone'] .cards-scoreboard {
   flex-wrap: wrap;
 }
 
+.cards-overview-side .cards-callout-item {
+  display: grid;
+  justify-content: stretch;
+  align-items: flex-start;
+}
+
+.cards-overview-side .cards-callout-button {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cards-overview-side .cards-callout-button > :first-child,
+.cards-overview-side .cards-callout-meta {
+  min-width: 0;
+}
+
+.cards-overview-side .cards-callout-button > :first-child {
+  width: 100%;
+}
+
+.cards-overview-side .cards-callout-meta {
+  justify-content: flex-start;
+}
+
+.cards-overview-side .cards-callout-meta .cards-chip {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.cards-overview-side .cards-callout-label,
+.cards-overview-side .cards-callout-main,
+.cards-overview-side .cards-callout-copy {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
 .cards-prob-grid {
   display: grid;
   gap: 8px;
@@ -2078,6 +2123,12 @@ body[data-viewport='phone'] .cards-scoreboard {
 
   .cards-overview-side .cards-data-pair strong {
     font-size: 11px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .cards-overview-grid {
+    grid-template-columns: 1fr;
   }
 }
 

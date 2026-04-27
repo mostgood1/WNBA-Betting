@@ -219,6 +219,19 @@
     return `${fixed}U`;
   }
 
+  function compactCalloutSummary(value, maxLength = 120) {
+    const text = String(value ?? '').replace(/\s+/g, ' ').trim();
+    if (!text) {
+      return '';
+    }
+    const firstSentenceMatch = text.match(/^(.+?[.!?])(\s|$)/);
+    const candidate = firstSentenceMatch ? firstSentenceMatch[1].trim() : text;
+    if (candidate.length <= maxLength) {
+      return candidate;
+    }
+    return `${candidate.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
+  }
+
   function portfolioUnitValue(portfolio, unitKey, amountKey) {
     const direct = Number(portfolio?.[unitKey]);
     if (Number.isFinite(direct)) {
@@ -1921,7 +1934,7 @@
     if (!row) {
       return null;
     }
-    if (key === 'pra') {
+    if (key === 'pra' || key === 'pr') {
       const pts = Number(row?.pts);
       const reb = Number(row?.reb);
       const ast = Number(row?.ast);
@@ -1949,7 +1962,7 @@
     const actualRow = playerActualRow(game, row);
     const simRow = playerSimRow(game, row);
     const actual = actualStatValue(actualRow, row.market);
-    const simValue = Number(simRow?.[`${row.market}_mean`] ?? row.simMu);
+    const simValue = Number(simMeanValue(simRow, row.market) ?? row.simMu);
     const liveProjection = estimatedLiveProjection(actual, Number(actualRow?.mp), Number(simRow?.min_mean), simValue);
     if (!Number.isFinite(actual) && !Number.isFinite(liveProjection)) {
       return null;
@@ -1989,7 +2002,7 @@
 
   function livePropThresholds(market) {
     const key = String(market || '').trim().toLowerCase();
-    if (key === 'pts' || key === 'pra') {
+    if (key === 'pts' || key === 'pra' || key === 'pr') {
       return { watch: 2.0, bet: 4.0 };
     }
     if (key === 'reb' || key === 'ast') {
@@ -2837,7 +2850,7 @@
           <div>
             <div class="cards-callout-label">${escapeHtml(row.label)}</div>
             <div class="cards-callout-main">${escapeHtml(row.main)}</div>
-            <div class="cards-callout-copy">${escapeHtml(row.sub)}</div>
+            <div class="cards-callout-copy">${escapeHtml(compactCalloutSummary(row.sub))}</div>
           </div>
           <div class="cards-callout-meta">
             <span class="cards-chip cards-chip--accent">EV ${fmtPercentValue(row.ev)}</span>
@@ -2850,9 +2863,9 @@
     `);
     const propRows = officialPropRows(game).map((row) => {
       const liveRow = resolvedLivePropRow(game, row);
-      const summaryText = liveRow
+      const summaryText = compactCalloutSummary(liveRow
         ? [row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim(), liveRowFreshnessText(liveRow, liveRow.statusLabel || 'Live')].filter(Boolean).join(' · ')
-        : (row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim());
+        : (row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim()));
       const metricsMarkup = liveRow
         ? `
             <span class="cards-chip">Actual ${escapeHtml(Number.isFinite(Number(liveRow.actual)) ? fmtNumber(liveRow.actual, 1) : '-')}</span>
@@ -4380,7 +4393,7 @@
   }
 
   function renderLensDetailPairs(selected, simRow, matchedLiveRow) {
-    const metricValue = simRow ? simRow[`${selected.market}_mean`] : null;
+    const metricValue = simMeanValue(simRow, selected.market);
     const simValue = Number(metricValue ?? selected.simMu);
     const actualValue = Number.isFinite(Number(selected.actual)) ? Number(selected.actual) : null;
     const projectedValue = Number.isFinite(Number(matchedLiveRow?.liveProjection)) ? Number(matchedLiveRow.liveProjection) : (Number.isFinite(simValue) ? simValue : null);
