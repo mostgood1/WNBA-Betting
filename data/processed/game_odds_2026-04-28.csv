@@ -1,0 +1,4 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-04-28,2026-04-29T00:10:00Z,New York Knicks,Atlanta Hawks,-238.01649156618177,238.01649156618177,-6.5,6.5,-115,-105,213.0,-100.14242985329726,100.14242985329726,10,10,10,6,oddsapi_consensus
+2026-04-28,2026-04-28T23:10:00Z,Boston Celtics,Philadelphia 76ers,-443.7917303560133,443.79173035601315,-11.5,11.5,-115,-105,214.5,-100.0,-100.0,10,10,10,7,oddsapi_consensus
+2026-04-28,2026-04-29T01:40:00Z,San Antonio Spurs,Portland Trail Blazers,-484.1814571460313,484.1814571460316,-12.0,12.0,-115,-105,215.5,100.48268372149148,-100.48268372149148,10,10,6,9,oddsapi_consensus
