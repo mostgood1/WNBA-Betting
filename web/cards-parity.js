@@ -3844,10 +3844,6 @@
       const bestEdge = marketCards
         .filter((market) => Number.isFinite(Number(market?.edgeValue)))
         .sort((left, right) => Number(right.edgeValue) - Number(left.edgeValue))[0] || null;
-      const reasonBlock = marketCards
-        .filter((market) => market?.note && !market?.isEmpty)
-        .map((market) => `<div class="cards-live-lens-reason">${escapeHtml(`${market.shortLabel}: ${market.note}`)}</div>`)
-        .join('');
       const modelProb = Number.isFinite(Number(row.modelHomeWinProb)) ? Number(row.modelHomeWinProb) : null;
       const baselineProb = Number.isFinite(Number(row.baselineHomeWinProb)) ? Number(row.baselineHomeWinProb) : null;
       return `
@@ -3870,11 +3866,6 @@
             ${marketTileMarkup(markets.moneyline || emptyLensMarket('ML', 'No tracked moneyline.'))}
             ${marketTileMarkup(markets.spread || emptyLensMarket('ATS', 'No tracked spread line.'))}
             ${marketTileMarkup(markets.total || emptyLensMarket('Total', 'No tracked total line.'))}
-          </div>
-          ${reasonBlock ? `<div class="cards-live-lens-reasons">${reasonBlock}</div>` : ''}
-          <div class="cards-prop-overview-foot">
-            <span>${escapeHtml(row.summaryLine || row.lineLabel || 'Game lens')}</span>
-            <span>${escapeHtml(row.footText || row.lineLabel || '')}</span>
           </div>
         </div>`;
     }).join('');
