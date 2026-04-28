@@ -36363,22 +36363,6 @@ def _live_load_period_lines_map(date_str: str) -> dict[tuple[str, str], dict[str
         "period_spreads": {"h1": float|None, "q1": float|None, ...},
       }
     """
-    p = _live_find_processed_csv("period_lines", date_str)
-    if not p:
-        return {}
-    try:
-        mtime = int(p.stat().st_mtime)
-    except Exception:
-        mtime = 0
-
-    cache_key = f"period_lines:{date_str}:{mtime}"
-    ent = _live_processed_cache.get(cache_key)
-    if ent is not None:
-        try:
-            return ent[1]  # type: ignore[return-value]
-        except Exception:
-            pass
-
     def _to_tri_best(x: Any) -> str:
         s = str(x or "").strip()
         if not s:
@@ -36394,17 +36378,14 @@ def _live_load_period_lines_map(date_str: str) -> dict[tuple[str, str], dict[str
         except Exception:
             return s.upper()
 
-    try:
-        df = pd.read_csv(p)
+    def _build_map_from_df(df: pd.DataFrame) -> dict[tuple[str, str], dict[str, Any]]:
         if df is None or df.empty:
-            _live_processed_cache[cache_key] = (mtime, {})
             return {}
 
         cols = {str(c).strip().lower(): str(c) for c in df.columns}
         home_col = cols.get("home_team")
         away_col = cols.get("visitor_team") or cols.get("away_team")
         if not (home_col and away_col):
-            _live_processed_cache[cache_key] = (mtime, {})
             return {}
 
         def _col(name: str) -> str | None:
@@ -36436,6 +36417,36 @@ def _live_load_period_lines_map(date_str: str) -> dict[tuple[str, str], dict[str
                 out[(htri, atri)] = {"period_totals": period_totals, "period_spreads": period_spreads}
             except Exception:
                 continue
+        return out
+
+    p = _live_find_processed_csv("period_lines", date_str)
+    if not p:
+        try:
+            from nba_betting.odds_bovada import fetch_bovada_period_lines_current as _fbplc  # type: ignore
+
+            live_df = _fbplc(date_str)
+            return _build_map_from_df(live_df if isinstance(live_df, pd.DataFrame) else pd.DataFrame())
+        except Exception:
+            return {}
+    try:
+        mtime = int(p.stat().st_mtime)
+    except Exception:
+        mtime = 0
+
+    cache_key = f"period_lines:{date_str}:{mtime}"
+    ent = _live_processed_cache.get(cache_key)
+    if ent is not None:
+        try:
+            return ent[1]  # type: ignore[return-value]
+        except Exception:
+            pass
+
+    try:
+        df = pd.read_csv(p)
+        if df is None or df.empty:
+            _live_processed_cache[cache_key] = (mtime, {})
+            return {}
+        out = _build_map_from_df(df)
 
         _live_processed_cache[cache_key] = (mtime, out)
         return out

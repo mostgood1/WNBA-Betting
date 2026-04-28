@@ -698,14 +698,16 @@
     const q4Linescore = livePeriodTotalFromLinescore(liveState, 4);
     const currentQuarter = Number(pbpStats?.pbp_quarters?.current?.q_total);
     if (currentPeriod === 1) {
-      return Number(currentQuarter);
+      const firstQuarter = Number.isFinite(currentQuarter) ? currentQuarter : livePeriodTotalFromLinescore(liveState, 1);
+      return Number.isFinite(firstQuarter) ? firstQuarter : null;
     }
     if (currentPeriod === 2) {
       const secondQuarter = Number.isFinite(currentQuarter) ? currentQuarter : q2Linescore;
       return Number.isFinite(q1) && Number.isFinite(secondQuarter) ? q1 + secondQuarter : null;
     }
     if (currentPeriod === 3) {
-      return Number(currentQuarter);
+      const thirdQuarter = Number.isFinite(currentQuarter) ? currentQuarter : livePeriodTotalFromLinescore(liveState, 3);
+      return Number.isFinite(thirdQuarter) ? thirdQuarter : null;
     }
     if (currentPeriod === 4) {
       const fourthQuarter = Number.isFinite(currentQuarter) ? currentQuarter : q4Linescore;
@@ -1104,7 +1106,10 @@
     let quarterSignal = null;
     if (liveState.in_progress && currentQuarterKey) {
       const quarterLine = Number(periodTotals?.[currentQuarterKey]);
-      const quarterActual = Number(pbpStats?.pbp_quarters?.current?.q_total);
+      const quarterActual = finiteFirst(
+        pbpStats?.pbp_quarters?.current?.q_total,
+        livePeriodTotalFromLinescore(liveState, Number(String(currentQuarterKey).replace('q', '')))
+      );
       const quarterSim = simPeriodMean(game, currentQuarterKey);
       const quarterMinutesElapsed = Number.isFinite(currentPeriod) && Number.isFinite(elapsedMinutes)
         ? Math.max(0, elapsedMinutes - ((Math.floor(currentPeriod) - 1) * 12))
