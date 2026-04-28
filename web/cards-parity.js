@@ -4805,6 +4805,10 @@
       } else {
         state.liveDataLoading = false;
       }
+
+      if (propsStripEl) {
+        void loadPropsStrip(resolvedDate, { silent, games: payload.games || [] });
+      }
     } catch (error) {
       if (silent && state.payload && state.boardInitialized) {
         state.liveDataLoading = false;
