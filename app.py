@@ -445,6 +445,7 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                 event_id,
                 swapped,
                 period_totals: {h1, q1..q4},
+                period_spreads: {h1, q1..q4},
                 game_lines: {total, home_spread, away_spread, home_ml, away_ml},
                 market_keys: {...}
             }
@@ -565,10 +566,15 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
             "game_spreads": ["spreads"],
             "game_h2h": ["h2h"],
             "h1": ["totals_h1", "totals_1h", "totals_1st_half", "totals_first_half"],
+            "h1_spread": ["spreads_h1", "spreads_1h", "spreads_1st_half", "spreads_first_half"],
             "q1": ["totals_q1", "totals_1q", "totals_1st_quarter", "totals_first_quarter"],
+            "q1_spread": ["spreads_q1", "spreads_1q", "spreads_1st_quarter", "spreads_first_quarter"],
             "q2": ["totals_q2", "totals_2q", "totals_2nd_quarter", "totals_second_quarter"],
+            "q2_spread": ["spreads_q2", "spreads_2q", "spreads_2nd_quarter", "spreads_second_quarter"],
             "q3": ["totals_q3", "totals_3q", "totals_3rd_quarter", "totals_third_quarter"],
+            "q3_spread": ["spreads_q3", "spreads_3q", "spreads_3rd_quarter", "spreads_third_quarter"],
             "q4": ["totals_q4", "totals_4q", "totals_4th_quarter", "totals_fourth_quarter"],
+            "q4_spread": ["spreads_q4", "spreads_4q", "spreads_4th_quarter", "spreads_fourth_quarter"],
         }
 
         picked: dict[str, str] = {}
@@ -585,6 +591,7 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                 "event_id": str(event_id),
                 "swapped": bool(swapped),
                 "period_totals": {},
+                "period_spreads": {},
                 "game_lines": {},
                 "market_keys": {},
             }
@@ -593,6 +600,7 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
 
         # 3) Fetch odds for the picked markets and extract the points.
         period_totals: dict[str, float] = {}
+        period_spreads: dict[str, float] = {}
         game_lines: dict[str, float] = {}
         try:
             r = requests.get(
@@ -613,6 +621,7 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
         mk_to_label = {mkey: label for label, mkey in picked.items()}
         # Aggregate across bookmakers to avoid arbitrary "first book wins" volatility.
         period_pts: dict[str, list[float]] = {k: [] for k in ["h1", "q1", "q2", "q3", "q4"]}
+        period_home_spreads: dict[str, list[float]] = {k: [] for k in ["h1", "q1", "q2", "q3", "q4"]}
         game_total_pts: list[float] = []
         home_spreads: list[float] = []
         away_spreads: list[float] = []
@@ -650,6 +659,23 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                                         period_pts[label].append(float(v))
                                 except Exception:
                                     continue
+
+                        if label in {"h1_spread", "q1_spread", "q2_spread", "q3_spread", "q4_spread"}:
+                            period_label = str(label).replace("_spread", "")
+                            for oc in outs:
+                                if not isinstance(oc, dict):
+                                    continue
+                                nm = str(oc.get("name") or "")
+                                tri = _get_tricode(nm)
+                                pt = oc.get("point")
+                                try:
+                                    v = float(pt)
+                                    if not np.isfinite(v):
+                                        continue
+                                except Exception:
+                                    continue
+                                if tri == h and period_label in period_home_spreads:
+                                    period_home_spreads[period_label].append(float(v))
 
                         # Full-game markets
                         if label == "game_total":
@@ -708,6 +734,12 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
         except Exception:
             pass
         try:
+            for label, spreads in period_home_spreads.items():
+                if spreads:
+                    period_spreads[label] = float(np.median(np.asarray(spreads, dtype=float)))
+        except Exception:
+            pass
+        try:
             if game_total_pts:
                 game_lines["total"] = float(np.median(np.asarray(game_total_pts, dtype=float)))
         except Exception:
@@ -732,6 +764,7 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
             "event_id": str(event_id),
             "swapped": bool(swapped),
             "period_totals": period_totals,
+            "period_spreads": period_spreads,
             "game_lines": game_lines,
             "market_keys": picked,
         }
@@ -8567,7 +8600,6 @@ def api_season_betting_card_day(season: int, date_str: str):
 def root():
     return _serve_cards_page(
         "cards.html",
-        page_mode="pregame",
         title="NBA Game Cards",
         heading="NBA Game Cards",
         base_path="/",
@@ -8576,24 +8608,12 @@ def root():
 
 @app.route("/pregame")
 def route_pregame():
-    return _serve_cards_page(
-        "cards.html",
-        page_mode="pregame",
-        title="NBA Game Cards",
-        heading="NBA Game Cards",
-        base_path="/pregame",
-    )
+    return _redirect_with_request_params("/")
 
 
 @app.route("/live")
 def route_live():
-    return _serve_cards_page(
-        "cards.html",
-        page_mode="live",
-        title="NBA Live Game Cards",
-        heading="NBA Live Game Cards",
-        base_path="/live",
-    )
+    return _redirect_with_request_params("/")
 
 
 @app.route("/betting-card")
