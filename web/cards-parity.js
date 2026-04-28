@@ -754,6 +754,27 @@
     return [...safeArray(signals)].sort((left, right) => (signalPriority(right) - signalPriority(left)) || ((Number(right.score) || 0) - (Number(left.score) || 0)) || (Math.abs(Number(right.edge) || 0) - Math.abs(Number(left.edge) || 0)));
   }
 
+  function applySignalGameShape(signal, reasons, shapeScore, gameShape) {
+    if (!signal) {
+      return signal;
+    }
+    const cleanReasons = safeArray(reasons)
+      .map((value) => String(value || '').trim())
+      .filter(Boolean);
+    const boost = Number(shapeScore);
+    signal.shapeReasons = cleanReasons;
+    signal.shapeSummary = cleanReasons[0] || '';
+    signal.shapeScore = Number.isFinite(boost) ? boost : 0;
+    signal.gameShape = gameShape && typeof gameShape === 'object' ? gameShape : null;
+    if (cleanReasons.length) {
+      signal.detail = [signal.detail, cleanReasons.slice(0, 2).join(' · ')].filter(Boolean).join(' · ');
+    }
+    if (Number.isFinite(signal.shapeScore) && signal.shapeScore !== 0) {
+      signal.score = (Number(signal.score) || 0) + signal.shapeScore;
+    }
+    return signal;
+  }
+
   function compactSignalSelection(signals) {
     const ranked = rankSignals(signals).filter((signal) => signal?.klass === 'BET' || signal?.klass === 'WATCH');
     if (!ranked.length) {
@@ -1121,6 +1142,39 @@
         : null;
       totalSignal = buildSignal('total', 'G', klass, side, edge, lineTotal, projection, [priorDetail, `Total ${fmtInteger(currentTotal)}`, endgameDetail].filter(Boolean).join(' · '));
       totalSignal.score = signalScore(Math.abs(edge), totalBetThreshold);
+
+      const totalShapeReasons = [];
+      let totalShapeScore = 0;
+      const totalShape = {
+        pregameGap: Number.isFinite(pregameTotal) ? Number((pregameTotal - lineTotal).toFixed(3)) : null,
+        livePaceGap: Number.isFinite(paceRaw) ? Number((paceRaw - lineTotal).toFixed(3)) : null,
+        recentAdj: Number.isFinite(recentAdj) ? Number(recentAdj.toFixed(3)) : null,
+        endgameAdj: Number.isFinite(endgameAdj) ? Number(endgameAdj.toFixed(3)) : null,
+        endgameReversion: Number.isFinite(endgameReversion) ? Number(endgameReversion.toFixed(3)) : null,
+      };
+      if (side !== 'No edge') {
+        const directional = side === 'Over' ? 1 : -1;
+        const priorGap = Number.isFinite(pregameTotal) ? directional * (pregameTotal - lineTotal) : null;
+        const liveGap = Number.isFinite(paceRaw) ? directional * (paceRaw - lineTotal) : null;
+        const recentSupport = Number.isFinite(recentAdj) ? directional * recentAdj : null;
+        if (Number.isFinite(priorGap) && priorGap >= 3) {
+          totalShapeReasons.push(`Pregame shape was already ${fmtNumber(priorGap, 1)} points toward the ${side.toLowerCase()}`);
+          totalShapeScore += Math.min(0.22, priorGap / 18);
+        }
+        if (Number.isFinite(liveGap) && liveGap >= 2.5) {
+          totalShapeReasons.push(`Live scoring pace is tracking ${fmtNumber(liveGap, 1)} points toward the ${side.toLowerCase()}`);
+          totalShapeScore += Math.min(0.24, liveGap / 16);
+        }
+        if (Number.isFinite(recentSupport) && recentSupport >= 1) {
+          totalShapeReasons.push(`The recent possession window is adding ${fmtNumber(Math.abs(recentAdj), 1)} points of fresh ${side.toLowerCase()} support`);
+          totalShapeScore += Math.min(0.14, recentSupport / 10);
+        }
+        if (inEndgameWindow && side === 'Over' && endgameAdj > 0.4) {
+          totalShapeReasons.push('Late-game foul context is still lifting the over path');
+          totalShapeScore += 0.08;
+        }
+      }
+      applySignalGameShape(totalSignal, totalShapeReasons, totalShapeScore, totalShape);
     }
 
     let halfSignal = null;
@@ -1143,6 +1197,29 @@
         const klass = classifyLens(Math.abs(edge), thresholds.half_total.watch, thresholds.half_total.bet);
         halfSignal = buildSignal('half_total', lensHalfLabel, klass, side, edge, halfLine, projection, halfMinutesElapsed > 0 ? `Total ${fmtInteger(halfActual)}` : 'Opening live half line');
         halfSignal.score = signalScore(Math.abs(edge), thresholds.half_total.bet);
+
+        const halfTotalShapeReasons = [];
+        let halfTotalShapeScore = 0;
+        const halfTotalShape = {
+          pregameGap: Number.isFinite(halfSim) ? Number((halfSim - halfLine).toFixed(3)) : null,
+          livePaceGap: Number.isFinite(paceRaw) ? Number((paceRaw - halfLine).toFixed(3)) : null,
+          actual: Number.isFinite(halfActual) ? Number(halfActual.toFixed(3)) : null,
+          minutesRemaining: Number.isFinite(halfMinutesRemaining) ? Number(halfMinutesRemaining.toFixed(3)) : null,
+        };
+        if (side !== 'No edge') {
+          const directional = side === 'Over' ? 1 : -1;
+          const priorGap = Number.isFinite(halfSim) ? directional * (halfSim - halfLine) : null;
+          const liveGap = Number.isFinite(paceRaw) ? directional * (paceRaw - halfLine) : null;
+          if (Number.isFinite(priorGap) && priorGap >= 1.5) {
+            halfTotalShapeReasons.push(`${lensHalfLabel} opened ${fmtNumber(priorGap, 1)} points toward the ${side.toLowerCase()} on the sim baseline`);
+            halfTotalShapeScore += Math.min(0.16, priorGap / 12);
+          }
+          if (Number.isFinite(liveGap) && liveGap >= 1.0) {
+            halfTotalShapeReasons.push(`${lensHalfLabel} pace is still tracking ${fmtNumber(liveGap, 1)} points toward the ${side.toLowerCase()}`);
+            halfTotalShapeScore += Math.min(0.18, liveGap / 10);
+          }
+        }
+        applySignalGameShape(halfSignal, halfTotalShapeReasons, halfTotalShapeScore, halfTotalShape);
       }
     }
 
@@ -1168,6 +1245,29 @@
         const klass = classifyLens(Math.abs(edge), thresholds.quarter_total.watch, thresholds.quarter_total.bet);
         quarterSignal = buildSignal('quarter_total', lensQuarterLabel, klass, side, edge, quarterLine, projection, quarterMinutesElapsed > 0 ? `Total ${fmtInteger(quarterActual)}` : 'Opening live period line');
         quarterSignal.score = signalScore(Math.abs(edge), thresholds.quarter_total.bet);
+
+        const quarterTotalShapeReasons = [];
+        let quarterTotalShapeScore = 0;
+        const quarterTotalShape = {
+          pregameGap: Number.isFinite(quarterSim) ? Number((quarterSim - quarterLine).toFixed(3)) : null,
+          livePaceGap: Number.isFinite(paceRaw) ? Number((paceRaw - quarterLine).toFixed(3)) : null,
+          actual: Number.isFinite(quarterActual) ? Number(quarterActual.toFixed(3)) : null,
+          minutesRemaining: Number.isFinite(quarterMinutesRemaining) ? Number(quarterMinutesRemaining.toFixed(3)) : null,
+        };
+        if (side !== 'No edge') {
+          const directional = side === 'Over' ? 1 : -1;
+          const priorGap = Number.isFinite(quarterSim) ? directional * (quarterSim - quarterLine) : null;
+          const liveGap = Number.isFinite(paceRaw) ? directional * (paceRaw - quarterLine) : null;
+          if (Number.isFinite(priorGap) && priorGap >= 1.0) {
+            quarterTotalShapeReasons.push(`${lensQuarterLabel} opened ${fmtNumber(priorGap, 1)} points toward the ${side.toLowerCase()} on the sim baseline`);
+            quarterTotalShapeScore += Math.min(0.14, priorGap / 10);
+          }
+          if (Number.isFinite(liveGap) && liveGap >= 0.8) {
+            quarterTotalShapeReasons.push(`${lensQuarterLabel} pace is still leaning ${side.toLowerCase()} by ${fmtNumber(liveGap, 1)}`);
+            quarterTotalShapeScore += Math.min(0.16, liveGap / 8);
+          }
+        }
+        applySignalGameShape(quarterSignal, quarterTotalShapeReasons, quarterTotalShapeScore, quarterTotalShape);
       }
     }
 
@@ -1198,6 +1298,25 @@
           const klass = classifyLens(Math.abs(edge), thresholds.ats.watch, thresholds.ats.bet);
           halfAtsSignal = buildSignal('half_ats', `${lensHalfLabel} ATS`, klass, side, edge, line, projection, halfMinutesElapsed > 0 ? `Margin ${fmtSigned(projectedHalfMargin, 1)}` : 'Opening live half spread');
           halfAtsSignal.score = signalScore(Math.abs(edge), thresholds.ats.bet);
+
+          const halfAtsShapeReasons = [];
+          let halfAtsShapeScore = 0;
+          const baselineGap = Number.isFinite(simHalfMargin) ? (pickHome ? (simHalfMargin + halfSpread) : (-simHalfMargin - halfSpread)) : null;
+          const liveGap = Number.isFinite(actualHalfMargin) ? (pickHome ? (actualHalfMargin + halfSpread) : (-actualHalfMargin - halfSpread)) : null;
+          const halfAtsShape = {
+            pregameGap: Number.isFinite(baselineGap) ? Number(baselineGap.toFixed(3)) : null,
+            liveGap: Number.isFinite(liveGap) ? Number(liveGap.toFixed(3)) : null,
+            projectedMargin: Number.isFinite(projectedHalfMargin) ? Number(projectedHalfMargin.toFixed(3)) : null,
+          };
+          if (Number.isFinite(baselineGap) && baselineGap >= 1.0) {
+            halfAtsShapeReasons.push(`${lensHalfLabel} sim still has ${side} ${fmtNumber(baselineGap, 1)} clear of the spread`);
+            halfAtsShapeScore += Math.min(0.14, baselineGap / 8);
+          }
+          if (Number.isFinite(liveGap) && liveGap >= 0.8) {
+            halfAtsShapeReasons.push(`${lensHalfLabel} scoreboard state is still helping ${side} against this number`);
+            halfAtsShapeScore += Math.min(0.14, liveGap / 7);
+          }
+          applySignalGameShape(halfAtsSignal, halfAtsShapeReasons, halfAtsShapeScore, halfAtsShape);
         }
 
         const halfMlThresholds = derivedPeriodMlThresholds(lensHalfKey);
@@ -1212,6 +1331,28 @@
           const klass = classifyLens(Math.abs(edge), halfMlThresholds.watch, halfMlThresholds.bet);
           halfMlSignal = buildSignal('half_ml', `${lensHalfLabel} ML`, klass, side, edge, 0.5, projection, `Model ${fmtPercent(projection, 0)}`);
           halfMlSignal.score = signalScore(Math.abs(edge), halfMlThresholds.bet);
+
+          const baselineHalfProb = Number.isFinite(simHalfMargin)
+            ? projectedWinProbFromMargin(simHalfMargin, halfMinutesRemaining)
+            : null;
+          const baselineSideProb = pickHome ? baselineHalfProb : (Number.isFinite(baselineHalfProb) ? (1 - baselineHalfProb) : null);
+          const liveSideProb = pickHome ? pHomeHalf : (1 - pHomeHalf);
+          const halfMlShapeReasons = [];
+          let halfMlShapeScore = 0;
+          const halfMlShape = {
+            baselineProbability: Number.isFinite(baselineSideProb) ? Number(baselineSideProb.toFixed(4)) : null,
+            liveProbability: Number.isFinite(liveSideProb) ? Number(liveSideProb.toFixed(4)) : null,
+            minutesRemaining: Number.isFinite(halfMinutesRemaining) ? Number(halfMinutesRemaining.toFixed(3)) : null,
+          };
+          if (Number.isFinite(baselineSideProb) && baselineSideProb >= 0.58) {
+            halfMlShapeReasons.push(`${lensHalfLabel} baseline already leaned ${side} at ${fmtPercent(baselineSideProb, 0)}`);
+            halfMlShapeScore += Math.min(0.12, (baselineSideProb - 0.5) * 0.8);
+          }
+          if (Number.isFinite(liveSideProb) && liveSideProb >= 0.6) {
+            halfMlShapeReasons.push(`${lensHalfLabel} live script still keeps ${side} around ${fmtPercent(liveSideProb, 0)}`);
+            halfMlShapeScore += Math.min(0.14, (liveSideProb - 0.5) * 0.9);
+          }
+          applySignalGameShape(halfMlSignal, halfMlShapeReasons, halfMlShapeScore, halfMlShape);
         }
       }
     }
@@ -1241,6 +1382,25 @@
           const klass = classifyLens(Math.abs(edge), thresholds.ats.watch, thresholds.ats.bet);
           quarterAtsSignal = buildSignal('quarter_ats', `${lensQuarterLabel} ATS`, klass, side, edge, line, projection, quarterMinutesElapsed > 0 ? `Margin ${fmtSigned(projectedQuarterMargin, 1)}` : 'Opening live period spread');
           quarterAtsSignal.score = signalScore(Math.abs(edge), thresholds.ats.bet);
+
+          const quarterAtsShapeReasons = [];
+          let quarterAtsShapeScore = 0;
+          const baselineGap = Number.isFinite(simQuarterMargin) ? (pickHome ? (simQuarterMargin + quarterSpread) : (-simQuarterMargin - quarterSpread)) : null;
+          const liveGap = Number.isFinite(actualQuarterMargin) ? (pickHome ? (actualQuarterMargin + quarterSpread) : (-actualQuarterMargin - quarterSpread)) : null;
+          const quarterAtsShape = {
+            pregameGap: Number.isFinite(baselineGap) ? Number(baselineGap.toFixed(3)) : null,
+            liveGap: Number.isFinite(liveGap) ? Number(liveGap.toFixed(3)) : null,
+            projectedMargin: Number.isFinite(projectedQuarterMargin) ? Number(projectedQuarterMargin.toFixed(3)) : null,
+          };
+          if (Number.isFinite(baselineGap) && baselineGap >= 0.8) {
+            quarterAtsShapeReasons.push(`${lensQuarterLabel} sim still has ${side} ${fmtNumber(baselineGap, 1)} clear of the spread`);
+            quarterAtsShapeScore += Math.min(0.12, baselineGap / 7);
+          }
+          if (Number.isFinite(liveGap) && liveGap >= 0.6) {
+            quarterAtsShapeReasons.push(`${lensQuarterLabel} scoreboard state is still supporting ${side}`);
+            quarterAtsShapeScore += Math.min(0.12, liveGap / 6);
+          }
+          applySignalGameShape(quarterAtsSignal, quarterAtsShapeReasons, quarterAtsShapeScore, quarterAtsShape);
         }
 
         const quarterMlThresholds = derivedPeriodMlThresholds(lensQuarterKey);
@@ -1255,6 +1415,28 @@
           const klass = classifyLens(Math.abs(edge), quarterMlThresholds.watch, quarterMlThresholds.bet);
           quarterMlSignal = buildSignal('quarter_ml', `${lensQuarterLabel} ML`, klass, side, edge, 0.5, projection, `Model ${fmtPercent(projection, 0)}`);
           quarterMlSignal.score = signalScore(Math.abs(edge), quarterMlThresholds.bet);
+
+          const baselineQuarterProb = Number.isFinite(simQuarterMargin)
+            ? projectedWinProbFromMargin(simQuarterMargin, quarterMinutesRemaining)
+            : null;
+          const baselineSideProb = pickHome ? baselineQuarterProb : (Number.isFinite(baselineQuarterProb) ? (1 - baselineQuarterProb) : null);
+          const liveSideProb = pickHome ? pHomeQuarter : (1 - pHomeQuarter);
+          const quarterMlShapeReasons = [];
+          let quarterMlShapeScore = 0;
+          const quarterMlShape = {
+            baselineProbability: Number.isFinite(baselineSideProb) ? Number(baselineSideProb.toFixed(4)) : null,
+            liveProbability: Number.isFinite(liveSideProb) ? Number(liveSideProb.toFixed(4)) : null,
+            minutesRemaining: Number.isFinite(quarterMinutesRemaining) ? Number(quarterMinutesRemaining.toFixed(3)) : null,
+          };
+          if (Number.isFinite(baselineSideProb) && baselineSideProb >= 0.56) {
+            quarterMlShapeReasons.push(`${lensQuarterLabel} baseline already leaned ${side} at ${fmtPercent(baselineSideProb, 0)}`);
+            quarterMlShapeScore += Math.min(0.1, (baselineSideProb - 0.5) * 0.8);
+          }
+          if (Number.isFinite(liveSideProb) && liveSideProb >= 0.58) {
+            quarterMlShapeReasons.push(`${lensQuarterLabel} live script still has ${side} favored at ${fmtPercent(liveSideProb, 0)}`);
+            quarterMlShapeScore += Math.min(0.12, (liveSideProb - 0.5) * 0.9);
+          }
+          applySignalGameShape(quarterMlSignal, quarterMlShapeReasons, quarterMlShapeScore, quarterMlShape);
         }
       }
     }
@@ -1282,6 +1464,38 @@
       const priorDetail = Number.isFinite(pregameMargin) ? `Prior ${fmtSigned(pregameMargin, 1)}` : null;
       atsSignal = buildSignal('ats', 'ATS', klass, side, edge, line, projection, [priorDetail, `Margin ${fmtSigned(projectedMargin, 1)}`].filter(Boolean).join(' · '));
       atsSignal.score = signalScore(Math.abs(edge), thresholds.ats.bet);
+
+      const atsShapeReasons = [];
+      let atsShapeScore = 0;
+      const atsPickHome = side === game?.home_tri;
+      const priorGap = Number.isFinite(pregameMargin) ? (atsPickHome ? (pregameMargin + homeSpread) : (-pregameMargin - homeSpread)) : null;
+      const currentGap = Number.isFinite(currentMargin) ? (atsPickHome ? (currentMargin + homeSpread) : (-currentMargin - homeSpread)) : null;
+      const paceGap = Number.isFinite(pregameContext?.league_pace) && Number.isFinite(pregameContext?.game_pace)
+        ? Number(pregameContext.game_pace) - Number(pregameContext.league_pace)
+        : null;
+      const atsShape = {
+        pregameGap: Number.isFinite(priorGap) ? Number(priorGap.toFixed(3)) : null,
+        currentGap: Number.isFinite(currentGap) ? Number(currentGap.toFixed(3)) : null,
+        paceGap: Number.isFinite(paceGap) ? Number(paceGap.toFixed(3)) : null,
+      };
+      if (Number.isFinite(priorGap) && priorGap >= 1.5) {
+        atsShapeReasons.push(`The pregame spread view still had ${side} ${fmtNumber(priorGap, 1)} points clear of this line`);
+        atsShapeScore += Math.min(0.18, priorGap / 12);
+      }
+      if (Number.isFinite(currentGap) && currentGap >= 1.5) {
+        atsShapeReasons.push(`The live scoreboard is still supporting ${side} against this number by ${fmtNumber(currentGap, 1)}`);
+        atsShapeScore += Math.min(0.2, currentGap / 10);
+      }
+      if (Number.isFinite(paceGap)) {
+        if (!atsPickHome && line > 0 && paceGap <= -1.25) {
+          atsShapeReasons.push('A slower game state is helping the underdog keep the possession count down');
+          atsShapeScore += 0.08;
+        } else if (atsPickHome && line < 0 && paceGap >= 1.25) {
+          atsShapeReasons.push('The faster pace is helping the favorite create more separation chances');
+          atsShapeScore += 0.08;
+        }
+      }
+      applySignalGameShape(atsSignal, atsShapeReasons, atsShapeScore, atsShape);
     }
 
     let mlSignal = null;
@@ -1307,6 +1521,30 @@
         const priorDetail = Number.isFinite(pregameHomeWin) ? `Prior ${fmtPercent(pickHome ? pregameHomeWin : (1 - pregameHomeWin), 0)}` : null;
         mlSignal = buildSignal('ml', 'ML', klass, side, edge, line, projection, [priorDetail, `Model ${fmtPercent(projection, 0)}`].filter(Boolean).join(' · '));
         mlSignal.score = signalScore(Math.abs(edge), thresholds.ml.bet);
+
+        const mlShapeReasons = [];
+        let mlShapeScore = 0;
+        const pregameSideProb = pickHome ? pregameHomeWin : (Number.isFinite(pregameHomeWin) ? (1 - pregameHomeWin) : null);
+        const scoreStateProb = pickHome ? scoreProb : (Number.isFinite(scoreProb) ? (1 - scoreProb) : null);
+        const mlShape = {
+          pregameProbability: Number.isFinite(pregameSideProb) ? Number(pregameSideProb.toFixed(4)) : null,
+          scoreStateProbability: Number.isFinite(scoreStateProb) ? Number(scoreStateProb.toFixed(4)) : null,
+          remainingMinutes: Number.isFinite(minLeft) ? Number(minLeft.toFixed(3)) : null,
+        };
+        if (Number.isFinite(pregameSideProb) && pregameSideProb >= 0.62) {
+          mlShapeReasons.push(`The pregame win view already had ${side} in control at ${fmtPercent(pregameSideProb, 0)}`);
+          mlShapeScore += Math.min(0.16, (pregameSideProb - 0.5) * 0.8);
+        }
+        if (Number.isFinite(scoreStateProb) && scoreStateProb >= 0.62) {
+          mlShapeReasons.push(`The current score state is carrying ${side} around ${fmtPercent(scoreStateProb, 0)} to finish it off`);
+          mlShapeScore += Math.min(0.18, (scoreStateProb - 0.5) * 0.9);
+        }
+        if (Number.isFinite(scoreStateProb) && Number.isFinite(pregameSideProb) && Math.abs(scoreStateProb - pregameSideProb) >= 0.08) {
+          const direction = scoreStateProb > pregameSideProb ? 'improved' : 'cooled';
+          mlShapeReasons.push(`The live script has ${direction} the ${side} win path versus the pregame read`);
+          mlShapeScore += 0.06;
+        }
+        applySignalGameShape(mlSignal, mlShapeReasons, mlShapeScore, mlShape);
       }
     }
 
@@ -1540,6 +1778,8 @@
     const edgeText = signal.key === 'ml'
       ? `${fmtSigned((Number(signal.edge) || 0) * 100, 1)}pp`
       : fmtSigned(signal.edge, 1);
+    const copyText = signal.shapeSummary || signal.detail || 'No live edge detail';
+    const copyTitle = signal.detail || copyText;
     return `
       <div class="cards-live-lens-tile ${signal.klass === 'BET' ? 'is-bet' : (signal.klass === 'WATCH' ? 'is-watch' : '')}">
         <div class="cards-live-lens-tile__head">
@@ -1548,7 +1788,7 @@
         </div>
         <div class="cards-market-main">${escapeHtml(signal.side || marketLabel)}</div>
         <div class="cards-live-lens-tile__edge">${escapeHtml(edgeText)}</div>
-        <div class="cards-mini-copy">${escapeHtml(signal.detail || 'No live edge detail')}</div>
+        <div class="cards-mini-copy" title="${escapeHtml(copyTitle)}">${escapeHtml(copyText)}</div>
       </div>
     `;
   }
@@ -1845,6 +2085,10 @@
 
   function stripSecondaryText(item) {
     if (isLivePropItem(item)) {
+      const shapeSummary = String(item?.shape_summary || item?.basketball_summary || '').trim();
+      if (shapeSummary) {
+        return shapeSummary;
+      }
       const player = String(item?.player || 'This player').trim() || 'This player';
       const lineSource = String(item?.line_source || '').trim();
       const simValue = Number(item?.sim_mu);
@@ -1945,6 +2189,76 @@
       return `The live read projects ${fmtNumber(paceProj, 1)} for ${player}.`;
     }
     return '';
+  }
+
+  function livePropNarrativeSummary(item) {
+    if (!isLivePropItem(item)) {
+      return '';
+    }
+    const lensProfile = String(item?.lens_profile || '').trim().toLowerCase();
+    const lensLabel = lensProfile === 'playoffs'
+      ? 'Playoff lens active.'
+      : (lensProfile === 'regular_season' ? 'Regular-season lens active.' : '');
+    const shapeSummary = String(item?.shape_summary || item?.basketball_summary || '').trim();
+    if (shapeSummary) {
+      const projectionSummary = liveProjectionSummary(item);
+      return [lensLabel, shapeSummary, projectionSummary].filter(Boolean).join(' ');
+    }
+    const player = String(item?.player || 'This player').trim() || 'This player';
+    const actual = Number(item?.actual);
+    const paceProj = Number(item?.pace_proj);
+    const line = Number(item?.line);
+    const side = livePropPrimarySide(item) || String(item?.side || '').trim().toUpperCase();
+    const lineSource = String(item?.line_source || '').trim().toLowerCase();
+    const priorMult = Number(item?.pregame_stat_multiplier);
+    const teamRatio = Number(item?.pregame_team_total_ratio);
+    const clauses = [];
+
+    if (Number.isFinite(actual)) {
+      clauses.push(`${player} has ${fmtNumber(actual, 1)} so far`);
+    }
+
+    if (Number.isFinite(paceProj) && Number.isFinite(line)) {
+      let support = paceProj - line;
+      if (side === 'UNDER') {
+        support = line - paceProj;
+      }
+      if (side === 'OVER' || side === 'UNDER') {
+        if (support > 0.15) {
+          clauses.push(`live pace supports the ${side} by ${fmtNumber(support, 1)} (${fmtNumber(paceProj, 1)} vs ${fmtNumber(line, 1)})`);
+        } else if (support < -0.15) {
+          clauses.push(`live pace is ${fmtNumber(Math.abs(support), 1)} against the ${side} (${fmtNumber(paceProj, 1)} vs ${fmtNumber(line, 1)})`);
+        } else {
+          clauses.push(`live pace is nearly flat to the ${fmtNumber(line, 1)} line (${fmtNumber(paceProj, 1)} proj)`);
+        }
+      } else {
+        const edge = paceProj - line;
+        const direction = edge > 0 ? 'above' : (edge < 0 ? 'below' : 'near');
+        if (direction === 'near') {
+          clauses.push(`live pace is near the ${fmtNumber(line, 1)} line (${fmtNumber(paceProj, 1)} proj)`);
+        } else {
+          clauses.push(`live pace is ${fmtNumber(Math.abs(edge), 1)} ${direction} the ${fmtNumber(line, 1)} line (${fmtNumber(paceProj, 1)} proj)`);
+        }
+      }
+    } else if (Number.isFinite(paceProj)) {
+      clauses.push(`live pace projects ${fmtNumber(paceProj, 1)}`);
+    }
+
+    const contextBits = [];
+    if (lineSource) {
+      contextBits.push(lineSource === 'oddsapi' ? 'priced off live OddsAPI' : `priced off ${titleCase(lineSource)}`);
+    }
+    if (Number.isFinite(teamRatio) && Math.abs(teamRatio - 1) >= 0.02) {
+      contextBits.push(teamRatio > 1 ? 'team environment is running hot' : 'team environment is running soft');
+    }
+    if (Number.isFinite(priorMult) && Math.abs(priorMult - 1) >= 0.01) {
+      contextBits.push(priorMult > 1 ? 'pregame baseline was lifted' : 'pregame baseline was trimmed');
+    }
+    if (contextBits.length) {
+      clauses.push(contextBits.join(', '));
+    }
+
+    return [lensLabel, clauses.join('. ')].filter(Boolean).join(' ');
   }
 
   function normalizePlayerKey(value) {
@@ -2636,6 +2950,14 @@
               sim_vs_line_adjusted: row?.sim_vs_line_adjusted,
               lean: row?.lean,
               bettable_score: row?.bettable_score,
+              basketball_summary: row?.basketball_summary,
+              basketball_reasons: row?.basketball_reasons,
+              shape_summary: row?.shape_summary,
+              shape_score: row?.shape_score,
+              prop_shape: row?.prop_shape,
+              lens_profile: row?.lens_profile || game?.lens_profile,
+              lens_base_weight: row?.lens_base_weight ?? game?.lens_base_weight,
+              lens_shape_weight: row?.lens_shape_weight ?? game?.lens_shape_weight,
               line_live: row?.line_live,
               line_pregame: row?.line_pregame,
               first_seen_at: row?.first_seen_at,
@@ -3095,6 +3417,7 @@
     const lineSource = String(item?.line_source || '').trim();
     const reasonTags = [
       statusLabel,
+      item?.lens_profile === 'playoffs' ? 'Playoff lens' : (item?.lens_profile === 'regular_season' ? 'Regular lens' : ''),
       lineSource ? (lineSource === 'oddsapi' ? 'Live OddsAPI' : titleCase(lineSource)) : '',
       Number.isFinite(Number(item?.pregame_stat_multiplier)) && Math.abs(Number(item?.pregame_stat_multiplier) - 1) >= 0.01 ? 'Adjusted prior' : '',
     ].filter(Boolean);
@@ -3114,7 +3437,7 @@
       evPct: Number(item?.ev_pct),
       pWin: Number(item?.probability ?? item?.prob_calib),
       simMu: finiteFirst(item?.sim_mu_adjusted, item?.sim_mu),
-      summary: [liveProjectionSummary(item), sourceSummary].filter(Boolean).join(' '),
+      summary: livePropNarrativeSummary(item) || [liveProjectionSummary(item), sourceSummary].filter(Boolean).join(' '),
       reasons: reasonTags,
       matchup: `${awayTri} @ ${homeTri}`,
       rank: index + 1,

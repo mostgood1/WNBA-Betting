@@ -1722,6 +1722,163 @@ def _live_prop_selected_gap(selected_side: Any, over_gap: Any) -> float:
     return float(gap)
 
 
+def _live_prop_shape_payload(
+    *,
+    market_key: Any,
+    selected_side: Any,
+    selected_prob: Any,
+    pace_gap: Any,
+    sim_gap: Any,
+    pregame_gap: Any,
+    current_gap: Any,
+    progress_fraction: Any,
+    score_diff_team: Any,
+    bettable_score: Any,
+    proj_min_final: Any,
+    exp_min_eff: Any,
+    starter: Any,
+    pf: Any,
+    injury_flag: Any,
+    pregame_team_total_ratio: Any,
+    pregame_stat_multiplier: Any,
+) -> dict[str, Any]:
+    side = str(selected_side or "").strip().upper()
+    market = str(market_key or "").strip().lower()
+    if side not in {"OVER", "UNDER"}:
+        return {
+            "shape_score": None,
+            "shape_summary": None,
+            "shape_reasons": [],
+            "prop_shape": {},
+        }
+
+    selected_prob_val = _safe_float(selected_prob)
+    pace_selected = _live_prop_selected_gap(side, pace_gap)
+    sim_selected = _live_prop_selected_gap(side, sim_gap)
+    pregame_selected = _live_prop_selected_gap(side, pregame_gap)
+    current_selected = _live_prop_selected_gap(side, current_gap)
+    progress = _live_prop_progress_fraction(
+        progress_fraction * 48.0
+        if _safe_float(progress_fraction) is not None and float(progress_fraction) <= 1.0
+        else progress_fraction
+    )
+    score_delta = _safe_float(score_diff_team) or 0.0
+    bettable = _safe_float(bettable_score)
+    projected_minutes = _safe_float(proj_min_final)
+    expected_minutes = _safe_float(exp_min_eff)
+    team_ratio = _safe_float(pregame_team_total_ratio)
+    stat_multiplier = _safe_float(pregame_stat_multiplier)
+    starter_flag = bool(starter) if starter is not None else None
+    injury_risk = bool(injury_flag)
+    try:
+        foul_count = int(round(float(pf))) if pf is not None else None
+    except Exception:
+        foul_count = None
+
+    small_volume_markets = {"threes", "blk", "stl"}
+    pregame_bar = 0.45 if market in small_volume_markets else 1.0
+    live_bar = 0.35 if market in small_volume_markets else 0.8
+    pace_bar = 0.4 if market in small_volume_markets else 0.9
+    sim_bar = 0.45 if market in small_volume_markets else 1.0
+
+    reasons: list[str] = []
+    points = 0.0
+
+    def _add_reason(text: str, weight: float) -> None:
+        nonlocal points
+        message = str(text or "").strip()
+        if not message or message in reasons:
+            return
+        reasons.append(message)
+        points += float(weight)
+
+    if selected_prob_val is not None and selected_prob_val >= 0.58:
+        _add_reason(f"Model win rate still favors the {side.lower()} at {selected_prob_val * 100.0:.0f}%.", 0.10)
+
+    if pace_selected >= pace_bar and sim_selected >= sim_bar:
+        _add_reason(
+            f"Both the live pace and adjusted sim still clear this line for the {side.lower()}.",
+            0.22,
+        )
+    else:
+        if pace_selected >= pace_bar:
+            _add_reason(f"The live pace is still leaning {side.lower()} by {pace_selected:.1f}.", 0.12)
+        if sim_selected >= sim_bar:
+            _add_reason(f"The adjusted sim still supports the {side.lower()} by {sim_selected:.1f}.", 0.12)
+
+    if pregame_selected >= pregame_bar:
+        _add_reason(
+            f"Pregame priors already leaned {side.lower()} by {pregame_selected:.1f} before the live move.",
+            0.12,
+        )
+
+    if current_selected >= live_bar and progress >= 0.35:
+        if side == "OVER":
+            _add_reason(f"Current production is already {current_selected:.1f} over the live line with time left.", 0.10)
+        else:
+            _add_reason(f"Current production is still {current_selected:.1f} under the live line.", 0.10)
+
+    if projected_minutes is not None and expected_minutes is not None:
+        minute_gap = float(projected_minutes) - float(expected_minutes)
+        if side == "OVER" and minute_gap >= -0.5 and not injury_risk and (foul_count is None or foul_count <= 4):
+            _add_reason(
+                f"The minutes path still looks intact with {projected_minutes:.1f} projected live minutes.",
+                0.14,
+            )
+        elif side == "UNDER" and minute_gap <= -1.5:
+            _add_reason(
+                f"Live rotation tracking has him about {abs(minute_gap):.1f} minutes below expectation, which helps the under.",
+                0.16,
+            )
+
+    if side == "OVER" and starter_flag is True and progress >= 0.45 and abs(score_delta) <= 8.0:
+        _add_reason("The game script is still competitive enough to keep closing minutes live.", 0.12)
+    if side == "UNDER" and starter_flag is True and progress >= 0.55 and abs(score_delta) >= 10.0:
+        _add_reason("The game script is adding late-minute downside, which is cleaner for the under.", 0.14)
+
+    if side == "UNDER" and foul_count is not None and foul_count >= 4:
+        _add_reason(f"Foul trouble with {foul_count} fouls adds rotation downside for this under.", 0.12)
+
+    if side == "OVER" and team_ratio is not None and team_ratio >= 1.03:
+        _add_reason("Pregame team environment was already running hotter than normal.", 0.08)
+    elif side == "UNDER" and team_ratio is not None and team_ratio <= 0.97:
+        _add_reason("Pregame team environment was already running softer than normal.", 0.08)
+
+    if side == "OVER" and stat_multiplier is not None and stat_multiplier >= 1.03:
+        _add_reason("The player prior was lifted before tip, so this is not just a pure live chase.", 0.08)
+    elif side == "UNDER" and stat_multiplier is not None and stat_multiplier <= 0.97:
+        _add_reason("The player prior was trimmed before tip, which matches the under path.", 0.08)
+
+    if bettable is not None and bettable >= 0.7:
+        _add_reason("Market quality is still good enough to keep this live number actionable.", 0.08)
+
+    shape_score = round(_best_bets_clamp01(points) * 100.0, 1) if reasons else 0.0
+    prop_shape = {
+        "market": market or None,
+        "side": side,
+        "selected_probability": round(float(selected_prob_val), 4) if selected_prob_val is not None else None,
+        "pace_gap": round(float(pace_selected), 3),
+        "sim_gap": round(float(sim_selected), 3),
+        "pregame_gap": round(float(pregame_selected), 3),
+        "current_gap": round(float(current_selected), 3),
+        "projected_minutes": round(float(projected_minutes), 3) if projected_minutes is not None else None,
+        "expected_minutes": round(float(expected_minutes), 3) if expected_minutes is not None else None,
+        "progress": round(float(progress), 4),
+        "score_diff_team": round(float(score_delta), 3),
+        "foul_count": foul_count,
+        "starter": starter_flag,
+        "injury_flag": injury_risk,
+        "pregame_team_total_ratio": round(float(team_ratio), 4) if team_ratio is not None else None,
+        "pregame_stat_multiplier": round(float(stat_multiplier), 4) if stat_multiplier is not None else None,
+    }
+    return {
+        "shape_score": shape_score,
+        "shape_summary": " ".join(reasons[:2]) if reasons else None,
+        "shape_reasons": reasons,
+        "prop_shape": prop_shape,
+    }
+
+
 def _live_prop_rank_probability(
     *,
     selected_side: Any,
@@ -2430,6 +2587,7 @@ def _live_extract_espn_games(jd: dict[str, Any]) -> list[dict[str, Any]]:
                 if not isinstance(comps, list) or not comps:
                     continue
                 c = comps[0] if isinstance(comps[0], dict) else {}
+                season = e.get("season") if isinstance(e, dict) else {}
                 status = c.get("status") if isinstance(c, dict) else {}
                 st_type = (status.get("type") if isinstance(status, dict) else {}) or {}
                 completed = bool(st_type.get("completed"))
@@ -2475,6 +2633,12 @@ def _live_extract_espn_games(jd: dict[str, Any]) -> list[dict[str, Any]]:
                 in_progress = bool(state == "in")
                 final = bool(completed or state == "post")
                 status_id = 2 if in_progress else (3 if final else 1)
+                season_type = _safe_int(season.get("type")) if isinstance(season, dict) else None
+                season_slug = str((season.get("slug") if isinstance(season, dict) else "") or "").strip().lower() or None
+                is_postseason = bool(
+                    (season_type == 3)
+                    or (season_slug and season_slug in {"post-season", "postseason", "playoffs", "play-in"})
+                )
                 periods: list[dict[str, Any]] = []
                 try:
                     home_ls = home.get("linescores") if isinstance(home, dict) else None
@@ -2517,6 +2681,9 @@ def _live_extract_espn_games(jd: dict[str, Any]) -> list[dict[str, Any]]:
                         "clock": clock,
                         "in_progress": in_progress,
                         "final": final,
+                        "season_type": season_type,
+                        "season_slug": season_slug,
+                        "is_postseason": is_postseason,
                         "periods": periods,
                     }
                 )
@@ -2549,6 +2716,19 @@ def _live_sim_matchups_for_date(date_str: str) -> list[dict[str, Any]]:
         gid_norm = _live_norm_game_id(gid_raw) if gid_raw is not None else ""
         out.append({"game_id": gid_norm or f"{away}@{home}", "home": home, "away": away})
     return out
+
+
+def _live_player_prop_lens_weights(is_postseason: Any) -> tuple[float, float, str]:
+    profile = "playoffs" if bool(is_postseason) else "regular_season"
+    env_key = "LIVE_PLAYER_LENS_PROP_SHAPE_WEIGHT_PLAYOFFS" if bool(is_postseason) else "LIVE_PLAYER_LENS_PROP_SHAPE_WEIGHT_REGULAR"
+    default_shape = 0.08 if bool(is_postseason) else 0.16
+    try:
+        shape_weight = float(str(os.environ.get(env_key, default_shape)).strip())
+    except Exception:
+        shape_weight = float(default_shape)
+    shape_weight = float(max(0.0, min(1.0, shape_weight)))
+    base_weight = float(max(0.0, min(1.0, 1.0 - shape_weight)))
+    return base_weight, shape_weight, profile
 
 
 def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any]]]:
@@ -2601,6 +2781,9 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
                             "clock": eg.get("clock"),
                             "in_progress": bool(eg.get("in_progress")),
                             "final": bool(eg.get("final")),
+                            "season_type": eg.get("season_type"),
+                            "season_slug": eg.get("season_slug"),
+                            "is_postseason": bool(eg.get("is_postseason")),
                             "periods": eg.get("periods") if isinstance(eg.get("periods"), list) else [],
                             "espn_event_id": eg.get("game_id"),
                             "match": "teams",
@@ -2620,6 +2803,9 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
                             "clock": None,
                             "in_progress": False,
                             "final": False,
+                            "season_type": None,
+                            "season_slug": None,
+                            "is_postseason": False,
                             "periods": [],
                             "espn_event_id": None,
                             "match": None,
@@ -2685,6 +2871,9 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
                         "clock": None,
                         "in_progress": False,
                         "final": False,
+                        "season_type": None,
+                        "season_slug": None,
+                        "is_postseason": False,
                         "periods": [],
                         "espn_event_id": None,
                         "match": None,
@@ -7547,6 +7736,9 @@ def _season_betting_card_prop_context(
             opponent_vs_line = None
 
     return {
+        "side": side,
+        "team_tri": team_tri,
+        "opponent_tri": opponent_tri,
         "history": history_ctx,
         "matchup": {
             "opponent_allowed_avg": opp_allowed_avg,
@@ -7587,27 +7779,73 @@ def _season_betting_card_prop_summary(
     matchup = insights.get("matchup") if isinstance(insights.get("matchup"), dict) else {}
     model = insights.get("model") if isinstance(insights.get("model"), dict) else {}
     parts: list[str] = []
+    market_text = str(market_label or "stat").strip().lower() or "stat"
+    side = str(insights.get("side") or model.get("side") or "").strip().upper()
+
+    def _fmt_value(value: float | None) -> str | None:
+        if value is None:
+            return None
+        return f"{value:.1f}"
+
+    def _verb_for_side(kind: str = "base") -> str:
+        if side == "UNDER":
+            return "stays below" if kind == "base" else "suppresses"
+        return "clears" if kind == "base" else "boosts"
+
     baseline = _safe_float(model.get("baseline"))
+    line_adv = _safe_float(model.get("line_adv"))
+    prob_edge = _safe_float(model.get("prob_edge"))
+    ev_pct = _safe_float(model.get("ev_pct"))
     if baseline is not None and line_value is not None:
-        parts.append(f"Model {baseline:.1f} vs {line_value:.1f}")
-    for key, label in (("last5_avg", "L5"), ("last10_avg", "L10"), ("season_avg", "Season")):
+        delta = baseline - line_value
+        if side == "UNDER":
+            delta = line_value - baseline
+        lead = f"Model {_verb_for_side()} the line at {_fmt_value(baseline)} versus {_fmt_value(line_value)}"
+        if abs(delta) >= 0.05:
+            lead += f" ({delta:+.1f})"
+        parts.append(lead)
+    elif baseline is not None:
+        parts.append(f"Model projects {_fmt_value(baseline)} {market_text}")
+
+    trend_clauses: list[str] = []
+    for key, label in (("last5_avg", "last five"), ("last10_avg", "last 10"), ("season_avg", "season")):
         value = _safe_float(history.get(key))
         if value is not None:
-            parts.append(f"{label} {value:.1f}")
+            trend_clauses.append(f"{label} {_fmt_value(value)}")
+    if trend_clauses:
+        parts.append(f"Form check: {', '.join(trend_clauses[:3])}")
+
     opponent_avg = _safe_float(history.get("opponent_avg"))
     opponent_games = int(history.get("opponent_games") or 0)
     if opponent_avg is not None and opponent_games > 0:
-        parts.append(f"vs {opponent_tri or 'opp'} {opponent_avg:.1f} in {opponent_games}")
+        parts.append(f"Against {opponent_tri or 'this opponent'}, he has averaged {_fmt_value(opponent_avg)} across {opponent_games} meeting{'s' if opponent_games != 1 else ''}")
     opp_allowed_avg = _safe_float(matchup.get("opponent_allowed_avg"))
-    if opp_allowed_avg is not None:
+    opponent_vs_line = _safe_float(matchup.get("opponent_vs_line"))
+    if opp_allowed_avg is not None and line_value is not None:
         rank = _safe_int(matchup.get("opponent_allowed_rank"))
-        parts.append(f"{opponent_tri or 'Opp'} allow {opp_allowed_avg:.1f} {market_label.lower()}{f' ({rank}/30)' if rank is not None else ''}")
+        clause = f"{opponent_tri or 'The opponent'} {_verb_for_side('matchup')} this market, allowing {_fmt_value(opp_allowed_avg)} {market_text}"
+        if rank is not None:
+            clause += f" ({rank}/30 matchup rank)"
+        if opponent_vs_line is not None and abs(opponent_vs_line) >= 0.05:
+            clause += f" and sitting {opponent_vs_line:+.1f} versus this line"
+        parts.append(clause)
     position = str(matchup.get("position") or "").strip().upper()
     position_avg = _safe_float(matchup.get("position_allowed_avg"))
     position_rank = _safe_int(matchup.get("position_allowed_rank"))
     if position and position_avg is not None:
-        parts.append(f"vs {position}s {position_avg:.1f}{f' ({position_rank}/30)' if position_rank is not None else ''}")
-    return " | ".join(parts[:6]) if parts else None
+        parts.append(f"Versus {position}s, the matchup is {_fmt_value(position_avg)} {market_text}{f' ({position_rank}/30)' if position_rank is not None else ''}")
+
+    market_edge_bits: list[str] = []
+    if prob_edge is not None and abs(prob_edge) >= 0.001:
+        market_edge_bits.append(f"win edge {prob_edge * 100:+.1f}pp")
+    if ev_pct is not None and abs(ev_pct) >= 0.05:
+        market_edge_bits.append(f"EV {ev_pct:+.1f}%")
+    if line_adv is not None and abs(line_adv) >= 0.05:
+        market_edge_bits.append(f"line edge {line_adv:+.1f}")
+    if market_edge_bits:
+        parts.append(f"Market view: {', '.join(market_edge_bits[:3])}")
+
+    return ". ".join(parts[:4]) if parts else None
 
 
 def _season_betting_card_selection_key(row: dict[str, Any], home_tri: str, away_tri: str, home_name: str, away_name: str) -> str:
@@ -14770,6 +15008,40 @@ def _decorate_game_best_bet_candidate(
     opp_key_outs = list((injury_snapshot.get("key_outs") or {}).get(opp_tri, []) or [])
     combined_outs = own_outs + opp_outs
 
+    game_pace_ctx = _safe_float((ctx or {}).get("game_pace")) if isinstance(ctx, dict) else None
+    league_pace_ctx = _safe_float((ctx or {}).get("league_pace")) if isinstance(ctx, dict) else None
+    pace_gap_ctx = None
+    if game_pace_ctx is not None and league_pace_ctx is not None:
+        try:
+            pace_gap_ctx = float(game_pace_ctx) - float(league_pace_ctx)
+        except Exception:
+            pace_gap_ctx = None
+    prop_total_raw = _safe_float((ctx or {}).get("pred_total_prop_blend")) if isinstance(ctx, dict) else None
+    matchup_total_adj = _safe_float((ctx or {}).get("pred_total_matchup_adjustment")) if isinstance(ctx, dict) else None
+    home_pred_points = _safe_float((ctx or {}).get("home_pred_points")) if isinstance(ctx, dict) else None
+    away_pred_points = _safe_float((ctx or {}).get("away_pred_points")) if isinstance(ctx, dict) else None
+    prop_margin_raw = _safe_float((ctx or {}).get("pred_margin_prop_blend")) if isinstance(ctx, dict) else None
+    matchup_margin_adj = _safe_float((ctx or {}).get("pred_margin_matchup_adjustment")) if isinstance(ctx, dict) else None
+    home_prop_blend_weight = _safe_float((ctx or {}).get("home_prop_blend_weight")) if isinstance(ctx, dict) else None
+    away_prop_blend_weight = _safe_float((ctx or {}).get("away_prop_blend_weight")) if isinstance(ctx, dict) else None
+    home_prop_minutes_coverage = _safe_float((ctx or {}).get("home_prop_minutes_coverage")) if isinstance(ctx, dict) else None
+    away_prop_minutes_coverage = _safe_float((ctx or {}).get("away_prop_minutes_coverage")) if isinstance(ctx, dict) else None
+
+    game_shape = {
+        "pace_gap": round(float(pace_gap_ctx), 3) if pace_gap_ctx is not None else None,
+        "home_pred_points": round(float(home_pred_points), 3) if home_pred_points is not None else None,
+        "away_pred_points": round(float(away_pred_points), 3) if away_pred_points is not None else None,
+        "pred_total_prop_blend": round(float(prop_total_raw), 3) if prop_total_raw is not None else None,
+        "pred_total_matchup_adjustment": round(float(matchup_total_adj), 3) if matchup_total_adj is not None else None,
+        "pred_margin_prop_blend": round(float(prop_margin_raw), 3) if prop_margin_raw is not None else None,
+        "pred_margin_matchup_adjustment": round(float(matchup_margin_adj), 3) if matchup_margin_adj is not None else None,
+        "home_prop_blend_weight": round(float(home_prop_blend_weight), 3) if home_prop_blend_weight is not None else None,
+        "away_prop_blend_weight": round(float(away_prop_blend_weight), 3) if away_prop_blend_weight is not None else None,
+        "home_prop_minutes_coverage": round(float(home_prop_minutes_coverage), 3) if home_prop_minutes_coverage is not None else None,
+        "away_prop_minutes_coverage": round(float(away_prop_minutes_coverage), 3) if away_prop_minutes_coverage is not None else None,
+        "combined_outs": int(combined_outs),
+    }
+
     basketball_reasons: list[str] = []
     basketball_points = 0.0
 
@@ -14892,12 +15164,88 @@ def _decorate_game_best_bet_candidate(
             elif (not is_over) and float(pred_total) <= float(slate_total_median) - 2.5:
                 basketball_reasons.append("The game environment projects slower and more controlled than a typical slate total")
                 basketball_points += 0.26
+        if pred_total is not None and raw_line is not None and home_pred_points is not None and away_pred_points is not None:
+            if is_over and home_pred_points >= 109.0 and away_pred_points >= 104.0:
+                basketball_reasons.append(
+                    f"Both teams still project into scoring range at {float(home_pred_points):.1f} and {float(away_pred_points):.1f}, which keeps the over live without needing one-sided shotmaking"
+                )
+                basketball_points += 0.20
+            elif (not is_over) and (home_pred_points <= 108.0 or away_pred_points <= 102.0):
+                basketball_reasons.append(
+                    f"The shape leans under because one side is held down to {min(float(home_pred_points), float(away_pred_points)):.1f} projected points"
+                )
+                basketball_points += 0.18
+        if pace_gap_ctx is not None:
+            if is_over and float(pace_gap_ctx) >= 1.25:
+                basketball_reasons.append(
+                    f"Pace is running {float(pace_gap_ctx):+.1f} possessions versus league average, which supports more scoring events than the market baseline"
+                )
+                basketball_points += min(0.18, max(0.0, float(pace_gap_ctx)) / 8.0)
+            elif (not is_over) and float(pace_gap_ctx) <= -1.25:
+                basketball_reasons.append(
+                    f"Pace is running {float(pace_gap_ctx):+.1f} possessions versus league average, which points to a shorter possession count and less total volume"
+                )
+                basketball_points += min(0.18, abs(float(pace_gap_ctx)) / 8.0)
+        if prop_total_raw is not None and pred_total is not None:
+            prop_lift = float(prop_total_raw) - float(pred_total)
+            if is_over and prop_lift >= 5.0:
+                basketball_reasons.append(
+                    f"Player scoring priors are adding {prop_lift:.1f} points to the game shape, a sign that individual usage is stronger than the raw team total"
+                )
+                basketball_points += min(0.18, float(prop_lift) / 30.0)
+            elif (not is_over) and prop_lift <= -5.0:
+                basketball_reasons.append(
+                    f"Player scoring priors trim {abs(prop_lift):.1f} points off the total outlook, which reinforces the lower-possession scoring case"
+                )
+                basketball_points += min(0.18, abs(float(prop_lift)) / 30.0)
+        if matchup_total_adj is not None and abs(float(matchup_total_adj)) >= 1.5:
+            if is_over and float(matchup_total_adj) > 0:
+                basketball_reasons.append(
+                    f"Matchup context adds {float(matchup_total_adj):+.1f} points on top of the base total, so the over is being lifted by more than generic pace alone"
+                )
+                basketball_points += min(0.14, abs(float(matchup_total_adj)) / 14.0)
+            elif (not is_over) and float(matchup_total_adj) < 0:
+                basketball_reasons.append(
+                    f"Matchup context pulls {float(matchup_total_adj):+.1f} points off the base total, which aligns with the under rather than a pure market fade"
+                )
+                basketball_points += min(0.14, abs(float(matchup_total_adj)) / 14.0)
+        if (
+            home_prop_minutes_coverage is not None
+            and away_prop_minutes_coverage is not None
+            and min(float(home_prop_minutes_coverage), float(away_prop_minutes_coverage)) >= 0.85
+            and home_prop_blend_weight is not None
+            and away_prop_blend_weight is not None
+            and max(float(home_prop_blend_weight), float(away_prop_blend_weight)) >= 0.5
+        ):
+            basketball_reasons.append("The total is being informed by near-full player minute coverage rather than a thin top-of-rotation estimate")
+            basketball_points += 0.10
         if combined_outs >= 3 and not is_over:
             basketball_reasons.append("Missing rotation pieces thin out scoring depth on both sides of the matchup")
             basketball_points += 0.18
         elif combined_outs >= 3 and is_over:
             basketball_reasons.append("Shorthanded rotations can create unstable defensive possessions and bench-heavy minutes")
             basketball_points += 0.12
+
+    if market in {"ATS", "ML"} and pred_margin is not None and prop_margin_raw is not None:
+        margin_support = float(prop_margin_raw) - float(pred_margin)
+        if pick_home and margin_support >= 2.0:
+            _add_basketball_reason(
+                f"Player usage and scoring priors still tilt {home} by {margin_support:.1f} points beyond the team-level spread view",
+                min(0.14, float(margin_support) / 16.0),
+            )
+        elif pick_away and margin_support <= -2.0:
+            _add_basketball_reason(
+                f"Player usage and scoring priors still tilt {away} by {abs(float(margin_support)):.1f} points beyond the team-level spread view",
+                min(0.14, abs(float(margin_support)) / 16.0),
+            )
+    if market in {"ATS", "ML"} and matchup_margin_adj is not None and abs(float(matchup_margin_adj)) >= 1.25:
+        toward_home = float(matchup_margin_adj) > 0.0
+        if (pick_home and toward_home) or (pick_away and not toward_home):
+            target_team = home if toward_home else away
+            _add_basketball_reason(
+                f"Matchup context shifts the spread shape {float(matchup_margin_adj):+.1f} points toward {target_team}",
+                min(0.12, abs(float(matchup_margin_adj)) / 14.0),
+            )
 
     sim_reasons: list[str] = []
     sim_points = 0.0
@@ -15014,6 +15362,7 @@ def _decorate_game_best_bet_candidate(
         "value_reasons": value_reasons,
         "model_reasons": list(sim_reasons) + list(value_reasons),
         "reasons": list(basketball_reasons) + list(sim_reasons) + list(value_reasons),
+        "game_shape": game_shape,
         "pred_margin": pred_margin,
         "pred_total": pred_total,
         "why_explain": row.get("why_explain"),
@@ -15480,6 +15829,7 @@ def _extend_recommendation_reason_payload(
             "display_pick",
             "selection",
             "matchup",
+            "game_shape",
             "top_play_explain",
             "start_time_local",
             "start_dt_local",
@@ -16412,6 +16762,7 @@ def _merge_recommendation_reason_fields(
             "display_pick",
             "selection",
             "matchup",
+            "game_shape",
             "top_play_explain",
             "start_time_local",
             "start_dt_local",
@@ -37248,6 +37599,8 @@ def api_live_player_lens():
             period = None
             clock = None
 
+        is_postseason = bool(g.get("is_postseason")) if isinstance(g, dict) else False
+        lens_base_weight, lens_shape_weight, lens_profile = _live_player_prop_lens_weights(is_postseason)
         elapsed_min = _live_game_elapsed_minutes(period, clock, is_final)
 
         # Margin (home - away) for blowout-aware minutes projections.
@@ -38776,8 +39129,34 @@ def api_live_player_lens():
                                 first_seen_age_sec=line_live_first_seen_age_sec,
                                 seen_observations=line_live_observations,
                             )
+                            live_shape_payload = _live_prop_shape_payload(
+                                market_key=stat_key,
+                                selected_side=selected_side,
+                                selected_prob=win_prob_side,
+                                pace_gap=pace_vs_line,
+                                sim_gap=sim_vs_line_adjusted if sim_vs_line_adjusted is not None else sim_vs_line,
+                                pregame_gap=pregame_gap_over,
+                                current_gap=current_gap_over,
+                                progress_fraction=progress_fraction,
+                                score_diff_team=score_diff_team,
+                                bettable_score=bettable_score,
+                                proj_min_final=proj_min_final,
+                                exp_min_eff=exp_min_eff,
+                                starter=starter,
+                                pf=pf,
+                                injury_flag=injury_flag,
+                                pregame_team_total_ratio=_safe_float((team_pregame_prior or {}).get("team_total_ratio")) if isinstance(team_pregame_prior, dict) else None,
+                                pregame_stat_multiplier=pregame_stat_multiplier,
+                            )
+                            live_shape_score = _safe_float(live_shape_payload.get("shape_score"))
                             if live_rank_probability is not None:
                                 recommendation_priority_score = round(float(live_rank_probability) * 100.0, 3)
+                                if live_shape_score is not None:
+                                    recommendation_priority_score = round(
+                                        min(99.0, (float(lens_base_weight) * float(recommendation_priority_score)) + (float(lens_shape_weight) * float(live_shape_score))),
+                                        3,
+                                    )
+                                    live_rank_probability = round(float(recommendation_priority_score) / 100.0, 6)
                         except Exception:
                             live_rank_probability = None
                             recommendation_priority_score = None
@@ -38785,6 +39164,8 @@ def api_live_player_lens():
                             selected_current_gap = None
                             selected_pace_gap = None
                             selected_sim_gap = None
+                            live_shape_payload = {"shape_score": None, "shape_summary": None, "shape_reasons": [], "prop_shape": {}}
+                            live_shape_score = None
 
                         if klass not in {"BET", "WATCH"}:
                             recommendation_priority_score = None
@@ -38859,11 +39240,20 @@ def api_live_player_lens():
                             "strength_sigma": strength_sigma,
                             "klass": klass,
                             "klass_raw": klass_raw,
+                            "basketball_priority_score": live_shape_score,
+                            "basketball_summary": live_shape_payload.get("shape_summary"),
+                            "basketball_reasons": list(live_shape_payload.get("shape_reasons") or []),
                             "bettable": bettable,
                             "bettable_score": bettable_score,
                             "bettable_reasons": bettable_reasons,
+                            "lens_profile": lens_profile,
+                            "lens_base_weight": lens_base_weight,
+                            "lens_shape_weight": lens_shape_weight,
                             "price_hold": price_hold,
                             "edge_sigma": edge_sigma,
+                            "shape_score": live_shape_score,
+                            "shape_summary": live_shape_payload.get("shape_summary"),
+                            "prop_shape": dict(live_shape_payload.get("prop_shape") or {}),
                             "progress_fraction": progress_fraction,
                             "score_diff_team": score_diff_team,
                             "selected_pregame_gap": selected_pregame_gap,
@@ -38964,6 +39354,10 @@ def api_live_player_lens():
             "game_id": gid,
             "home": home,
             "away": away,
+            "lens_profile": lens_profile,
+            "lens_base_weight": lens_base_weight,
+            "lens_shape_weight": lens_shape_weight,
+            "is_postseason": is_postseason,
             "pregame_prior": game_pregame_prior,
             "status": {
                 "period": period,
