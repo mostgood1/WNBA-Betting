@@ -695,33 +695,37 @@
     return Number.isFinite(home) && Number.isFinite(away) ? home + away : null;
   }
 
-  function halfTotalSoFar(liveState, pbpStats) {
-    const currentPeriod = Number(liveState?.period);
-    if (!Number.isFinite(currentPeriod) || currentPeriod < 1 || currentPeriod > 4) {
+  function completedTotalBeforePeriod(liveState, beforePeriod) {
+    const periods = safeArray(liveState?.periods);
+    return periods
+      .filter((entry) => Number(entry?.period) < Number(beforePeriod))
+      .reduce((sum, entry) => {
+        const home = Number(entry?.home);
+        const away = Number(entry?.away);
+        return Number.isFinite(home) && Number.isFinite(away) ? sum + home + away : sum;
+      }, 0);
+  }
+
+  function currentQuarterTotal(liveState, currentTotal, quarterKey) {
+    if (!Number.isFinite(currentTotal)) {
       return null;
     }
-    const q1 = livePeriodTotalFromLinescore(liveState, 1);
-    const q2Linescore = livePeriodTotalFromLinescore(liveState, 2);
-    const q3 = livePeriodTotalFromLinescore(liveState, 3);
-    const q4Linescore = livePeriodTotalFromLinescore(liveState, 4);
-    const currentQuarter = Number(pbpStats?.pbp_quarters?.current?.q_total);
-    if (currentPeriod === 1) {
-      const firstQuarter = Number.isFinite(currentQuarter) ? currentQuarter : livePeriodTotalFromLinescore(liveState, 1);
-      return Number.isFinite(firstQuarter) ? firstQuarter : null;
+    const quarterNumber = Number(String(quarterKey || '').replace('q', ''));
+    if (!Number.isFinite(quarterNumber)) {
+      return null;
     }
-    if (currentPeriod === 2) {
-      const secondQuarter = Number.isFinite(currentQuarter) ? currentQuarter : q2Linescore;
-      return Number.isFinite(q1) && Number.isFinite(secondQuarter) ? q1 + secondQuarter : null;
+    return currentTotal - completedTotalBeforePeriod(liveState, quarterNumber);
+  }
+
+  function halfTotalSoFar(liveState, currentTotal) {
+    const currentPeriod = Number(liveState?.period);
+    if (!Number.isFinite(currentPeriod) || currentPeriod < 1 || currentPeriod > 4 || !Number.isFinite(currentTotal)) {
+      return null;
     }
-    if (currentPeriod === 3) {
-      const thirdQuarter = Number.isFinite(currentQuarter) ? currentQuarter : livePeriodTotalFromLinescore(liveState, 3);
-      return Number.isFinite(thirdQuarter) ? thirdQuarter : null;
+    if (currentPeriod <= 2) {
+      return currentTotal;
     }
-    if (currentPeriod === 4) {
-      const fourthQuarter = Number.isFinite(currentQuarter) ? currentQuarter : q4Linescore;
-      return Number.isFinite(q3) && Number.isFinite(fourthQuarter) ? q3 + fourthQuarter : null;
-    }
-    return null;
+    return currentTotal - completedTotalBeforePeriod(liveState, 3);
   }
 
   function signalPriority(signal) {
@@ -1122,7 +1126,7 @@
     let halfSignal = null;
     if (liveState.in_progress && lensHalfKey) {
       const halfLine = Number(periodTotals?.[lensHalfKey]);
-      const halfActual = useUpcomingHalf ? 0 : halfTotalSoFar(liveState, pbpStats);
+      const halfActual = useUpcomingHalf ? 0 : halfTotalSoFar(liveState, currentTotal);
       const halfSim = simPeriodMean(game, lensHalfKey);
       const halfMinutesElapsed = lensHalfMinutesElapsed;
       const halfMinutesRemaining = lensHalfMinutesRemaining;
@@ -1147,10 +1151,7 @@
       const quarterLine = Number(periodTotals?.[lensQuarterKey]);
       const quarterActual = useUpcomingQuarter
         ? 0
-        : finiteFirst(
-          pbpStats?.pbp_quarters?.current?.q_total,
-          livePeriodTotalFromLinescore(liveState, Number(String(lensQuarterKey).replace('q', '')))
-        );
+        : currentQuarterTotal(liveState, currentTotal, lensQuarterKey);
       const quarterSim = simPeriodMean(game, lensQuarterKey);
       const quarterMinutesElapsed = lensQuarterMinutesElapsed;
       const quarterMinutesRemaining = lensQuarterMinutesRemaining;
@@ -5105,16 +5106,13 @@
       const nextDate = String(payload?.date || state.date || '');
       const nextGames = safeArray(payload?.games);
       const slateUnchanged = previousDate === nextDate && sameSlate(nextGames, previousGames);
-      state.payload = {
-        ...payload,
-        games: nextGames,
-      };
       if (slateUnchanged) {
         reapplyCachedSimDetails();
       } else {
         state.simDetailCache.clear();
         state.simDetailLoading.clear();
       }
+      state.payload = payload;
       const resolvedDate = payload.date || state.date;
       state.liveDataLoading = true;
       updateDateControls();
