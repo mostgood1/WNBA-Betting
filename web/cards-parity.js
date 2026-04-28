@@ -2567,6 +2567,8 @@
             return {
               away_tri: game?.away,
               home_tri: game?.home,
+              event_id: game?.event_id,
+              game_id: game?.game_id,
               team_tri: row?.team_tri,
               opponent_tri: row?.team_tri === game?.home ? game?.away : game?.home,
               player: row?.player,
@@ -3012,6 +3014,88 @@
       .slice(0, 3);
   }
 
+  function liveItemMatchesGame(game, liveState, item) {
+    const matchup = gameMatchupKey(game);
+    const itemMatchup = stripCardTarget(item);
+    if (matchup && itemMatchup && itemMatchup === matchup) {
+      return true;
+    }
+
+    const liveEventId = String(liveState?.event_id || game?.live_state?.event_id || '').trim();
+    const liveGameId = String(liveState?.game_id || game?.live_state?.game_id || '').trim();
+    const itemEventId = String(item?.event_id || '').trim();
+    const itemGameId = String(item?.game_id || '').trim();
+    if ((liveEventId && itemEventId && liveEventId === itemEventId) || (liveGameId && itemGameId && liveGameId === itemGameId)) {
+      return true;
+    }
+
+    const awayTri = String(game?.away_tri || '').trim().toUpperCase();
+    const homeTri = String(game?.home_tri || '').trim().toUpperCase();
+    const teamTri = String(item?.team_tri || '').trim().toUpperCase();
+    const opponentTri = String(item?.opponent_tri || '').trim().toUpperCase();
+    if (!teamTri || (teamTri !== awayTri && teamTri !== homeTri)) {
+      return false;
+    }
+    if (!opponentTri) {
+      return true;
+    }
+    return opponentTri === awayTri || opponentTri === homeTri;
+  }
+
+  function liveItemToPropRow(game, item, index, actionableOnly) {
+    const teamTri = String(item?.team_tri || '').trim().toUpperCase();
+    const awayTri = String(game?.away_tri || '').trim().toUpperCase();
+    const homeTri = String(game?.home_tri || '').trim().toUpperCase();
+    const sideKey = teamTri === awayTri ? 'away' : (teamTri === homeTri ? 'home' : '');
+    const market = String(item?.market || '').trim().toLowerCase();
+    const side = livePropPrimarySide(item) || String(item?.side || '').trim().toUpperCase();
+    const klass = String(item?.klass || '').trim().toUpperCase();
+    const projection = finiteFirst(item?.pace_proj, item?.sim_mu_adjusted, item?.sim_mu);
+    const liveEdge = finiteFirst(item?.pace_vs_line, item?.sim_vs_line_adjusted, item?.sim_vs_line);
+    if (actionableOnly && klass !== 'BET' && klass !== 'WATCH') {
+      return null;
+    }
+    const statusLabel = stripStatusText(item);
+    const sourceSummary = stripSecondaryText(item);
+    const lineSource = String(item?.line_source || '').trim();
+    const reasonTags = [
+      statusLabel,
+      lineSource ? (lineSource === 'oddsapi' ? 'Live OddsAPI' : titleCase(lineSource)) : '',
+      Number.isFinite(Number(item?.pregame_stat_multiplier)) && Math.abs(Number(item?.pregame_stat_multiplier) - 1) >= 0.01 ? 'Adjusted prior' : '',
+    ].filter(Boolean);
+    return {
+      key: ['live', awayTri, homeTri, teamTri, String(item?.player || '').trim(), market, side, Number(item?.line), index].join('|'),
+      cardId: cardId(game),
+      teamTri,
+      sideKey,
+      player: String(item?.player || '').trim(),
+      playerPhoto: item?.player_photo || item?.photo,
+      market,
+      marketLabel: marketLabel(market),
+      side,
+      line: Number(item?.line),
+      price: Number(item?.price),
+      book: item?.book,
+      evPct: Number(item?.ev_pct),
+      pWin: Number(item?.probability ?? item?.prob_calib),
+      simMu: finiteFirst(item?.sim_mu_adjusted, item?.sim_mu),
+      summary: [liveProjectionSummary(item), sourceSummary].filter(Boolean).join(' '),
+      reasons: reasonTags,
+      matchup: `${awayTri} @ ${homeTri}`,
+      rank: index + 1,
+      primary: index === 0,
+      bucket: 'live',
+      actionLabel: klass || 'LIVE',
+      statusLabel,
+      lineSource: item?.line_source,
+      actual: Number(item?.actual),
+      liveProjection: Number(projection),
+      liveEdge: Number(liveEdge),
+      firstSeenAt: item?.first_seen_at,
+      lastSeenAt: item?.last_seen_at,
+    };
+  }
+
   function liveStripPropRows(game, options = {}) {
     if (mode !== 'live') {
       return [];
@@ -3025,62 +3109,30 @@
     if (!matchup) {
       return [];
     }
+
     return sortedPropsStripItems(safePropsStripItems(state.propsStripPayload?.items))
-      .filter((item) => stripCardTarget(item) === matchup)
-      .map((item, index) => {
-        const teamTri = String(item?.team_tri || '').trim().toUpperCase();
-        const awayTri = String(game?.away_tri || '').trim().toUpperCase();
-        const homeTri = String(game?.home_tri || '').trim().toUpperCase();
-        const sideKey = teamTri === awayTri ? 'away' : (teamTri === homeTri ? 'home' : '');
-        const market = String(item?.market || '').trim().toLowerCase();
-        const side = livePropPrimarySide(item) || String(item?.side || '').trim().toUpperCase();
-        const klass = String(item?.klass || '').trim().toUpperCase();
-        const projection = finiteFirst(item?.pace_proj, item?.sim_mu_adjusted, item?.sim_mu);
-        const liveEdge = finiteFirst(item?.pace_vs_line, item?.sim_vs_line_adjusted, item?.sim_vs_line);
-        if (actionableOnly && klass !== 'BET' && klass !== 'WATCH') {
-          return null;
-        }
-        const statusLabel = stripStatusText(item);
-        const sourceSummary = stripSecondaryText(item);
-        const lineSource = String(item?.line_source || '').trim();
-        const reasonTags = [
-          statusLabel,
-          lineSource ? (lineSource === 'oddsapi' ? 'Live OddsAPI' : titleCase(lineSource)) : '',
-          Number.isFinite(Number(item?.pregame_stat_multiplier)) && Math.abs(Number(item?.pregame_stat_multiplier) - 1) >= 0.01 ? 'Adjusted prior' : '',
-        ].filter(Boolean);
-        return {
-          key: ['live', awayTri, homeTri, teamTri, String(item?.player || '').trim(), market, side, Number(item?.line), index].join('|'),
-          cardId: cardId(game),
-          teamTri,
-          sideKey,
-          player: String(item?.player || '').trim(),
-          playerPhoto: item?.player_photo || item?.photo,
-          market,
-          marketLabel: marketLabel(market),
-          side,
-          line: Number(item?.line),
-          price: Number(item?.price),
-          book: item?.book,
-          evPct: Number(item?.ev_pct),
-          pWin: Number(item?.probability ?? item?.prob_calib),
-          simMu: finiteFirst(item?.sim_mu_adjusted, item?.sim_mu),
-          summary: [liveProjectionSummary(item), sourceSummary].filter(Boolean).join(' '),
-          reasons: reasonTags,
-          matchup: `${awayTri} @ ${homeTri}`,
-          rank: index + 1,
-          primary: index === 0,
-          bucket: 'live',
-          actionLabel: klass || 'LIVE',
-          statusLabel,
-          lineSource: item?.line_source,
-          actual: Number(item?.actual),
-          liveProjection: Number(projection),
-          liveEdge: Number(liveEdge),
-          firstSeenAt: item?.first_seen_at,
-          lastSeenAt: item?.last_seen_at,
-        };
-      })
+      .filter((item) => liveItemMatchesGame(game, liveState, item))
+      .map((item, index) => liveItemToPropRow(game, item, index, actionableOnly))
       .filter(Boolean);
+  }
+
+  function liveSleeveLaneRows(game, marketKeys) {
+    const keys = safeArray(marketKeys).map((value) => String(value || '').trim().toLowerCase()).filter(Boolean);
+    if (!keys.length) {
+      return [];
+    }
+    const rankedRows = liveStripPropRows(game, { actionableOnly: false });
+    const directRows = rankedRows.filter((row) => keys.includes(String(row?.market || '').trim().toLowerCase()));
+    if (directRows.length) {
+      return directRows.slice(0, 3);
+    }
+    const liveState = getLiveState(game);
+    return sortedPropsStripItems(safePropsStripItems(state.propsStripPayload?.items))
+      .filter((item) => keys.includes(String(item?.market || '').trim().toLowerCase()))
+      .filter((item) => liveItemMatchesGame(game, liveState, item))
+      .map((item, index) => liveItemToPropRow(game, item, index, false))
+      .filter(Boolean)
+      .slice(0, 3);
   }
 
   function liveOpportunityPropRows(game) {
@@ -3216,72 +3268,133 @@
 
   function sidebarPropBoardMarkup(game) {
     const id = cardId(game);
-    const rows = mode === 'live' ? liveStripPropRows(game, { actionableOnly: false }).slice(0, 6) : [];
+    const rows = (mode === 'live'
+      ? liveStripPropRows(game, { actionableOnly: false })
+      : allPropRows(game))
+      .sort((left, right) => recommendationSortScore(right) - recommendationSortScore(left));
     if (!rows.length) {
-      return `<div class="cards-empty-copy">${escapeHtml(mode === 'live' ? 'No unresolved live prop opportunities remain for this game.' : 'No tracked live prop opportunities for this game.')}</div>`;
+      return `<div class="cards-empty-copy">${escapeHtml(mode === 'live' ? 'No live prop lanes are available for this game right now.' : 'No prop lanes are available for this game right now.')}</div>`;
     }
+
+    const renderLaneCard = (row) => {
+      const isLiveRow = row.bucket === 'live';
+      const badgeClass = isLiveRow ? 'is-live' : '';
+      const badgeLabel = isLiveRow ? (row.actionLabel || 'Live') : (row.bucket === 'official' ? 'Official' : 'Playable');
+      const metrics = isLiveRow
+        ? [
+          { label: 'Actual', value: Number.isFinite(Number(row.actual)) ? fmtNumber(row.actual, 1) : '-' },
+          { label: 'Live Proj', value: Number.isFinite(Number(row.liveProjection)) ? fmtNumber(row.liveProjection, 1) : '-' },
+          { label: 'Odds', value: fmtAmerican(row.price) },
+          { label: 'Edge', value: Number.isFinite(Number(row.liveEdge)) ? fmtSigned(row.liveEdge, 2) : '-', tone: Number(row.liveEdge) >= 0 ? 'is-positive' : 'is-negative' },
+        ]
+        : [
+          { label: 'Line', value: `${row.side} ${fmtNumber(row.line, 1)}` },
+          { label: 'Odds', value: `${fmtAmerican(row.price)} ${row.book || ''}`.trim() },
+          { label: 'Win', value: fmtPercent(row.pWin, 0) },
+          { label: 'EV', value: fmtPercentValue(row.evPct), tone: Number(row.evPct) >= 0 ? 'is-positive' : 'is-negative' },
+        ];
+      const cardLabel = isLiveRow ? 'Live player prop' : `${row.teamTri} prop`;
+      const footLeft = row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim();
+      const footRight = isLiveRow
+        ? `${liveRowFreshnessText(row, row.statusLabel || 'Live')}`
+        : `${row.teamTri} | ${row.marketLabel}`;
+      return `
+        <button class="cards-prop-overview-card" type="button" data-prop-select="${escapeHtml(row.key)}" data-card-target="${escapeHtml(id)}">
+          <div class="cards-lens-head">
+            <div>
+              <div class="cards-lens-label">${escapeHtml(cardLabel)}</div>
+              <div class="cards-lens-main">${escapeHtml(row.player)}</div>
+              <div class="cards-subcopy">${escapeHtml(`${row.marketLabel} ${row.side} ${fmtNumber(row.line, 1)}`)}</div>
+            </div>
+            ${badgeLabel ? `<span class="cards-lens-badge ${badgeClass}">${escapeHtml(badgeLabel)}</span>` : ''}
+          </div>
+          <div class="cards-prop-overview-metrics">
+            ${metrics.map((metric) => `
+              <div class="cards-data-pair ${metric.tone || ''}">
+                <span>${escapeHtml(metric.label)}</span>
+                <strong>${escapeHtml(metric.value)}</strong>
+              </div>
+            `).join('')}
+          </div>
+          <div class="cards-prop-overview-foot">
+            <span>${escapeHtml(footLeft)}</span>
+            <span>${escapeHtml(footRight)}</span>
+          </div>
+        </button>
+      `;
+    };
+
+    const lanes = [
+      {
+        title: 'Points',
+        rows: mode === 'live' ? liveSleeveLaneRows(game, ['pts']) : rows.filter((row) => row.market === 'pts').slice(0, 3),
+      },
+      {
+        title: 'Best Of REB / AST / 3PT',
+        rows: mode === 'live' ? liveSleeveLaneRows(game, ['reb', 'ast', 'threes']) : rows.filter((row) => row.market === 'reb' || row.market === 'ast' || row.market === 'threes').slice(0, 3),
+      },
+      {
+        title: 'Combos',
+        rows: mode === 'live' ? liveSleeveLaneRows(game, ['pra', 'pr', 'pa', 'ra']) : rows.filter((row) => row.market === 'pra' || row.market === 'pr' || row.market === 'pa' || row.market === 'ra').slice(0, 3),
+      },
+    ].filter((lane) => safeArray(lane.rows).length);
+
+    if (!lanes.length) {
+      return `<div class="cards-empty-copy">${escapeHtml('No prop lanes matched the tracked sleeves for this game.')}</div>`;
+    }
+
     return `
       <div class="cards-prop-overview-lanes">
-        <div class="cards-prop-overview-lane">
-          <div class="cards-prop-overview-lane-title">Live prop lens</div>
-          <div class="cards-prop-overview-grid">
-        ${rows.map((row) => {
-          const isLiveRow = row.bucket === 'live';
-          const badgeClass = isLiveRow ? 'is-live' : '';
-          const badgeLabel = isLiveRow ? (row.actionLabel || 'Live') : (row.bucket === 'official' ? 'Official' : '');
-          const metrics = isLiveRow
-            ? [
-              { label: 'Actual', value: Number.isFinite(Number(row.actual)) ? fmtNumber(row.actual, 1) : '-' },
-              { label: 'Projected', value: Number.isFinite(Number(row.liveProjection)) ? fmtNumber(row.liveProjection, 1) : '-' },
-              { label: 'Odds', value: fmtAmerican(row.price) },
-              { label: 'Edge', value: Number.isFinite(Number(row.liveEdge)) ? fmtSigned(row.liveEdge, 1) : '-', tone: Number(row.liveEdge) >= 0 ? 'is-positive' : 'is-negative' },
-            ]
-            : [
-              { label: 'Line', value: `${row.side} ${fmtNumber(row.line, 1)}` },
-              { label: 'Odds', value: `${fmtAmerican(row.price)} ${row.book || ''}`.trim() },
-              { label: 'Win', value: fmtPercent(row.pWin, 0) },
-              { label: 'EV', value: fmtPercentValue(row.evPct), tone: Number(row.evPct) >= 0 ? 'is-positive' : 'is-negative' },
-            ];
-          const cardLabel = isLiveRow ? 'Player live lens' : `${row.teamTri} prop`;
-          const footLeft = isLiveRow
-            ? `${row.matchup || ''}`.trim()
-            : (row.summary || `${row.teamTri} · ${fmtAmerican(row.price)} ${row.book || ''}`.trim());
-          const footRight = isLiveRow
-            ? `${liveRowFreshnessText(row, row.statusLabel || 'Live')}`
-            : `${row.teamTri} | ${row.marketLabel}`;
-          const reasonText = isLiveRow
-            ? String((safeArray(row.reasons)[0] || row.summary || '')).trim()
-            : '';
-          return `
-            <button class="cards-prop-overview-card" type="button" data-prop-select="${escapeHtml(row.key)}" data-card-target="${escapeHtml(id)}">
-              <div class="cards-lens-head">
-                <div>
-                  <div class="cards-lens-label">${escapeHtml(cardLabel)}</div>
-                  <div class="cards-lens-main">${escapeHtml(row.player)}</div>
-                  <div class="cards-subcopy">${escapeHtml(`${row.marketLabel} ${row.side} ${fmtNumber(row.line, 1)}`)}</div>
-                </div>
-                ${badgeLabel ? `<span class="cards-lens-badge ${badgeClass}">${escapeHtml(badgeLabel)}</span>` : ''}
-              </div>
-              <div class="cards-prop-overview-metrics">
-                ${metrics.map((metric) => `
-                  <div class="cards-data-pair ${metric.tone || ''}">
-                    <span>${escapeHtml(metric.label)}</span>
-                    <strong>${escapeHtml(metric.value)}</strong>
-                  </div>
-                `).join('')}
-              </div>
-              ${reasonText ? `<div class="cards-live-lens-reasons"><div class="cards-live-lens-reason">${escapeHtml(reasonText)}</div></div>` : ''}
-              <div class="cards-prop-overview-foot">
-                <span>${escapeHtml(footLeft)}</span>
-                <span>${escapeHtml(footRight)}</span>
-              </div>
-            </button>
-          `;
-        }).join('')}
+        ${lanes.map((lane) => `
+          <div class="cards-prop-overview-lane">
+            <div class="cards-prop-overview-lane-title">${escapeHtml(lane.title)}</div>
+            <div class="cards-prop-overview-grid cards-prop-overview-grid--lane">
+              ${safeArray(lane.rows).map((row) => renderLaneCard(row)).join('')}
+            </div>
           </div>
-        </div>
+        `).join('')}
       </div>
     `;
+  }
+
+  function renderLiveSegmentGroup(game, liveLens, sliceLabel, slots) {
+    const availableSlots = safeArray(slots);
+    if (!availableSlots.length) {
+      return '';
+    }
+    const detailText = availableSlots
+      .map((slot) => slot?.signal?.detail)
+      .find(Boolean) || 'Waiting for live segment detail.';
+    return `
+      <div class="cards-live-segment-card">
+        <div class="cards-box-head cards-box-head--nested">
+          <div class="cards-table-title"><strong>${escapeHtml(sliceLabel)}</strong></div>
+          <span class="cards-chip">${escapeHtml(liveLens?.statusLabel || 'Live')}</span>
+        </div>
+        <div class="cards-live-opportunity-list cards-live-opportunity-list--segment">
+          ${availableSlots.map((slot) => renderLiveSignalTile(slot)).join('')}
+        </div>
+        <div class="cards-mini-copy">${escapeHtml(detailText)}</div>
+      </div>
+    `;
+  }
+
+  function renderLiveSegments(game) {
+    const liveLens = getLiveLens(game);
+    const liveState = getLiveState(game);
+    if (!hasStartedGame(liveState)) {
+      return renderGameLens(game);
+    }
+    const featured = safeArray(liveLens?.topSignals);
+    const periodSlots = featured.filter((slot) => String(slot?.sliceLabel || '').toLowerCase() === 'current period');
+    const halfSlots = featured.filter((slot) => String(slot?.sliceLabel || '').toLowerCase() === 'current half');
+    const fullSlots = featured.filter((slot) => String(slot?.sliceLabel || '').toLowerCase() === 'full game');
+    const groups = [
+      renderLiveSegmentGroup(game, liveLens, 'Current period', periodSlots),
+      renderLiveSegmentGroup(game, liveLens, 'Current half', halfSlots),
+      renderLiveSegmentGroup(game, liveLens, 'Full game', fullSlots),
+    ].filter(Boolean);
+    return groups.length ? groups.join('') : renderGameLens(game);
   }
 
   function probabilityRows(game) {
@@ -3374,7 +3487,146 @@
     return 0.5;
   }
 
+  function liveMoneylineHomeProb(game, signal) {
+    const projection = Number(signal?.projection);
+    if (!Number.isFinite(projection)) {
+      return null;
+    }
+    const side = String(signal?.side || '').trim().toUpperCase();
+    const homeTri = String(game?.home_tri || '').trim().toUpperCase();
+    const awayTri = String(game?.away_tri || '').trim().toUpperCase();
+    if (side === homeTri || side === 'HOME') {
+      return projection;
+    }
+    if (side === awayTri || side === 'AWAY') {
+      return 1 - projection;
+    }
+    return null;
+  }
+
+  function emptyLensMarket(shortLabel, note) {
+    return {
+      shortLabel,
+      klass: '',
+      main: `${shortLabel} off card`,
+      sub: note || 'No tracked market line.',
+      note: '',
+      edgeValue: null,
+      edgeText: '-',
+      edgeClass: '',
+      isEmpty: true,
+    };
+  }
+
+  function liveLensMarketFromSignal(game, marketType, shortLabel, signal) {
+    if (!signal) {
+      return emptyLensMarket(shortLabel, 'Waiting for live market data.');
+    }
+    const klass = String(signal?.klass || '').trim().toUpperCase();
+    const side = String(signal?.side || '').trim();
+    const edge = Number(signal?.edge);
+    const line = Number(signal?.line);
+    const projection = Number(signal?.projection);
+    const edgeValue = Number.isFinite(edge) ? Math.abs(edge) : null;
+    const edgeText = Number.isFinite(edge)
+      ? (marketType === 'moneyline' ? `${fmtSigned(edge * 100, 1)}pp` : fmtSigned(edge, 1))
+      : '-';
+    const edgeClass = Number.isFinite(edge) ? (edge >= 0 ? 'is-positive' : 'is-negative') : '';
+    let main = `${shortLabel} live`;
+    let sub = signal?.detail || 'Live market active.';
+    if (marketType === 'moneyline') {
+      main = side ? `${side} ML` : 'Moneyline live';
+      sub = Number.isFinite(projection)
+        ? `Model ${fmtPercent(projection, 0)} | Edge ${edgeText}`
+        : `Edge ${edgeText}`;
+    } else if (marketType === 'spread') {
+      main = side && Number.isFinite(line) ? `${side} ${fmtSigned(line, 1)}` : (side || 'ATS live');
+      sub = Number.isFinite(projection) && Number.isFinite(line)
+        ? `Proj ${fmtSigned(projection, 1)} vs ${fmtSigned(line, 1)}`
+        : `Edge ${edgeText}`;
+    } else if (marketType === 'total') {
+      main = side && Number.isFinite(line) ? `${side} ${fmtNumber(line, 1)}` : (side || 'Total live');
+      sub = Number.isFinite(projection) && Number.isFinite(line)
+        ? `Proj ${fmtNumber(projection, 1)} vs ${fmtNumber(line, 1)}`
+        : `Edge ${edgeText}`;
+    }
+    return {
+      shortLabel,
+      klass,
+      main,
+      sub,
+      note: String(signal?.detail || '').trim(),
+      edgeValue,
+      edgeText,
+      edgeClass,
+      isEmpty: false,
+    };
+  }
+
+  function liveGameLensRows(game) {
+    const liveState = getLiveState(game);
+    const liveLens = getLiveLens(game);
+    if (mode !== 'live' || !hasStartedGame(liveState) || !liveLens) {
+      return [];
+    }
+    const scoreLabel = String(liveLens?.scoreLabel || `${game?.away_tri || 'AWY'} at ${game?.home_tri || 'HME'}`);
+    const statusLabel = String(liveLens?.statusLabel || 'Live');
+    const signals = liveLens?.signals || {};
+    const rows = [
+      {
+        key: 'current-period',
+        label: 'Current period',
+        lineLabel: 'Current period',
+        summaryLine: scoreLabel,
+        footText: statusLabel,
+        projection: null,
+        modelHomeWinProb: liveMoneylineHomeProb(game, signals?.quarter_ml),
+        baselineHomeWinProb: null,
+        markets: {
+          moneyline: liveLensMarketFromSignal(game, 'moneyline', 'ML', signals?.quarter_ml),
+          spread: liveLensMarketFromSignal(game, 'spread', 'ATS', signals?.quarter_ats),
+          total: liveLensMarketFromSignal(game, 'total', 'Total', signals?.quarter_total),
+        },
+      },
+      {
+        key: 'current-half',
+        label: 'Current half',
+        lineLabel: 'Current half',
+        summaryLine: scoreLabel,
+        footText: statusLabel,
+        projection: null,
+        modelHomeWinProb: liveMoneylineHomeProb(game, signals?.half_ml),
+        baselineHomeWinProb: null,
+        markets: {
+          moneyline: liveLensMarketFromSignal(game, 'moneyline', 'ML', signals?.half_ml),
+          spread: liveLensMarketFromSignal(game, 'spread', 'ATS', signals?.half_ats),
+          total: liveLensMarketFromSignal(game, 'total', 'Total', signals?.half_total),
+        },
+      },
+      {
+        key: 'full-game',
+        label: 'Full game',
+        lineLabel: 'Full game',
+        summaryLine: scoreLabel,
+        footText: statusLabel,
+        projection: null,
+        modelHomeWinProb: liveMoneylineHomeProb(game, signals?.ml),
+        baselineHomeWinProb: null,
+        markets: {
+          moneyline: liveLensMarketFromSignal(game, 'moneyline', 'ML', signals?.ml),
+          spread: liveLensMarketFromSignal(game, 'spread', 'ATS', signals?.ats),
+          total: liveLensMarketFromSignal(game, 'total', 'Total', signals?.total),
+        },
+      },
+    ];
+    return rows.filter((row) => Object.values(row.markets || {}).some((market) => !market?.isEmpty));
+  }
+
   function buildGameLensRows(game) {
+    const liveRows = liveGameLensRows(game);
+    if (liveRows.length) {
+      return liveRows;
+    }
     const betting = game?.betting || {};
     const score = game?.sim?.score || {};
     const periods = game?.sim?.periods || {};
@@ -3423,7 +3675,71 @@
       },
     ];
 
-    return rows.filter((row) => row.projection);
+    return rows.filter((row) => row.projection).map((row) => {
+      const modelProb = Number.isFinite(Number(row.modelHomeWinProb)) ? Number(row.modelHomeWinProb) : 0.5;
+      const baselineProb = Number.isFinite(Number(row.baselineHomeWinProb)) ? Number(row.baselineHomeWinProb) : 0.5;
+      const homeDelta = (modelProb - baselineProb) * 100;
+      const moneylinePick = homeDelta >= 0 ? game.home_tri : game.away_tri;
+      const spreadLine = Number(row.spreadLine);
+      const totalLine = Number(row.totalLine);
+      const spreadEdgeRaw = Number.isFinite(spreadLine) && Number.isFinite(Number(row?.projection?.homeMargin))
+        ? Number(row.projection.homeMargin) + spreadLine
+        : null;
+      const spreadPick = spreadEdgeRaw == null ? '' : (spreadEdgeRaw >= 0 ? game.home_tri : game.away_tri);
+      const selectedSpreadLine = spreadEdgeRaw == null
+        ? null
+        : (spreadPick === game.home_tri ? spreadLine : -spreadLine);
+      const totalEdgeRaw = Number.isFinite(totalLine) && Number.isFinite(Number(row?.projection?.total))
+        ? Number(row.projection.total) - totalLine
+        : null;
+      const totalPick = totalEdgeRaw == null ? '' : (totalEdgeRaw >= 0 ? 'Over' : 'Under');
+      return {
+        ...row,
+        summaryLine: `${game.away_tri} ${fmtNumber(row.projection.away, 1)} - ${game.home_tri} ${fmtNumber(row.projection.home, 1)} | Total ${fmtNumber(row.projection.total, 1)}`,
+        footText: Number.isFinite(Number(row?.projection?.homeMargin))
+          ? `Projected margin ${fmtSigned(row.projection.homeMargin, 2)}`
+          : row.lineLabel,
+        markets: {
+          moneyline: {
+            shortLabel: 'ML',
+            klass: homeDelta >= 0 ? 'BET' : 'WATCH',
+            main: `${moneylinePick} ML`,
+            sub: `Model ${fmtPercent(moneylinePick === game.home_tri ? modelProb : (1 - modelProb), 0)} | Market ${fmtPercent(moneylinePick === game.home_tri ? baselineProb : (1 - baselineProb), 0)}`,
+            note: `Edge ${fmtSigned(homeDelta, 1)}pp`,
+            edgeValue: Math.abs(homeDelta),
+            edgeText: `${fmtSigned(homeDelta, 1)}pp`,
+            edgeClass: homeDelta >= 0 ? 'is-positive' : 'is-negative',
+            isEmpty: false,
+          },
+          spread: Number.isFinite(selectedSpreadLine)
+            ? {
+              shortLabel: 'ATS',
+              klass: spreadEdgeRaw >= 0 ? 'BET' : 'WATCH',
+              main: `${spreadPick} ${fmtSigned(selectedSpreadLine, 1)}`,
+              sub: `Proj ${fmtSigned(row.projection.homeMargin, 1)} vs ${fmtSigned(spreadLine, 1)}`,
+              note: `Edge ${fmtSigned(spreadEdgeRaw, 1)}`,
+              edgeValue: Math.abs(spreadEdgeRaw),
+              edgeText: fmtSigned(spreadEdgeRaw, 1),
+              edgeClass: spreadEdgeRaw >= 0 ? 'is-positive' : 'is-negative',
+              isEmpty: false,
+            }
+            : emptyLensMarket('ATS', 'No tracked spread line.'),
+          total: Number.isFinite(totalEdgeRaw)
+            ? {
+              shortLabel: 'Total',
+              klass: totalEdgeRaw >= 0 ? 'BET' : 'WATCH',
+              main: `${totalPick} ${fmtNumber(totalLine, 1)}`,
+              sub: `Proj ${fmtNumber(row.projection.total, 1)} vs ${fmtNumber(totalLine, 1)}`,
+              note: `Edge ${fmtSigned(totalEdgeRaw, 1)}`,
+              edgeValue: Math.abs(totalEdgeRaw),
+              edgeText: fmtSigned(totalEdgeRaw, 1),
+              edgeClass: totalEdgeRaw >= 0 ? 'is-positive' : 'is-negative',
+              isEmpty: false,
+            }
+            : emptyLensMarket('Total', 'No tracked total line.'),
+        },
+      };
+    });
   }
 
   function renderGameLens(game) {
@@ -3431,99 +3747,63 @@
     if (!rows.length) {
       return '<div class="cards-empty-copy">No game lens projections available.</div>';
     }
-    function scoreSummary(row) {
-      return `${game.away_tri} ${fmtNumber(row.projection.away, 1)} - ${game.home_tri} ${fmtNumber(row.projection.home, 1)} | Total ${fmtNumber(row.projection.total, 1)}`;
-    }
-
-    function compactPickSummary(row) {
-      const modelProb = Number.isFinite(Number(row.modelHomeWinProb)) ? Number(row.modelHomeWinProb) : 0.5;
-      const baselineProb = Number.isFinite(Number(row.baselineHomeWinProb)) ? Number(row.baselineHomeWinProb) : 0.5;
-      const homeDelta = (modelProb - baselineProb) * 100;
-      const moneylinePick = homeDelta >= 0 ? game.home_tri : game.away_tri;
-      const moneylineEdge = Math.abs(homeDelta);
-
-      const marketSpread = Number(row.spreadLine);
-      const spreadEdgeRaw = Number.isFinite(marketSpread)
-        ? Number(row.projection.homeMargin) + marketSpread
-        : null;
-      const spreadPick = spreadEdgeRaw == null ? null : (spreadEdgeRaw >= 0 ? game.home_tri : game.away_tri);
-      const spreadLine = spreadEdgeRaw == null
-        ? null
-        : (spreadPick === game.home_tri ? fmtSigned(marketSpread, 1) : fmtSigned(-marketSpread, 1));
-      const spreadEdge = spreadEdgeRaw == null ? null : Math.abs(spreadEdgeRaw);
-
-      const marketTotal = Number(row.totalLine);
-      const totalEdgeRaw = Number.isFinite(marketTotal) ? Number(row.projection.total) - marketTotal : null;
-      const totalPick = totalEdgeRaw == null ? null : (totalEdgeRaw >= 0 ? 'Over' : 'Under');
-      const totalEdge = totalEdgeRaw == null ? null : Math.abs(totalEdgeRaw);
-
-      const candidates = [
-        {
-          badge: 'ML Bet',
-          main: `${moneylinePick} ML`,
-          sub: `ML ${fmtSigned(moneylineEdge, 1)} pts`,
-          edgeClass: homeDelta >= 0 ? 'is-positive' : 'is-negative',
-          edgeValue: fmtSigned(homeDelta, 1),
-          edgeSort: moneylineEdge,
-          marketLine: `${game.away_tri} ${fmtPercent(1 - baselineProb, 1)} | ${game.home_tri} ${fmtPercent(baselineProb, 1)}`,
-          foot: row.projection.homeMargin == null ? row.lineLabel : `Projected margin ${fmtSigned(row.projection.homeMargin, 2)}`,
-          reason: '',
-        },
-        spreadEdge != null ? {
-          badge: 'Spread Bet',
-          main: `${spreadPick} ${spreadLine}`,
-          sub: `Spread ${fmtSigned(spreadEdge, 1)}`,
-          edgeClass: spreadEdgeRaw >= 0 ? 'is-positive' : 'is-negative',
-          edgeValue: fmtSigned(spreadEdgeRaw, 1),
-          edgeSort: spreadEdge,
-          marketLine: `Home ${fmtSigned(marketSpread, 1)}`,
-          foot: `Projected margin ${fmtSigned(row.projection.homeMargin, 2)}`,
-          reason: `Model margin ${fmtSigned(row.projection.homeMargin, 1)} versus market ${fmtSigned(marketSpread, 1)}.`,
-        } : null,
-        totalEdge != null ? {
-          badge: 'Total Bet',
-          main: `${totalPick} ${fmtNumber(marketTotal, 1)}`,
-          sub: `Total ${fmtSigned(totalEdgeRaw, 1)}`,
-          edgeClass: totalEdgeRaw >= 0 ? 'is-positive' : 'is-negative',
-          edgeValue: fmtSigned(totalEdgeRaw, 1),
-          edgeSort: totalEdge,
-          marketLine: `Total ${fmtNumber(marketTotal, 1)}`,
-          foot: `Projected total ${fmtNumber(row.projection.total, 2)}`,
-          reason: `Model total ${fmtNumber(row.projection.total, 1)} versus market ${fmtNumber(marketTotal, 1)}.`,
-        } : null,
-      ].filter(Boolean);
-
-      return candidates.sort((left, right) => Number(right.edgeSort || 0) - Number(left.edgeSort || 0))[0];
+    function marketTileMarkup(market) {
+      const badgeClass = market?.klass === 'BET'
+        ? 'cards-chip cards-chip--accent'
+        : (market?.klass === 'WATCH' ? 'cards-chip cards-chip--warm' : 'cards-chip');
+      const tileClass = market?.klass === 'BET'
+        ? 'is-bet'
+        : (market?.klass === 'WATCH' ? 'is-watch' : (market?.isEmpty ? 'is-empty' : ''));
+      return `
+        <div class="cards-market-tile ${tileClass}">
+          <div class="cards-live-lens-tile__head">
+            <div class="cards-market-kicker">${escapeHtml(market?.shortLabel || 'Market')}</div>
+            <span class="${badgeClass}">${escapeHtml(market?.klass || (market?.isEmpty ? 'Off card' : 'Live'))}</span>
+          </div>
+          <div class="cards-market-main">${escapeHtml(market?.main || 'No surfaced bet')}</div>
+          <div class="cards-market-sub ${escapeHtml(market?.edgeClass || '')}">${escapeHtml(market?.sub || 'No tracked edge.')}</div>
+          ${market?.note ? `<div class="cards-market-note">${escapeHtml(market.note)}</div>` : ''}
+        </div>
+      `;
     }
 
     return rows.map((row) => {
-      const modelProb = Number.isFinite(Number(row.modelHomeWinProb)) ? Number(row.modelHomeWinProb) : 0.5;
-      const baselineProb = Number.isFinite(Number(row.baselineHomeWinProb)) ? Number(row.baselineHomeWinProb) : 0.5;
-      const primaryCard = compactPickSummary(row);
-      const reasonBlock = primaryCard?.reason
-        ? `<div class="cards-live-lens-reasons"><div class="cards-live-lens-reason">${escapeHtml(primaryCard.reason)}</div></div>`
-        : '';
+      const markets = row?.markets || {};
+      const marketCards = [markets.moneyline, markets.spread, markets.total];
+      const bestEdge = marketCards
+        .filter((market) => Number.isFinite(Number(market?.edgeValue)))
+        .sort((left, right) => Number(right.edgeValue) - Number(left.edgeValue))[0] || null;
+      const reasonBlock = marketCards
+        .filter((market) => market?.note && !market?.isEmpty)
+        .map((market) => `<div class="cards-live-lens-reason">${escapeHtml(`${market.shortLabel}: ${market.note}`)}</div>`)
+        .join('');
+      const modelProb = Number.isFinite(Number(row.modelHomeWinProb)) ? Number(row.modelHomeWinProb) : null;
+      const baselineProb = Number.isFinite(Number(row.baselineHomeWinProb)) ? Number(row.baselineHomeWinProb) : null;
       return `
-        <div class="cards-prop-overview-card">
+        <div class="cards-prop-overview-card cards-live-lens-card">
           <div class="cards-lens-head">
             <div>
               <div class="cards-lens-label">${escapeHtml(row.label)}</div>
-              <div class="cards-lens-main">${escapeHtml(primaryCard?.main || 'No surfaced bet')}</div>
-              <div class="cards-subcopy">${escapeHtml(scoreSummary(row))}</div>
+              <div class="cards-lens-main">${escapeHtml(row.summaryLine || row.lineLabel || 'Game lens')}</div>
+              <div class="cards-subcopy">${escapeHtml(row.footText || row.lineLabel || '')}</div>
             </div>
-            <span class="cards-lens-badge">${escapeHtml(primaryCard?.badge || 'Projection')}</span>
+            <span class="cards-lens-badge">${escapeHtml(bestEdge?.shortLabel ? `${bestEdge.shortLabel} edge` : 'Projection')}</span>
           </div>
           <div class="cards-prop-overview-metrics">
-            <div class="cards-data-pair"><span>Score</span><strong>${escapeHtml(scoreSummary(row))}</strong></div>
-            <div class="cards-data-pair"><span>Home win</span><strong>${escapeHtml(fmtPercent(modelProb, 1))}</strong></div>
-            <div class="cards-data-pair"><span>Market</span><strong>${escapeHtml(fmtPercent(baselineProb, 1))}</strong></div>
-            <div class="cards-data-pair ${escapeHtml(primaryCard?.edgeClass || '')}"><span>Best edge</span><strong>${escapeHtml(primaryCard?.edgeValue || '-')}</strong></div>
+            <div class="cards-data-pair"><span>Segment</span><strong>${escapeHtml(row.lineLabel || row.label)}</strong></div>
+            <div class="cards-data-pair"><span>Home win</span><strong>${escapeHtml(modelProb == null ? '-' : fmtPercent(modelProb, 1))}</strong></div>
+            <div class="cards-data-pair"><span>Market</span><strong>${escapeHtml(baselineProb == null ? '-' : fmtPercent(baselineProb, 1))}</strong></div>
+            <div class="cards-data-pair ${bestEdge?.edgeClass || ''}"><span>Best edge</span><strong>${escapeHtml(bestEdge?.edgeText || '-')}</strong></div>
           </div>
-          <div class="cards-live-lens-market">${escapeHtml(primaryCard?.sub || `${row.lineLabel} projection`)}</div>
-          ${reasonBlock}
+          <div class="cards-live-opportunity-list cards-live-opportunity-list--segment">
+            ${marketTileMarkup(markets.moneyline || emptyLensMarket('ML', 'No tracked moneyline.'))}
+            ${marketTileMarkup(markets.spread || emptyLensMarket('ATS', 'No tracked spread line.'))}
+            ${marketTileMarkup(markets.total || emptyLensMarket('Total', 'No tracked total line.'))}
+          </div>
+          ${reasonBlock ? `<div class="cards-live-lens-reasons">${reasonBlock}</div>` : ''}
           <div class="cards-prop-overview-foot">
-            <span>${escapeHtml(primaryCard?.marketLine || `${row.lineLabel} projection`)}</span>
-            <span>${escapeHtml(primaryCard?.foot || row.lineLabel)}</span>
+            <span>${escapeHtml(row.summaryLine || row.lineLabel || 'Game lens')}</span>
+            <span>${escapeHtml(row.footText || row.lineLabel || '')}</span>
           </div>
         </div>`;
     }).join('');
@@ -3784,10 +4064,8 @@
   }
 
   function renderGamePanel(game) {
-    const liveLens = getLiveLens(game);
-    const liveSignalTiles = safeArray(liveLens?.topSignals).slice(0, 9);
-    const rightRailTitle = mode === 'live' ? 'Live prop board' : 'Official card';
-    const rightRailBadge = mode === 'live' ? 'Live feed' : (marketCountSummary(game) || 'Market board');
+    const rightRailTitle = 'Official card';
+    const rightRailBadge = marketCountSummary(game) || 'Market board';
     return `
       <div class="cards-overview-grid">
         <div class="cards-panel-card cards-panel-card--overview-main">
@@ -3808,12 +4086,6 @@
             </div>
             <ul class="cards-callout-list">${officialCardRows(game)}</ul>
             ${sidebarPropBoardMarkup(game)}
-            ${mode === 'live' && liveSignalTiles.length ? `
-              <div class="cards-live-opportunity-stack">
-                <div class="cards-section-label">Live opportunities</div>
-                <div class="cards-live-opportunity-list">${liveSignalTiles.slice(0, 6).map(renderLiveSignalTile).join('')}</div>
-              </div>
-            ` : ''}
           </div>
         </div>
       </div>

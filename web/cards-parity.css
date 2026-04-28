@@ -1208,7 +1208,7 @@ body[data-viewport='phone'] .cards-scoreboard {
 }
 
 .cards-props-strip-shell {
-  display: grid;
+  display: none !important;
   gap: 14px;
   padding: 16px 18px 18px;
   border: 1px solid var(--cards-border);
@@ -1462,7 +1462,7 @@ body[data-viewport='phone'] .cards-scoreboard {
 }
 
 .cards-overview-grid {
-  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.95fr);
+  grid-template-columns: minmax(0, 1.58fr) minmax(240px, 0.82fr);
   align-items: start;
 }
 
@@ -1530,7 +1530,7 @@ body[data-viewport='phone'] .cards-scoreboard {
 
 .cards-overview-main-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(190px, 0.34fr);
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 0.24fr);
   gap: 8px;
   align-items: start;
 }
@@ -1593,6 +1593,20 @@ body[data-viewport='phone'] .cards-scoreboard {
   text-align: left;
 }
 
+.cards-market-tile.is-bet {
+  border-color: rgba(158, 243, 212, 0.32);
+  background: linear-gradient(180deg, rgba(9, 34, 26, 0.82), rgba(10, 21, 34, 0.94));
+}
+
+.cards-market-tile.is-watch {
+  border-color: rgba(244, 191, 118, 0.26);
+  background: linear-gradient(180deg, rgba(48, 31, 10, 0.62), rgba(10, 21, 34, 0.92));
+}
+
+.cards-market-tile.is-empty {
+  opacity: 0.82;
+}
+
 .cards-market-label,
 .cards-section-label {
   color: var(--cards-text-soft);
@@ -1648,14 +1662,14 @@ body[data-viewport='phone'] .cards-scoreboard {
 .cards-live-lens-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
+  gap: 8px;
 }
 
 .cards-live-lens-card {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   min-height: 0;
-  padding: 9px;
+  padding: 9px 10px;
   border: 1px solid rgba(132, 166, 196, 0.14);
   border-radius: 14px;
   background: rgba(10, 21, 34, 0.9);
@@ -1717,7 +1731,7 @@ body[data-viewport='phone'] .cards-scoreboard {
 
 .cards-live-opportunity-list {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -1775,10 +1789,10 @@ body[data-viewport='phone'] .cards-scoreboard {
 
 .cards-live-lens-tile {
   display: grid;
-  gap: 8px;
-  min-height: 112px;
-  padding: 14px;
-  border-radius: 18px;
+  gap: 6px;
+  min-height: 92px;
+  padding: 9px 10px;
+  border-radius: 14px;
   border: 1px solid rgba(132, 166, 196, 0.14);
   background: rgba(10, 21, 34, 0.74);
 }
@@ -1801,12 +1815,12 @@ body[data-viewport='phone'] .cards-scoreboard {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 
 .cards-live-lens-tile__edge {
   font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
 }
@@ -1837,10 +1851,96 @@ body[data-viewport='phone'] .cards-scoreboard {
   gap: 6px;
 }
 
+.cards-prop-overview-lanes {
+  display: grid;
+  gap: 8px;
+}
+
+.cards-prop-overview-lane {
+  display: grid;
+  gap: 6px;
+}
+
+.cards-prop-overview-lane-title {
+  color: var(--cards-text-dim);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 .cards-prop-overview-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
+}
+
+.cards-prop-overview-grid--lane {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cards-live-segment-card {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgba(132, 166, 196, 0.14);
+  border-radius: 12px;
+  background: rgba(10, 21, 34, 0.9);
+}
+
+.cards-live-opportunity-list--segment {
+  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cards-live-lens-card .cards-market-tile {
+  min-height: 82px;
+  gap: 5px;
+  padding: 8px 9px;
+}
+
+.cards-live-lens-card .cards-market-main {
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.cards-live-lens-card .cards-market-sub,
+.cards-live-lens-card .cards-market-note,
+.cards-live-lens-card .cards-market-kicker {
+  font-size: 9px;
+  line-height: 1.14;
+}
+
+.cards-live-lens-card .cards-lens-main {
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.cards-live-lens-card .cards-subcopy,
+.cards-live-lens-card .cards-prop-overview-foot {
+  font-size: 9px;
+  line-height: 1.14;
+}
+
+.cards-live-lens-card .cards-lens-badge,
+.cards-live-lens-card .cards-chip {
+  font-size: 9px;
+  line-height: 1.1;
+  padding: 4px 7px;
+}
+
+.cards-live-lens-grid .cards-data-pair {
+  padding: 5px 6px;
+}
+
+.cards-live-lens-grid .cards-data-pair span {
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.cards-live-lens-grid .cards-data-pair strong {
+  font-size: 11px;
+  line-height: 1.04;
 }
 
 .cards-prop-overview-card {
@@ -2130,6 +2230,22 @@ body[data-viewport='phone'] .cards-scoreboard {
   .cards-overview-grid {
     grid-template-columns: 1fr;
   }
+
+  .cards-live-lens-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cards-prop-overview-grid--lane,
+  .cards-live-opportunity-list--segment {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .cards-prop-overview-grid--lane,
+  .cards-live-opportunity-list--segment {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .cards-playable-head {
@@ -2145,18 +2261,25 @@ body[data-viewport='phone'] .cards-scoreboard {
 
 .cards-prob-row {
   display: grid;
-  gap: 6px;
+  gap: 5px;
+  padding: 6px 7px;
+  border: 1px solid var(--cards-border);
+  border-radius: 12px;
+  background: rgba(10, 21, 34, 0.88);
 }
 
 .cards-prob-label {
+  color: var(--cards-text-dim);
   font-size: 11px;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .cards-prob-bar {
   display: grid;
   grid-template-columns: minmax(10px, var(--away-pct, 50%)) minmax(10px, var(--home-pct, 50%));
-  gap: 2px;
+  gap: 5px;
   width: 100%;
   height: 10px;
   border-radius: 999px;
@@ -2177,6 +2300,7 @@ body[data-viewport='phone'] .cards-scoreboard {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
+  font-size: 11px;
 }
 
 .cards-mini-metric {
@@ -2187,6 +2311,21 @@ body[data-viewport='phone'] .cards-scoreboard {
   min-height: 0;
   display: grid;
   gap: 4px;
+}
+
+.cards-prop-overview-card .cards-lens-main,
+.cards-live-segment-card .cards-market-main {
+  font-size: 12px;
+  line-height: 1.08;
+}
+
+.cards-prop-overview-card .cards-subcopy,
+.cards-prop-overview-card .cards-prop-overview-foot,
+.cards-live-segment-card .cards-mini-copy,
+.cards-live-lens-tile .cards-mini-copy,
+.cards-live-lens-tile .cards-market-kicker {
+  font-size: 9px;
+  line-height: 1.15;
 }
 
 .cards-mini-metric.is-rich {
