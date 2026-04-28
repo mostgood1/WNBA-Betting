@@ -3314,7 +3314,10 @@
 
     const renderLaneCard = (row) => {
       const isLiveRow = row.bucket === 'live';
-      const badgeClass = isLiveRow ? 'is-live' : '';
+      const liveBadgeTone = String(row.actionLabel || '').trim().toUpperCase();
+      const badgeClass = isLiveRow
+        ? (liveBadgeTone === 'BET' ? 'is-bet' : (liveBadgeTone === 'WATCH' ? 'is-watch' : 'is-live'))
+        : '';
       const badgeLabel = isLiveRow ? (row.actionLabel || 'Live') : (row.bucket === 'official' ? 'Official' : 'Playable');
       const metrics = isLiveRow
         ? [
@@ -5147,9 +5150,6 @@
         }
       });
 
-      if (propsStripEl) {
-        void loadPropsStrip(resolvedDate, { silent, games: payload.games || [] });
-      }
     } catch (error) {
       if (silent && state.payload && state.boardInitialized) {
         state.liveDataLoading = false;

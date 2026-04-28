@@ -1053,6 +1053,18 @@ body[data-viewport='phone'] .cards-scoreboard {
   color: var(--cards-bg);
 }
 
+.cards-lens-badge.is-bet {
+  color: #07201b;
+  background: linear-gradient(135deg, var(--cards-accent), var(--cards-accent-strong));
+  border-color: rgba(158, 243, 212, 0.42);
+}
+
+.cards-lens-badge.is-watch {
+  background: rgba(244, 191, 118, 0.16);
+  border-color: rgba(244, 191, 118, 0.28);
+  color: #ffe1b7;
+}
+
 .cards-status-badge.is-final {
   background: rgba(11, 34, 26, 0.92);
   border-color: rgba(54, 156, 109, 0.34);
@@ -1907,8 +1919,8 @@ body[data-viewport='phone'] .cards-scoreboard {
 .cards-live-lens-card .cards-market-sub,
 .cards-live-lens-card .cards-market-note,
 .cards-live-lens-card .cards-market-kicker {
-  font-size: 9px;
-  line-height: 1.14;
+  font-size: 8px;
+  line-height: 1.08;
 }
 
 .cards-live-lens-card .cards-lens-main {
