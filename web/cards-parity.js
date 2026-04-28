@@ -2669,10 +2669,7 @@
     const silent = Boolean(options?.silent);
     const games = safeArray(options?.games || state.payload?.games);
     const previousPropsStripPayload = state.propsStripPayload;
-    if (!propsStripEl) {
-      return;
-    }
-    if (!silent || !state.propsStripPayload) {
+    if (propsStripEl && (!silent || !state.propsStripPayload)) {
       setPropsStripLoading();
     }
     try {
@@ -5138,6 +5135,8 @@
           }
         }
       });
+
+        void loadPropsStrip(resolvedDate, { silent, games: payload.games || [] });
 
     } catch (error) {
       if (silent && state.payload && state.boardInitialized) {
