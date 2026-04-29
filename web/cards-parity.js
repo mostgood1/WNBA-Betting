@@ -1069,6 +1069,7 @@
       let projection = Number.isFinite(pregameTotal)
         ? ((1 - blendWeight) * pregameTotal) + (blendWeight * paceRaw)
         : paceRaw;
+      let recentAdj = 0;
 
       const recentPoints = Number(recentWindow.points_total);
       const recentWindowSec = Number(recentWindow.window_sec);
@@ -1077,7 +1078,7 @@
         const gameRate = currentTotal / elapsedForRate;
         const paceCap = Number(thresholds.recentWindow?.pace_cap_points);
         const maxRecentAdj = Number.isFinite(paceCap) ? paceCap : 3;
-        const recentAdj = clampNumber((recentRate - gameRate) * Math.min(remainingMinutes, 12) * 0.2, -maxRecentAdj, maxRecentAdj);
+        recentAdj = clampNumber((recentRate - gameRate) * Math.min(remainingMinutes, 12) * 0.2, -maxRecentAdj, maxRecentAdj);
         projection += recentAdj;
       }
 
