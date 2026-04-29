@@ -47,6 +47,7 @@
     payload: null,
     pollHandle: null,
     propDetails: new Map(),
+    refreshEpoch: 0,
     simDetailCache: new Map(),
     simDetailLoading: new Set(),
     propsStripPayload: null,
@@ -1598,6 +1599,7 @@
 
   async function loadLiveGameLens(dateValue, games, options = {}) {
     const silent = Boolean(options?.silent);
+    const epoch = Number(options?.epoch) || 0;
     state.liveDataLoading = true;
     const nextLiveGameLens = new Map();
     const nextLivePlayerBoxscores = new Map();
@@ -1706,10 +1708,16 @@
           nextLiveGameLens.set(key, lens);
         }
       });
+      if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
+        return;
+      }
       state.liveGameLens = nextLiveGameLens;
       state.livePlayerBoxscores = nextLivePlayerBoxscores;
       state.liveStates = nextLiveStates;
     } catch (error) {
+      if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
+        return;
+      }
       if (!silent) {
         state.liveGameLens = new Map();
         state.livePlayerBoxscores = new Map();
@@ -1717,7 +1725,9 @@
       }
       showNote(error?.message || 'Failed to refresh live signals.', 'warning');
     } finally {
-      state.liveDataLoading = false;
+      if (epoch === state.refreshEpoch && (state.payload?.date || state.date) === dateValue) {
+        state.liveDataLoading = false;
+      }
     }
   }
 
@@ -2989,6 +2999,7 @@
 
   async function loadPropsStrip(dateValue, options = {}) {
     const silent = Boolean(options?.silent);
+    const epoch = Number(options?.epoch) || 0;
     const games = safeArray(options?.games || state.payload?.games);
     const previousPropsStripPayload = state.propsStripPayload;
     if (propsStripEl && (!silent || !state.propsStripPayload)) {
@@ -3011,6 +3022,9 @@
             mergedLiveStates.set(key, item);
           }
         });
+        if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
+          return;
+        }
         state.liveStates = mergedLiveStates;
         liveGames = safeArray(liveStatePayload?.games)
           .filter((game) => Boolean(game?.in_progress) && !Boolean(game?.final));
@@ -3038,6 +3052,9 @@
           transformed = buildLiveBoxscoreSimFallback(boxscorePayload, games, liveStatePayload, dateValue);
         }
 
+        if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
+          return;
+        }
         state.propsStripPayload = transformed;
         state.propsStripVisibleCount = Number(state.propsStripDefaultCount) || 18;
       } else {
@@ -3046,6 +3063,9 @@
           'Failed to load prop strip.',
           { retries: silent ? 2 : 1 }
         );
+        if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
+          return;
+        }
         state.propsStripPayload = payload;
       }
       renderPropsStrip();
@@ -3053,6 +3073,9 @@
         renderBoard();
       }
     } catch (error) {
+      if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
+        return;
+      }
       reportPropsStripError('load', error, dateValue);
       if (silent && previousPropsStripPayload) {
         state.propsStripPayload = previousPropsStripPayload;
@@ -5412,6 +5435,8 @@
 
   async function loadBoard(options = {}) {
     const silent = Boolean(options?.silent);
+    const epoch = state.refreshEpoch + 1;
+    state.refreshEpoch = epoch;
     if (!silent && !state.boardInitialized) {
       setLoading();
     }
@@ -5421,6 +5446,9 @@
         'Failed to load game cards.',
         { retries: silent ? 2 : 1 }
       );
+      if (epoch !== state.refreshEpoch) {
+        return;
+      }
       const previousDate = String(state.payload?.date || state.date || '');
       const previousGames = safeArray(state.payload?.games);
       const nextDate = String(payload?.date || state.date || '');
@@ -5448,7 +5476,10 @@
         renderBoard();
       }
 
-      void loadLiveGameLens(resolvedDate, payload.games || [], { silent }).then(() => {
+      void loadLiveGameLens(resolvedDate, payload.games || [], { silent, epoch }).then(() => {
+        if (epoch !== state.refreshEpoch) {
+          return;
+        }
         if ((state.payload?.date || state.date) === resolvedDate) {
           renderSourceMeta();
           if (silent && slateUnchanged && state.boardInitialized) {
@@ -5459,9 +5490,12 @@
         }
       });
 
-        void loadPropsStrip(resolvedDate, { silent, games: payload.games || [] });
+        void loadPropsStrip(resolvedDate, { silent, games: payload.games || [], epoch });
 
     } catch (error) {
+      if (epoch !== state.refreshEpoch) {
+        return;
+      }
       if (silent && state.payload && state.boardInitialized) {
         state.liveDataLoading = false;
         showNote(error?.message || 'Failed to refresh slate.', 'warning');
