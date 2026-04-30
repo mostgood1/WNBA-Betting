@@ -19045,6 +19045,7 @@ def api_cards():
     Query params:
       - date: YYYY-MM-DD (required)
       - include_players: 1/true/yes to include heavy per-player sim rows
+            - include_sim_ladders: 1/true/yes to include heavy interval ladders
       - home / away: optional matchup filter when requesting one game
     """
     d = _parse_date_param(request)
@@ -19065,6 +19066,7 @@ def api_cards():
 
     requested_date = d
     include_players = _is_truthy_arg(request.args.get("include_players", request.args.get("includePlayers")))
+    include_sim_ladders = _is_truthy_arg(request.args.get("include_sim_ladders", request.args.get("includeSimLadders")))
     requested_home_tri = _normalize_team_arg(request.args.get("home"))
     requested_away_tri = _normalize_team_arg(request.args.get("away"))
     props_source = str(request.args.get("props_source", request.args.get("propsSource", "auto")) or "auto").strip().lower()
@@ -19378,6 +19380,26 @@ def api_cards():
             return float(np.median(np.asarray(clean, dtype=float)))
         except Exception:
             return float(clean[0])
+
+    def _slim_cards_sim_context(context_obj: Any) -> dict[str, Any] | None:
+        if not isinstance(context_obj, dict):
+            return None
+        keep_keys = (
+            "away_pace",
+            "home_pace",
+            "game_pace",
+            "league_pace",
+            "away_b2b",
+            "home_b2b",
+            "away_injuries_out",
+            "home_injuries_out",
+            "roster_mode",
+            "pbp_used",
+            "fallback_reason",
+            "pregame_prior",
+        )
+        slim = {key: context_obj.get(key) for key in keep_keys if key in context_obj}
+        return slim or None
 
     def _remember_boxscore_prop_line(
         out: dict[str, dict[str, dict[str, Any]]],
@@ -20274,11 +20296,9 @@ def api_cards():
             "n_sims": obj.get("n_sims"),
             "mode": obj.get("mode"),
             "market": obj.get("market"),
-            "context": obj.get("context"),
+            "context": _slim_cards_sim_context(obj.get("context")),
             "score": obj.get("score"),
             "periods": obj.get("periods"),
-            "intervals": _itv,
-            "intervals_1m": _itv1,
             "players_loaded": bool(include_players),
             "players_summary": snapshot_players_summary or {
                 "home": int(len(players_out.get("home") or [])),
@@ -20290,6 +20310,9 @@ def api_cards():
             },
             "error": sim_error,
         }
+        if include_sim_ladders:
+            sim["intervals"] = _itv
+            sim["intervals_1m"] = _itv1
         if include_players:
             sim["players"] = players_out
             sim["missing_prop_players"] = missing_prop_players
