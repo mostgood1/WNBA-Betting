@@ -1,4 +1,4 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-04-30,2026-04-30T23:10:00Z,Atlanta Hawks,New York Knicks,120.5781019805799,-120.5781019805799,2.0,-2.0,140,-185,214.0,-100.0,-100.0,9,9,5,6,oddsapi_consensus
-2026-04-30,2026-05-01T00:10:00Z,Philadelphia 76ers,Boston Celtics,195.81198207028504,-195.81198207028507,5.5,-5.5,-110,-110,212.5,-100.67913668773747,100.67913668773747,9,9,9,7,oddsapi_consensus
-2026-04-30,2026-05-01T01:40:00Z,Minnesota Timberwolves,Denver Nuggets,201.38834581847775,-201.38834581847772,5.5,-5.5,-105,-115,225.5,101.08932461873638,-101.08932461873637,9,9,8,4,oddsapi_consensus
+2026-04-30,2026-04-30T23:10:00Z,Atlanta Hawks,New York Knicks,130.78002089392825,-130.78002089392825,2.5,-2.5,145,-190,213.5,-102.29390234629044,102.29390234629045,11,11,10,4,oddsapi_consensus
+2026-04-30,2026-05-01T00:10:00Z,Philadelphia 76ers,Boston Celtics,206.79964516523185,-206.79964516523194,6.0,-6.0,-105,-115,212.5,-100.38580991145663,100.38580991145663,11,11,8,9,oddsapi_consensus
+2026-04-30,2026-05-01T01:40:00Z,Minnesota Timberwolves,Denver Nuggets,209.23370889703023,-209.23370889703017,5.5,-5.5,-110,-110,225.5,-100.0,-100.0,11,11,6,8,oddsapi_consensus
