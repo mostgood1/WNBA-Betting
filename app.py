@@ -15949,10 +15949,12 @@ _NBA_CARDS_PROP_SLEEVE_POLICY: dict[str, dict[str, Any]] = {
     },
 }
 
+_BETTING_UNIT_SIZE = 50.0
+
 _NBA_PREGAME_PORTFOLIO_POLICY: dict[str, Any] = {
     "enabled": True,
     "bankroll": 500.0,
-    "unit_size": 50.0,
+    "unit_size": _BETTING_UNIT_SIZE,
     "reserve_pct": 0.10,
     "min_stake": 30.0,
     "max_stake": 90.0,
@@ -16446,10 +16448,7 @@ def _pregame_portfolio_unit_size(policy: dict[str, Any] | None) -> float:
         unit_size = _safe_float(policy.get("unit_size"))
         if unit_size is not None and unit_size > 0:
             return float(unit_size)
-        bankroll = _safe_float(policy.get("bankroll"))
-        if bankroll is not None and bankroll > 0:
-            return round(float(bankroll) * 0.10, 2)
-    return 50.0
+    return _BETTING_UNIT_SIZE
 
 
 def _pregame_portfolio_units(amount: float | None, unit_size: float | None) -> float | None:
@@ -37303,7 +37302,7 @@ def api_live_player_lens():
     include_all_prop_lines = str(
         request.args.get("include_all_prop_lines")
         if ("include_all_prop_lines" in request.args)
-        else os.environ.get("LIVE_PLAYER_LENS_INCLUDE_ALL_PROP_LINES", "1")
+        else os.environ.get("LIVE_PLAYER_LENS_INCLUDE_ALL_PROP_LINES", "0")
     ).strip().lower() in {"1", "true", "yes"}
     try:
         recent_window_sec = int(float((request.args.get("recent_window_sec") or "180").strip()))

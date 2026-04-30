@@ -2011,6 +2011,9 @@
     ];
     if (portfolio) {
       pills.push(sourceMetaPill(`Portfolio ${Number(portfolio.selected || 0)}/${Number(portfolio.candidates || 0)} selected`, 'accent'));
+      if (Number.isFinite(Number(portfolio.unit_size)) && Number(portfolio.unit_size) > 0) {
+        pills.push(sourceMetaPill(`1U = ${fmtCurrency(portfolio.unit_size, 0)}`, 'soft'));
+      }
       const stakedUnits = portfolioUnitValue(portfolio, 'selected_stake_units_total', 'selected_stake_total');
       if (Number.isFinite(Number(stakedUnits))) {
         pills.push(sourceMetaPill(`${fmtStakeUnits(stakedUnits)} risked`, 'soft'));

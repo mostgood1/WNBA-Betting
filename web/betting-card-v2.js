@@ -278,6 +278,7 @@
     if (!portfolio) return '';
     const pills = [];
     pills.push(`Portfolio ${formatNumber(portfolio.selected, 0)}/${formatNumber(portfolio.candidates, 0)} selected`);
+    if (toNumber(portfolio.unit_size) != null && toNumber(portfolio.unit_size) > 0) pills.push(`1U = ${formatCurrency(portfolio.unit_size, 0)}`);
     if (portfolioUnits(portfolio, 'selected_stake_units_total', 'selected_stake_total') != null) pills.push(`${formatStakeUnits(portfolioUnits(portfolio, 'selected_stake_units_total', 'selected_stake_total'))} risked`);
     if (portfolioUnits(portfolio, 'bankroll_units', 'bankroll') != null) pills.push(`${formatStakeUnits(portfolioUnits(portfolio, 'bankroll_units', 'bankroll'))} bankroll`);
     if (toNumber(portfolio.reserve_pct) != null) pills.push(`${formatPercent(portfolio.reserve_pct, 0)} reserve`);
@@ -815,7 +816,7 @@
       metricCard('Cap profile', String(state.day?.cap_profile || '-'), 'Locked betting-card view'),
     ];
     if (portfolio) {
-      metricCards.splice(2, 0, metricCard('Units risked', formatStakeUnits(portfolioUnits(portfolio, 'selected_stake_units_total', 'selected_stake_total')), `${formatNumber(portfolio.selected, 0)} picks | ${formatStakeUnits(portfolioUnits(portfolio, 'bankroll_units', 'bankroll'))} bankroll`));
+      metricCards.splice(2, 0, metricCard('Units risked', formatStakeUnits(portfolioUnits(portfolio, 'selected_stake_units_total', 'selected_stake_total')), `1U = ${formatCurrency(portfolio.unit_size, 0)} | ${formatStakeUnits(portfolioUnits(portfolio, 'bankroll_units', 'bankroll'))} bankroll`));
     }
     root.dayMetrics.innerHTML = metricCards.join('');
   }
