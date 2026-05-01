@@ -1,0 +1,3 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ATS,Boston Celtics,Boston Celtics,Philadelphia 76ers,2026-05-02,0.4281522803387121,-110.0,0.5238095238095238,8.021511323625507,-7.5,15.521511323625507,7.5,,High
+TOTAL,Over,Boston Celtics,Philadelphia 76ers,2026-05-02,0.5033085280841807,100.64418528558174,0.49839470731567714,10.753651883646086,206.5,,,217.25365188364609,High

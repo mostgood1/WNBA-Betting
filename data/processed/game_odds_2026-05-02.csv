@@ -1,0 +1,2 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-05-02,2026-05-02T23:40:00Z,Boston Celtics,Philadelphia 76ers,-245.62561125380697,245.62561125380697,-7.5,7.5,-110,-110,206.5,100.64418528558174,-100.64418528558178,10,10,9,6,oddsapi_consensus
