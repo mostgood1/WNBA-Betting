@@ -37327,6 +37327,11 @@ def api_live_player_lens():
         if ("include_all_prop_lines" in request.args)
         else os.environ.get("LIVE_PLAYER_LENS_INCLUDE_ALL_PROP_LINES", "0")
     ).strip().lower() in {"1", "true", "yes"}
+    include_debug_rows = str(
+        request.args.get("include_debug_rows")
+        if ("include_debug_rows" in request.args)
+        else os.environ.get("LIVE_PLAYER_LENS_INCLUDE_DEBUG_ROWS", "0")
+    ).strip().lower() in {"1", "true", "yes"}
     try:
         recent_window_sec = int(float((request.args.get("recent_window_sec") or "180").strip()))
     except Exception:
@@ -37569,6 +37574,53 @@ def api_live_player_lens():
                     if v is not None and v > 0:
                         return float(v)
         return None
+
+    def _compact_live_player_lens_row(row: dict[str, Any]) -> dict[str, Any]:
+        compact: dict[str, Any] = {
+            "team_tri": row.get("team_tri"),
+            "player": row.get("player"),
+            "name_key": row.get("name_key"),
+            "player_photo": row.get("player_photo"),
+            "stat": row.get("stat"),
+            "actual": row.get("actual"),
+            "sim_mu": row.get("sim_mu"),
+            "sim_mu_adjusted": row.get("sim_mu_adjusted"),
+            "line": row.get("line"),
+            "line_live": row.get("line_live"),
+            "line_pregame": row.get("line_pregame"),
+            "line_source": row.get("line_source"),
+            "price_over": row.get("price_over"),
+            "price_under": row.get("price_under"),
+            "ev_side": row.get("ev_side"),
+            "win_prob": row.get("win_prob"),
+            "ev": row.get("ev"),
+            "live_rank_probability": row.get("live_rank_probability"),
+            "recommendation_priority_score": row.get("recommendation_priority_score"),
+            "pace_proj": row.get("pace_proj"),
+            "pace_vs_line": row.get("pace_vs_line"),
+            "sim_vs_line": row.get("sim_vs_line"),
+            "sim_vs_line_adjusted": row.get("sim_vs_line_adjusted"),
+            "lean": row.get("lean"),
+            "strength": row.get("strength"),
+            "klass": row.get("klass"),
+            "bettable_score": row.get("bettable_score"),
+            "basketball_summary": row.get("basketball_summary"),
+            "basketball_reasons": row.get("basketball_reasons"),
+            "shape_summary": row.get("shape_summary"),
+            "shape_score": row.get("shape_score"),
+            "prop_shape": row.get("prop_shape"),
+            "lens_profile": row.get("lens_profile"),
+            "lens_base_weight": row.get("lens_base_weight"),
+            "lens_shape_weight": row.get("lens_shape_weight"),
+            "first_seen_at": row.get("first_seen_at"),
+            "last_seen_at": row.get("last_seen_at"),
+            "seen_observations": row.get("seen_observations"),
+            "pregame_team_total_ratio": row.get("pregame_team_total_ratio"),
+            "pregame_game_total_ratio": row.get("pregame_game_total_ratio"),
+            "pregame_margin_blended": row.get("pregame_margin_blended"),
+            "pregame_stat_multiplier": row.get("pregame_stat_multiplier"),
+        }
+        return {key: value for key, value in compact.items() if value is not None}
 
     out_games: list[dict[str, Any]] = []
     for eid in event_ids:
@@ -39407,7 +39459,7 @@ def api_live_player_lens():
                 "points_span_by_key": live_prop_all_points_span_by_key,
                 "points_n_by_key": live_prop_all_points_n_by_key,
             } if (include_all_prop_lines and live_prop_meta and isinstance(live_prop_all_lines, dict) and live_prop_all_lines) else None,
-            "rows": rows,
+            "rows": rows if include_debug_rows else [_compact_live_player_lens_row(row) for row in rows],
         })
 
     payload = {
