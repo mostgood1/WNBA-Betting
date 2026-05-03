@@ -1,3 +1,3 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-05-03,2026-05-03T23:40:00Z,Cleveland Cavaliers,Toronto Raptors,-274.114725507904,274.114725507904,-8.0,8.0,-115,-105,211.5,101.08932461873638,-101.08932461873637,10,10,5,4,oddsapi_consensus
-2026-05-03,2026-05-03T19:40:00Z,Detroit Pistons,Orlando Magic,-301.3984600878137,301.3984600878139,-9.0,9.0,-110,-110,203.0,100.61416619541879,-100.61416619541873,10,10,6,5,oddsapi_consensus
+2026-05-03,2026-05-03T23:40:00Z,Cleveland Cavaliers,Toronto Raptors,-256.7799215814188,256.7799215814188,-8.0,8.0,-110,-110,211.0,-101.87170282895816,101.87170282895816,11,11,6,5,oddsapi_consensus
+2026-05-03,2026-05-03T19:40:00Z,Detroit Pistons,Orlando Magic,-282.9652571716177,282.9652571716176,-8.5,8.5,-110,-110,202.0,-100.21226915729144,100.21226915729144,11,11,11,6,oddsapi_consensus
