@@ -298,6 +298,98 @@ def _merge_pregame_expected_minutes_for_team(team_df: pd.DataFrame, *, date_str:
     return out, diag
 
 
+def _prune_pregame_rotation_pool(
+    team_df: pd.DataFrame,
+    *,
+    team_tri: str,
+    min_keep: int = 8,
+    max_keep: Optional[int] = None,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    diag: dict[str, Any] = {
+        "attempted": True,
+        "team": str(team_tri).upper().strip(),
+        "applied": False,
+    }
+    if team_df is None or team_df.empty:
+        diag["reason"] = "empty_team_df"
+        return (pd.DataFrame() if team_df is None else team_df), diag
+
+    out = team_df.copy().reset_index(drop=True)
+    diag["before_n"] = int(len(out))
+
+    if max_keep is None:
+        max_keep = 11 if str(LEAGUE.code).strip().lower() == "wnba" else 13
+    max_keep = int(max(max_keep, min_keep))
+    diag["max_keep"] = int(max_keep)
+    if len(out) <= max_keep:
+        diag["reason"] = "pool_already_small"
+        return out, diag
+
+    exp = pd.to_numeric(out.get("exp_min_mean"), errors="coerce") if "exp_min_mean" in out.columns else pd.Series([np.nan] * len(out), index=out.index, dtype=float)
+    starter_prob = pd.to_numeric(out.get("starter_prob"), errors="coerce") if "starter_prob" in out.columns else pd.Series([np.nan] * len(out), index=out.index, dtype=float)
+    roll5 = pd.to_numeric(out.get("roll5_min"), errors="coerce") if "roll5_min" in out.columns else pd.Series([np.nan] * len(out), index=out.index, dtype=float)
+    roll10 = pd.to_numeric(out.get("roll10_min"), errors="coerce") if "roll10_min" in out.columns else pd.Series([np.nan] * len(out), index=out.index, dtype=float)
+    roll3 = pd.to_numeric(out.get("roll3_min"), errors="coerce") if "roll3_min" in out.columns else pd.Series([np.nan] * len(out), index=out.index, dtype=float)
+    lag1 = pd.to_numeric(out.get("lag1_min"), errors="coerce") if "lag1_min" in out.columns else pd.Series([np.nan] * len(out), index=out.index, dtype=float)
+
+    signal_mask = (
+        exp.fillna(0.0).gt(0.0)
+        | starter_prob.fillna(0.0).gt(0.0)
+        | roll5.fillna(0.0).gt(0.0)
+        | roll10.fillna(0.0).gt(0.0)
+        | roll3.fillna(0.0).gt(0.0)
+        | lag1.fillna(0.0).gt(0.0)
+    )
+    diag["signal_n"] = int(signal_mask.sum())
+
+    if int(signal_mask.sum()) >= int(min_keep):
+        cand = out.loc[signal_mask].copy()
+    else:
+        cand = out.copy()
+
+    cand["_starter_prob"] = starter_prob.reindex(cand.index).fillna(0.0).astype(float)
+    cand["_exp_min_mean"] = exp.reindex(cand.index).fillna(0.0).astype(float)
+    cand["_roll5_min"] = roll5.reindex(cand.index).fillna(0.0).astype(float)
+    cand["_roll10_min"] = roll10.reindex(cand.index).fillna(0.0).astype(float)
+    cand["_roll3_min"] = roll3.reindex(cand.index).fillna(0.0).astype(float)
+    cand["_lag1_min"] = lag1.reindex(cand.index).fillna(0.0).astype(float)
+    cand["_name"] = _frame_series(cand, "player_name", "").astype(str).str.strip()
+
+    keep = (
+        cand.sort_values(
+            ["_starter_prob", "_exp_min_mean", "_roll5_min", "_roll10_min", "_roll3_min", "_lag1_min", "_name"],
+            ascending=[False, False, False, False, False, False, True],
+            kind="stable",
+        )
+        .head(int(max_keep))
+        .drop(columns=["_starter_prob", "_exp_min_mean", "_roll5_min", "_roll10_min", "_roll3_min", "_lag1_min", "_name"], errors="ignore")
+        .reset_index(drop=True)
+    )
+
+    if len(keep) < int(min_keep):
+        diag["reason"] = "keep_below_minimum"
+        return out, diag
+
+    diag["after_n"] = int(len(keep))
+    diag["dropped_n"] = int(max(0, len(out) - len(keep)))
+    try:
+        keep_names = {
+            str(v).strip()
+            for v in keep.get("player_name", pd.Series(dtype=str)).astype(str).tolist()
+            if str(v).strip()
+        }
+        dropped_names = [
+            str(v).strip()
+            for v in out.get("player_name", pd.Series(dtype=str)).astype(str).tolist()
+            if str(v).strip() and str(v).strip() not in keep_names
+        ]
+        diag["dropped_players"] = dropped_names[:12]
+    except Exception:
+        pass
+    diag["applied"] = True
+    return keep, diag
+
+
 @lru_cache(maxsize=96)
 def _compute_player_priors_cached(asof_date_str: str, days_back: int) -> Any:
     """Cached wrapper for compute_player_priors.
@@ -3629,12 +3721,20 @@ def simulate_smart_game(
 
     # Merge pregame expected minutes into the roster rows (if available).
     pem_diag: dict[str, Any] = {"home": None, "away": None}
+    pregame_pool_diag: dict[str, Any] = {"home": None, "away": None}
     try:
         home_raw, pem_diag_home = _merge_pregame_expected_minutes_for_team(home_raw, date_str=str(date_str), team_tri=str(home_tri))
         away_raw, pem_diag_away = _merge_pregame_expected_minutes_for_team(away_raw, date_str=str(date_str), team_tri=str(away_tri))
         pem_diag = {"home": pem_diag_home, "away": pem_diag_away}
     except Exception:
         pem_diag = {"home": None, "away": None}
+
+    try:
+        home_raw, home_pool_diag = _prune_pregame_rotation_pool(home_raw, team_tri=str(home_tri))
+        away_raw, away_pool_diag = _prune_pregame_rotation_pool(away_raw, team_tri=str(away_tri))
+        pregame_pool_diag = {"home": home_pool_diag, "away": away_pool_diag}
+    except Exception:
+        pregame_pool_diag = {"home": None, "away": None}
 
     # Best-effort ESPN event id for this matchup (useful for lineup teammate effects even pregame).
     eid_matchup: Optional[str] = None
@@ -4318,6 +4418,12 @@ def simulate_smart_game(
     try:
         if isinstance(pem_diag, dict) and pem_diag:
             ctx_out["pregame_expected_minutes"] = pem_diag
+    except Exception:
+        pass
+
+    try:
+        if isinstance(pregame_pool_diag, dict) and pregame_pool_diag:
+            ctx_out["pregame_rotation_pool"] = pregame_pool_diag
     except Exception:
         pass
 

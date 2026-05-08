@@ -1,0 +1,246 @@
+name: WNBA Betting Daily Scheduler
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Daily around early morning US/Eastern (UTC time).
+    - cron: "5 11 * * *"
+
+concurrency:
+  group: wnbabetting-daily-scheduler
+  cancel-in-progress: false
+
+env:
+  WNBA_BETTING_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL || secrets.RENDER_URL }}
+  WNBA_BETTING_CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN || secrets.CRON_TOKEN }}
+
+jobs:
+  assess-oddsapi-daily:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '5 11 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preflight (config + cron ping)
+        run: |
+          set -euo pipefail
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
+          echo "[preflight] GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Preflight attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
+      - name: Assess OddsAPI capabilities (today)
+        run: |
+          set -euo pipefail
+          SLATE_TZ="${APP_TZ:-America/New_York}"
+          slate_date() {
+            local local_hour
+            local_hour=$(TZ="$SLATE_TZ" date +%H)
+            if [ "$local_hour" -lt 6 ]; then
+              TZ="$SLATE_TZ" date -d 'yesterday' +%F
+            else
+              TZ="$SLATE_TZ" date +%F
+            fi
+          }
+          DATE="$(slate_date)"
+          echo "Using slate date $DATE (tz=$SLATE_TZ, cutoff=6)"
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/assess-oddsapi?date=${DATE}&regions=us"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Request attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
+
+  reconcile-yesterday:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '5 11 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preflight (config + cron ping)
+        run: |
+          set -euo pipefail
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
+          echo "[preflight] GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Preflight attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
+      - name: Call reconcile-games (yesterday)
+        run: |
+          set -euo pipefail
+          DATE=$(date -u -d yesterday +%F)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/reconcile-games?date=${DATE}"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Request attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
+
+  daily-run-all:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '5 11 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preflight (config + cron ping)
+        run: |
+          set -euo pipefail
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
+          echo "[preflight] GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Preflight attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
+      - name: Call run-all
+        run: |
+          set -euo pipefail
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/run-all"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Request attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
+      - name: Call predict-date (today, async)
+        run: |
+          set -euo pipefail
+          SLATE_TZ="${APP_TZ:-America/New_York}"
+          slate_date() {
+            local local_hour
+            local_hour=$(TZ="$SLATE_TZ" date +%H)
+            if [ "$local_hour" -lt 6 ]; then
+              TZ="$SLATE_TZ" date -d 'yesterday' +%F
+            else
+              TZ="$SLATE_TZ" date +%F
+            fi
+          }
+          DATE="$(slate_date)"
+          echo "Using slate date $DATE (tz=$SLATE_TZ, cutoff=6)"
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/predict-date?date=${DATE}&async=1&push=0&skip_if_no_games=1"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Request attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
+      - name: Warm summary cache
+        run: |
+          set -euo pipefail
+          # Hitting summary once populates recommendations_summary.json on the server
+          URL="${WNBA_BETTING_BASE_URL%/}/recommendations?format=json&view=summary"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o /dev/null -w "%{http_code}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Warm cache attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1

@@ -1,0 +1,81 @@
+{
+  "date": "2026-05-08",
+  "games": [
+    {
+      "id": "",
+      "home_team": "New York Liberty",
+      "visitor_team": "Connecticut Sun",
+      "date": "2026-05-08",
+      "predictions": {
+        "win_prob": 0.7230712607169639,
+        "spread": 9.734262466430664,
+        "total": 163.48031616210938,
+        "periods": {
+          "halves": {
+            "h1": {
+              "win": 0.5654969811439514,
+              "margin": 5.958968387606987,
+              "total": 83.93097865990407
+            },
+            "h2": {
+              "win": 0.5561965107917786,
+              "margin": 3.7752940788236766,
+              "total": 79.54933750220529
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "",
+      "home_team": "Seattle Storm",
+      "visitor_team": "Golden State Valkyries",
+      "date": "2026-05-08",
+      "predictions": {
+        "win_prob": 0.6832907540450501,
+        "spread": 8.062820434570312,
+        "total": 159.892822265625,
+        "periods": {
+          "halves": {
+            "h1": {
+              "win": 0.4761350154876709,
+              "margin": 4.093871657005865,
+              "total": 79.61647133893842
+            },
+            "h2": {
+              "win": 0.5499092936515808,
+              "margin": 3.968948777564447,
+              "total": 80.27635092668658
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "",
+      "home_team": "Toronto Tempo",
+      "visitor_team": "Washington Mystics",
+      "date": "2026-05-08",
+      "predictions": {
+        "win_prob": 0.6778027759308514,
+        "spread": 7.803962230682373,
+        "total": 142.25123596191406,
+        "periods": {
+          "halves": {
+            "h1": {
+              "win": 0.5885510444641113,
+              "margin": 2.3873016518168964,
+              "total": 70.57791927663524
+            },
+            "h2": {
+              "win": 0.4441260397434234,
+              "margin": 5.416660578865477,
+              "total": 71.67331668527882
+            }
+          }
+        }
+      }
+    }
+  ],
+  "last_updated": "2026-05-08T13:15:03.446282"
+}

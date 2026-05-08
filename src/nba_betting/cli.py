@@ -1814,6 +1814,22 @@ def _season_year_from_date_str(date_str: str) -> int:
     return season_year_from_date(d)
 
 
+def _resolve_smart_sim_roster_mode(date_str: str, roster_mode: str | None) -> str:
+    mode = str(roster_mode or "historical").strip().lower() or "historical"
+    if mode not in {"historical", "pregame", "pregame_safe", "pregame-safe", "safe_pregame", "no_boxscore", "no-boxscore"}:
+        return mode
+    if mode != "historical":
+        return mode
+    try:
+        target = pd.to_datetime(str(date_str).strip(), errors="coerce")
+        today = pd.Timestamp.now().normalize()
+        if target is not None and (not pd.isna(target)) and target.normalize() >= today:
+            return "pregame"
+    except Exception:
+        pass
+    return mode
+
+
 def _ensure_team_advanced_stats_asof(season: int, as_of: str) -> Path | None:
     """Ensure an as-of team advanced stats file exists (built from cached boxscores).
 
@@ -1904,6 +1920,7 @@ def smart_sim_date_cmd(
 
     Writes one JSON per game to data/processed/smart_sim_<date>_<HOME>_<AWAY>.json
     """
+    roster_mode = _resolve_smart_sim_roster_mode(date_str, roster_mode)
     if refresh_asof_priors:
         try:
             asof_for_priors = str(date_str)
@@ -4665,6 +4682,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
     Note: This version builds features from history only and returns predictions for all players seen in logs. A later enhancement can filter to the actual slate roster for the date and merge odds.
     """
     console.rule("Predict Props")
+    smart_sim_roster_mode = _resolve_smart_sim_roster_mode(date_str, smart_sim_roster_mode)
     
     # Build features (no sklearn required). If a pure builder exists, use it; else use standard builder.
     try:

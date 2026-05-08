@@ -1,0 +1,468 @@
+name: WNBA Betting Pregame Props Refresh
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Run hourly all day so overnight / early-morning windows do not go dark.
+    - cron: "7 * * * *"
+    # Add extra 20-minute refreshes during likely WNBA slate windows (UTC).
+    - cron: "27,47 15-23 * * *"
+    - cron: "27,47 0-3 * * *"
+
+concurrency:
+  group: wnbabetting-pregame-props-refresh
+  cancel-in-progress: false
+
+env:
+  WNBA_BETTING_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL || secrets.RENDER_URL }}
+  WNBA_BETTING_CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN || secrets.CRON_TOKEN }}
+
+jobs:
+  refresh-oddsapi-props-pregame:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preflight (config + cron ping)
+        run: |
+          set -euo pipefail
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
+          echo "[preflight] GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Preflight attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Install Python dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Refresh OddsAPI props locally + upload to Render
+        env:
+          PYTHONPATH: src
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY || secrets.THE_ODDS_API_KEY }}
+          ALLOW_REMOTE_ARTIFACTS: "1"
+          # Keep the default refresh lightweight, but allow the worker to force
+          # a targeted SmartSim-backed props rebuild when new lined players are
+          # missing from current predictions / matchup sim coverage.
+          REFRESH_FORCE_RESIM_ON_NEW_PROPS: "1"
+          REFRESH_PREDICT_PROPS_USE_SMART_SIM: "0"
+          REFRESH_PREDICT_PROPS_CALIBRATE_PLAYER: "0"
+          OMP_NUM_THREADS: "1"
+          OMP_THREAD_LIMIT: "1"
+          OPENBLAS_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          NUMEXPR_NUM_THREADS: "1"
+        run: |
+          set -euo pipefail
+          SLATE_TZ="${APP_TZ:-America/New_York}"
+          slate_date() {
+            local local_hour
+            local_hour=$(TZ="$SLATE_TZ" date +%H)
+            if [ "$local_hour" -lt 6 ]; then
+              TZ="$SLATE_TZ" date -d 'yesterday' +%F
+            else
+              TZ="$SLATE_TZ" date +%F
+            fi
+          }
+          DATE="$(slate_date)"
+          echo "Using slate date $DATE (tz=$SLATE_TZ, cutoff=6)"
+          export EXPECTED_DATE="$DATE"
+          PING_URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
+          VERSION_URL="${WNBA_BETTING_BASE_URL%/}/api/version"
+          STATUS_URL="${WNBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status"
+          UPLOAD_URL="${WNBA_BETTING_BASE_URL%/}/api/cron/upload-props-refresh-artifacts"
+          EXPECTED_SHA="${GITHUB_SHA}"
+          export EXPECTED_SHA
+
+          wait_for_service() {
+            local label="$1"
+            local attempts="${2:-30}"
+            local sleep_s="${3:-10}"
+            local http="000"
+            for j in $(seq 1 "$attempts"); do
+              set +e
+              http=$(curl -sS -o ping.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$PING_URL")
+              rc=$?
+              set -e
+              if [ "$rc" -ne 0 ]; then http="000"; fi
+              if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+                echo "[wait] ${label}: ping healthy on attempt $j"
+                return 0
+              fi
+              echo "[wait] ${label}: ping attempt $j -> HTTP $http" >&2
+              if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+                sleep "$sleep_s"
+                continue
+              fi
+              head -c 2000 ping.txt || true
+              return 1
+            done
+            head -c 2000 ping.txt || true
+            return 1
+          }
+
+          wait_for_expected_version() {
+            local attempts="${1:-60}"
+            local sleep_s="${2:-10}"
+            local http="000"
+            for j in $(seq 1 "$attempts"); do
+              set +e
+              http=$(curl -sS -o version.txt -w "%{http_code}" "$VERSION_URL")
+              rc=$?
+              set -e
+              if [ "$rc" -ne 0 ]; then http="000"; fi
+              if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+                set +e
+                python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import sys
+
+          expected = str(os.environ.get("EXPECTED_SHA") or "").strip().lower()
+          try:
+              payload = json.loads(pathlib.Path("version.txt").read_text(encoding="utf-8", errors="ignore") or "{}")
+          except Exception as exc:
+              print(f"Invalid version payload: {exc}")
+              sys.exit(2)
+
+          sha = str(payload.get("sha") or "").strip().lower()
+          print(json.dumps({"deployed_sha": sha, "expected_sha": expected}, indent=2))
+          if expected and sha.startswith(expected):
+              sys.exit(0)
+          sys.exit(1)
+          PY
+                py_rc=$?
+                set -e
+                if [ "$py_rc" -eq 0 ]; then
+                  echo "[wait] render deploy matches workflow SHA on attempt $j"
+                  return 0
+                fi
+                echo "[wait] render deploy mismatch on attempt $j" >&2
+              else
+                echo "[wait] version attempt $j -> HTTP $http" >&2
+              fi
+              if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+                sleep "$sleep_s"
+                continue
+              fi
+              sleep "$sleep_s"
+            done
+            echo "Render did not deploy expected SHA ${EXPECTED_SHA} before pregame refresh" >&2
+            return 1
+          }
+
+          wait_for_service "before local props refresh" 45 10
+          wait_for_expected_version 60 10
+          test -n "${ODDS_API_KEY:-}" || (echo 'Missing ODDS_API_KEY (set ODDS_API_KEY or THE_ODDS_API_KEY secret)' && exit 1)
+
+          mkdir -p logs data/raw data/processed
+          BASELINE_PROPS_PRESENT=0
+          if [ -s "data/processed/props_predictions_${DATE}.csv" ]; then
+            BASELINE_PROPS_PRESENT=1
+          fi
+          export BASELINE_PROPS_PRESENT
+          echo "Baseline same-day props predictions present: ${BASELINE_PROPS_PRESENT}"
+          LOCAL_LOG_FILE="logs/gha_refresh_oddsapi_props_${DATE}.log"
+          dump_local_log() {
+            if [ -n "${LOCAL_LOG_FILE:-}" ] && [ -f "$LOCAL_LOG_FILE" ]; then
+              echo "Local refresh log tail:" >&2
+              tail -n 200 "$LOCAL_LOG_FILE" >&2 || true
+            fi
+          }
+          trap dump_local_log ERR
+
+          STARTED_AT="$(python3 -c 'from datetime import datetime; print(datetime.utcnow().isoformat())')"
+          export STARTED_AT LOCAL_LOG_FILE
+          export WNBA_BETTING_ODDSAPI_PROPS_JOB="$(
+            EXPECTED_DATE="$EXPECTED_DATE" LOCAL_LOG_FILE="$LOCAL_LOG_FILE" STARTED_AT="$STARTED_AT" \
+              python3 -c 'import json, os; print(json.dumps({"date_str": os.environ["EXPECTED_DATE"], "regions": "us", "bookmakers": "fanduel,draftkings,betmgm,bet365", "markets": "", "do_edges": True, "do_export": True, "do_push": False, "log_file": os.environ["LOCAL_LOG_FILE"], "started_at": os.environ["STARTED_AT"]}))'
+          )"
+
+          python3 -m nba_betting.refresh_oddsapi_props_job
+
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import sys
+
+          def as_int(value, default=None):
+            try:
+              if value is None:
+                return default
+              return int(value)
+            except Exception:
+              return default
+
+          date = os.environ["EXPECTED_DATE"]
+          meta_path = pathlib.Path("data/processed/.cron_meta.json")
+          if not meta_path.exists():
+            print(f"Missing cron meta file: {meta_path}")
+            sys.exit(1)
+
+          try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8", errors="ignore") or "{}")
+          except Exception as exc:
+            print(f"Invalid cron meta JSON: {exc}")
+            sys.exit(1)
+
+          payload = meta.get("last_refresh_oddsapi_props") if isinstance(meta.get("last_refresh_oddsapi_props"), dict) else {}
+          if not isinstance(payload, dict) or not payload:
+            print("Missing last_refresh_oddsapi_props payload")
+            sys.exit(1)
+
+          payload_date = str(payload.get("date") or "").strip()
+          rc_snapshot = as_int(payload.get("rc_snapshot"), None)
+          rc_edges = as_int(payload.get("rc_edges"), None)
+          rc_export = as_int(payload.get("rc_export"), None)
+          snapshot_rows = as_int(payload.get("snapshot_rows"), 0) or 0
+          predictions_rows = as_int(payload.get("predictions_rows"), 0) or 0
+          edges_rows = as_int(payload.get("edges_rows"), 0) or 0
+          recs_rows = as_int(payload.get("recs_rows"), 0) or 0
+          summary = {
+            "date": payload_date or date,
+            "ok": payload.get("ok"),
+            "phase": payload.get("phase"),
+            "started_at": payload.get("started_at"),
+            "ended_at": payload.get("ended_at"),
+            "duration_s": payload.get("duration_s"),
+            "rc_snapshot": rc_snapshot,
+            "rc_edges": rc_edges,
+            "rc_export": rc_export,
+            "snapshot_rows": snapshot_rows,
+            "predictions_rows": predictions_rows,
+            "edges_rows": edges_rows,
+            "recs_rows": recs_rows,
+            "error": payload.get("error"),
+          }
+          print(json.dumps(summary, indent=2))
+
+          if payload_date and payload_date != date:
+            print(f"Unexpected job date: {payload_date} != {date}")
+            sys.exit(1)
+
+          if rc_snapshot != 0:
+            print("Local snapshot step failed")
+            sys.exit(1)
+
+          should_upload = snapshot_rows > 0
+          should_upload_full = (
+            should_upload
+            and not payload.get("error")
+            and rc_edges in (None, 0)
+            and rc_export in (None, 0)
+            and predictions_rows > 0
+            and edges_rows > 0
+            and recs_rows > 0
+          )
+
+          local_failure_reason = ""
+          if payload.get("error"):
+            local_failure_reason = str(payload.get("error") or "").strip()
+          elif rc_edges not in (None, 0):
+            local_failure_reason = "Local edges step failed"
+          elif rc_export not in (None, 0):
+            local_failure_reason = "Local export step failed"
+          elif snapshot_rows > 0 and predictions_rows <= 0:
+            local_failure_reason = "Local predictions rows are zero after a non-empty snapshot"
+          elif snapshot_rows > 0 and edges_rows <= 0:
+            local_failure_reason = "Local edges rows are zero after a non-empty snapshot"
+          elif snapshot_rows > 0 and recs_rows <= 0:
+            local_failure_reason = "Local recommendations rows are zero after a non-empty snapshot"
+
+          upload_env = pathlib.Path("upload.env")
+          with upload_env.open("w", encoding="utf-8") as handle:
+            handle.write(f"SHOULD_UPLOAD={'1' if should_upload else '0'}\n")
+            handle.write(f"SHOULD_UPLOAD_FULL={'1' if should_upload_full else '0'}\n")
+            handle.write(f"UPLOAD_INCLUDE_PREDICTIONS={'1' if should_upload_full else '0'}\n")
+            handle.write(f"UPLOAD_INCLUDE_EDGES={'1' if should_upload_full else '0'}\n")
+            handle.write(f"UPLOAD_INCLUDE_RECOMMENDATIONS={'1' if should_upload_full else '0'}\n")
+            handle.write(f"LOCAL_REFRESH_OK={'1' if (should_upload_full and not local_failure_reason) else '0'}\n")
+            handle.write(f"LOCAL_REFRESH_ERROR={json.dumps(local_failure_reason)}\n")
+            handle.write(f"UPLOAD_STARTED_AT={payload.get('started_at') or os.environ.get('STARTED_AT', '')}\n")
+            handle.write(f"UPLOAD_ENDED_AT={payload.get('ended_at') or ''}\n")
+            dur = payload.get("duration_s")
+            handle.write(f"UPLOAD_DURATION_S={'' if dur is None else dur}\n")
+
+          if snapshot_rows <= 0:
+            print("No current props snapshot rows for this date; treating as clean no-op")
+            sys.exit(0)
+          PY
+
+          set -a
+          . ./upload.env
+          set +a
+
+          if [ "${SHOULD_UPLOAD:-0}" != "1" ]; then
+            exit 0
+          fi
+
+          echo "POST $UPLOAD_URL"
+          curl_args=(
+            -X POST
+            -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}"
+            -F "date=${DATE}"
+            -F "regions=us"
+            -F "bookmakers=fanduel,draftkings,betmgm,bet365"
+            -F "markets="
+            -F "started_at=${UPLOAD_STARTED_AT:-$STARTED_AT}"
+            -F "ended_at=${UPLOAD_ENDED_AT:-}"
+            -F "duration_s=${UPLOAD_DURATION_S:-}"
+            -F "snapshot=@data/raw/odds_nba_player_props_${DATE}.csv;type=text/csv"
+          )
+          if [ "${UPLOAD_INCLUDE_PREDICTIONS:-0}" = "1" ]; then
+            curl_args+=( -F "predictions=@data/processed/props_predictions_${DATE}.csv;type=text/csv" )
+          fi
+          if [ "${UPLOAD_INCLUDE_EDGES:-0}" = "1" ]; then
+            curl_args+=( -F "edges=@data/processed/props_edges_${DATE}.csv;type=text/csv" )
+          fi
+          if [ "${UPLOAD_INCLUDE_RECOMMENDATIONS:-0}" = "1" ]; then
+            curl_args+=( -F "recommendations=@data/processed/props_recommendations_${DATE}.csv;type=text/csv" )
+          fi
+          upload_http=$(curl -sS -o upload_resp.txt -w "%{http_code}" "${curl_args[@]}" "$UPLOAD_URL")
+          cat upload_resp.txt || true
+          if [ "$upload_http" -lt 200 ] || [ "$upload_http" -ge 300 ]; then
+            echo "Upload attempt failed with HTTP $upload_http" >&2
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import sys
+
+          try:
+            payload = json.loads(pathlib.Path("upload_resp.txt").read_text(encoding="utf-8", errors="ignore") or "{}")
+          except Exception as exc:
+            print(f"Invalid upload response JSON: {exc}")
+            sys.exit(1)
+
+          print(json.dumps(payload, indent=2))
+          if not payload.get("ok"):
+            print("Upload endpoint returned ok=false")
+            sys.exit(1)
+          if int(payload.get("snapshot_rows") or 0) <= 0:
+            print("Upload endpoint reported zero snapshot rows")
+            sys.exit(1)
+          if os.environ.get("SHOULD_UPLOAD_FULL", "0") == "1" and int(payload.get("edges_rows") or 0) <= 0:
+            print("Upload endpoint reported zero edges rows")
+            sys.exit(1)
+          PY
+
+          wait_for_service "after props artifact upload" 12 5
+
+          status_http=$(curl -sS -o status.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$STATUS_URL")
+          if [ "$status_http" -lt 200 ] || [ "$status_http" -ge 300 ]; then
+            echo "Status check failed with HTTP $status_http" >&2
+            cat status.txt || true
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import sys
+
+          def as_int(value, default=None):
+            try:
+              if value is None:
+                return default
+              return int(value)
+            except Exception:
+              return default
+
+          try:
+            payload = json.loads(pathlib.Path("status.txt").read_text(encoding="utf-8", errors="ignore") or "{}")
+          except Exception as exc:
+            print(f"Invalid status JSON: {exc}")
+            sys.exit(1)
+
+          expected_date = os.environ.get("EXPECTED_DATE", "").strip()
+          last = payload.get("last") if isinstance(payload.get("last"), dict) else {}
+          payload_date = str(last.get("date") or payload.get("date") or "").strip()
+          rc_snapshot = as_int(payload.get("rc_snapshot"), None)
+          rc_edges = as_int(payload.get("rc_edges"), None)
+          rc_export = as_int(payload.get("rc_export"), None)
+          edges_rows = as_int(payload.get("edges_rows"), 0) or 0
+          summary = {
+            "running": bool(payload.get("running")),
+            "ok": payload.get("ok"),
+            "date": payload_date or expected_date,
+            "status_source": payload.get("status_source"),
+            "rc_snapshot": rc_snapshot,
+            "rc_edges": rc_edges,
+            "rc_export": rc_export,
+            "snapshot_rows": as_int(payload.get("snapshot_rows"), 0) or 0,
+            "edges_rows": edges_rows,
+            "recs_rows": as_int(payload.get("recs_rows"), 0) or 0,
+            "error": payload.get("error"),
+          }
+          print(json.dumps(summary, indent=2))
+
+          if payload_date and expected_date and payload_date != expected_date:
+            print(f"Unexpected uploaded status date: {payload_date} != {expected_date}")
+            sys.exit(1)
+          if payload.get("running"):
+            print("Uploaded status still reports running=true")
+            sys.exit(1)
+          if payload.get("ok") is False:
+            print("Uploaded status reports ok=false")
+            sys.exit(1)
+          if payload.get("error"):
+            print("Uploaded status reports error")
+            sys.exit(1)
+          if rc_snapshot != 0:
+            print("Uploaded status has non-zero snapshot rc")
+            sys.exit(1)
+          if os.environ.get("SHOULD_UPLOAD_FULL", "0") == "1":
+            if rc_edges not in (None, 0):
+              print("Uploaded status has non-zero edges rc")
+              sys.exit(1)
+            if rc_export not in (None, 0):
+              print("Uploaded status has non-zero export rc")
+              sys.exit(1)
+            if edges_rows <= 0:
+              print("Uploaded status reports zero edges rows")
+              sys.exit(1)
+          PY
+
+          if [ "${LOCAL_REFRESH_OK:-0}" != "1" ]; then
+            if [ "${BASELINE_PROPS_PRESENT:-0}" = "0" ] && [ "${SHOULD_UPLOAD_FULL:-0}" != "1" ]; then
+              echo "::warning::Persisted early props snapshot history without full props edges/recommendations. ${LOCAL_REFRESH_ERROR}"
+              exit 0
+            fi
+            echo "Local refresh failed after snapshot capture: ${LOCAL_REFRESH_ERROR}" >&2
+            exit 1
+          fi

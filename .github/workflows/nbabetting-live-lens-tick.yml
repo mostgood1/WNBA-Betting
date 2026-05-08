@@ -1,0 +1,61 @@
+name: WNBA Live Lens Tick
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: wnbabetting-live-lens-tick
+  cancel-in-progress: true
+
+env:
+  WNBA_BETTING_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL || secrets.RENDER_URL }}
+  WNBA_BETTING_CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN || secrets.CRON_TOKEN }}
+
+jobs:
+  live-lens-tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call /api/cron/live-lens-tick
+        run: |
+          set -euo pipefail
+
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
+
+          # No date param: server uses its US cutoff logic to choose the correct slate date.
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/live-lens-tick?ttl=15&min_interval_sec=60&max_props_per_game=8&recent_window_sec=180&first_bet_only=1"
+          echo "GET $URL"
+
+          for i in 1 2 3 4 5 6; do
+            set +e
+            rm -f resp.txt headers.txt
+            http=$(curl -sS -o resp.txt -D headers.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            ctype=$(grep -i '^content-type:' headers.txt | tail -n 1 | tr -d '\r' | cut -d' ' -f2- || true)
+            bytes=$(wc -c < resp.txt 2>/dev/null || echo 0)
+
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              # Successful call: print the JSON payload for visibility.
+              cat resp.txt || true
+              exit 0
+            fi
+
+            echo "Request attempt $i -> HTTP $http (Content-Type: ${ctype:-unknown}, bytes: $bytes)" >&2
+
+            # Avoid dumping huge HTML error pages (e.g., Cloudflare 502) into logs.
+            if echo "${ctype:-}" | grep -qi 'application/json'; then
+              cat resp.txt || true
+            else
+              echo "Body omitted (non-JSON)" >&2
+            fi
+
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1

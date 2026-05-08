@@ -25,7 +25,7 @@ def _to_float(x: Any) -> float:
 @dataclass(frozen=True)
 class PlayerPriorsConfig:
     days_back: int = 21
-    min_games: int = 3
+    min_games: int = 2
     # players with fewer than min_minutes_avg are treated as fringe
     min_minutes_avg: float = 4.0
 
