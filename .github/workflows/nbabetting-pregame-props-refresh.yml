@@ -303,6 +303,10 @@ jobs:
             handle.write(f"UPLOAD_INCLUDE_PREDICTIONS={'1' if should_upload_full else '0'}\n")
             handle.write(f"UPLOAD_INCLUDE_EDGES={'1' if should_upload_full else '0'}\n")
             handle.write(f"UPLOAD_INCLUDE_RECOMMENDATIONS={'1' if should_upload_full else '0'}\n")
+            handle.write(f"UPLOAD_SNAPSHOT_PATH={json.dumps(str(payload.get('snapshot_path') or ''))}\n")
+            handle.write(f"UPLOAD_PREDICTIONS_PATH={json.dumps(str(payload.get('predictions_path') or ''))}\n")
+            handle.write(f"UPLOAD_EDGES_PATH={json.dumps(str(payload.get('edges_path') or ''))}\n")
+            handle.write(f"UPLOAD_RECOMMENDATIONS_PATH={json.dumps(str(payload.get('recs_path') or ''))}\n")
             handle.write(f"LOCAL_REFRESH_OK={'1' if (should_upload_full and not local_failure_reason) else '0'}\n")
             handle.write(f"LOCAL_REFRESH_ERROR={json.dumps(local_failure_reason)}\n")
             handle.write(f"UPLOAD_STARTED_AT={payload.get('started_at') or os.environ.get('STARTED_AT', '')}\n")
@@ -323,6 +327,22 @@ jobs:
             exit 0
           fi
 
+          test -n "${UPLOAD_SNAPSHOT_PATH:-}" || (echo "Missing snapshot path in cron meta" >&2 && exit 1)
+          test -f "${UPLOAD_SNAPSHOT_PATH}" || (echo "Snapshot file not found: ${UPLOAD_SNAPSHOT_PATH}" >&2 && exit 1)
+
+          if [ "${UPLOAD_INCLUDE_PREDICTIONS:-0}" = "1" ]; then
+            test -n "${UPLOAD_PREDICTIONS_PATH:-}" || (echo "Missing predictions path in cron meta" >&2 && exit 1)
+            test -f "${UPLOAD_PREDICTIONS_PATH}" || (echo "Predictions file not found: ${UPLOAD_PREDICTIONS_PATH}" >&2 && exit 1)
+          fi
+          if [ "${UPLOAD_INCLUDE_EDGES:-0}" = "1" ]; then
+            test -n "${UPLOAD_EDGES_PATH:-}" || (echo "Missing edges path in cron meta" >&2 && exit 1)
+            test -f "${UPLOAD_EDGES_PATH}" || (echo "Edges file not found: ${UPLOAD_EDGES_PATH}" >&2 && exit 1)
+          fi
+          if [ "${UPLOAD_INCLUDE_RECOMMENDATIONS:-0}" = "1" ]; then
+            test -n "${UPLOAD_RECOMMENDATIONS_PATH:-}" || (echo "Missing recommendations path in cron meta" >&2 && exit 1)
+            test -f "${UPLOAD_RECOMMENDATIONS_PATH}" || (echo "Recommendations file not found: ${UPLOAD_RECOMMENDATIONS_PATH}" >&2 && exit 1)
+          fi
+
           echo "POST $UPLOAD_URL"
           curl_args=(
             -X POST
@@ -334,16 +354,16 @@ jobs:
             -F "started_at=${UPLOAD_STARTED_AT:-$STARTED_AT}"
             -F "ended_at=${UPLOAD_ENDED_AT:-}"
             -F "duration_s=${UPLOAD_DURATION_S:-}"
-            -F "snapshot=@data/raw/odds_wnba_player_props_${DATE}.csv;type=text/csv"
+            -F "snapshot=@${UPLOAD_SNAPSHOT_PATH};type=text/csv"
           )
           if [ "${UPLOAD_INCLUDE_PREDICTIONS:-0}" = "1" ]; then
-            curl_args+=( -F "predictions=@data/processed/props_predictions_${DATE}.csv;type=text/csv" )
+            curl_args+=( -F "predictions=@${UPLOAD_PREDICTIONS_PATH};type=text/csv" )
           fi
           if [ "${UPLOAD_INCLUDE_EDGES:-0}" = "1" ]; then
-            curl_args+=( -F "edges=@data/processed/props_edges_${DATE}.csv;type=text/csv" )
+            curl_args+=( -F "edges=@${UPLOAD_EDGES_PATH};type=text/csv" )
           fi
           if [ "${UPLOAD_INCLUDE_RECOMMENDATIONS:-0}" = "1" ]; then
-            curl_args+=( -F "recommendations=@data/processed/props_recommendations_${DATE}.csv;type=text/csv" )
+            curl_args+=( -F "recommendations=@${UPLOAD_RECOMMENDATIONS_PATH};type=text/csv" )
           fi
           upload_http=$(retryable_http_request POST "$UPLOAD_URL" upload_resp.txt 6 5 "${curl_args[@]}")
           cat upload_resp.txt || true
