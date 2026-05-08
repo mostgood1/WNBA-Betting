@@ -43,9 +43,11 @@ processed/
 data/processed/**
 !data/processed/
 # Game predictions and publishables
+!data/processed/games_predictions_*.json
 !data/processed/games_predictions_npu_*.csv
 !data/processed/predictions_*.csv
 !data/processed/recommendations_*.csv
+!data/processed/recommendations_slate_*.json
 !data/processed/recon_games_*.csv
 !data/processed/recon_props_*.csv
 !data/processed/finals_*.csv
@@ -55,8 +57,10 @@ data/processed/**
 !data/processed/odds_*.csv
 !data/processed/game_odds_*.csv
 # Props artifacts
+!data/processed/oddsapi_player_props_*.csv
 !data/processed/props_edges_*.csv
 !data/processed/props_recommendations_*.csv
+!data/processed/props_recommendations_top_by_game_*.json
 !data/processed/props_predictions_*.csv
 !data/processed/reliability_props.csv
 !data/processed/reliability_props_summary.json
@@ -90,10 +94,15 @@ data/processed/rosters_[0-9][0-9][0-9][0-9].csv
 # force-adds the needed files when publishing.
 
 # SmartSim artifacts (used for props derivation + diagnostics)
+!data/processed/pregame_expected_minutes_*.csv
+!data/processed/smartsim_player_scenarios_*.csv
 !data/processed/smart_sim_*.json
 !data/processed/daily_artifacts_*.json
 !data/processed/cards_props_snapshot_*.json
 !data/processed/cards_sim_detail_*.json
+!data/processed/master_data_*.json
+!data/processed/master_data_latest.json
+!data/processed/league_status_*.csv
 
 # Injury snapshot used by UI/explainability
 !data/processed/injuries_counts_*.json
@@ -126,6 +135,4 @@ data/processed/props_edges_walkforward*.csv
 # Local SmartSim diagnostics (not consumed by the frontend)
 data/processed/smart_sim_merge_report_*.json
 
-# SmartSim artifacts: ignore by default (they're large/noisy locally).
-# Publishing script force-adds the daily SmartSim files when needed for Render parity.
-data/processed/smart_sim_*.json
+# SmartSim artifacts are part of the committed Render/runtime bundle.

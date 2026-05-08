@@ -10322,6 +10322,16 @@ def _read_csv_if_exists(path: Path) -> Optional[pd.DataFrame]:
     return None
 
 
+def _read_json_if_exists(path: Path) -> Any | None:
+    try:
+        if path.exists():
+            with path.open("r", encoding="utf-8") as fh:
+                return json.load(fh)
+    except Exception:
+        return None
+    return None
+
+
 def _maybe_fetch_remote_processed(fname: str) -> Optional[Path]:
     """Optionally fetch a processed artifact from GitHub raw if missing locally.
 
@@ -11439,6 +11449,20 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
     Returns (ok, detail).
     """
     try:
+        managed_force_add_patterns = [
+            "data/processed/cards_props_snapshot_*.json",
+            "data/processed/cards_sim_detail_*.json",
+            "data/processed/games_predictions_*.json",
+            "data/processed/recommendations_slate_*.json",
+            "data/processed/props_recommendations_top_by_game_*.json",
+            "data/processed/smart_sim_*.json",
+            "data/processed/master_data_*.json",
+            "data/processed/master_data_latest.json",
+            "data/processed/league_status_*.csv",
+            "data/processed/pregame_expected_minutes_*.csv",
+            "data/processed/smartsim_player_scenarios_*.csv",
+            "data/processed/oddsapi_player_props_*.csv",
+        ]
         env = {**os.environ}
         # Configure identity if provided
         name = os.environ.get("GH_NAME") or os.environ.get("GIT_NAME")
@@ -11525,6 +11549,15 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
         # Stage only data artifacts to avoid committing runtime files or secrets
         try:
             subprocess.run(["git", "add", "data/processed"], cwd=str(BASE_DIR), check=False)
+            for pattern in managed_force_add_patterns:
+                for artifact in BASE_DIR.glob(pattern):
+                    if artifact.is_file():
+                        subprocess.run([
+                            "git",
+                            "add",
+                            "-f",
+                            str(artifact.relative_to(BASE_DIR)),
+                        ], cwd=str(BASE_DIR), check=False)
             # Legacy root CSVs
             for pat in ("predictions_*.csv", "props_*.csv", "recon_*.csv"):
                 subprocess.run(["bash", "-lc", f"git add -- {pat} 2>/dev/null || true"], cwd=str(BASE_DIR), check=False)
@@ -13269,19 +13302,60 @@ def _load_game_odds_map(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
 def _load_predictions_rows_map(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
     out: dict[tuple[str, str], dict[str, Any]] = {}
     pred_path = _find_predictions_for_date(date_str)
+
+    def _tri(raw: Any) -> str:
+        val = str(raw or "").strip()
+        if not val:
+            return ""
+        tri = _get_tricode(val)
+        return str(tri or val).strip().upper()
+
     if pred_path is None:
+        json_path = DATA_PROCESSED_DIR / f"games_predictions_{date_str}.json"
+        if not json_path.exists():
+            try:
+                _maybe_fetch_remote_processed(json_path.name)
+            except Exception:
+                pass
+        payload = _read_json_if_exists(json_path)
+        games = payload.get("games") if isinstance(payload, dict) else None
+        for game in games or []:
+            try:
+                if not isinstance(game, dict):
+                    continue
+                predictions = game.get("predictions") if isinstance(game.get("predictions"), dict) else {}
+                periods = predictions.get("periods") if isinstance(predictions.get("periods"), dict) else {}
+                halves = periods.get("halves") if isinstance(periods.get("halves"), dict) else {}
+                home_tri = _tri(game.get("home_team") or game.get("home"))
+                away_tri = _tri(game.get("visitor_team") or game.get("away_team") or game.get("away"))
+                if not home_tri or not away_tri:
+                    continue
+                h1 = halves.get("h1") if isinstance(halves.get("h1"), dict) else {}
+                h2 = halves.get("h2") if isinstance(halves.get("h2"), dict) else {}
+                out[(home_tri, away_tri)] = {
+                    "date": game.get("date") or date_str,
+                    "home_team": game.get("home_team") or home_tri,
+                    "visitor_team": game.get("visitor_team") or away_tri,
+                    "home_win_prob": _safe_float(predictions.get("win_prob")),
+                    "home_win_prob_cal": _safe_float(predictions.get("win_prob")),
+                    "pred_margin": _safe_float(predictions.get("spread")),
+                    "spread_margin": _safe_float(predictions.get("spread")),
+                    "pred_total": _safe_float(predictions.get("total")),
+                    "totals": _safe_float(predictions.get("total")),
+                    "halves_h1_win": _safe_float(h1.get("win")),
+                    "halves_h1_margin": _safe_float(h1.get("margin")),
+                    "halves_h1_total": _safe_float(h1.get("total")),
+                    "halves_h2_win": _safe_float(h2.get("win")),
+                    "halves_h2_margin": _safe_float(h2.get("margin")),
+                    "halves_h2_total": _safe_float(h2.get("total")),
+                }
+            except Exception:
+                continue
         return out
     try:
         df = pd.read_csv(pred_path)
         if df is None or df.empty:
             return out
-
-        def _tri(raw: Any) -> str:
-            val = str(raw or "").strip()
-            if not val:
-                return ""
-            tri = _get_tricode(val)
-            return str(tri or val).strip().upper()
 
         for _, row in df.iterrows():
             home_raw = row.get("home_team") if row.get("home_team") is not None else row.get("home")
@@ -13513,6 +13587,20 @@ def _load_props_recommendations_by_team(date_str: str) -> dict[str, list[dict[st
         df = _read_csv_if_exists(p)
         if df is None or not isinstance(df, pd.DataFrame) or df.empty:
             edges_df = _read_csv_if_exists(edges_path)
+            if edges_df is None or not isinstance(edges_df, pd.DataFrame) or edges_df.empty:
+                edges_json_path = DATA_PROCESSED_DIR / f"props_edges_{date_str}.json"
+                if not edges_json_path.exists():
+                    try:
+                        _maybe_fetch_remote_processed(edges_json_path.name)
+                    except Exception:
+                        pass
+                edges_payload = _read_json_if_exists(edges_json_path)
+                edges_rows = edges_payload.get("edges") if isinstance(edges_payload, dict) else None
+                if isinstance(edges_rows, list) and edges_rows:
+                    try:
+                        edges_df = pd.DataFrame(edges_rows)
+                    except Exception:
+                        edges_df = None
             return _load_from_edges_fallback(edges_df)
 
         import ast

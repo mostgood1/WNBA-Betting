@@ -75,6 +75,13 @@ if ($IncludeJson) {
         }
     } catch { }
 
+    try {
+        $masterLatest = Join-Path $processedDir 'master_data_latest.json'
+        if (Test-Path $masterLatest) {
+            $files += Get-Item -Path $masterLatest -ErrorAction SilentlyContinue
+        }
+    } catch { }
+
     # Rolling props reliability bins used by the API (undated)
     try {
         $rel = Join-Path $processedDir 'reliability_props.csv'
@@ -122,6 +129,7 @@ if ($IncludeCalibConfig) {
 $allowedPrefixes = @(
     "predictions_",
     "recommendations_",
+    "recommendations_slate_",
     "recon_games_",
     "recon_quarters_",
     "recon_props_",
@@ -144,14 +152,22 @@ $allowedPrefixes = @(
     "period_lines_",
     "game_cards_",
     # Frontend-consumed season/game predictions snapshot
+    "games_predictions_",
     "games_predictions_npu_",
+    # Runtime source artifacts used to build cards and sim detail snapshots
+    "pregame_expected_minutes_",
+    "smartsim_player_scenarios_",
     # Props artifacts surfaced in the UI
+    "oddsapi_player_props_",
     "props_edges_",
     "props_predictions_",
     "props_recommendations_",
+    "props_recommendations_top_by_game_",
+    "cards_props_snapshot_",
     "cards_sim_detail_",
     # Daily tuning dataset for Player Live Lens
     "live_player_lens_tuning_",
+    "master_data_",
     # SmartSim per-game distributions (JSON) for UI/diagnostics
     "smart_sim_",
     # Daily pipeline artifact summary
@@ -220,6 +236,14 @@ foreach ($f in $files) {
         $f.Name.StartsWith('calibration_totals_') -or
         $f.Name.StartsWith('calibration_period_probs_') -or
         $f.Name -eq 'quarters_calibration.json' -or
+        $f.Name.StartsWith('cards_props_snapshot_') -or
+        $f.Name.StartsWith('cards_sim_detail_') -or
+        $f.Name.StartsWith('pregame_expected_minutes_') -or
+        $f.Name.StartsWith('smartsim_player_scenarios_') -or
+        $f.Name.StartsWith('props_recommendations_top_by_game_') -or
+        $f.Name.StartsWith('oddsapi_player_props_') -or
+        $f.Name.StartsWith('master_data_') -or
+        $f.Name -eq 'master_data_latest.json' -or
         $f.Name.StartsWith('smart_sim_') -or
         $f.Name.StartsWith('league_status_')
     ) {
