@@ -30,7 +30,7 @@ jobs:
           echo "[preflight] GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -L -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -110,7 +110,7 @@ jobs:
             local http="000"
             for j in $(seq 1 "$attempts"); do
               set +e
-              http=$(curl -sS -o ping.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$PING_URL")
+              http=$(curl -L -sS -o ping.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$PING_URL")
               rc=$?
               set -e
               if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -136,7 +136,7 @@ jobs:
             local http="000"
             for j in $(seq 1 "$attempts"); do
               set +e
-              http=$(curl -sS -o version.txt -w "%{http_code}" "$VERSION_URL")
+              http=$(curl -L -sS -o version.txt -w "%{http_code}" "$VERSION_URL")
               rc=$?
               set -e
               if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -349,7 +349,7 @@ jobs:
           if [ "${UPLOAD_INCLUDE_RECOMMENDATIONS:-0}" = "1" ]; then
             curl_args+=( -F "recommendations=@data/processed/props_recommendations_${DATE}.csv;type=text/csv" )
           fi
-          upload_http=$(curl -sS -o upload_resp.txt -w "%{http_code}" "${curl_args[@]}" "$UPLOAD_URL")
+          upload_http=$(curl -L -sS -o upload_resp.txt -w "%{http_code}" "${curl_args[@]}" "$UPLOAD_URL")
           cat upload_resp.txt || true
           if [ "$upload_http" -lt 200 ] || [ "$upload_http" -ge 300 ]; then
             echo "Upload attempt failed with HTTP $upload_http" >&2
@@ -382,7 +382,7 @@ jobs:
 
           wait_for_service "after props artifact upload" 12 5
 
-          status_http=$(curl -sS -o status.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$STATUS_URL")
+          status_http=$(curl -L -sS -o status.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$STATUS_URL")
           if [ "$status_http" -lt 200 ] || [ "$status_http" -ge 300 ]; then
             echo "Status check failed with HTTP $status_http" >&2
             cat status.txt || true

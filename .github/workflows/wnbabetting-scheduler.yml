@@ -28,7 +28,7 @@ jobs:
           echo "[preflight] GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -L -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -63,7 +63,7 @@ jobs:
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -L -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -93,7 +93,7 @@ jobs:
           echo "[preflight] GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -L -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -117,7 +117,7 @@ jobs:
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -L -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -147,7 +147,7 @@ jobs:
           echo "[preflight] GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -L -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -170,7 +170,7 @@ jobs:
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -L -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -205,7 +205,7 @@ jobs:
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -L -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -229,7 +229,7 @@ jobs:
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o /dev/null -w "%{http_code}" "$URL")
+            http=$(curl -L -sS -o /dev/null -w "%{http_code}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi

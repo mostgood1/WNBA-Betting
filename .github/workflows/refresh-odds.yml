@@ -22,7 +22,7 @@ jobs:
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" "$URL")
+            http=$(curl -L -sS -o resp.txt -w "%{http_code}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -48,7 +48,7 @@ jobs:
           echo "POST $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -X POST -o resp.txt -w "%{http_code}" "$URL" -H "Authorization: Bearer $CRON_TOKEN")
+            http=$(curl -L -sS -X POST -o resp.txt -w "%{http_code}" "$URL" -H "Authorization: Bearer $CRON_TOKEN")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi

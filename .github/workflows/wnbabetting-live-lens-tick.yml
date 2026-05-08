@@ -29,7 +29,7 @@ jobs:
           for i in 1 2 3 4 5 6; do
             set +e
             rm -f resp.txt headers.txt
-            http=$(curl -sS -o resp.txt -D headers.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -L -sS -o resp.txt -D headers.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
 
