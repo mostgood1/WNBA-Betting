@@ -113,11 +113,8 @@ jobs:
           echo "Using slate date $DATE (tz=$SLATE_TZ, cutoff=6)"
           export EXPECTED_DATE="$DATE"
           PING_URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
-          VERSION_URL="${WNBA_BETTING_BASE_URL%/}/api/version"
           STATUS_URL="${WNBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status"
           UPLOAD_URL="${WNBA_BETTING_BASE_URL%/}/api/cron/upload-props-refresh-artifacts"
-          EXPECTED_SHA="${GITHUB_SHA}"
-          export EXPECTED_SHA
 
           wait_for_service() {
             local label="$1"
@@ -146,59 +143,7 @@ jobs:
             return 1
           }
 
-          wait_for_expected_version() {
-            local attempts="${1:-60}"
-            local sleep_s="${2:-10}"
-            local http="000"
-            for j in $(seq 1 "$attempts"); do
-              set +e
-              http=$(curl -sS -o version.txt -w "%{http_code}" "$VERSION_URL")
-              rc=$?
-              set -e
-              if [ "$rc" -ne 0 ]; then http="000"; fi
-              if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
-                set +e
-                python3 - <<'PY'
-          import json
-          import os
-          import pathlib
-          import sys
-
-          expected = str(os.environ.get("EXPECTED_SHA") or "").strip().lower()
-          try:
-              payload = json.loads(pathlib.Path("version.txt").read_text(encoding="utf-8", errors="ignore") or "{}")
-          except Exception as exc:
-              print(f"Invalid version payload: {exc}")
-              sys.exit(2)
-
-          sha = str(payload.get("sha") or "").strip().lower()
-          print(json.dumps({"deployed_sha": sha, "expected_sha": expected}, indent=2))
-          if expected and sha.startswith(expected):
-              sys.exit(0)
-          sys.exit(1)
-          PY
-                py_rc=$?
-                set -e
-                if [ "$py_rc" -eq 0 ]; then
-                  echo "[wait] render deploy matches workflow SHA on attempt $j"
-                  return 0
-                fi
-                echo "[wait] render deploy mismatch on attempt $j" >&2
-              else
-                echo "[wait] version attempt $j -> HTTP $http" >&2
-              fi
-              if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
-                sleep "$sleep_s"
-                continue
-              fi
-              sleep "$sleep_s"
-            done
-            echo "::warning::Render did not deploy expected SHA ${EXPECTED_SHA} before pregame refresh; proceeding once health checks are passing." >&2
-            return 0
-          }
-
           wait_for_service "before local props refresh" 45 10
-          wait_for_expected_version 6 10
           test -n "${ODDS_API_KEY:-}" || (echo 'Missing ODDS_API_KEY (set ODDS_API_KEY or THE_ODDS_API_KEY secret)' && exit 1)
 
           mkdir -p logs data/raw data/processed
