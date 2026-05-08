@@ -2,11 +2,10 @@ services:
   - type: web
     name: wnba-betting
     runtime: python
+    pythonVersion: 3.11.9
     # plan intentionally omitted to preserve Render dashboard plan (avoid accidental downgrades)
     autoDeployTrigger: commit
-    buildCommand: |
-      pip install --upgrade pip
-      pip install -r requirements.txt
+    buildCommand: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
     startCommand: bash start.sh
     healthCheckPath: /health
     envVars:
