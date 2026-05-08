@@ -334,7 +334,7 @@ jobs:
             -F "started_at=${UPLOAD_STARTED_AT:-$STARTED_AT}"
             -F "ended_at=${UPLOAD_ENDED_AT:-}"
             -F "duration_s=${UPLOAD_DURATION_S:-}"
-            -F "snapshot=@data/raw/odds_nba_player_props_${DATE}.csv;type=text/csv"
+            -F "snapshot=@data/raw/odds_wnba_player_props_${DATE}.csv;type=text/csv"
           )
           if [ "${UPLOAD_INCLUDE_PREDICTIONS:-0}" = "1" ]; then
             curl_args+=( -F "predictions=@data/processed/props_predictions_${DATE}.csv;type=text/csv" )
