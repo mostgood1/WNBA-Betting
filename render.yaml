@@ -73,8 +73,10 @@ services:
         value: "0"
       - key: REFRESH_PREDICT_PROPS_CALIBRATE_PLAYER
         value: "0"
+      - key: RENDER_BOOTSTRAP_CURRENT_SLATE
+        value: "1"
       - key: RENDER_PRESTART_REFRESH
-        value: "0"  # opt-in prestart refresh/export (can be memory-heavy on small plans)
+        value: "1"  # enable same-day slate seeding plus odds/props refresh on deploy
       - key: RENDER_PUSH_ON_DEPLOY
         value: "1"  # commit/push refreshed artifacts (requires RENDER_PRESTART_REFRESH=1 + GH_TOKEN/GIT_PAT)
 

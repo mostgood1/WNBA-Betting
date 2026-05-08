@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "🚀 Starting NBA Betting (static frontend) on Render..."
+echo "Starting WNBA Betting on Render..."
 
 # Ensure directories
 mkdir -p logs
@@ -25,12 +25,28 @@ export CONNECTED_CORRELATED_SCORING_ALPHA=${CONNECTED_CORRELATED_SCORING_ALPHA:-
 
 echo "Using PORT=${PORT:-5000} WEB_CONCURRENCY=${WEB_CONCURRENCY:-1} WEB_THREADS=${WEB_THREADS:-1} GUNICORN_MAX_REQUESTS=${GUNICORN_MAX_REQUESTS:-0}"
 
+REFRESH_DATE=${RENDER_PRESTART_DATE:-$(date -u +%F)}
+ACTIVE_DATA_ROOT=${WNBA_BETTING_DATA_ROOT:-${NBA_BETTING_DATA_ROOT:-data}}
+ACTIVE_PROCESSED_DIR="${ACTIVE_DATA_ROOT}/processed"
+
+# Fresh Render disks can boot without any same-day SmartSim artifacts, which makes
+# /api/cards appear healthy but empty. Seed just the current slate when missing.
+if [ "${RENDER_BOOTSTRAP_CURRENT_SLATE:-1}" = "1" ]; then
+  if ! compgen -G "${ACTIVE_PROCESSED_DIR}/smart_sim_${REFRESH_DATE}_*.json" > /dev/null; then
+    echo "[prestart] No smart_sim artifacts for ${REFRESH_DATE}; bootstrapping current slate"
+    python -m nba_betting.cli predict-date --date "${REFRESH_DATE}" || echo "[prestart] predict-date failed (non-fatal)"
+  else
+    echo "[prestart] Found smart_sim artifacts for ${REFRESH_DATE}; skipping bootstrap"
+  fi
+else
+  echo "[prestart] Current-slate bootstrap disabled"
+fi
+
 # IMPORTANT (Render memory): boot should be as light as possible.
 # The prestart refresh/export jobs can be CPU/memory heavy and can cause OOM
 # on small Render instances. Keep them opt-in.
 if [ "${RENDER_PRESTART_REFRESH:-0}" = "1" ]; then
   if [ -n "${ODDS_API_KEY:-}" ]; then
-    REFRESH_DATE=$(date -u +%F)
     echo "[prestart] Refreshing odds and exporting recs for ${REFRESH_DATE}..."
     # Ignore failures so the web still comes up if the refresh times out
     python -m nba_betting.cli odds-refresh --date "${REFRESH_DATE}" || echo "[prestart] odds-refresh failed (non-fatal)"
