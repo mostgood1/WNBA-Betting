@@ -36590,18 +36590,28 @@ _scoreboard_cache: Dict[str, Tuple[float, Any]] = {}
 
 def _espn_to_tri(abbr: str) -> str:
     s = str(abbr or '').upper().strip()
-    fix = {
-        'GS': 'GSW',
-        'NO': 'NOP',
-        'NY': 'NYK',
-        'BRK': 'BKN',
-        'BK': 'BKN',
-        'PHO': 'PHX',
-        # ESPN sometimes uses legacy/short abbreviations that don't match NBA tricodes
-        'SA': 'SAS',
-        'WSH': 'WAS',
-        'UTAH': 'UTA',
-    }
+    is_wnba = "wnba" in str(getattr(LEAGUE, 'espn_sport_path', '') or '').lower()
+    if is_wnba:
+        fix = {
+            'GS': 'GSV',
+            'GSW': 'GSV',
+            'NY': 'NYL',
+            'NYK': 'NYL',
+            'WAS': 'WSH',
+        }
+    else:
+        fix = {
+            'GS': 'GSW',
+            'NO': 'NOP',
+            'NY': 'NYK',
+            'BRK': 'BKN',
+            'BK': 'BKN',
+            'PHO': 'PHX',
+            # ESPN sometimes uses legacy/short abbreviations that don't match NBA tricodes
+            'SA': 'SAS',
+            'WSH': 'WAS',
+            'UTAH': 'UTA',
+        }
     return fix.get(s, s)
 
 
@@ -43206,14 +43216,6 @@ def api_cron_reconcile_games():
                 return pd.DataFrame()
             jd = r.json()
             evs = jd.get('events', []) if isinstance(jd, dict) else []
-            def espn_to_tri(abbr: str) -> str:
-                s = str(abbr or '').upper()
-                fix = {
-                    'GS': 'GSW',  # ESPN sometimes uses GS
-                    'NO': 'NOP',
-                    'NY': 'NYK',
-                }
-                return fix.get(s, s)
             rows: list[dict[str, object]] = []
             for e in evs:
                 try:
@@ -43225,8 +43227,8 @@ def api_cron_reconcile_games():
                     home = next((t for t in at if str(t.get('homeAway'))=='home'), None)
                     away = next((t for t in at if str(t.get('homeAway'))=='away'), None)
                     if not home or not away: continue
-                    htri = espn_to_tri(((home.get('team') or {}).get('abbreviation')))
-                    vtri = espn_to_tri(((away.get('team') or {}).get('abbreviation')))
+                    htri = _espn_to_tri(((home.get('team') or {}).get('abbreviation')))
+                    vtri = _espn_to_tri(((away.get('team') or {}).get('abbreviation')))
                     if (htri, vtri) not in pred_pairs:
                         continue
                     try:

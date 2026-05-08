@@ -28,6 +28,14 @@ def test_player_prop_bookmakers_default_to_four_books_for_live(monkeypatch):
     assert app_module._player_prop_bookmakers_csv(env_name="LIVE_PLAYER_PROP_BOOKMAKERS") == "fanduel,draftkings,betmgm,bet365"
 
 
+def test_espn_to_tri_uses_wnba_aliases_for_live_scoreboard():
+    assert app_module._espn_to_tri("NY") == "NYL"
+    assert app_module._espn_to_tri("NYK") == "NYL"
+    assert app_module._espn_to_tri("WAS") == "WSH"
+    assert app_module._espn_to_tri("GS") == "GSV"
+    assert app_module._espn_to_tri("GSW") == "GSV"
+
+
 def test_prune_invalid_props_recommendations_artifact_removes_model_only_cards(tmp_path):
     processed = tmp_path / "data" / "processed"
     processed.mkdir(parents=True)
