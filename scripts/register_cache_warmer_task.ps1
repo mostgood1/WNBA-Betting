@@ -3,7 +3,7 @@ param(
   [string]$BaseUrl = "http://127.0.0.1:5051"
 )
 $ErrorActionPreference = 'Stop'
-$taskName = "NBA-Betting - Warm Caches"
+$taskName = "WNBA-Betting - Warm Caches"
 $workDir = (Get-Location).Path
 $script = Join-Path $workDir "scripts\run_cache_warmer.ps1"
 

@@ -192,7 +192,7 @@ quarters_q4_total      55.683643
 
 ### Generate Predictions with Quarters
 ```powershell
-$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" `
   -m nba_betting.cli predict-date --date 2025-10-17
 ```

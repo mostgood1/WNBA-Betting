@@ -177,8 +177,8 @@ $rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props-pure-onnx','
 ### Step 6: Test the Pure ONNX System
 
 ```powershell
-cd "C:\Users\mostg\OneDrive\Coding\NBA-Betting"
-$env:PYTHONPATH = "C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
+$env:PYTHONPATH = "C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -m nba_betting.cli predict-props-pure-onnx --date 2025-10-17 --slate-only
 ```
 
@@ -207,7 +207,7 @@ $env:PYTHONPATH = "C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
 ## File Structure
 
 ```
-NBA-Betting/
+WNBA-Betting/
 ├── src/nba_betting/
 │   ├── props_features_pure.py      ← NEW: Pure feature builder
 │   ├── props_onnx_pure.py          ← NEW: Pure ONNX predictor
@@ -241,20 +241,20 @@ NBA-Betting/
 
 ### Test Feature Builder
 ```powershell
-cd "C:\Users\mostg\OneDrive\Coding\NBA-Betting"
+cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
 $env:PYTHONPATH = "src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -c "from nba_betting.props_features_pure import build_features_for_date_pure; f = build_features_for_date_pure('2025-10-17'); print(f'Features: {len(f)} players, {len(f.columns)} columns')"
 ```
 
 ### Test ONNX Predictor
 ```powershell
-cd "C:\Users\mostg\OneDrive\Coding\NBA-Betting"
+cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" test_npu_direct.py
 ```
 
 ### Test Full Pipeline
 ```powershell
-cd "C:\Users\mostg\OneDrive\Coding\NBA-Betting"
+cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
 $env:PYTHONPATH = "src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -m nba_betting.cli predict-props-pure-onnx --date 2025-10-17
 ```

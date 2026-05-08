@@ -1,5 +1,5 @@
 """
-🏀 Frontend Data Sync Module for NBA-Betting
+🏀 Frontend Data Sync Module for WNBA-Betting
 Ensures all prediction data is properly formatted and available for frontend endpoints
 """
 
@@ -149,15 +149,36 @@ def _format_games_for_frontend(games_df: pd.DataFrame, target_date: str) -> Dict
     }
     
     for _, row in games_df.iterrows():
+        try:
+            win_prob = row.get("home_win_prob")
+            if pd.isna(win_prob):
+                win_prob = row.get("win_prob", 0.5)
+        except Exception:
+            win_prob = row.get("win_prob", 0.5)
+
+        try:
+            spread = row.get("pred_margin")
+            if pd.isna(spread):
+                spread = row.get("spread_margin", 0)
+        except Exception:
+            spread = row.get("spread_margin", 0)
+
+        try:
+            total = row.get("pred_total")
+            if pd.isna(total):
+                total = row.get("totals", 200)
+        except Exception:
+            total = row.get("totals", 200)
+
         game = {
             "id": row.get("game_id", ""),
             "home_team": row.get("home_team", ""),
             "visitor_team": row.get("visitor_team", ""), 
             "date": target_date,
             "predictions": {
-                "win_prob": float(row.get("win_prob", 0.5)),
-                "spread": float(row.get("spread_margin", 0)),
-                "total": float(row.get("totals", 200))
+                "win_prob": float(win_prob if not pd.isna(win_prob) else 0.5),
+                "spread": float(spread if not pd.isna(spread) else 0.0),
+                "total": float(total if not pd.isna(total) else 200.0)
             }
         }
         

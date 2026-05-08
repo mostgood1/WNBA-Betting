@@ -1159,30 +1159,14 @@ function parseYMDLocal(s){
 
 function teamLogoUrl(tri){
   const t = String(tri||'').toUpperCase();
-  // This returns a local path, but we'll try CDN first in teamLineHTML.
-  return `/web/assets/logos/${t}.svg`;
+  return t ? `/api/team-logo/${encodeURIComponent(t)}` : '';
 }
 
 function teamLineHTML(tri){
   const t = String(tri||'').toUpperCase();
   const team = state.teams[t] || { tricode:t, name:t };
   const localSvg = teamLogoUrl(t);
-  // Build a prioritized list of sources preferring CDN links
-  const fallbacks = (function(){
-    const id = (state.teams[t] && state.teams[t].id) ? String(state.teams[t].id) : null;
-    const urls = [];
-    if (id){
-      urls.push(
-        `https://cdn.nba.com/logos/nba/${id}/primary/L/logo.svg`,
-        `https://cdn.nba.com/logos/nba/${id}/primary/L/logo.png`,
-        `https://cdn.nba.com/logos/nba/${id}/global/L/logo.svg`,
-        `https://cdn.nba.com/logos/nba/${id}/global/L/logo.png`,
-      );
-    }
-    // Lastly, try local assets if present
-    urls.push(localSvg);
-    return urls;
-  })();
+  const fallbacks = [];
   return `
     <div class="team-line-inner">
       <img src="${fallbacks[0] || localSvg}" alt="${t}" class="logo" data-tri="${t}" data-cdn="${fallbacks.join('|')}" onerror="handleLogoError(this)"/>
@@ -1212,9 +1196,14 @@ function svgBadgeDataUrl(tri){
 
 async function loadTeams(){
   try{
-    const res = await fetch('/web/assets/teams_nba.json');
-    if (!res.ok) throw new Error('teams fetch failed');
-    const arr = await res.json();
+    let arr = [];
+    for (const path of ['/web/assets/teams_wnba.json', '/web/assets/teams_nba.json']) {
+      const res = await fetch(path);
+      if (!res.ok) continue;
+      arr = await res.json();
+      if (Array.isArray(arr) && arr.length) break;
+    }
+    if (!Array.isArray(arr) || !arr.length) throw new Error('teams fetch failed');
     const map = {};
     for (const t of arr){ map[String(t.tricode||'').toUpperCase()] = t; }
     state.teams = map;
@@ -1366,13 +1355,15 @@ async function loadSchedule() {
   } catch(e) { /* ignore */ }
   if (!Array.isArray(sched) || sched.length === 0) {
     try{
-      const res = await fetch('/data/processed/schedule_2025_26.json');
+      const selectedDate = String((datePicker?.value || PIN_DATE || getLocalDateISO()) || '').trim();
+      const seasonKey = /^\d{4}-\d{2}-\d{2}$/.test(selectedDate) ? selectedDate.slice(0, 4) : getLocalDateISO().slice(0, 4);
+      const res = await fetch(`/data/processed/schedule_${seasonKey}.json`);
       if (res.ok) {
         sched = await res.json();
       }
     }catch(_){ /* ignore */ }
   }
-  // Filter out non-NBA exhibition teams that won't have logos/mappings
+  // Filter out teams without a local mapping so unknown exhibition rows do not clutter the UI.
   const teamsLoaded = !!(state.teams && Object.keys(state.teams).length >= 20);
   const isKnown = (tri)=> !!state.teams[String(tri||'').toUpperCase()];
   const filtered = Array.isArray(sched)

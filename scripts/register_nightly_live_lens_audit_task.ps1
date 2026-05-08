@@ -5,7 +5,7 @@ param(
 # Registers a Windows Scheduled Task to run the Live Lens audit report nightly.
 # Writes data/processed/reports/live_lens_audit_<yesterday>.md + live_lens_scored_<yesterday>.csv
 
-$TaskName = "NBA-Betting - Nightly Live Lens Audit"
+$TaskName = "WNBA-Betting - Nightly Live Lens Audit"
 $Workspace = (Get-Location).Path
 $PyExe = Join-Path $Workspace ".venv\Scripts\python.exe"
 $ScriptPath = Join-Path $Workspace "tools\daily_live_lens_audit.py"

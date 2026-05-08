@@ -12,6 +12,8 @@ from nba_api.stats.library import http as nba_http
 
 from .boxscores import _boxscore_from_espn, _espn_scoreboard, _espn_to_tri
 from .config import paths
+from .league import LEAGUE, season_label_from_date
+from .teams import TEAM_TRICODES
 
 
 def _configure_stats_headers() -> None:
@@ -33,20 +35,25 @@ def _configure_stats_headers() -> None:
 def _write_player_logs(df: pd.DataFrame) -> pd.DataFrame:
     out_dir = paths.data_processed
     out_dir.mkdir(parents=True, exist_ok=True)
+    out = df.copy()
+    if LEAGUE.code != "nba":
+        if "TEAM_ABBREVIATION" in out.columns:
+            out = out[out["TEAM_ABBREVIATION"].astype(str).str.upper().isin(set(TEAM_TRICODES))].copy()
+        if "GAME_ID" in out.columns:
+            out = out[out["GAME_ID"].astype(str).str.strip().str.startswith("401")].copy()
     try:
-        df.to_parquet(out_dir / "player_logs.parquet", index=False)
+        out.to_parquet(out_dir / "player_logs.parquet", index=False)
     except Exception:
         pass
-    df.to_csv(out_dir / "player_logs.csv", index=False)
-    return df
+    out.to_csv(out_dir / "player_logs.csv", index=False)
+    return out
 
 
 def _season_from_game_date(value: object) -> str:
     ts = pd.to_datetime(value, errors="coerce")
     if pd.isna(ts):
         return ""
-    season_start = int(ts.year) if int(ts.month) >= 7 else (int(ts.year) - 1)
-    return f"{season_start}-{(season_start + 1) % 100:02d}"
+    return season_label_from_date(ts.date())
 
 
 def _player_logs_from_boxscores_frame(hist: pd.DataFrame) -> pd.DataFrame:
@@ -159,8 +166,7 @@ def _fallback_player_logs_from_boxscores_history() -> pd.DataFrame:
 
 def _current_season_str(today: _date | None = None) -> str:
     ref = today or _date.today()
-    season_start = ref.year if ref.month >= 7 else (ref.year - 1)
-    return f"{season_start}-{(season_start + 1) % 100:02d}"
+    return season_label_from_date(ref)
 
 
 def _fallback_player_logs_from_recent_espn_boxscores(
@@ -272,9 +278,24 @@ def _fetch_season_player_logs(season: str, max_attempts: int = 3) -> pd.DataFram
 def fetch_player_logs(seasons: Iterable[str]) -> pd.DataFrame:
     """Fetch league-wide player game logs for given seasons and save to processed.
 
-    seasons: iterable of season strings like ['2023-24','2024-25','2025-26']
+    seasons: iterable of season label strings like ['2023', '2024', '2025']
     Returns concatenated DataFrame.
     """
+    requested = {str(season or "").strip() for season in seasons if str(season or "").strip()}
+
+    if LEAGUE.code != "nba":
+        fallback = _fallback_player_logs_from_boxscores_history()
+        if fallback is not None and not fallback.empty:
+            fallback = fallback[fallback["SEASON"].astype(str).isin(requested)].copy() if requested else fallback
+            if not fallback.empty:
+                return _write_player_logs(fallback)
+
+        fallback = _fallback_player_logs_from_recent_espn_boxscores(seasons)
+        if fallback is not None and not fallback.empty:
+            fallback = fallback[fallback["SEASON"].astype(str).isin(requested)].copy() if requested else fallback
+            if not fallback.empty:
+                return _write_player_logs(fallback)
+
     frames: List[pd.DataFrame] = []
     errors: List[str] = []
     for season in seasons:

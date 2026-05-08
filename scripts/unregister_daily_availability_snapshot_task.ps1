@@ -2,7 +2,7 @@ param(
     [Parameter(Mandatory=$false)][switch]$Quiet
 )
 
-$TaskName = "NBA-Betting - Daily Availability Snapshot"
+$TaskName = "WNBA-Betting - Daily Availability Snapshot"
 
 try {
     Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction Stop | Out-Null

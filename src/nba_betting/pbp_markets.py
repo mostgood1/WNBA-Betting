@@ -10,9 +10,10 @@ import pandas as pd
 import joblib
 
 from .config import paths
+from .league import LEAGUE
 
 
-SECONDS_Q = 12 * 60
+SECONDS_Q = LEAGUE.regulation_period_seconds
 
 
 def _to_sec_left(s: str) -> Optional[int]:
@@ -63,10 +64,151 @@ def _time_elapsed_q1(row: pd.Series) -> Optional[int]:
 
 
 def _desc_cols(df: pd.DataFrame) -> List[str]:
-    for cols in (["HOMEDESCRIPTION","VISITORDESCRIPTION","NEUTRALDESCRIPTION"], ["home_desc","visitor_desc","neutral_desc"], ["description"]):
+    for cols in (["HOMEDESCRIPTION","VISITORDESCRIPTION","NEUTRALDESCRIPTION"], ["home_desc","visitor_desc","neutral_desc"], ["description"], ["text"]):
         if all(c in df.columns for c in cols if c is not None):
             return [c for c in cols if c in df.columns]
-    return [c for c in df.columns if isinstance(c, str) and c.lower().endswith("description")]
+    return [c for c in df.columns if isinstance(c, str) and (c.lower().endswith("description") or c.lower() == "text")]
+
+
+def _norm_name_text(value: Any) -> str:
+    try:
+        s = str(value or "").strip().lower()
+    except Exception:
+        return ""
+    if not s:
+        return ""
+    s = re.sub(r"[^a-z0-9\s]", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def _extract_player_name_from_text(text: Any) -> str:
+    raw = str(text or "").strip()
+    if not raw:
+        return ""
+    patterns = [
+        r"^([A-Za-z\.'\-\s]+?)\s+(?:makes|made|misses|missed|hits)\b",
+        r"^MISS\s+([A-Za-z\.'\-\s]+?)\s+\d",
+        r"^([A-Za-z\.'\-\s]+?)\s+\d{1,2}'",
+    ]
+    for pattern in patterns:
+        m = re.search(pattern, raw, flags=re.IGNORECASE)
+        if m:
+            return str(m.group(1) or "").strip()
+    return ""
+
+
+def _frame_home_away_tris(df: pd.DataFrame) -> tuple[Optional[str], Optional[str]]:
+    try:
+        home_tri = None
+        away_tri = None
+        if "home_tri" in df.columns:
+            vals = df["home_tri"].dropna().astype(str).str.upper().str.strip()
+            home_tri = vals.iloc[0] if not vals.empty else None
+        if "away_tri" in df.columns:
+            vals = df["away_tri"].dropna().astype(str).str.upper().str.strip()
+            away_tri = vals.iloc[0] if not vals.empty else None
+        if home_tri and away_tri:
+            return home_tri, away_tri
+    except Exception:
+        pass
+    return None, None
+
+
+def _likely_tip_height(roster_df: pd.DataFrame, team_tri: str, minutes_avg: Optional[pd.Series]) -> Optional[float]:
+    starters = _select_pregame_starters(roster_df, team_tri, minutes_avg=minutes_avg)
+    if starters:
+        c_heights = [float(s.get("height_in") or 0.0) for s in starters if s.get("isC")]
+        if c_heights:
+            return float(max(c_heights))
+        any_heights = [float(s.get("height_in") or 0.0) for s in starters if float(s.get("height_in") or 0.0) > 0]
+        if any_heights:
+            return float(max(any_heights))
+    if roster_df is None or roster_df.empty:
+        return None
+    tri_col = next((c for c in ("TEAM_ABBREVIATION", "teamTricode", "TEAM_TRI", "team_tri") if c in roster_df.columns), None)
+    if tri_col is None:
+        return None
+    sub = roster_df[roster_df[tri_col].astype(str).str.upper().str.strip() == str(team_tri).upper()].copy()
+    if sub.empty:
+        return None
+    heights = [float(_height_in_inches(v) or 0.0) for v in sub.get("HEIGHT", [])]
+    heights = [h for h in heights if h > 0]
+    return float(max(heights)) if heights else None
+
+
+def _candidate_name_keys(players: list[dict]) -> set[str]:
+    out: set[str] = set()
+    for p in players:
+        first = str(p.get("firstName") or "").strip()
+        last = str(p.get("familyName") or "").strip()
+        full = f"{first} {last}".strip()
+        for cand in (full, last, first):
+            key = _norm_name_text(cand)
+            if key:
+                out.add(key)
+    return out
+
+
+def _parse_jump_ball_participants(text: Any) -> tuple[str, str]:
+    raw = str(text or "").strip()
+    if not raw:
+        return "", ""
+    m = re.search(r"^([A-Za-z\.'\-\s]+?)\s+vs\.\s+([A-Za-z\.'\-\s]+?)(?:\s*\(|$)", raw, flags=re.IGNORECASE)
+    if not m:
+        return "", ""
+    return str(m.group(1) or "").strip(), str(m.group(2) or "").strip()
+
+
+def _lookup_height_for_name(roster_df: pd.DataFrame, player_name: str, team_tri: Optional[str] = None) -> Optional[float]:
+    if roster_df is None or roster_df.empty:
+        return None
+    key = _norm_name_text(player_name)
+    if not key:
+        return None
+    df = roster_df.copy()
+    tri_col = next((c for c in ("TEAM_ABBREVIATION", "teamTricode", "TEAM_TRI", "team_tri") if c in df.columns), None)
+    if tri_col and team_tri:
+        df = df[df[tri_col].astype(str).str.upper().str.strip() == str(team_tri).upper()].copy()
+    if df.empty:
+        return None
+
+    def _row_name(row: pd.Series) -> str:
+        first = str(row.get("FIRST_NAME") or row.get("firstName") or "").strip()
+        last = str(row.get("LAST_NAME") or row.get("lastName") or "").strip()
+        full = f"{first} {last}".strip()
+        if full:
+            return full
+        return str(row.get("PLAYER") or row.get("player_name") or "").strip()
+
+    df["_name_key"] = df.apply(_row_name, axis=1).map(_norm_name_text)
+    hits = df[df["_name_key"] == key].copy()
+    if hits.empty:
+        hits = df[df["_name_key"].str.endswith(key, na=False) | df["_name_key"].str.contains(fr"\b{re.escape(key)}\b", regex=True, na=False)].copy()
+    if hits.empty:
+        return None
+    for value in hits.get("HEIGHT", []):
+        height = _height_in_inches(value)
+        if height:
+            return float(height)
+    return None
+
+
+def _infer_tip_winner_team(jump_event: dict, roster_df: pd.DataFrame, home_tri: str, away_tri: str, minutes_avg: Optional[pd.Series]) -> Optional[str]:
+    winner_key = _norm_name_text(jump_event.get("winner_text") or "")
+    raw_key = _norm_name_text(jump_event.get("raw") or "")
+    home_players = _select_pregame_starters(roster_df, home_tri, minutes_avg=minutes_avg)
+    away_players = _select_pregame_starters(roster_df, away_tri, minutes_avg=minutes_avg)
+    home_keys = _candidate_name_keys(home_players)
+    away_keys = _candidate_name_keys(away_players)
+
+    for team_tri, keys in ((str(home_tri).upper(), home_keys), (str(away_tri).upper(), away_keys)):
+        if winner_key and any(winner_key == key or winner_key in key or key in winner_key for key in keys):
+            return team_tri
+
+    for team_tri, keys in ((str(home_tri).upper(), home_keys), (str(away_tri).upper(), away_keys)):
+        if raw_key and any((f"tip to {key}" in raw_key) or (f" {key} gains possession" in raw_key) for key in keys):
+            return team_tri
+    return None
 
 
 def _first_fg_event(df: pd.DataFrame) -> Optional[dict]:
@@ -119,7 +261,7 @@ def _first_fg_event(df: pd.DataFrame) -> Optional[dict]:
         # Accept either explicit verbs or NBA phrasing like "Bridges 3PT Jump Shot (3 PTS)"
         if ("makes" in text or "made" in text) or ("jump shot" in text and "free throw" not in text):
             pid = r.get("PLAYER1_ID") or r.get("player1_id") or r.get("personId")
-            pname = r.get("PLAYER1_NAME") or r.get("player1_name") or r.get("playerName")
+            pname = r.get("PLAYER1_NAME") or r.get("player1_name") or r.get("playerName") or _extract_player_name_from_text(text)
             team = r.get("PLAYER1_TEAM_ABBREVIATION") or r.get("teamTricode") or r.get("team_abbr")
             return {"player_id": pid, "player_name": pname, "team": team}
     return None
@@ -148,17 +290,24 @@ def _jump_ball_event(df: pd.DataFrame) -> Optional[dict]:
         text = " ".join([str(r.get(c, "")) for c in desc_cols])
         if not text and not a_type:
             continue
-        if ("jump ball" in a_type) or jb_pat.search(text or ""):
+        if ("jump ball" in a_type) or ("jumpball" in a_type) or jb_pat.search(text or ""):
             tlow = (text or "").lower()
             winner: Optional[str] = None
             # Handle both classic '- X gains possession' and liveData 'Tip to X'
             m1 = re.search(r"-\s*([\w\.'\-\s]+)\s+gains\s+possession", tlow)
             m2 = re.search(r"tip\s+to\s+([\w\.'\-\s]+)", tlow)
+            m3 = re.search(r"\(([\w\.'\-\s]+)\s+gains\s+possession\)", tlow)
             if m1:
                 winner = m1.group(1).strip()
             elif m2:
                 winner = m2.group(1).strip()
-            return {"raw": text, "winner_text": winner}
+            elif m3:
+                winner = m3.group(1).strip()
+            return {
+                "raw": text,
+                "winner_text": winner,
+                "team": r.get("team") or r.get("teamTricode") or r.get("PLAYER1_TEAM_ABBREVIATION"),
+            }
     return None
 
 
@@ -252,13 +401,36 @@ def _height_in_inches(h: str | float | int) -> Optional[float]:
     return None
 
 def build_tip_dataset(pbp_frames: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    """Minimal stub dataset builder for tip model training.
-
-    Returns an empty DataFrame with required columns to avoid import-time/lint errors
-    on environments without training dependencies. Proper training should be run on
-    a dev box and artifacts committed.
-    """
-    return pd.DataFrame(columns=["height_diff","home_won_tip"])
+    rows = []
+    roster = _load_rosters_latest()
+    minutes_avg = _load_player_minutes_avg()
+    for gid, df in pbp_frames.items():
+        if df is None or df.empty:
+            continue
+        jump_event = _jump_ball_event(df)
+        if not jump_event:
+            continue
+        home_tri, away_tri = _frame_home_away_tris(df)
+        if not home_tri or not away_tri:
+            continue
+        winner_team = str(jump_event.get("team") or "").upper().strip()
+        if not winner_team:
+            winner_team = str(_infer_tip_winner_team(jump_event, roster, home_tri, away_tri, minutes_avg) or "").upper().strip()
+        if winner_team not in {str(home_tri).upper(), str(away_tri).upper()}:
+            continue
+        away_jumper, home_jumper = _parse_jump_ball_participants(jump_event.get("raw") or "")
+        home_height = _lookup_height_for_name(roster, home_jumper, team_tri=home_tri) or _likely_tip_height(roster, home_tri, minutes_avg) or 0.0
+        away_height = _lookup_height_for_name(roster, away_jumper, team_tri=away_tri) or _likely_tip_height(roster, away_tri, minutes_avg) or 0.0
+        rows.append(
+            {
+                "game_id": str(gid),
+                "home_tri": str(home_tri).upper(),
+                "away_tri": str(away_tri).upper(),
+                "height_diff": float(home_height) - float(away_height),
+                "home_won_tip": 1 if str(winner_team).upper() == str(home_tri).upper() else 0,
+            }
+        )
+    return pd.DataFrame(rows, columns=["game_id", "home_tri", "away_tri", "height_diff", "home_won_tip"])
 
 def train_tip_model(pbp_frames: Dict[str, pd.DataFrame]) -> TipModelArtifacts:
     # Import locally to avoid hard dependency when training is done on x86_64 only
@@ -431,34 +603,40 @@ def _load_pbp_frames(source: str | None = None) -> Dict[str, pd.DataFrame]:
     """
     out: Dict[str, pd.DataFrame] = {}
     if source and re.match(r"\d{4}-\d{2}-\d{2}", str(source)):
-        p = paths.data_processed / f"pbp_{source}.csv"
+        prefix = "pbp_espn" if LEAGUE.code != "nba" else "pbp"
+        p = paths.data_processed / f"{prefix}_{source}.csv"
         if p.exists():
             df = pd.read_csv(p)
-            if "game_id" in df.columns:
-                for gid, grp in df.groupby("game_id"):
+            group_col = "game_id" if "game_id" in df.columns else ("event_id" if "event_id" in df.columns else None)
+            if group_col is not None:
+                for gid, grp in df.groupby(group_col):
                     # Skip malformed IDs such as NA/None/blank or non-numeric placeholders
                     key_raw = str(gid).strip()
                     if not key_raw or key_raw.lower() in ("na", "nan", "none"):
                         continue
                     if not key_raw.isdigit():
                         continue
-                    key = key_raw.zfill(10)
+                    key = key_raw
                     out[key] = grp.copy()
             else:
                 out["unknown"] = df
             return out
     # Else, read per-game files if present
-    d = paths.data_processed / "pbp"
+    d = paths.data_processed / ("pbp_espn" if LEAGUE.code != "nba" else "pbp")
     if d.exists():
-        for f in d.glob("pbp_*.csv"):
+        pattern = "pbp_espn_*.csv" if LEAGUE.code != "nba" else "pbp_*.csv"
+        for f in d.glob(pattern):
             try:
                 df = pd.read_csv(f)
                 # Derive a valid numeric gameId from filename; skip files like 'pbp_        NA.csv'
                 m = re.findall(r"(\d{9,12})", f.name)
-                key = m[0] if m else f.stem.replace("pbp_", "").strip()
+                if LEAGUE.code != "nba":
+                    key = m[0] if m else f.stem.replace("pbp_espn_", "").replace("pbp_", "").strip()
+                else:
+                    key = m[0] if m else f.stem.replace("pbp_", "").strip()
                 if not key or (not key.isdigit()):
                     continue
-                out[str(key.zfill(10))] = df
+                out[str(key)] = df
             except Exception:
                 continue
     return out

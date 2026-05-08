@@ -124,7 +124,7 @@ Once `player_logs.csv` exists, test with:
 
 ```powershell
 # Test props predictions for Oct 21
-$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" `
   -m nba_betting.cli predict-props `
   --date 2025-10-21 `

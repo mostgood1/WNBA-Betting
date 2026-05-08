@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: nba-betting
+    name: wnba-betting
     runtime: python
     # plan intentionally omitted to preserve Render dashboard plan (avoid accidental downgrades)
     autoDeployTrigger: commit
@@ -40,7 +40,7 @@ services:
       - key: CONNECTED_CORRELATED_SCORING_ALPHA
         value: "0.2"
       - key: GITHUB_REPOSITORY
-        value: mostgood1/NBA-Betting
+        value: mostgood1/WNBA-Betting
       - key: GIT_BRANCH
         value: main
       # Secrets (set values in Render dashboard or via Blueprint instance; 'sync: false' preserves remote values)
@@ -66,7 +66,7 @@ services:
       - key: NBA_LIVE_LENS_DIR
         value: /opt/render/project/data/live_lens
       # Persist data/raw + data/processed (OddsAPI/Bovada snapshots, props edges, recommendations)
-      - key: NBA_BETTING_DATA_ROOT
+      - key: WNBA_BETTING_DATA_ROOT
         value: /opt/render/project/data
       - key: ODDSAPI_PROPS_BACKGROUND_MODE
         value: "process"
@@ -91,7 +91,7 @@ services:
 
 # Suggested Render Cron Jobs (create in Render UI):
 # - Name: live-lens-tick (every 60 seconds, all day; cheap no-op when no games)
-#   Env (Cron Job): NBA_BETTING_BASE_URL=https://nba-betting-5qgf.onrender.com  NBA_BETTING_CRON_TOKEN=<same as web service CRON_TOKEN>
+#   Env (Cron Job): WNBA_BETTING_BASE_URL=https://wnba-betting.onrender.com  WNBA_BETTING_CRON_TOKEN=<same as web service CRON_TOKEN>
 #   Command: bash scripts/render_cron_call.sh "/api/cron/live-lens-tick?ttl=15&min_interval_sec=60&max_props_per_game=8&recent_window_sec=180"
 # - Name: refresh-oddsapi-props (every 20 minutes during likely game windows)
 #   Command: bash scripts/render_cron_call.sh "/api/cron/refresh-oddsapi-props?date=$(date -u +%F)&regions=us&edges=1&export=1"

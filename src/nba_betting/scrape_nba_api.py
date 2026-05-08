@@ -13,9 +13,13 @@ import requests
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter, retry_if_exception_type
 
 from .config import paths
+from .league import LEAGUE
+from .teams import TEAM_TRICODES, normalize_team, to_tricode
 
 
 def season_to_str(season_end_year: int) -> str:
+    if LEAGUE.code != "nba":
+        return str(int(season_end_year))
     # NBA API season format: "2023-24"
     start = season_end_year - 1
     return f"{start}-{str(season_end_year)[-2:]}"
@@ -23,10 +27,106 @@ def season_to_str(season_end_year: int) -> str:
 
 def current_season_end_year(reference: Optional[datetime] = None) -> int:
     now = reference or datetime.now()
+    if LEAGUE.code != "nba":
+        return now.year if now.month >= LEAGUE.season_start_month else now.year - 1
     return now.year + 1 if now.month >= 7 else now.year
 
 
+def _wnba_season_bounds(season_year: int) -> tuple[datetime, datetime]:
+    start = datetime(int(season_year), int(LEAGUE.season_start_month), 1)
+    end = datetime(int(season_year), 10, 31)
+    return start, end
+
+
+def _espn_scoreboard_for_date(dt: datetime) -> dict:
+    ymd = dt.strftime("%Y%m%d")
+    url = f"https://site.web.api.espn.com/apis/site/v2/{LEAGUE.espn_sport_path}/scoreboard?dates={ymd}"
+    resp = requests.get(
+        url,
+        headers={"Accept": "application/json", "User-Agent": LEAGUE.user_agent_product},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    payload = resp.json()
+    return payload if isinstance(payload, dict) else {}
+
+
+def _is_known_league_team(name: str) -> bool:
+    tri = str(to_tricode(str(name or "")) or "").strip().upper()
+    return tri in TEAM_TRICODES
+
+
+def _games_from_espn_scoreboard_date(dt: datetime) -> list[dict]:
+    payload = _espn_scoreboard_for_date(dt)
+    rows: list[dict] = []
+    for event in payload.get("events") or []:
+        try:
+            comp = (((event or {}).get("competitions") or [None])[0]) or {}
+            status = comp.get("status") or {}
+            status_type = status.get("type") or {}
+            if str(status_type.get("completed") or "").lower() not in {"true", "1"}:
+                continue
+
+            competitors = comp.get("competitors") or []
+            home = next((team for team in competitors if str((team or {}).get("homeAway") or "").strip().lower() == "home"), None)
+            away = next((team for team in competitors if str((team or {}).get("homeAway") or "").strip().lower() == "away"), None)
+            if not home or not away:
+                continue
+
+            home_team = home.get("team") or {}
+            away_team = away.get("team") or {}
+            home_name = normalize_team(str(home_team.get("displayName") or home_team.get("name") or home_team.get("abbreviation") or "").strip())
+            away_name = normalize_team(str(away_team.get("displayName") or away_team.get("name") or away_team.get("abbreviation") or "").strip())
+            if not home_name or not away_name:
+                continue
+            if not (_is_known_league_team(home_name) and _is_known_league_team(away_name)):
+                continue
+
+            game_date = dt.date()
+
+            rec = {
+                "season": int(game_date.year),
+                "date": game_date,
+                "home_team": home_name,
+                "visitor_team": away_name,
+                "home_pts": int(pd.to_numeric(home.get("score"), errors="coerce")),
+                "visitor_pts": int(pd.to_numeric(away.get("score"), errors="coerce")),
+                "game_id": str((event or {}).get("id") or "").strip(),
+            }
+
+            for prefix, team in (("home", home), ("visitor", away)):
+                lines = team.get("linescores") or []
+                quarter_map: dict[int, int] = {}
+                ot_idx = 1
+                for item in lines:
+                    try:
+                        period = int(pd.to_numeric((item or {}).get("period"), errors="coerce"))
+                        value = int(pd.to_numeric((item or {}).get("value"), errors="coerce"))
+                    except Exception:
+                        continue
+                    if 1 <= period <= 4:
+                        quarter_map[period] = value
+                    elif period >= 5:
+                        rec[f"{prefix}_ot{ot_idx}"] = value
+                        ot_idx += 1
+                for period in range(1, 5):
+                    rec[f"{prefix}_q{period}"] = quarter_map.get(period)
+                if rec.get(f"{prefix}_q1") is not None and rec.get(f"{prefix}_q2") is not None:
+                    rec[f"{prefix}_h1"] = rec[f"{prefix}_q1"] + rec[f"{prefix}_q2"]
+                if rec.get(f"{prefix}_q3") is not None and rec.get(f"{prefix}_q4") is not None:
+                    rec[f"{prefix}_h2"] = rec[f"{prefix}_q3"] + rec[f"{prefix}_q4"]
+            rows.append(rec)
+        except Exception:
+            continue
+    return rows
+
+
 def fetch_games_nba_api(last_n: int = 10, rate_delay: float = 0.6, with_periods: bool = True, verbose: bool = False, max_workers: int = 1) -> pd.DataFrame:
+    if LEAGUE.code != "nba":
+        current_end_year = current_season_end_year()
+        seasons = list(range(current_end_year - last_n + 1, current_end_year + 1))
+        return backfill_scoreboard(seasons=seasons, rate_delay=max(0.1, rate_delay), verbose=verbose)
+
     # Ensure fresh, browser-like headers to reduce blocks/timeouts
     try:
         nba_http.STATS_HEADERS.update({
@@ -753,6 +853,11 @@ def backfill_scoreboard(seasons: list[int], rate_delay: float = 0.8, verbose: bo
     else:
         base = pd.DataFrame()
 
+    if LEAGUE.code != "nba" and base is not None and not base.empty:
+        for team_col in ("home_team", "visitor_team"):
+            if team_col in base.columns:
+                base = base[base[team_col].astype(str).map(_is_known_league_team)].copy()
+
     resume = {}
     if resume_file:
         try:
@@ -763,6 +868,67 @@ def backfill_scoreboard(seasons: list[int], rate_delay: float = 0.8, verbose: bo
 
     total_added = 0
     total_updated = 0
+
+    if LEAGUE.code != "nba":
+        for s in seasons:
+            start, end = _wnba_season_bounds(int(s))
+            if str(s) in resume:
+                try:
+                    last = datetime.fromisoformat(str(resume[str(s)]))
+                    start = max(start, last + pd.Timedelta(days=1))
+                except Exception:
+                    pass
+            cur = start
+            processed_days = 0
+            while cur <= end:
+                try:
+                    if verbose:
+                        print(f"[backfill] Season {s} date {cur.date()} ...")
+                    new_rows = _games_from_espn_scoreboard_date(cur)
+                    if new_rows:
+                        day_df = pd.DataFrame(new_rows)
+                        if base is None or base.empty:
+                            base = day_df
+                        else:
+                            if "game_id" in base.columns:
+                                base = base[~base["game_id"].astype(str).isin(day_df["game_id"].astype(str))].copy()
+                            base = pd.concat([base, day_df], ignore_index=True)
+                        total_added += len(new_rows)
+                        if verbose:
+                            print(f"[backfill] {s} {cur.date()}: added {len(new_rows)} games")
+                        paths.data_raw.mkdir(parents=True, exist_ok=True)
+                        out_csv = paths.data_raw / "games_nba_api.csv"
+                        out_parq = paths.data_raw / "games_nba_api.parquet"
+                        base.to_csv(out_csv, index=False)
+                        try:
+                            base.to_parquet(out_parq, index=False)
+                        except Exception:
+                            pass
+                except Exception as e:
+                    if verbose:
+                        try:
+                            print(f"[backfill] {s} {cur.date()} error: {e}")
+                        except Exception:
+                            pass
+                cur += pd.Timedelta(days=1)
+                processed_days += 1
+                resume[str(s)] = cur.strftime("%Y-%m-%d")
+                if resume_file:
+                    try:
+                        with open(resume_file, "w", encoding="utf-8") as f:
+                            json.dump(resume, f)
+                    except Exception:
+                        pass
+                time.sleep(rate_delay)
+                if day_limit is not None and processed_days >= int(day_limit):
+                    break
+
+        if base is not None and not base.empty:
+            if "visitor_pts" in base.columns and "home_pts" in base.columns:
+                base["total_points"] = base[["visitor_pts", "home_pts"]].sum(axis=1)
+                base["home_win"] = (base["home_pts"] > base["visitor_pts"]).astype("Int64")
+                base["margin"] = base["home_pts"] - base["visitor_pts"]
+        return base
 
     # Retry wrapper for per-day scoreboard calls
     @retry(

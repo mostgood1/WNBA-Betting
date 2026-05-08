@@ -301,7 +301,7 @@ COMPLETE_SUCCESS.md                     This file (final summary)
 ### Morning Routine (10:00 AM Daily)
 
 ```bash
-cd C:\Users\mostg\OneDrive\Coding\NBA-Betting
+cd C:\Users\mostg\OneDrive\Coding\WNBA-Betting
 
 # 1. Update all data (injuries + stats)
 python -m nba_betting.cli run-all-improvements

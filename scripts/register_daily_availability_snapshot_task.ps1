@@ -6,7 +6,7 @@ param(
 # Registers a Windows Scheduled Task to build league_status_<date>.csv and injuries_counts_<date>.json daily.
 # This prevents stale data/raw/injuries.csv from creating persistent false OUT labels.
 
-$TaskName = "NBA-Betting - Daily Availability Snapshot"
+$TaskName = "WNBA-Betting - Daily Availability Snapshot"
 $Workspace = (Get-Location).Path
 $PyExe = Join-Path $Workspace ".venv\Scripts\python.exe"
 $ScriptPath = Join-Path $Workspace "tools\daily_availability_snapshot.py"

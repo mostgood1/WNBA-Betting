@@ -72,7 +72,7 @@ Modify CLI predict-props command to include rolling averages for non-modeled sta
 
 ## Command to Run
 ```powershell
-$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -m nba_betting.cli predict-props --date 2025-10-17
 ```
 

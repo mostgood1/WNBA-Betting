@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from ..config import paths
+from ..league import LEAGUE
 
 
 @dataclass
@@ -215,6 +216,10 @@ def _clamp01(x: float) -> float:
         return 0.7
 
 
+def _high_pace_corr_threshold() -> float:
+    return float(LEAGUE.baseline_pace + 6.0)
+
+
 def _load_default_blend_weights() -> tuple[float, float]:
     """Return (total_w, margin_w) market blend weights.
 
@@ -399,7 +404,10 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
     away = inp.away
 
     # Estimate possessions and base total from pace and ratings
-    pace = np.mean([_safe_float(home.pace, 98.0), _safe_float(away.pace, 98.0)])
+    pace = np.mean([
+        _safe_float(home.pace, LEAGUE.baseline_pace),
+        _safe_float(away.pace, LEAGUE.baseline_pace),
+    ])
     # Schedule- and lineup-sensitive pace tweak: mild drag on B2B and injuries
     try:
         b2b_drag = 0.0
@@ -408,7 +416,7 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
         if bool(away.back_to_back):
             b2b_drag += 1.0
         inj_drag = 0.3 * max(0, int(home.injuries_out or 0)) + 0.3 * max(0, int(away.injuries_out or 0))
-        pace = max(90.0, pace - b2b_drag - inj_drag)
+        pace = max(LEAGUE.baseline_pace - 8.0, pace - b2b_drag - inj_drag)
     except Exception:
         pass
     # Convert ratings to expected points per game.
@@ -416,7 +424,7 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
     # We adjust offense by opponent defense relative to league-average; the prior
     # implementation subtracted full opponent defensive PPG and unintentionally
     # floored most team means to ~80.
-    LEAGUE_AVG_RATING = 112.0
+    LEAGUE_AVG_RATING = LEAGUE.baseline_off_rating
 
     def _clip_rating(x: float, lo: float = 95.0, hi: float = 130.0) -> float:
         try:
@@ -438,8 +446,8 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
     away_adj = _adjustments(away)
 
     # Baseline means
-    home_mu = max(70.0, (home_eff / 100.0) * pace) + home_adj
-    away_mu = max(70.0, (away_eff / 100.0) * pace) + away_adj
+    home_mu = max(LEAGUE.min_team_points, (home_eff / 100.0) * pace) + home_adj
+    away_mu = max(LEAGUE.min_team_points, (away_eff / 100.0) * pace) + away_adj
 
     # Optional rolling calibration from recent reconciliation
     try:
@@ -471,7 +479,7 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
         away_mu = 0.5 * (cur_total_mu - target_margin_mu)
 
         # Keep team means in a sane range and re-balance to preserve the total.
-        MIN_TEAM_PTS = 60.0
+        MIN_TEAM_PTS = float(LEAGUE.min_team_points)
         if home_mu < MIN_TEAM_PTS:
             home_mu = MIN_TEAM_PTS
             away_mu = cur_total_mu - home_mu
@@ -540,7 +548,7 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
         corr_q = 0.25
         try:
             # Slightly raise correlation for higher pace contexts
-            if pace >= 100.0:
+            if pace >= _high_pace_corr_threshold():
                 corr_q = min(0.40, corr_q + 0.10)
         except Exception:
             pass
@@ -672,7 +680,10 @@ def simulate_quarters_analytic(inp: GameInputs) -> QuarterSummary:
     home = inp.home
     away = inp.away
 
-    pace = np.mean([_safe_float(home.pace, 98.0), _safe_float(away.pace, 98.0)])
+    pace = np.mean([
+        _safe_float(home.pace, LEAGUE.baseline_pace),
+        _safe_float(away.pace, LEAGUE.baseline_pace),
+    ])
     try:
         b2b_drag = 0.0
         if bool(home.back_to_back):
@@ -680,11 +691,11 @@ def simulate_quarters_analytic(inp: GameInputs) -> QuarterSummary:
         if bool(away.back_to_back):
             b2b_drag += 1.0
         inj_drag = 0.3 * max(0, int(home.injuries_out or 0)) + 0.3 * max(0, int(away.injuries_out or 0))
-        pace = max(90.0, pace - b2b_drag - inj_drag)
+        pace = max(LEAGUE.baseline_pace - 8.0, pace - b2b_drag - inj_drag)
     except Exception:
         pass
 
-    LEAGUE_AVG_RATING = 112.0
+    LEAGUE_AVG_RATING = LEAGUE.baseline_off_rating
 
     def _clip_rating(x: float, lo: float = 95.0, hi: float = 130.0) -> float:
         try:
@@ -703,8 +714,13 @@ def simulate_quarters_analytic(inp: GameInputs) -> QuarterSummary:
     home_adj = _adjustments(home)
     away_adj = _adjustments(away)
 
-    home_mu = max(70.0, (home_eff / 100.0) * pace) + home_adj
-    away_mu = max(70.0, (away_eff / 100.0) * pace) + away_adj
+    home_mu = max(LEAGUE.min_team_points, (home_eff / 100.0) * pace) + home_adj
+    away_mu = max(LEAGUE.min_team_points, (away_eff / 100.0) * pace) + away_adj
+
+    try:
+        home_mu, away_mu, q_biases = _apply_totals_calibration(inp.date, str(home.team).upper(), str(away.team).upper(), home_mu, away_mu)
+    except Exception:
+        q_biases = {}
 
     w_total, w_margin = _blend_weights(inp)
 
@@ -724,7 +740,7 @@ def simulate_quarters_analytic(inp: GameInputs) -> QuarterSummary:
         home_mu = 0.5 * (cur_total_mu + target_margin_mu)
         away_mu = 0.5 * (cur_total_mu - target_margin_mu)
 
-        MIN_TEAM_PTS = 60.0
+        MIN_TEAM_PTS = float(LEAGUE.min_team_points)
         if home_mu < MIN_TEAM_PTS:
             home_mu = MIN_TEAM_PTS
             away_mu = cur_total_mu - home_mu
@@ -739,7 +755,7 @@ def simulate_quarters_analytic(inp: GameInputs) -> QuarterSummary:
     quarters: List[QuarterResult] = []
     corr_q = 0.25
     try:
-        if pace >= 100.0:
+        if pace >= _high_pace_corr_threshold():
             corr_q = min(0.40, corr_q + 0.10)
     except Exception:
         pass

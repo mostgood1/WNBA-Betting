@@ -1,5 +1,5 @@
 param(
-  [string]$TaskName = 'NBA-Betting Weekly Tuner+Eval',
+  [string]$TaskName = 'WNBA-Betting Weekly Tuner+Eval',
   [string]$DayOfWeek = 'Sunday',  # e.g., Sunday
   [string]$Time = '09:30',        # HH:mm local time
   [switch]$Push,

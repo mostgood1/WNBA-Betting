@@ -163,7 +163,7 @@ python -m nba_betting.cli predict --input samples/matchups.csv
 
 ### "Module not found" at runtime
 1. Check PYTHONPATH is set: `$env:PYTHONPATH`
-2. Should be: `C:\Users\mostg\OneDrive\Coding\NBA-Betting\src`
+2. Should be: `C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src`
 3. VS Code terminal sets this automatically
 
 ### sklearn import errors (expected)

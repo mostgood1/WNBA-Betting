@@ -6,11 +6,13 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+from ..league import LEAGUE
+
 
 @dataclass
 class EventSimConfig:
     # Pace / possession controls
-    possessions_per_game: float = 98.0
+    possessions_per_game: float = LEAGUE.baseline_pace
     possessions_jitter: float = 0.06  # stddev fraction applied per quarter
 
     # Outcome priors (fallbacks when player priors are missing)
@@ -267,7 +269,7 @@ def _team_rates_from_priors(players: pd.DataFrame, cfg: EventSimConfig) -> Dict[
     mins = _safe_series(players, "_sim_min").to_numpy(dtype=float)
     total_min = float(np.sum(np.maximum(0.0, mins)))
     if total_min <= 0:
-        total_min = 240.0
+        total_min = LEAGUE.regulation_team_minutes
 
     def per_game_from_pm(col_pm: str) -> float:
         pm = _safe_series(players, col_pm).to_numpy(dtype=float)
@@ -279,7 +281,7 @@ def _team_rates_from_priors(players: pd.DataFrame, cfg: EventSimConfig) -> Dict[
     tov = per_game_from_pm("_prior_tov_pm")
     pf = per_game_from_pm("_prior_pf_pm")
 
-    poss = max(60.0, float(cfg.possessions_per_game))
+    poss = max(float(LEAGUE.min_event_possessions), float(cfg.possessions_per_game))
 
     p_tov = float(np.clip(tov / poss, 0.05, 0.22)) if np.isfinite(tov) and tov > 0 else cfg.base_tov_per_poss
     p3 = float(np.clip(fg3a / max(1.0, fga), 0.18, 0.55)) if np.isfinite(fga) and fga > 0 else 0.36
@@ -1213,18 +1215,17 @@ def simulate_pbp_game_boxscore(
 
     # Segment buckets for live-lens interval ladders.
     # Keep the legacy 3-minute buckets (4 per quarter) and ALSO track 1-minute buckets (12 per quarter).
-    quarter_seconds = 12 * 60
+    quarter_seconds = LEAGUE.regulation_period_seconds
     segment_seconds = 3 * 60
-    n_segments = 4
+    n_segments = int(max(1, np.ceil(float(quarter_seconds) / float(segment_seconds))))
     minute_seconds = 60
-    n_minutes = 12
+    n_minutes = int(max(1, quarter_seconds // minute_seconds))
     home_q_seg_pts = np.zeros((4, n_segments), dtype=int)
     away_q_seg_pts = np.zeros((4, n_segments), dtype=int)
     home_q_min_pts = np.zeros((4, n_minutes), dtype=int)
     away_q_min_pts = np.zeros((4, n_minutes), dtype=int)
 
-    # Overtime settings (NBA: 5 minutes)
-    ot_seconds = 5 * 60
+    ot_seconds = LEAGUE.overtime_period_seconds
     max_overtimes = 6
     home_ot_pts: List[int] = []
     away_ot_pts: List[int] = []

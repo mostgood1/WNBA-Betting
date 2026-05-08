@@ -107,7 +107,9 @@ def _finals_from_espn(date_str: str) -> pd.DataFrame:
         return pd.DataFrame()
     try:
         ymd = date_str.replace('-', '')
-        url = f"https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={ymd}"
+        from .league import LEAGUE
+
+        url = f"https://site.web.api.espn.com/apis/site/v2/{LEAGUE.espn_sport_path}/scoreboard?dates={ymd}"
         r = _rq.get(url, timeout=8)
         if r.status_code != 200:
             return pd.DataFrame()

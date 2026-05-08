@@ -156,7 +156,7 @@ date,player_id,player_name,team,stat,side,line,price,implied_prob,model_prob,edg
 ### Generate Props Predictions
 ```powershell
 # With scoreboard slate (game day only)
-$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" `
   -m nba_betting.cli predict-props `
   --date 2025-10-21 `
@@ -178,7 +178,7 @@ $env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
 ### View Props Edges
 ```powershell
 # Check what's in the file
-$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -c @"
 import pandas as pd
 df = pd.read_csv('data/processed/props_edges_2025-10-17.csv')

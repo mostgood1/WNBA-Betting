@@ -8,8 +8,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.NBA_BETTING_BASE_URL || 'https://nba-betting-5qgf.onrender.com' }}
-  NBA_BETTING_CRON_TOKEN: ${{ secrets.CRON_TOKEN || secrets.NBA_BETTING_CRON_TOKEN }}
+  WNBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.WNBA_BETTING_BASE_URL || secrets.NBA_BETTING_BASE_URL }}
+  WNBA_BETTING_CRON_TOKEN: ${{ secrets.CRON_TOKEN || secrets.WNBA_BETTING_CRON_TOKEN || secrets.NBA_BETTING_CRON_TOKEN }}
 
 jobs:
   live-lens-tick:
@@ -19,17 +19,17 @@ jobs:
         run: |
           set -euo pipefail
 
-          test -n "${NBA_BETTING_BASE_URL}" || (echo 'Missing NBA_BETTING_BASE_URL' && exit 1)
-          test -n "${NBA_BETTING_CRON_TOKEN}" || (echo 'Missing NBA_BETTING_CRON_TOKEN (set CRON_TOKEN or NBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
 
           # No date param: server uses its US cutoff logic to choose the correct slate date.
-          URL="${NBA_BETTING_BASE_URL%/}/api/cron/live-lens-tick?ttl=15&min_interval_sec=60&max_props_per_game=8&recent_window_sec=180&first_bet_only=1"
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/live-lens-tick?ttl=15&min_interval_sec=60&max_props_per_game=8&recent_window_sec=180&first_bet_only=1"
           echo "GET $URL"
 
           for i in 1 2 3 4 5 6; do
             set +e
             rm -f resp.txt headers.txt
-            http=$(curl -sS -o resp.txt -D headers.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -sS -o resp.txt -D headers.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
 

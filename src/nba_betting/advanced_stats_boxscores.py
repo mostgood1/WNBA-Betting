@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 
 from .config import paths
+from .league import LEAGUE, season_year_from_date
+from .teams import TEAM_TRICODES
 
 
 @dataclass(frozen=True)
@@ -64,8 +66,9 @@ def compute_team_advanced_stats_from_boxscores(
     """Compute team pace/ratings/four-factors from cached boxscore CSVs.
 
     Notes:
-    - Uses player-level BoxScoreTraditionalV3 totals aggregated to team totals.
-    - Filters boxscores by gameId season-key (e.g. regular season 00225xxxxxx for 2025-26).
+    - Uses player-level boxscore totals aggregated to team totals.
+    - Prefers date-based season classification so ESPN/WNBA game ids are included.
+    - Falls back to NBA-style gameId season keys when no date mapping is available.
     """
 
     if boxscores_dir is None:
@@ -84,42 +87,59 @@ def compute_team_advanced_stats_from_boxscores(
         as_of_ts = None
 
     gid_to_date: dict[str, pd.Timestamp] = {}
-    if as_of_ts is not None:
+    mapping_paths = [
+        games_path,
+        paths.data_processed / "boxscores_history.parquet",
+        paths.data_processed / "boxscores_history.csv",
+    ]
+    for mapping_path in mapping_paths:
         try:
-            gdf = pd.read_csv(games_path, dtype={"game_id": str})
-            if gdf is not None and not gdf.empty and "game_id" in gdf.columns and "date" in gdf.columns:
-                gdf = gdf[["game_id", "date"]].copy()
-                gdf["game_id"] = gdf["game_id"].astype(str).str.strip()
-                gdf["date"] = pd.to_datetime(gdf["date"], errors="coerce")
-                gdf = gdf.dropna(subset=["date"])
-                # Normalize to midnight for reliable comparisons
-                gdf["date"] = gdf["date"].dt.normalize()
-                for _, rr in gdf.iterrows():
-                    gid = str(rr.get("game_id") or "").strip()
-                    dt = rr.get("date")
-                    if gid and isinstance(dt, pd.Timestamp) and not pd.isna(dt):
-                        gid_to_date[gid] = dt
+            if mapping_path is None or not mapping_path.exists():
+                continue
+            if mapping_path.suffix.lower() == ".parquet":
+                gdf = pd.read_parquet(mapping_path)
+            else:
+                gdf = pd.read_csv(mapping_path, dtype={"game_id": str, "GAME_ID": str})
+            if gdf is None or gdf.empty:
+                continue
+            game_id_col = "game_id" if "game_id" in gdf.columns else ("GAME_ID" if "GAME_ID" in gdf.columns else None)
+            date_col = "date" if "date" in gdf.columns else ("GAME_DATE" if "GAME_DATE" in gdf.columns else None)
+            if game_id_col is None or date_col is None:
+                continue
+            gdf = gdf[[game_id_col, date_col]].copy()
+            gdf[game_id_col] = gdf[game_id_col].astype(str).str.strip()
+            gdf[date_col] = pd.to_datetime(gdf[date_col], errors="coerce").dt.normalize()
+            gdf = gdf.dropna(subset=[date_col])
+            for _, rr in gdf.iterrows():
+                gid = str(rr.get(game_id_col) or "").strip()
+                dt = rr.get(date_col)
+                if gid and isinstance(dt, pd.Timestamp) and not pd.isna(dt):
+                    gid_to_date[gid] = dt
         except Exception:
-            gid_to_date = {}
+            continue
 
     team_games: list[TeamGameTotals] = []
 
     for fp in _iter_boxscore_files(boxscores_dir):
-        # Quick season filter based on filename game id
         stem = fp.stem
         if not stem.startswith("boxscore_"):
             continue
         game_id = stem.replace("boxscore_", "", 1)
-        if _season_key_from_game_id(game_id) != season_key:
+        game_dt = gid_to_date.get(str(game_id))
+        if game_dt is not None:
+            if season_year_from_date(game_dt.date()) != int(season):
+                continue
+        elif LEAGUE.code != "nba":
+            continue
+        elif _season_key_from_game_id(game_id) != season_key:
             continue
 
         # No-leakage filter: only include games on/before as_of
         if as_of_ts is not None:
-            dt = gid_to_date.get(str(game_id))
-            if dt is None:
+            if game_dt is None:
                 # If we can't date this game, skip to avoid accidental leakage.
                 continue
-            if dt > as_of_ts:
+            if game_dt > as_of_ts:
                 continue
 
         try:
@@ -155,6 +175,10 @@ def compute_team_advanced_stats_from_boxscores(
 
         tmp = df[[c for c in df.columns if c in want_cols]].copy()
         tmp["teamTricode"] = tmp["teamTricode"].astype(str).str.upper().str.strip()
+        if LEAGUE.code != "nba":
+            tmp = tmp[tmp["teamTricode"].isin(set(TEAM_TRICODES))].copy()
+            if tmp.empty:
+                continue
         for c in [
             "points",
             "fieldGoalsMade",

@@ -10,18 +10,17 @@ import pandas as pd
 import requests
 
 from .config import paths
+from .league import LEAGUE
+from .teams import TEAM_TRICODES
 
 
 def _tri_to_espn(tri: str) -> str:
     s = str(tri or "").strip().upper()
     fix = {
-        "GSW": "GS",
-        "NOP": "NO",
-        "NYK": "NY",
-        "UTA": "UTAH",
-        "WAS": "WSH",
-        "SAS": "SA",
-        "PHX": "PHO",
+        "GSV": "GS",
+        "LVA": "LV",
+        "LAS": "LA",
+        "NYL": "NY",
     }
     return fix.get(s, s)
 
@@ -29,13 +28,11 @@ def _tri_to_espn(tri: str) -> str:
 def _espn_to_tri(abbr: str) -> str:
     s = str(abbr or "").strip().upper()
     fix = {
-        "GS": "GSW",
-        "NO": "NOP",
-        "NY": "NYK",
-        "UTAH": "UTA",
-        "WSH": "WAS",
-        "SA": "SAS",
-        "PHO": "PHX",
+        "GS": "GSV",
+        "LV": "LVA",
+        "LA": "LAS",
+        "NY": "NYL",
+        "WSH": "WSH",
     }
     return fix.get(s, s)
 
@@ -64,7 +61,7 @@ def _http_get_json(url: str, timeout: int = 18) -> dict[str, Any]:
     try:
         r = requests.get(
             url,
-            headers={"Accept": "application/json", "User-Agent": "nba-betting/1.0"},
+            headers={"Accept": "application/json", "User-Agent": LEAGUE.user_agent_product},
             timeout=int(timeout),
         )
         if not r.ok:
@@ -83,7 +80,7 @@ def _espn_scoreboard(date_str: str, *, force: bool = False) -> dict[str, Any]:
         jd = _read_json(cache)
         if jd:
             return jd
-    url = f"https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={ymd}"
+    url = f"https://site.web.api.espn.com/apis/site/v2/{LEAGUE.espn_sport_path}/scoreboard?dates={ymd}"
     jd = _http_get_json(url, timeout=18)
     if jd:
         _write_json(cache, jd)
@@ -96,7 +93,7 @@ def _espn_summary(event_id: str, *, force: bool = False) -> dict[str, Any]:
         jd = _read_json(cache)
         if jd:
             return jd
-    url = f"https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
+    url = f"https://site.web.api.espn.com/apis/site/v2/{LEAGUE.espn_sport_path}/summary?event={event_id}"
     jd = _http_get_json(url, timeout=18)
     if jd:
         _write_json(cache, jd)
@@ -412,40 +409,32 @@ def _normalize_boxscore_df(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _cdn_games_for_date(date_str: str) -> List[dict[str, Any]]:
-    """Minimal scoreboard from NBA CDN: returns [{gameId, home, away, statusText, status}]."""
+    """Minimal scoreboard from ESPN: returns [{gameId, home, away, statusText, status}]."""
     try:
-        target = _dt.strptime(date_str, "%Y-%m-%d").date()
+        _ = _dt.strptime(date_str, "%Y-%m-%d").date()
     except Exception:
         return []
-    headers = {
-        "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
-        "Referer": "https://www.nba.com/",
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/125.0.0.0 Safari/537.36"
-        ),
-    }
     try:
-        ymd = target.strftime("%Y%m%d")
-        u_day = f"https://cdn.nba.com/static/json/liveData/scoreboard/scoreboard_{ymd}.json"
-        r = requests.get(u_day, headers=headers, timeout=20)
-        if not r.ok:
+        scoreboard = _espn_scoreboard(date_str)
+        events = scoreboard.get("events") if isinstance(scoreboard, dict) else None
+        if not isinstance(events, list):
             return []
-        j = r.json() or {}
-        games = (j.get("scoreboard") or {}).get("games") or []
         out: list[dict[str, Any]] = []
-        for g in games:
+        for event in events:
+            comp = (((event or {}).get("competitions") or [None])[0]) or {}
+            competitors = comp.get("competitors") or []
+            home = next((team for team in competitors if str((team or {}).get("homeAway") or "").strip().lower() == "home"), None)
+            away = next((team for team in competitors if str((team or {}).get("homeAway") or "").strip().lower() == "away"), None)
+            home_abbr = _espn_to_tri(str((((home or {}).get("team") or {}).get("abbreviation")) or "").strip())
+            away_abbr = _espn_to_tri(str((((away or {}).get("team") or {}).get("abbreviation")) or "").strip())
+            status = comp.get("status") or {}
             out.append(
                 {
-                    "gameId": str(g.get("gameId") or "").strip(),
-                    "home": str(((g.get("homeTeam") or {}).get("teamTricode")) or "").upper(),
-                    "away": str(((g.get("awayTeam") or {}).get("teamTricode")) or "").upper(),
-                    "statusText": g.get("gameStatusText"),
-                    "status": g.get("gameStatus"),
+                    "gameId": str((event or {}).get("id") or "").strip(),
+                    "home": str(home_abbr or "").upper(),
+                    "away": str(away_abbr or "").upper(),
+                    "statusText": (status.get("type") or {}).get("description") or status.get("type") or status.get("displayClock"),
+                    "status": (status.get("type") or {}).get("id") or status.get("type") or None,
                 }
             )
         return out
@@ -465,51 +454,20 @@ def _scoreboard_games(date_str: str) -> pd.DataFrame:
 
 
 def _nba_gid_to_tricodes(date_str: str) -> dict[str, tuple[str, str]]:
-    """Map NBA gameId -> (home_tricode, away_tricode) using ScoreboardV2.
+    """Map scoreboard game ids -> (home_tricode, away_tricode) using ESPN.
 
-    This is used to support ESPN fallbacks even when NBA CDN scoreboard data is missing.
+    This keeps the historical helper name, but WNBA mode resolves ESPN event ids.
     """
     try:
-        from nba_api.stats.endpoints import scoreboardv2
-
-        sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
-        nd = sb.get_normalized_dict() or {}
-        gh = pd.DataFrame(nd.get("GameHeader", []))
-        ls = pd.DataFrame(nd.get("LineScore", []))
-        if gh.empty or ls.empty:
-            return {}
-
-        # teamId -> tricode from LineScore
-        team_id_col = "TEAM_ID" if "TEAM_ID" in ls.columns else None
-        tri_col = "TEAM_ABBREVIATION" if "TEAM_ABBREVIATION" in ls.columns else None
-        gid_col = "GAME_ID" if "GAME_ID" in ls.columns else None
-        if not team_id_col or not tri_col or not gid_col:
-            return {}
-
-        teamid_to_tri: dict[int, str] = {}
-        for _, r in ls.iterrows():
-            try:
-                tid = int(r[team_id_col])
-                tri = str(r[tri_col] or "").strip().upper()
-                if tri:
-                    teamid_to_tri[tid] = tri
-            except Exception:
-                continue
-
         out: dict[str, tuple[str, str]] = {}
-        if "GAME_ID" not in gh.columns or "HOME_TEAM_ID" not in gh.columns or "VISITOR_TEAM_ID" not in gh.columns:
-            return {}
-        for _, r in gh.iterrows():
+        for game in _cdn_games_for_date(date_str):
             try:
-                gid = str(r["GAME_ID"] or "").strip()
-                if not gid:
+                gid = str(game.get("gameId") or "").strip()
+                home_tri = str(game.get("home") or "").strip().upper()
+                away_tri = str(game.get("away") or "").strip().upper()
+                if not gid or not home_tri or not away_tri:
                     continue
-                home_tid = int(r["HOME_TEAM_ID"])
-                away_tid = int(r["VISITOR_TEAM_ID"])
-                home_tri = teamid_to_tri.get(home_tid, "")
-                away_tri = teamid_to_tri.get(away_tid, "")
-                if home_tri and away_tri:
-                    out[gid] = (home_tri, away_tri)
+                out[gid] = (home_tri, away_tri)
             except Exception:
                 continue
         return out
@@ -519,6 +477,8 @@ def _nba_gid_to_tricodes(date_str: str) -> dict[str, tuple[str, str]]:
 
 def _fetch_boxscore_for_game(game_id: str, rate_delay: float = 0.35) -> pd.DataFrame:
     """Fetch BoxScoreTraditionalV3 for a single game id. Returns empty DataFrame on failure."""
+    if LEAGUE.code != "nba":
+        return pd.DataFrame()
     try:
         from nba_api.stats.endpoints import boxscoretraditionalv3
         gid = str(game_id)
@@ -559,6 +519,12 @@ def _expected_game_ids_for_date(date_str: str, only_final: bool = True) -> tuple
 
     def _push_gid(raw_gid: Any) -> None:
         gid = str(raw_gid or "").strip()
+        teams = gid_to_teams.get(gid, ("", ""))
+        if LEAGUE.code != "nba":
+            home_tri = str((teams[0] if len(teams) > 0 else "") or "").strip().upper()
+            away_tri = str((teams[1] if len(teams) > 1 else "") or "").strip().upper()
+            if home_tri not in set(TEAM_TRICODES) or away_tri not in set(TEAM_TRICODES):
+                return
         if gid and gid not in seen:
             seen.add(gid)
             game_ids.append(gid)
@@ -618,14 +584,14 @@ def _cached_boxscore_game_ids(date_str: str) -> set[str]:
 
 
 def _boxscore_cache_complete(date_str: str, expected_game_ids: List[str]) -> bool:
+    if LEAGUE.code != "nba":
+        return False
     out_path = paths.data_processed / f"boxscores_{date_str}.csv"
     if not out_path.exists():
         return False
 
     cached_game_ids = _cached_boxscore_game_ids(date_str)
     required_game_ids = {str(gid).strip() for gid in expected_game_ids if str(gid).strip()}
-    if not required_game_ids:
-        required_game_ids = set(cached_game_ids)
     if not required_game_ids:
         return False
     if not required_game_ids.issubset(cached_game_ids):
@@ -671,6 +637,78 @@ def fetch_boxscores_for_date(date_str: str, only_final: bool = True, rate_delay:
     return pd.DataFrame(), game_ids
 
 
+def _read_boxscores_history() -> pd.DataFrame:
+    hist_parquet = paths.data_processed / "boxscores_history.parquet"
+    hist_csv = paths.data_processed / "boxscores_history.csv"
+    if hist_parquet.exists():
+        try:
+            return pd.read_parquet(hist_parquet)
+        except Exception:
+            pass
+    if hist_csv.exists():
+        try:
+            return pd.read_csv(hist_csv)
+        except Exception:
+            pass
+    return pd.DataFrame()
+
+
+def _write_boxscores_history(df: pd.DataFrame) -> str | None:
+    hist_parquet = paths.data_processed / "boxscores_history.parquet"
+    hist_csv = paths.data_processed / "boxscores_history.csv"
+    try:
+        df.to_parquet(hist_parquet, index=False)
+        return str(hist_parquet)
+    except Exception:
+        try:
+            df.to_csv(hist_csv, index=False)
+            return str(hist_csv)
+        except Exception:
+            return None
+
+
+def _merge_boxscores_history(hist: pd.DataFrame, cur: pd.DataFrame) -> pd.DataFrame:
+    if cur is None or cur.empty:
+        return hist if hist is not None else pd.DataFrame()
+    key_cols = [c for c in ["game_id", "PLAYER_ID"] if c in cur.columns]
+    if len(key_cols) < 2:
+        key_cols = [c for c in ["game_id", "TEAM_ABBREVIATION", "PLAYER_NAME"] if c in cur.columns]
+
+    hist_base = hist.copy() if hist is not None and not hist.empty else pd.DataFrame()
+    if not hist_base.empty and "date" in hist_base.columns and "date" in cur.columns:
+        cur_dates = pd.to_datetime(cur["date"], errors="coerce").dt.normalize().dropna().unique().tolist()
+        if cur_dates:
+            hist_dates = pd.to_datetime(hist_base["date"], errors="coerce").dt.normalize()
+            hist_base = hist_base[~hist_dates.isin(cur_dates)].copy()
+    combo = pd.concat([hist_base, cur], ignore_index=True) if not hist_base.empty else cur.copy()
+    if "date" in combo.columns:
+        combo["date"] = pd.to_datetime(combo["date"], errors="coerce")
+    if key_cols:
+        combo = combo.sort_values(["date"], kind="stable")
+        combo = combo.drop_duplicates(subset=key_cols, keep="last")
+    if LEAGUE.code != "nba" and "TEAM_ABBREVIATION" in combo.columns:
+        combo = combo[combo["TEAM_ABBREVIATION"].astype(str).str.upper().isin(set(TEAM_TRICODES))].copy()
+    if LEAGUE.code != "nba" and "game_id" in combo.columns:
+        combo = combo[combo["game_id"].astype(str).str.strip().str.startswith("401")].copy()
+    return combo
+
+
+def _load_cached_boxscores_for_date(date_str: str, expected_game_ids: List[str] | None = None) -> pd.DataFrame:
+    out_path = paths.data_processed / f"boxscores_{date_str}.csv"
+    if not out_path.exists():
+        return pd.DataFrame()
+    try:
+        df = pd.read_csv(out_path)
+    except Exception:
+        return pd.DataFrame()
+    if expected_game_ids:
+        gid_col = "game_id" if "game_id" in df.columns else ("gameId" if "gameId" in df.columns else None)
+        if gid_col:
+            expected = {str(gid).strip() for gid in expected_game_ids if str(gid).strip()}
+            df = df[df[gid_col].astype(str).str.strip().isin(expected)].copy()
+    return df
+
+
 def update_boxscores_history_for_date(date_str: str, include_live: bool = False, rate_delay: float = 0.35) -> dict[str, Any]:
     """Fetch boxscores for a date and append into a durable history file.
 
@@ -679,23 +717,7 @@ def update_boxscores_history_for_date(date_str: str, include_live: bool = False,
     - data/processed/boxscores_history.csv (fallback)
     """
     df, gids = fetch_boxscores_for_date(date_str, only_final=(not include_live), rate_delay=rate_delay)
-    hist_parquet = paths.data_processed / "boxscores_history.parquet"
-    hist_csv = paths.data_processed / "boxscores_history.csv"
-
-    def _read_hist() -> pd.DataFrame:
-        if hist_parquet.exists():
-            try:
-                return pd.read_parquet(hist_parquet)
-            except Exception:
-                pass
-        if hist_csv.exists():
-            try:
-                return pd.read_csv(hist_csv)
-            except Exception:
-                pass
-        return pd.DataFrame()
-
-    hist = _read_hist()
+    hist = _read_boxscores_history()
     if df is None or df.empty:
         return {
             "date": date_str,
@@ -704,31 +726,8 @@ def update_boxscores_history_for_date(date_str: str, include_live: bool = False,
             "history_rows": 0 if hist is None else int(len(hist)),
         }
 
-    cur = df.copy()
-    # De-dupe keys (prefer player_id if present)
-    key_cols = [c for c in ["game_id", "PLAYER_ID"] if c in cur.columns]
-    if len(key_cols) < 2:
-        key_cols = [c for c in ["game_id", "TEAM_ABBREVIATION", "PLAYER_NAME"] if c in cur.columns]
-
-    combo = pd.concat([hist, cur], ignore_index=True) if hist is not None and not hist.empty else cur
-    if "date" in combo.columns:
-        combo["date"] = pd.to_datetime(combo["date"], errors="coerce")
-    if key_cols:
-        # Keep the latest record by date
-        combo = combo.sort_values(["date"], kind="stable")
-        combo = combo.drop_duplicates(subset=key_cols, keep="last")
-
-    # Write back
-    wrote = None
-    try:
-        combo.to_parquet(hist_parquet, index=False)
-        wrote = str(hist_parquet)
-    except Exception:
-        try:
-            combo.to_csv(hist_csv, index=False)
-            wrote = str(hist_csv)
-        except Exception:
-            wrote = None
+    combo = _merge_boxscores_history(hist, df.copy())
+    wrote = _write_boxscores_history(combo)
 
     return {
         "date": date_str,
@@ -754,17 +753,24 @@ def backfill_boxscores(start_date: str, end_date: str, only_final: bool = True, 
     except Exception:
         return pd.DataFrame()
     out_frames: List[pd.DataFrame] = []
+    hist = _read_boxscores_history()
     cur = s
     while cur <= e:
         d = cur.isoformat()
         expected_game_ids, _ = _expected_game_ids_for_date(d, only_final=only_final)
         if _boxscore_cache_complete(d, expected_game_ids):
+            cached = _load_cached_boxscores_for_date(d, expected_game_ids)
+            if cached is not None and not cached.empty:
+                hist = _merge_boxscores_history(hist, cached)
             cur += _dt.timedelta(days=1)
             continue
         df, _ = fetch_boxscores_for_date(d, only_final=only_final, rate_delay=rate_delay)
         if df is not None and not df.empty:
             out_frames.append(df)
+            hist = _merge_boxscores_history(hist, df)
         cur += _dt.timedelta(days=1)
+    if hist is not None and not hist.empty:
+        _write_boxscores_history(hist)
     if out_frames:
         return pd.concat(out_frames, ignore_index=True)
     return pd.DataFrame()

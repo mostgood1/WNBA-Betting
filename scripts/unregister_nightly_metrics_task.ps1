@@ -1,4 +1,4 @@
-$TaskName = "NBA-Betting - Nightly Metrics"
+$TaskName = "WNBA-Betting - Nightly Metrics"
 try {
   Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction Stop | Out-Null
   Write-Host "✅ Unregistered task: $TaskName"

@@ -19,7 +19,7 @@ Param(
   # (data/processed/recommendations_slate_{Date}.json) instead of *_custom.json.
   [switch]$SlateForceDefaultOut,
   # Optional: Remote server base URL (updated to the correct Render site)
-  [string]$RemoteBaseUrl = "https://nba-betting-5qgf.onrender.com",
+  [string]$RemoteBaseUrl = '',
   # Optional: Bare -CronToken flag is accepted (no value) to avoid task failures
   [switch]$CronToken,
   # Explicit cron token text (overrides env/.env/file discovery)
@@ -34,7 +34,15 @@ Param(
 
 $ErrorActionPreference = 'Stop'
 
-function Resolve-NbaSlateDate {
+if ([string]::IsNullOrWhiteSpace($RemoteBaseUrl)) {
+  if (-not [string]::IsNullOrWhiteSpace($env:WNBA_BETTING_BASE_URL)) {
+    $RemoteBaseUrl = $env:WNBA_BETTING_BASE_URL
+  } else {
+    $RemoteBaseUrl = $env:NBA_BETTING_BASE_URL
+  }
+}
+
+function Resolve-SlateDate {
   param(
     [string]$TimeZoneId = $env:APP_TZ,
     [int]$CutoffHour = 6
@@ -80,21 +88,17 @@ function Resolve-NbaSlateDate {
   return $nowLocal.ToString('yyyy-MM-dd')
 }
 
-function Resolve-NbaSeasonString {
+function Resolve-SeasonString {
   param([string]$DateValue)
 
   $dt = [datetime]::ParseExact($DateValue, 'yyyy-MM-dd', $null)
-  $seasonYear = if ($dt.Month -ge 7) { $dt.Year } else { $dt.Year - 1 }
-  return "{0}-{1}" -f $seasonYear, ("{0:d2}" -f (($seasonYear + 1) % 100))
+  return ("{0}" -f $dt.Year)
 }
 
-function Resolve-NbaSeasonYear {
+function Resolve-SeasonYear {
   param([string]$DateValue)
 
   $dt = [datetime]::ParseExact($DateValue, 'yyyy-MM-dd', $null)
-  if ($dt.Month -ge 7) {
-    return ($dt.Year + 1)
-  }
   return $dt.Year
 }
 
@@ -130,21 +134,19 @@ function Resolve-RegularSeasonEndDate {
   }
 
   try {
-    $seasonSuffix = $startYear.Substring($startYear.Length - 2)
-    $regularPrefixes = @(
-      ("002{0}" -f $seasonSuffix),
-      ("2{0}" -f $seasonSuffix)
-    )
     $rows = Import-Csv -Path $schedulePath
     $dates = @(
       $rows |
         Where-Object {
-          $gid = [string]$_.game_id
-          if ([string]::IsNullOrWhiteSpace($gid)) { return $false }
-          $digits = ($gid -replace '[^0-9]', '')
-          if ([string]::IsNullOrWhiteSpace($digits)) { return $false }
-          $matchedPrefix = $regularPrefixes | Where-Object { $digits.StartsWith($_) } | Select-Object -First 1
-          return [bool]$matchedPrefix
+          $seasonTypeSlug = [string]$_.season_type_slug
+          if (-not [string]::IsNullOrWhiteSpace($seasonTypeSlug)) {
+            return ($seasonTypeSlug.Trim().ToLower() -eq 'regular')
+          }
+          $gameLabel = [string]$_.game_label
+          if (-not [string]::IsNullOrWhiteSpace($gameLabel)) {
+            return ($gameLabel.Trim().ToLower() -eq 'regular season')
+          }
+          return $false
         } |
         ForEach-Object {
           try {
@@ -804,7 +806,7 @@ $DotEnvPath = Join-Path $RepoRoot '.env'
 Import-DotEnv -Path $DotEnvPath
 
 if ($DateWasImplicit) {
-  $Date = Resolve-NbaSlateDate
+  $Date = Resolve-SlateDate
 }
 
 # Ensure Python writes UTF-8 to stdout/stderr to avoid UnicodeEncodeError on Windows PowerShell consoles
@@ -824,7 +826,7 @@ if (Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction Sile
   $PSNativeCommandUseErrorActionPreference = $false
 }
 
-Write-Log "Starting NBA local daily update for date=$Date"
+Write-Log "Starting WNBA local daily update for date=$Date"
 if ($DateWasImplicit) {
   Write-Log "Date default resolved from US local slate time (APP_TZ or America/New_York, 6am cutoff)"
 }
@@ -870,8 +872,14 @@ if ($IsCiRun) {
 $NoSlateDay = $false
 $LastSlateDate = $null
 try {
-  $jf = Join-Path $RepoRoot 'data\processed\schedule_2025_26.json'
-  if (Test-Path $jf) {
+  $scheduleYear = ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null)).Year
+  $scheduleCandidates = @(
+    (Join-Path $RepoRoot ("data\\processed\\schedule_{0}.json" -f $scheduleYear)),
+    (Join-Path $RepoRoot ("data\\processed\\schedule_{0}.json" -f ($scheduleYear - 1))),
+    (Join-Path $RepoRoot ("data\\processed\\schedule_{0}.json" -f ($scheduleYear + 1)))
+  ) | Select-Object -Unique
+  $jf = $scheduleCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+  if ($jf) {
     $raw = Get-Content -Path $jf -Raw
     $sched = $raw | ConvertFrom-Json
     $games = 0
@@ -918,9 +926,9 @@ try {
       }
 
       if ($LastSlateDate) {
-        Write-Log ("No NBA games scheduled for {0}; will reconcile using last slate date {1}" -f $Date, $LastSlateDate)
+        Write-Log ("No WNBA games scheduled for {0}; will reconcile using last slate date {1}" -f $Date, $LastSlateDate)
       } else {
-        Write-Log ("No NBA games scheduled for {0}; could not find a last slate date (continuing anyway)" -f $Date)
+        Write-Log ("No WNBA games scheduled for {0}; could not find a last slate date (continuing anyway)" -f $Date)
       }
     } else {
       Write-Log ("Slate size: {0} games" -f $games)
@@ -1504,7 +1512,7 @@ try {
 $seasonStr = $null
 $rostersPath = $null
 try {
-  $seasonStr = Resolve-NbaSeasonString -DateValue $Date
+  $seasonStr = Resolve-SeasonString -DateValue $Date
   $rostersPath = Join-Path $RepoRoot ("data/processed/rosters_{0}.csv" -f $seasonStr)
 } catch {
   Write-Log ("Season resolution failed for date={0}: {1}" -f $Date, $_.Exception.Message)
@@ -1530,13 +1538,13 @@ try {
   } catch { $forceRosterPreflight = $false }
   $hasRosterSeed = Test-CsvHasDataRows -Path $rostersPath
   $minRosterTeams = $env:DAILY_ROSTERS_MIN_TEAM_COUNT
-  if ($null -eq $minRosterTeams -or $minRosterTeams -eq '') { $minRosterTeams = '30' }
-  try { $minRosterTeamsInt = [int]$minRosterTeams } catch { $minRosterTeamsInt = 30 }
+  if ($null -eq $minRosterTeams -or $minRosterTeams -eq '') { $minRosterTeams = '15' }
+  try { $minRosterTeamsInt = [int]$minRosterTeams } catch { $minRosterTeamsInt = 15 }
   if ($minRosterTeamsInt -lt 1) { $minRosterTeamsInt = 1 }
   $rosterTeamCount = Get-RosterTeamCount -Path $rostersPath
   $rosterLooksComplete = ($rosterTeamCount -ge $minRosterTeamsInt)
   $maxAgeH = $env:DAILY_ROSTERS_MAX_AGE_HOURS
-  # NBA Stats rosters are relatively stable day-to-day, and the endpoint can be flaky.
+  # League rosters are relatively stable day-to-day, and the endpoint can be flaky.
   # Default to a wider freshness window to avoid repeated slow fetches.
   if ($null -eq $maxAgeH -or $maxAgeH -eq '') { $maxAgeH = '72' }
   try { $maxAgeMin = [int]([Math]::Max(0, ([double]$maxAgeH) * 60.0)) } catch { $maxAgeMin = 720 }
@@ -1545,7 +1553,7 @@ try {
   } elseif ((Test-FreshFile -Path $rostersPath -MaxAgeMinutes $maxAgeMin) -and -not $rosterLooksComplete) {
     Write-Log ("Rosters file looks fresh but incomplete ({0}/{1} teams); forcing fetch-rosters: {2}" -f $rosterTeamCount, $minRosterTeamsInt, $rostersPath)
   } elseif ($isCi -and -not $forceRosterPreflight -and -not $hasRosterSeed) {
-    Write-Log ("CI preflight: no seeded roster artifact found at {0}; skipping fetch-rosters to avoid a full NBA Stats crawl. Set DAILY_FORCE_ROSTER_PREFLIGHT=1 to force a refresh." -f $rostersPath)
+    Write-Log ("CI preflight: no seeded roster artifact found at {0}; skipping fetch-rosters to avoid a full roster crawl. Set DAILY_FORCE_ROSTER_PREFLIGHT=1 to force a refresh." -f $rostersPath)
   } else {
     Write-Log ("Fetching team rosters for season {0}" -f $seasonStr)
     $rc0 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_rosters'
@@ -1649,7 +1657,7 @@ try {
   if (Test-FreshFile -Path $injPath -MaxAgeMinutes $maxAgeMinInt) {
     Write-Log ("injuries.csv already fresh (<= {0}m); skipping fetch-injuries" -f $maxAgeMinInt)
   } else {
-    Write-Log "Fetching injuries from NBA official (availability gate; fallback to Rotowire/ESPN)"
+    Write-Log "Fetching injuries from the league/ESPN sources (availability gate fallback chain)"
     $rcInjEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-injuries','--date', $Date) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_injuries'
     Write-Log ("fetch-injuries exit code: {0}" -f $rcInjEarly)
   }
@@ -1908,7 +1916,7 @@ try {
 try {
   $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
 } catch {
-  $fallbackDate = Resolve-NbaSlateDate
+  $fallbackDate = Resolve-SlateDate
   $yesterday = ([datetime]::ParseExact($fallbackDate, 'yyyy-MM-dd', $null)).AddDays(-1).ToString('yyyy-MM-dd')
 }
 
@@ -1940,7 +1948,7 @@ try {
     if ($null -ne $skipPlayablePropAudits -and $skipPlayablePropAudits -match '^(1|true|yes)$') {
       Write-Log 'Skipping playable prop settlement/provider coverage audits (DAILY_SKIP_PLAYABLE_PROP_AUDITS=1)'
     } else {
-      $auditSeason = Resolve-NbaSeasonYear -DateValue $yesterday
+      $auditSeason = Resolve-SeasonYear -DateValue $yesterday
       $auditTimeout = $env:DAILY_PLAYABLE_PROP_AUDIT_TIMEOUT_SEC
       if ($null -eq $auditTimeout -or $auditTimeout -eq '') { $auditTimeout = '300' }
       try { $auditTimeoutInt = [int]$auditTimeout } catch { $auditTimeoutInt = 300 }
@@ -3818,7 +3826,7 @@ try {
     $bettingCardProfile = [string]$env:DAILY_SEASON_BETTING_CARD_PROFILE
     if ([string]::IsNullOrWhiteSpace($bettingCardProfile)) { $bettingCardProfile = 'retuned' }
     $bettingCardProfile = $bettingCardProfile.Trim().ToLowerInvariant()
-    $bettingCardSeason = Resolve-NbaSeasonYear -DateValue $Date
+    $bettingCardSeason = Resolve-SeasonYear -DateValue $Date
     $manifestOut = Join-Path $RepoRoot ("data/processed/season_betting_card_manifest_{0}_{1}_{2}.json" -f $bettingCardSeason, $bettingCardProfile, $Date)
     $manifestGenericOut = Join-Path $RepoRoot ("data/processed/season_betting_card_manifest_{0}_{1}.json" -f $bettingCardSeason, $bettingCardProfile)
     $dayOut = Join-Path $RepoRoot ("data/processed/season_betting_card_day_{0}_{1}_{2}.json" -f $bettingCardSeason, $bettingCardProfile, $Date)
@@ -4349,7 +4357,7 @@ try {
 
   $allowNonToday = $env:DAILY_LOG_PREGAME_PROP_SIGNALS_ALLOW_NON_TODAY
   if ($null -eq $allowNonToday -or $allowNonToday -eq '') { $allowNonToday = '0' }
-  $todayLocal = Resolve-NbaSlateDate
+  $todayLocal = Resolve-SlateDate
 
   if ($NoSlateDay) {
     Write-Log ("Pregame signals: no slate for {0}; skipping" -f $Date)

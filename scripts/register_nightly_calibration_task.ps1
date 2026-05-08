@@ -11,7 +11,7 @@ param(
 #   - data/processed/props_prob_calibration_{30,60,90}.json and props_prob_calibration_windows.json
 #   - data/processed/props_prob_calibration_by_stat.json
 
-$TaskName = "NBA-Betting - Nightly Props Calibration"
+$TaskName = "WNBA-Betting - Nightly Props Calibration"
 $Workspace = (Get-Location).Path
 $PyExe = Join-Path $Workspace ".venv\Scripts\python.exe"
 $RunnerPath = Join-Path $Workspace "scripts\run_props_calibration.ps1"

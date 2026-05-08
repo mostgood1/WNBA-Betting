@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 
 from .config import paths
+from .league import LEAGUE, season_label_from_year
+from .teams import TEAM_TRICODES
 
 
 @dataclass(frozen=True)
@@ -41,8 +43,7 @@ def _possessions(fga: float, fta: float, oreb: float, tov: float) -> float:
 
 
 def _season_label(season: int) -> str:
-    # season=2026 -> 2025-26
-    return f"{int(season) - 1}-{str(int(season))[-2:]}"
+    return season_label_from_year(int(season))
 
 
 def compute_team_advanced_stats_from_player_logs(
@@ -95,6 +96,11 @@ def compute_team_advanced_stats_from_player_logs(
     df = df[df["SEASON"] == s_label].copy()
     if df.empty:
         return pd.DataFrame()
+    if LEAGUE.code != "nba":
+        df["TEAM_ABBREVIATION"] = df["TEAM_ABBREVIATION"].astype(str).str.upper().str.strip()
+        df = df[df["TEAM_ABBREVIATION"].isin(set(TEAM_TRICODES))].copy()
+        if df.empty:
+            return pd.DataFrame()
 
     # No-leakage filter
     as_of_ts = None

@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.NBA_BETTING_BASE_URL || 'https://nba-betting-5qgf.onrender.com' }}
-  NBA_BETTING_CRON_TOKEN: ${{ secrets.CRON_TOKEN || secrets.NBA_BETTING_CRON_TOKEN }}
+  WNBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.WNBA_BETTING_BASE_URL || secrets.NBA_BETTING_BASE_URL }}
+  WNBA_BETTING_CRON_TOKEN: ${{ secrets.CRON_TOKEN || secrets.WNBA_BETTING_CRON_TOKEN || secrets.NBA_BETTING_CRON_TOKEN }}
 
 jobs:
   refresh-oddsapi-props-pregame:
@@ -24,13 +24,13 @@ jobs:
       - name: Preflight (config + cron ping)
         run: |
           set -euo pipefail
-          test -n "${NBA_BETTING_BASE_URL}" || (echo 'Missing NBA_BETTING_BASE_URL' && exit 1)
-          test -n "${NBA_BETTING_CRON_TOKEN}" || (echo 'Missing NBA_BETTING_CRON_TOKEN (set CRON_TOKEN or NBA_BETTING_CRON_TOKEN secret)' && exit 1)
-          URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
           echo "[preflight] GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -96,10 +96,10 @@ jobs:
           DATE="$(slate_date)"
           echo "Using slate date $DATE (tz=$SLATE_TZ, cutoff=6)"
           export EXPECTED_DATE="$DATE"
-          PING_URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
-          VERSION_URL="${NBA_BETTING_BASE_URL%/}/api/version"
-          STATUS_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status"
-          UPLOAD_URL="${NBA_BETTING_BASE_URL%/}/api/cron/upload-props-refresh-artifacts"
+          PING_URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
+          VERSION_URL="${WNBA_BETTING_BASE_URL%/}/api/version"
+          STATUS_URL="${WNBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status"
+          UPLOAD_URL="${WNBA_BETTING_BASE_URL%/}/api/cron/upload-props-refresh-artifacts"
           EXPECTED_SHA="${GITHUB_SHA}"
           export EXPECTED_SHA
 
@@ -110,7 +110,7 @@ jobs:
             local http="000"
             for j in $(seq 1 "$attempts"); do
               set +e
-              http=$(curl -sS -o ping.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$PING_URL")
+              http=$(curl -sS -o ping.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$PING_URL")
               rc=$?
               set -e
               if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -203,7 +203,7 @@ jobs:
 
           STARTED_AT="$(python3 -c 'from datetime import datetime; print(datetime.utcnow().isoformat())')"
           export STARTED_AT LOCAL_LOG_FILE
-          export NBA_BETTING_ODDSAPI_PROPS_JOB="$(
+          export WNBA_BETTING_ODDSAPI_PROPS_JOB="$(
             EXPECTED_DATE="$EXPECTED_DATE" LOCAL_LOG_FILE="$LOCAL_LOG_FILE" STARTED_AT="$STARTED_AT" \
               python3 -c 'import json, os; print(json.dumps({"date_str": os.environ["EXPECTED_DATE"], "regions": "us", "bookmakers": "fanduel,draftkings,betmgm,bet365", "markets": "", "do_edges": True, "do_export": True, "do_push": False, "log_file": os.environ["LOCAL_LOG_FILE"], "started_at": os.environ["STARTED_AT"]}))'
           )"
@@ -330,7 +330,7 @@ jobs:
           echo "POST $UPLOAD_URL"
           curl_args=(
             -X POST
-            -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}"
+            -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}"
             -F "date=${DATE}"
             -F "regions=us"
             -F "bookmakers=fanduel,draftkings,betmgm,bet365"
@@ -382,7 +382,7 @@ jobs:
 
           wait_for_service "after props artifact upload" 12 5
 
-          status_http=$(curl -sS -o status.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$STATUS_URL")
+          status_http=$(curl -sS -o status.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$STATUS_URL")
           if [ "$status_http" -lt 200 ] || [ "$status_http" -ge 300 ]; then
             echo "Status check failed with HTTP $status_http" >&2
             cat status.txt || true

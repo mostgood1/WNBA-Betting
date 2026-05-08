@@ -96,7 +96,7 @@ predictions.to_csv('props_predictions_2025-10-21.csv', index=False)
 
 ### Option 2: Test Script
 ```powershell
-cd "C:\Users\mostg\OneDrive\Coding\NBA-Betting"
+cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" test_pure_onnx_pipeline.py
 ```
 
@@ -142,7 +142,7 @@ $rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props-pure-onnx','
 ## File Locations
 
 ```
-NBA-Betting/
+WNBA-Betting/
 ├── src/nba_betting/
 │   ├── props_features_pure.py      ✅ Pure feature builder
 │   ├── props_onnx_pure.py          ✅ Pure ONNX predictor

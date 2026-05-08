@@ -65,7 +65,7 @@ Example: LaMelo Ball AST 5.5
 
 Run this to verify NN models are loaded:
 ```powershell
-$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -c "import onnxruntime as ort; print('Providers:', ort.get_available_providers()); print('QNN Available:', 'QNNExecutionProvider' in ort.get_available_providers())"
 ```
 

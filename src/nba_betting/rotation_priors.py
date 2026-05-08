@@ -9,9 +9,10 @@ import numpy as np
 import pandas as pd
 
 from .config import paths
+from .league import LEAGUE
 
 
-PERIOD_SECONDS_DEFAULT = 12 * 60
+PERIOD_SECONDS_DEFAULT = LEAGUE.regulation_period_seconds
 
 
 def _optional_text(value: Any) -> Optional[str]:

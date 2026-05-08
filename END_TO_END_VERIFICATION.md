@@ -179,7 +179,7 @@ recommendations_2025-10-17.csv       0.00 KB  (exported for frontend)
 - **Environment:** NPU environment with all dependencies
 
 ### Remote (Render)
-- **URL:** https://nba-betting-5qgf.onrender.com
+- **URL:** https://wnba-betting.onrender.com
 - **Status:** Active (detected by daily updater)
 - **Sync:** Git push successful (78 files, 13,593 insertions)
 

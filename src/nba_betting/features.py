@@ -6,6 +6,7 @@ from collections import deque, defaultdict
 import numpy as np
 
 from .elo import Elo, EloConfig
+from .league import LEAGUE
 
 
 def build_features(games: pd.DataFrame) -> pd.DataFrame:
@@ -161,7 +162,7 @@ def build_features(games: pd.DataFrame) -> pd.DataFrame:
     df["season_game_number_diff"] = df["home_season_game_number"] - df["visitor_season_game_number"]
     if season_start is not None:
         df["season_day_number"] = (df["date"].dt.normalize() - season_start).dt.days.astype(float)
-        df["season_progress"] = ((df["home_season_game_number"] + df["visitor_season_game_number"]) / 2.0) / 82.0
+        df["season_progress"] = ((df["home_season_game_number"] + df["visitor_season_game_number"]) / 2.0) / float(LEAGUE.season_games)
     else:
         df["season_day_number"] = np.nan
         df["season_progress"] = np.nan

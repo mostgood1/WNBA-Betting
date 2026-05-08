@@ -1,5 +1,5 @@
 param(
-  [string]$TaskName = 'NBA-Betting - Intraday Props Refresh',
+  [string]$TaskName = 'WNBA-Betting - Intraday Props Refresh',
   [string]$StartTime = '10:00',
   [string]$EndTime = '23:40',
   [int]$IntervalMinutes = 20

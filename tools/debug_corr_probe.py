@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 
 def main():
-    proc_dir = Path('c:/Users/mostg/OneDrive/Coding/NBA-Betting/data/processed')
+    proc_dir = Path('c:/Users/mostg/OneDrive/Coding/WNBA-Betting/data/processed')
     pth = proc_dir / 'recon_props_2026-01-15.csv'
     df = pd.read_csv(pth)
     cols = {c.lower(): c for c in df.columns}

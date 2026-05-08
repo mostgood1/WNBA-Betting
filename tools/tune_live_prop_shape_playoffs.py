@@ -21,7 +21,7 @@ import app as app_module
 
 
 PROCESSED = ROOT / "data" / "processed"
-DEFAULT_BASE_URL = "https://nba-betting-5qgf.onrender.com"
+DEFAULT_BASE_URL = (os.environ.get("WNBA_BETTING_BASE_URL") or "").strip()
 
 
 def _parse_date(value: str) -> dt_date:

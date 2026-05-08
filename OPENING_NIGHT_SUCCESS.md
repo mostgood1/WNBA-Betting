@@ -109,7 +109,7 @@ return $exitCode
 ## Server Integration
 
 ### Render Server Status
-- **URL**: https://nba-betting-5qgf.onrender.com
+- **URL**: https://wnba-betting.onrender.com
 - **Health Check**: ✅ Responding
 - **Odds Refresh**: Attempted (401 - needs CRON_TOKEN)
 - **Reconciliation**: Attempted (401 - needs CRON_TOKEN)
@@ -198,7 +198,7 @@ powershell -ExecutionPolicy Bypass -File scripts\daily_update.ps1 -Date "2025-10
 ### Run Individual Components
 ```powershell
 # Game predictions only
-$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -m nba_betting.cli predict-date --date 2025-10-21
 
 # Props predictions with NPU

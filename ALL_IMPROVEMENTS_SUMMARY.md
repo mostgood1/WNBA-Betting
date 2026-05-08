@@ -158,7 +158,7 @@ python -m nba_betting.cli run-all-improvements
 
 ### Step 1: Run All Improvements (Recommended)
 ```bash
-cd C:\Users\mostg\OneDrive\Coding\NBA-Betting
+cd C:\Users\mostg\OneDrive\Coding\WNBA-Betting
 python -m nba_betting.cli run-all-improvements
 ```
 
@@ -291,7 +291,7 @@ python -m nba_betting.cli calculate-roi --days 1
 ## 📁 File Structure
 
 ```
-NBA-Betting/
+WNBA-Betting/
 ├── src/nba_betting/
 │   ├── scrapers/
 │   │   ├── __init__.py

@@ -115,7 +115,7 @@ Handles complete daily workflow:
 
 ### 7. **Web Interface - LIVE**
 
-Flask app ready at `http://127.0.0.1:5050` or `https://nba-betting-5qgf.onrender.com`:
+Flask app ready at `http://127.0.0.1:5050` or `https://wnba-betting.onrender.com`:
 - ✅ `/` - Game predictions dashboard
 - ✅ `/props` - Player props predictions
 - ✅ `/props_recommendations.html` - Best bets

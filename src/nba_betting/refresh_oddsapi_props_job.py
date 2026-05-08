@@ -18,6 +18,8 @@ from typing import Any, Callable, Optional
 import pandas as pd
 
 from .config import paths, reconcile_repo_data_to_active
+from .league import season_label_from_year, season_year_from_date
+from .odds_api import player_props_raw_path
 from .player_names import normalize_player_name_key
 from .teams import to_tricode
 
@@ -440,7 +442,7 @@ def _maybe_fetch_remote_processed(fname: str) -> Optional[Path]:
         out = paths.data_processed / fname
         if out.exists() and out.stat().st_size > 0:
             return out
-        repo = os.environ.get("GITHUB_REPOSITORY") or "mostgood1/NBA-Betting"
+        repo = os.environ.get("GITHUB_REPOSITORY") or "mostgood1/WNBA-Betting"
         branch = os.environ.get("GIT_BRANCH") or os.environ.get("RENDER_GIT_BRANCH") or "main"
         url = f"https://raw.githubusercontent.com/{repo}/{branch}/data/processed/{fname}"
         try:
@@ -450,7 +452,7 @@ def _maybe_fetch_remote_processed(fname: str) -> Optional[Path]:
         req = Request(
             url,
             headers={
-                "User-Agent": "NBA-Betting/props-refresh-worker",
+                "User-Agent": "wnba-betting/props-refresh-worker",
                 "Accept": "text/csv,application/octet-stream,*/*",
             },
         )
@@ -551,12 +553,33 @@ def _active_player_logs_paths() -> list[Path]:
 
 def _file_is_fresh(path: Path, *, max_age_minutes: int) -> bool:
     try:
-        if max_age_minutes <= 0:
-            return path.exists() and path.stat().st_size > 0
         if not path.exists() or path.stat().st_size <= 0:
             return False
+        if path.suffix.lower() == ".csv":
+            if _count_csv_rows_quick(path) <= 0:
+                return False
+        elif path.suffix.lower() == ".parquet":
+            df = pd.read_parquet(path)
+            if not isinstance(df, pd.DataFrame) or df.empty:
+                return False
+        if max_age_minutes <= 0:
+            return True
         age_s = max(0.0, time.time() - float(path.stat().st_mtime))
         return age_s <= (float(max_age_minutes) * 60.0)
+    except Exception:
+        return False
+
+
+def _player_logs_artifact_exists_with_rows(path: Path) -> bool:
+    try:
+        if not path.exists() or path.stat().st_size <= 0:
+            return False
+        if path.suffix.lower() == ".csv":
+            return _count_csv_rows_quick(path) > 0
+        if path.suffix.lower() == ".parquet":
+            df = pd.read_parquet(path)
+            return isinstance(df, pd.DataFrame) and not df.empty
+        return True
     except Exception:
         return False
 
@@ -569,12 +592,11 @@ def _player_logs_ready(*, max_age_minutes: int) -> bool:
 
 
 def _season_year_for_date(date_str: str) -> int:
-    d = datetime.strptime(date_str, "%Y-%m-%d").date()
-    return d.year if d.month >= 7 else (d.year - 1)
+    return int(season_year_from_date(datetime.strptime(date_str, "%Y-%m-%d").date()))
 
 
 def _season_str_from_year(season_year: int) -> str:
-    return f"{season_year}-{(season_year + 1) % 100:02d}"
+    return season_label_from_year(int(season_year))
 
 
 def _ensure_player_logs_for_props_refresh(
@@ -596,7 +618,7 @@ def _ensure_player_logs_for_props_refresh(
     if _player_logs_ready(max_age_minutes=max_age_minutes):
         return True, None
 
-    if any(path.exists() and path.stat().st_size > 0 for path in _active_player_logs_paths()):
+    if any(_player_logs_artifact_exists_with_rows(path) for path in _active_player_logs_paths()):
         return True, None
 
     allow_fetch_on_miss = (os.environ.get("REFRESH_PLAYER_LOGS_FETCH_ON_MISS") or "0").strip().lower() in {"1", "true", "yes"}
@@ -619,7 +641,7 @@ def _ensure_player_logs_for_props_refresh(
     )
     if int(rc) != 0:
         return False, f"fetch-player-logs failed with exit code {int(rc)}"
-    if not any(path.exists() and path.stat().st_size > 0 for path in _active_player_logs_paths()):
+    if not any(_player_logs_artifact_exists_with_rows(path) for path in _active_player_logs_paths()):
         return False, "player_logs missing after fetch-player-logs"
     return True, None
 
@@ -723,7 +745,7 @@ def _ensure_props_predictions_for_refresh(
     snapshot_path: Path | None = None,
 ) -> tuple[Path | None, str | None]:
     pred_path = paths.data_processed / f"props_predictions_{date_str}.csv"
-    snapshot_fp = snapshot_path or (paths.data_raw / f"odds_nba_player_props_{date_str}.csv")
+    snapshot_fp = snapshot_path or player_props_raw_path(date_str=date_str, ext="csv")
     baseline_df = pd.DataFrame()
     baseline_label = ""
 
@@ -1074,7 +1096,7 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
             except Exception:
                 origin = None
             if not origin:
-                gh_repo = os.environ.get("GITHUB_REPOSITORY") or "mostgood1/NBA-Betting"
+                gh_repo = os.environ.get("GITHUB_REPOSITORY") or "mostgood1/WNBA-Betting"
                 origin = f"https://github.com/{gh_repo}.git"
                 subprocess.run(["git", "remote", "add", "origin", origin], cwd=str(paths.root), check=False)
             url = str(origin or "")
@@ -1122,7 +1144,7 @@ def run_refresh_oddsapi_props_job(
     started_at: str | None = None,
 ) -> dict[str, Any]:
     started_iso = started_at or _utcnow_iso()
-    raw_fp = paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+    raw_fp = player_props_raw_path(date_str=date_str, ext="csv")
     pred_fp = paths.data_processed / f"props_predictions_{date_str}.csv"
     edges_fp = paths.data_processed / f"props_edges_{date_str}.csv"
     rec_fp = paths.data_processed / f"props_recommendations_{date_str}.csv"
@@ -1386,14 +1408,14 @@ def run_refresh_oddsapi_props_job(
 
 
 def main() -> int:
-    payload_raw = (os.environ.get("NBA_BETTING_ODDSAPI_PROPS_JOB") or "").strip()
+    payload_raw = (os.environ.get("WNBA_BETTING_ODDSAPI_PROPS_JOB") or os.environ.get("NBA_BETTING_ODDSAPI_PROPS_JOB") or "").strip()
     if not payload_raw:
-        print("missing NBA_BETTING_ODDSAPI_PROPS_JOB payload", file=sys.stderr)
+        print("missing WNBA_BETTING_ODDSAPI_PROPS_JOB payload", file=sys.stderr)
         return 2
     try:
         payload = json.loads(payload_raw)
     except Exception as exc:
-        print(f"invalid NBA_BETTING_ODDSAPI_PROPS_JOB payload: {exc}", file=sys.stderr)
+        print(f"invalid WNBA_BETTING_ODDSAPI_PROPS_JOB payload: {exc}", file=sys.stderr)
         return 2
     log_file = Path(str(payload.get("log_file") or (paths.data_root / "logs" / f"refresh_oddsapi_props_{int(time.time())}.log")))
     state = run_refresh_oddsapi_props_job(

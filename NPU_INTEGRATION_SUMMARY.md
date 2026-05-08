@@ -1,8 +1,8 @@
-🏀 NBA-Betting NPU Integration Summary 🚀
+🏀 WNBA-Betting NPU Integration Summary 🚀
 
 ## Complete NPU Optimization Achieved! ✅
 
-Successfully integrated Qualcomm Snapdragon X Elite NPU acceleration into the entire NBA-Betting repository, covering both player props AND game projections.
+Successfully integrated Qualcomm Snapdragon X Elite NPU acceleration into the entire WNBA-Betting repository, covering both player props AND game projections.
 
 ### 🎯 NPU Commands Available:
 
@@ -84,7 +84,7 @@ Successfully integrated Qualcomm Snapdragon X Elite NPU acceleration into the en
 - **Dual Acceleration**: Both props and games optimized
 - **Fallback Support**: Automatic CPU fallback when NPU unavailable
 - **Memory Optimization**: Efficient model loading and session management
-- **Pipeline Integration**: Seamlessly works with existing NBA-Betting workflow
+- **Pipeline Integration**: Seamlessly works with existing WNBA-Betting workflow
 - **Period Support**: Includes halves and quarters for comprehensive game analysis
 
 ### 📦 Dependencies:
@@ -97,7 +97,7 @@ Successfully integrated Qualcomm Snapdragon X Elite NPU acceleration into the en
 - **Performance**: 3-14x speedup achieved across all model types
 - **Accuracy**: Identical predictions to original sklearn models
 - **Scale**: Successfully processed hundreds of players and games in milliseconds
-- **Integration**: Full CLI integration with existing NBA-Betting commands
+- **Integration**: Full CLI integration with existing WNBA-Betting commands
 
 ### 🎯 Production Use Cases:
 
@@ -123,11 +123,11 @@ python -m nba_betting.cli benchmark-games-npu
 ```
 
 ### 🏁 Summary:
-The NBA-Betting system now features **complete NPU optimization** covering:
+The WNBA-Betting system now features **complete NPU optimization** covering:
 - ✅ **5 Player Prop Models** with up to 9x speedup
 - ✅ **3 Game Projection Models** with up to 14x speedup  
 - ✅ **6 CLI Commands** for seamless NPU workflow
 - ✅ **Production-ready** performance for live betting
 - ✅ **Scalable** to process thousands of predictions per second
 
-🎯 **The NBA-Betting system now leverages the full power of Qualcomm's AI hardware for both player and game predictions!**
+🎯 **The WNBA-Betting system now leverages the full power of Qualcomm's AI hardware for both player and game predictions!**

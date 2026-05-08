@@ -186,7 +186,7 @@ Row 2: LAL vs GSW ✅
 
 ```powershell
 # Full pipeline for opening night
-cd "C:\Users\mostg\OneDrive\Coding\NBA-Betting"
+cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
 .\scripts\daily_update.ps1 -Date "2025-10-21" -GitPush
 ```
 

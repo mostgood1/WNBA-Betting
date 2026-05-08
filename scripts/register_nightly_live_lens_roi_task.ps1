@@ -5,7 +5,7 @@ param(
 # Registers a Windows Scheduled Task to run the Live Lens ROI report nightly.
 # Writes data/processed/reports/live_lens_roi_<yesterday>.md + live_lens_roi_scored_<yesterday>.csv
 
-$TaskName = "NBA-Betting - Nightly Live Lens ROI"
+$TaskName = "WNBA-Betting - Nightly Live Lens ROI"
 $Workspace = (Get-Location).Path
 $PyExe = Join-Path $Workspace ".venv\Scripts\python.exe"
 $ScriptPath = Join-Path $Workspace "tools\daily_live_lens_roi.py"

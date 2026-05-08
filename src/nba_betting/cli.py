@@ -22,7 +22,8 @@ from .features import build_features
 # from .train import train_models  # MOVED TO CONDITIONAL IMPORT - requires sklearn
 import joblib
 from .elo import Elo
-from .schedule import compute_rest_for_matchups, fetch_schedule_2025_26
+from .league import LEAGUE, season_label_from_date, season_year_from_date
+from .schedule import _scoreboard_for_date, compute_rest_for_matchups, fetch_schedule_2025_26
 from .rosters import fetch_rosters
 from .league_status import build_league_status
 from .availability import build_and_check_dressed_players
@@ -53,6 +54,7 @@ from .teams import normalize_team, to_tricode
 from .scrape_nba_api import fetch_games_nba_api, enrich_periods_existing, backfill_scoreboard
 from .odds_api import backfill_historical_odds, OddsApiConfig, consensus_lines_at_close, backfill_player_props, fetch_player_props_current
 from .odds_api import filter_player_prop_bookmakers_df, resolve_player_prop_bookmakers, player_prop_bookmakers_csv
+from .odds_api import player_props_artifact_stem, player_props_raw_path
 from .pbp_markets import train_all_pbp_markets, predict_tip_for_date, predict_first_basket_for_date, predict_early_threes_for_date
 from .odds_api import fetch_game_odds_current
 from .odds_bovada import fetch_bovada_odds_current
@@ -66,6 +68,7 @@ from .pbp_espn import fetch_pbp_espn_for_date, update_pbp_espn_history_for_date,
 from .rotation_priors import write_rotation_priors
 from .rotations_espn import update_rotations_history_for_date
 from .lineup_context_features import build_lineup_teammate_effects
+from .expected_minutes import write_pregame_expected_minutes
 # from .props_train import train_props_models, predict_props  # MOVED TO CONDITIONAL - requires sklearn
 from .props_edges import compute_props_edges, SigmaConfig, calibrate_sigma_for_date
 from .props_linear import train_linear_props_models, export_linear_to_onnx
@@ -159,12 +162,9 @@ def _league_status_player_maps_for_date(
     def _backfill_missing_roster_names() -> None:
         try:
             dts = pd.to_datetime(date_str, errors="coerce")
-            season_start = None
-            if not pd.isna(dts):
-                season_start = int(dts.year) if int(dts.month) >= 7 else int(dts.year) - 1
             season_label = None
-            if season_start is not None:
-                season_label = f"{int(season_start)}-{str(int(season_start) + 1)[-2:]}"
+            if not pd.isna(dts):
+                season_label = str(int(dts.year))
 
             fp = pick_rosters_file(paths.data_processed, season=season_label)
             if fp is None or not fp.exists():
@@ -319,14 +319,12 @@ def _smart_sim_injuries_excluded_map_for_date(
     if not roster_name_to_tri:
         try:
             dts = pd.to_datetime(ds_s, errors="coerce")
-            season_start = None
+            season_label = None
             if not pd.isna(dts):
-                season_start = int(dts.year) if int(dts.month) >= 7 else int(dts.year) - 1
+                season_label = str(int(dts.year))
             candidates: list[Path] = []
-            if season_start is not None:
-                label = f"{int(season_start)}-{str(int(season_start) + 1)[-2:]}"
-                candidates.append(paths.data_processed / f"rosters_{label}.csv")
-                candidates.append(paths.data_processed / f"rosters_{int(season_start)}.csv")
+            if season_label is not None:
+                candidates.append(paths.data_processed / f"rosters_{season_label}.csv")
             candidates.extend(sorted(paths.data_processed.glob("rosters_*.csv")))
 
             seen: set[str] = set()
@@ -524,7 +522,7 @@ def _load_player_calib_overrides():
 
 @click.group()
 def cli():
-    """NBA Betting command-line interface."""
+    """WNBA Betting command-line interface."""
     pass
 
 
@@ -547,7 +545,7 @@ def _load_dotenv_key(name: str) -> str | None:
 
 
 def _us_slate_date() -> _date:
-    """Return the current NBA slate date using US local time, not UTC."""
+    """Return the current active-league slate date using US local time, not UTC."""
     import datetime as _dt
 
     tz_name = str(os.environ.get("APP_TZ") or "America/New_York").strip() or "America/New_York"
@@ -611,13 +609,11 @@ def _load_schedule_day(date_str: str) -> pd.DataFrame:
     except Exception:
         pass
 
-    season_start = target_date.year if target_date.month >= 7 else target_date.year - 1
-    season_token = f"{season_start}_{str(season_start + 1)[-2:]}"
+    season_year = season_year_from_date(target_date)
+    season_token = str(season_year)
     schedule_candidates = [
         paths.data_processed / f"schedule_{season_token}.csv",
         paths.data_processed / f"schedule_{season_token}.json",
-        paths.data_processed / "schedule_2025_26.csv",
-        paths.data_processed / "schedule_2025_26.json",
     ]
     for sched_path in schedule_candidates:
         if not sched_path.exists():
@@ -698,7 +694,7 @@ def smart_sim_cmd(
     home_tri = str(home_tri or "").strip().upper()
     away_tri = str(away_tri or "").strip().upper()
     if len(home_tri) != 3 or len(away_tri) != 3:
-        console.print("[red]--home/--away must be NBA tricodes (3 letters)")
+        console.print("[red]--home/--away must be league tricodes (3 letters)")
         raise SystemExit(2)
 
     props_path = paths.data_processed / f"props_predictions_{date_str}.csv"
@@ -880,10 +876,10 @@ def smart_sim_cmd(
     except Exception:
         away_pace = float("nan")
     if not np.isfinite(home_pace):
-        home_pace = 98.0
+        home_pace = LEAGUE.baseline_pace
     if not np.isfinite(away_pace):
-        away_pace = 98.0
-    matchup_pace = float(np.mean([home_pace, away_pace])) if (np.isfinite(home_pace) and np.isfinite(away_pace)) else 98.0
+        away_pace = LEAGUE.baseline_pace
+    matchup_pace = float(np.mean([home_pace, away_pace])) if (np.isfinite(home_pace) and np.isfinite(away_pace)) else LEAGUE.baseline_pace
 
     try:
         home_def_rtg = float(adv_map.get(home_tri, {}).get("def_rtg"))
@@ -894,16 +890,16 @@ def smart_sim_cmd(
     except Exception:
         away_def_rtg = float("nan")
     if not np.isfinite(home_def_rtg):
-        home_def_rtg = 112.0
+        home_def_rtg = LEAGUE.baseline_def_rating
     if not np.isfinite(away_def_rtg):
-        away_def_rtg = 112.0
+        away_def_rtg = LEAGUE.baseline_def_rating
     def _rating_from_mu(mu: Optional[float], pace_val: float) -> float:
         try:
             if mu is None or (not np.isfinite(mu)):
-                return 112.0
+                return LEAGUE.baseline_off_rating
             return float((float(mu) / max(1e-6, float(pace_val))) * 100.0)
         except Exception:
-            return 112.0
+            return LEAGUE.baseline_off_rating
 
     home_mu = None
     away_mu = None
@@ -1104,13 +1100,13 @@ def _smart_sim_worker_run(job: dict) -> dict:
                     market_total_for_quarters = float(2.0 * h1f)
             except Exception:
                 pass
-        home_pace = float(job.get("home_pace") or 98.0)
-        away_pace = float(job.get("away_pace") or 98.0)
+        home_pace = float(job.get("home_pace") or LEAGUE.baseline_pace)
+        away_pace = float(job.get("away_pace") or LEAGUE.baseline_pace)
         matchup_pace = float(job.get("matchup_pace") or np.mean([home_pace, away_pace]))
-        home_def_rtg = float(job.get("home_def_rtg") or 112.0)
-        away_def_rtg = float(job.get("away_def_rtg") or 112.0)
-        home_off_rtg = float(job.get("home_off_rtg") or 112.0)
-        away_off_rtg = float(job.get("away_off_rtg") or 112.0)
+        home_def_rtg = float(job.get("home_def_rtg") or LEAGUE.baseline_def_rating)
+        away_def_rtg = float(job.get("away_def_rtg") or LEAGUE.baseline_def_rating)
+        home_off_rtg = float(job.get("home_off_rtg") or LEAGUE.baseline_off_rating)
+        away_off_rtg = float(job.get("away_off_rtg") or LEAGUE.baseline_off_rating)
         home_outs = int(job.get("home_outs") or 0)
         away_outs = int(job.get("away_outs") or 0)
         home_b2b = bool(job.get("home_b2b") or False)
@@ -1659,10 +1655,10 @@ def _smart_sim_run_date(
         except Exception:
             away_pace = float("nan")
         if not np.isfinite(home_pace):
-            home_pace = 98.0
+            home_pace = LEAGUE.baseline_pace
         if not np.isfinite(away_pace):
-            away_pace = 98.0
-        matchup_pace = float(np.mean([home_pace, away_pace])) if (np.isfinite(home_pace) and np.isfinite(away_pace)) else 98.0
+            away_pace = LEAGUE.baseline_pace
+        matchup_pace = float(np.mean([home_pace, away_pace])) if (np.isfinite(home_pace) and np.isfinite(away_pace)) else LEAGUE.baseline_pace
 
         try:
             home_def_rtg = float(adv_map.get(home_tri, {}).get("def_rtg"))
@@ -1673,17 +1669,17 @@ def _smart_sim_run_date(
         except Exception:
             away_def_rtg = float("nan")
         if not np.isfinite(home_def_rtg):
-            home_def_rtg = 112.0
+            home_def_rtg = LEAGUE.baseline_def_rating
         if not np.isfinite(away_def_rtg):
-            away_def_rtg = 112.0
+            away_def_rtg = LEAGUE.baseline_def_rating
 
         def _rating_from_mu(mu: Optional[float], pace_val: float) -> float:
             try:
                 if mu is None or (not np.isfinite(mu)):
-                    return 112.0
+                    return LEAGUE.baseline_off_rating
                 return float((float(mu) / max(1e-6, float(pace_val))) * 100.0)
             except Exception:
-                return 112.0
+                return LEAGUE.baseline_off_rating
 
         home_off_rtg = _rating_from_mu(home_mu, matchup_pace)
         away_off_rtg = _rating_from_mu(away_mu, matchup_pace)
@@ -1813,11 +1809,9 @@ def _smart_sim_run_date(
 
 
 def _season_year_from_date_str(date_str: str) -> int:
-    """Return NBA season year (e.g., 2026 for 2025-26) from a YYYY-MM-DD date."""
+    """Return the internal season year from a YYYY-MM-DD date."""
     d = pd.to_datetime(str(date_str).strip()).date()
-    # Season label is the calendar year in which the season ends.
-    # NBA season starts in fall (Oct) and ends in spring (Jun).
-    return int(d.year + 1) if int(d.month) >= 7 else int(d.year)
+    return season_year_from_date(d)
 
 
 def _ensure_team_advanced_stats_asof(season: int, as_of: str) -> Path | None:
@@ -1830,6 +1824,7 @@ def _ensure_team_advanced_stats_asof(season: int, as_of: str) -> Path | None:
     out_path = paths.data_processed / f"team_advanced_stats_{int(season)}_asof_{safe}.csv"
     if out_path.exists():
         return out_path
+    local_min_games = 1 if LEAGUE.code != "nba" else 10
     try:
         from .advanced_stats_boxscores import compute_team_advanced_stats_from_boxscores
 
@@ -1840,7 +1835,7 @@ def _ensure_team_advanced_stats_asof(season: int, as_of: str) -> Path | None:
             )
         except Exception:
             pass
-        stats = compute_team_advanced_stats_from_boxscores(int(season), as_of=as_of_s)
+        stats = compute_team_advanced_stats_from_boxscores(int(season), min_games=local_min_games, as_of=as_of_s)
         if stats is None or stats.empty:
             # Fallback: compute from cached player logs (no per-game boxscore cache needed).
             try:
@@ -1853,7 +1848,7 @@ def _ensure_team_advanced_stats_asof(season: int, as_of: str) -> Path | None:
                     pass
                 from .advanced_stats_player_logs import compute_team_advanced_stats_from_player_logs
 
-                stats = compute_team_advanced_stats_from_player_logs(int(season), as_of=as_of_s)
+                stats = compute_team_advanced_stats_from_player_logs(int(season), min_games=local_min_games, as_of=as_of_s)
             except Exception:
                 stats = None
         if stats is None or stats.empty:
@@ -2596,20 +2591,20 @@ def train():
 
 
 @cli.command("fetch-schedule")
-@click.option("--season", "season", type=str, default="2025-26", show_default=True, help="Season string to export (currently only 2025-26 supported)")
+@click.option("--season", "season", type=str, default=None, show_default=False, help="Season string to export (for WNBA use the start year, e.g. 2025 or 2026)")
 def fetch_schedule_cmd(season: str):
-    """Fetch the NBA schedule for 2025-26 from the public CDN and export JSON/CSV for the frontend."""
+    """Fetch the active league schedule from ESPN and export JSON/CSV for the frontend."""
     console.rule("Fetch Schedule")
-    if season != "2025-26":
-        console.print("Only 2025-26 is supported right now; ignoring provided season.", style="yellow")
+    season = str(season or season_label_from_date(_date.today())).strip()
     try:
-        df = fetch_schedule_2025_26()
+        df = fetch_schedule_2025_26(season=season)
     except Exception as e:
         console.print(f"Failed to fetch schedule: {e}", style="red"); return
     out_dir = paths.data_processed
     out_dir.mkdir(parents=True, exist_ok=True)
-    json_path = out_dir / "schedule_2025_26.json"
-    csv_path = out_dir / "schedule_2025_26.csv"
+    season_token = season.replace("-", "_")
+    json_path = out_dir / f"schedule_{season_token}.json"
+    csv_path = out_dir / f"schedule_{season_token}.csv"
     try:
         # Save compact JSON list
         df.to_json(json_path, orient="records", date_format="iso")
@@ -2639,7 +2634,7 @@ def fetch_rosters_cmd(season: str):
 
 
 @cli.command("fetch-player-logs")
-@click.option("--seasons", type=str, required=True, help="Comma-separated seasons like 2023-24,2024-25,2025-26")
+@click.option("--seasons", type=str, required=True, help="Comma-separated season labels like 2023,2024,2025")
 def fetch_player_logs_cmd(seasons: str):
     """Fetch player game logs for the given seasons and save to processed folder."""
     console.rule("Fetch Player Logs")
@@ -2812,6 +2807,18 @@ def write_rotation_priors_cmd(lookback_days: int, min_games: int):
         raise click.ClickException(f"Failed to write rotation priors: {e}")
 
 
+@cli.command("write-pregame-expected-minutes")
+@click.option("--date", "date_str", type=str, required=True, help="Target slate date YYYY-MM-DD")
+def write_pregame_expected_minutes_cmd(date_str: str):
+    """Build the pregame expected-minutes artifact used by SmartSim and connected-game."""
+    console.rule("Write Pregame Expected Minutes")
+    try:
+        info = write_pregame_expected_minutes(date_str)
+        console.print(info)
+    except Exception as e:
+        raise click.ClickException(f"Failed to write pregame expected minutes: {e}")
+
+
 @cli.command("update-rotations-espn-history")
 @click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD (US/Eastern slate)")
 @click.option("--rate-delay", type=float, default=0.25, show_default=True, help="Delay between event fetches (seconds)")
@@ -2826,7 +2833,7 @@ def update_rotations_espn_history_cmd(date_str: str, rate_delay: float):
 
 
 @cli.command("backfill-rotations-espn-history")
-@click.option("--start", "start_date", type=str, required=False, help="Start date YYYY-MM-DD; default = season start (Oct 1) of current season")
+@click.option("--start", "start_date", type=str, required=False, help="Start date YYYY-MM-DD; default = current league season start of current season")
 @click.option("--end", "end_date", type=str, required=False, help="End date YYYY-MM-DD; default = today (local)")
 @click.option("--rate-delay", type=float, default=0.25, show_default=True, help="Delay between event fetches (seconds)")
 @click.option(
@@ -2841,7 +2848,7 @@ def update_rotations_espn_history_cmd(date_str: str, rate_delay: float):
 def backfill_rotations_espn_history_cmd(start_date: str | None, end_date: str | None, rate_delay: float, resume_file: str, ignore_resume: bool, max_days: int | None):
     """Backfill ESPN rotations (stints, pairs, play_context) over a date range.
 
-    Defaults to the full current season (Oct 1 .. today).
+    Defaults to the full current league season (season start month .. today).
     """
     console.rule("Backfill Rotations History (ESPN)")
     import datetime as _dt
@@ -2856,9 +2863,9 @@ def backfill_rotations_espn_history_cmd(start_date: str | None, end_date: str | 
             console.print("Invalid --end (YYYY-MM-DD)", style="red"); return
     if start_date is None:
         yr = today.year
-        if today.month < 7:
+        if today.month < int(LEAGUE.season_start_month):
             yr -= 1
-        s = _dt.date(yr, 10, 1)
+        s = _dt.date(yr, int(LEAGUE.season_start_month), 1)
     else:
         try:
             s = pd.to_datetime(start_date).date()
@@ -2971,6 +2978,139 @@ def backfill_boxscores_cmd(start_date: str, end_date: str, finals_only: bool, ra
         console.print({"start": start_date, "end": end_date, "rows": rows})
     except Exception as e:
         console.print(f"Failed to backfill boxscores: {e}", style="red")
+
+
+def _extract_artifact_date(name: str) -> str | None:
+    try:
+        m = re.search(r"(20\d{2}-\d{2}-\d{2})", str(name or ""))
+        return m.group(1) if m else None
+    except Exception:
+        return None
+
+
+def _collect_wnba_history_reset_targets(start_season: int, end_season: int) -> list[Path]:
+    years = {int(y) for y in range(int(start_season), int(end_season) + 1)}
+    targets: dict[str, Path] = {}
+
+    def _add(path: Path) -> None:
+        try:
+            if path.exists():
+                targets[str(path)] = path
+        except Exception:
+            return
+
+    for fp in paths.data_processed.iterdir():
+        if not fp.is_file():
+            continue
+        ds = _extract_artifact_date(fp.name)
+        if ds:
+            try:
+                if int(ds[:4]) in years:
+                    _add(fp)
+            except Exception:
+                pass
+
+    for name in (
+        "features.csv",
+        "features.parquet",
+        "features_with_market.parquet",
+        "player_logs.csv",
+        "player_logs.parquet",
+        "player_team_cache.csv",
+        "boxscores_history.csv",
+        "boxscores_history.parquet",
+        "pbp_espn_history.csv",
+        "pbp_espn_history.parquet",
+        "props_features.parquet",
+        "props_features.csv",
+        "closing_lines.parquet",
+    ):
+        _add(paths.data_processed / name)
+
+    for pattern in (
+        "team_advanced_stats_*.csv",
+        "schedule_*.csv",
+        "schedule_*.json",
+    ):
+        for fp in paths.data_processed.glob(pattern):
+            if any(str(year) in fp.stem for year in years):
+                _add(fp)
+
+    for name in (
+        "games_nba_api.csv",
+        "games_nba_api.parquet",
+        "_scoreboard_resume.json",
+        "_scoreboard_resume_smoke.json",
+    ):
+        _add(paths.data_raw / name)
+
+    for fp in (paths.data_processed / "boxscores").glob("boxscore_*.csv"):
+        _add(fp)
+
+    for subdir, pattern in (("pbp", "*.csv"), ("pbp_espn", "*.csv")):
+        subpath = paths.data_processed / subdir
+        if subpath.exists():
+            for fp in subpath.glob(pattern):
+                _add(fp)
+
+    for fp in (paths.data_processed / "_espn_cache").glob("*.json"):
+        _add(fp)
+
+    return sorted(targets.values(), key=lambda p: str(p).lower())
+
+
+@cli.command("reset-wnba-history")
+@click.option("--start-season", type=int, default=2023, show_default=True, help="First WNBA season year to rebuild")
+@click.option("--end-season", type=int, default=2025, show_default=True, help="Last WNBA season year to rebuild")
+@click.option("--dry-run/--apply", default=True, show_default=True, help="Preview files to remove or delete them")
+def reset_wnba_history_cmd(start_season: int, end_season: int, dry_run: bool):
+    """Remove stale historical artifacts before a clean WNBA-only rebuild."""
+    console.rule("Reset WNBA History")
+    if LEAGUE.code == "nba":
+        console.print("Refusing to run WNBA history reset while league is NBA.", style="red")
+        return
+    if int(end_season) < int(start_season):
+        start_season, end_season = end_season, start_season
+
+    targets = _collect_wnba_history_reset_targets(int(start_season), int(end_season))
+    summary: dict[str, int] = {}
+    for fp in targets:
+        try:
+            parent = fp.parent.name or "."
+            summary[parent] = summary.get(parent, 0) + 1
+        except Exception:
+            continue
+
+    preview = [str(fp) for fp in targets[:20]]
+    if dry_run:
+        console.print({
+            "mode": "dry-run",
+            "start_season": int(start_season),
+            "end_season": int(end_season),
+            "files": int(len(targets)),
+            "by_parent": summary,
+            "sample": preview,
+        })
+        return
+
+    removed = 0
+    failed: list[str] = []
+    for fp in targets:
+        try:
+            fp.unlink()
+            removed += 1
+        except Exception:
+            failed.append(str(fp))
+
+    console.print({
+        "mode": "apply",
+        "start_season": int(start_season),
+        "end_season": int(end_season),
+        "removed": int(removed),
+        "failed": int(len(failed)),
+    })
+    if failed:
+        console.print({"failed_sample": failed[:20]})
 
 
 @cli.command("backfill-scoreboard")
@@ -3305,8 +3445,8 @@ def backfill_player_props_cmd(date: str, markets: str | None, mode: str, api_key
     mkts = [m.strip() for m in markets.split(',')] if markets else None
     # Modes: historical, current, or auto (try historical then current)
     from pathlib import Path as _P
-    out_parq = paths.data_raw / "odds_nba_player_props.parquet"
-    out_csv = paths.data_raw / "odds_nba_player_props.csv"
+    out_parq = player_props_raw_path(ext="parquet")
+    out_csv = player_props_raw_path(ext="csv")
     def save(df):
         if df is None or df.empty:
             return 0
@@ -4828,36 +4968,63 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
         slate_applied = False
         # Primary: NBA ScoreboardV2
         try:
-            sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
-            nd = sb.get_normalized_dict()
-            gh = pd.DataFrame(nd.get("GameHeader", []))
-            ls = pd.DataFrame(nd.get("LineScore", []))
-            if not gh.empty and not ls.empty:
-                ls_cols = {c.upper(): c for c in ls.columns}
-                if {"TEAM_ID","TEAM_ABBREVIATION"}.issubset(ls_cols.keys()):
-                    team_map = {}
-                    for _, r in ls.iterrows():
-                        try:
-                            team_map[int(r[ls_cols["TEAM_ID"]])] = str(r[ls_cols["TEAM_ABBREVIATION"]]).upper()
-                        except Exception:
-                            continue
-                    gh_cols = {c.upper(): c for c in gh.columns}
-                    if {"HOME_TEAM_ID","VISITOR_TEAM_ID"}.issubset(gh_cols.keys()):
-                        games = []
-                        for _, g in gh.iterrows():
+            games = []
+            if str(LEAGUE.code).strip().lower() == "nba":
+                sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
+                nd = sb.get_normalized_dict()
+                gh = pd.DataFrame(nd.get("GameHeader", []))
+                ls = pd.DataFrame(nd.get("LineScore", []))
+                if not gh.empty and not ls.empty:
+                    ls_cols = {c.upper(): c for c in ls.columns}
+                    if {"TEAM_ID","TEAM_ABBREVIATION"}.issubset(ls_cols.keys()):
+                        team_map = {}
+                        for _, r in ls.iterrows():
                             try:
-                                hid = int(g[gh_cols["HOME_TEAM_ID"]]); vid = int(g[gh_cols["VISITOR_TEAM_ID"]])
-                                h = team_map.get(hid); v = team_map.get(vid)
-                                if h and v:
-                                    games.append({"team": h, "opponent": v, "home": True})
-                                    games.append({"team": v, "opponent": h, "home": False})
+                                team_map[int(r[ls_cols["TEAM_ID"]])] = str(r[ls_cols["TEAM_ABBREVIATION"]]).upper()
                             except Exception:
                                 continue
-                        slate = pd.DataFrame(games)
-                        if not slate.empty and "team" in feats.columns:
-                            feats["team"] = feats["team"].astype(str).str.upper()
-                            feats = feats.merge(slate, on="team", how="inner")
-                            slate_applied = True
+                        gh_cols = {c.upper(): c for c in gh.columns}
+                        if {"HOME_TEAM_ID","VISITOR_TEAM_ID"}.issubset(gh_cols.keys()):
+                            for _, g in gh.iterrows():
+                                try:
+                                    hid = int(g[gh_cols["HOME_TEAM_ID"]]); vid = int(g[gh_cols["VISITOR_TEAM_ID"]])
+                                    h = team_map.get(hid); v = team_map.get(vid)
+                                    if h and v:
+                                        games.append({"team": h, "opponent": v, "home": True})
+                                        games.append({"team": v, "opponent": h, "home": False})
+                                except Exception:
+                                    continue
+            else:
+                board = _scoreboard_for_date(date_str)
+                events = []
+                if isinstance(board, dict):
+                    events = board.get("events") or []
+                elif isinstance(board, list):
+                    events = board
+                for event in events:
+                    try:
+                        comps = ((event or {}).get("competitions") or [{}])[0].get("competitors") or []
+                        home_tri = None
+                        away_tri = None
+                        for comp in comps:
+                            team = (comp or {}).get("team") or {}
+                            tri = str(team.get("abbreviation") or "").strip().upper()
+                            if not tri:
+                                tri = str(to_tricode(team.get("shortDisplayName") or team.get("displayName") or "") or "").strip().upper()
+                            if str(comp.get("homeAway") or "").lower() == "home":
+                                home_tri = tri
+                            elif str(comp.get("homeAway") or "").lower() == "away":
+                                away_tri = tri
+                        if home_tri and away_tri:
+                            games.append({"team": home_tri, "opponent": away_tri, "home": True})
+                            games.append({"team": away_tri, "opponent": home_tri, "home": False})
+                    except Exception:
+                        continue
+            slate = pd.DataFrame(games)
+            if not slate.empty and "team" in feats.columns:
+                feats["team"] = feats["team"].astype(str).str.upper()
+                feats = feats.merge(slate, on="team", how="inner")
+                slate_applied = True
         except Exception:
             pass
         # Fallback: use standardized OddsAPI game odds CSV written earlier in the pipeline
@@ -5051,7 +5218,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
 
                     # OddsAPI props allow-list (pre-game)
                     try:
-                        raw_props = paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+                        raw_props = player_props_raw_path(date_str=date_str, ext="csv")
                         if raw_props.exists():
                             pr = _pd.read_csv(raw_props)
                             if pr is not None and (not pr.empty):
@@ -5160,7 +5327,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     pass
 
                 try:
-                    _, _, ls_allowed = _league_status_player_maps_for_date(date_str)
+                    _, _, ls_allowed = _league_status_player_maps_for_date(date_str, allow_build=True)
                     if ls_allowed and not day_out.empty:
                         day_out = day_out.copy()
                         day_out["_team_tri"] = day_out.get("team_tri", "").astype(str).str.upper().str.strip()
@@ -5199,7 +5366,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
         from .config import paths as _paths
         import pandas as _pd
         import re as _re
-        raw_props = _paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+        raw_props = player_props_raw_path(date_str=date_str, ext="csv")
         if raw_props.exists() and not feats.empty and ("player_name" in feats.columns):
             props = _pd.read_csv(raw_props)
             if props is not None and not props.empty:
@@ -5410,6 +5577,15 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             import json as _json
             import re as _re
             from pathlib import Path as _Path
+
+            try:
+                pem_csv = paths.data_processed / f"pregame_expected_minutes_{date_str}.csv"
+                pem_parq = paths.data_processed / f"pregame_expected_minutes_{date_str}.parquet"
+                if not pem_csv.exists() and not pem_parq.exists():
+                    pem_info = write_pregame_expected_minutes(date_str)
+                    console.print({"pregame_expected_minutes": pem_info})
+            except Exception as _e_pem:
+                console.print(f"Pregame expected minutes build failed (continuing): {_e_pem}", style="yellow")
 
             # Ensure leakage-free, as-of priors exist for this date before running SmartSim.
             # (Best-effort: do not fail props pipeline if priors refresh fails.)
@@ -6041,6 +6217,36 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
     except Exception:
         pass
 
+    try:
+        if slate_only and isinstance(preds, pd.DataFrame) and not preds.empty:
+            if "team_on_slate" in preds.columns:
+                on_mask = _truthy_mask(preds["team_on_slate"]).reindex(preds.index, fill_value=False)
+                preds = preds[on_mask].copy()
+            elif "team" in preds.columns:
+                go_path = paths.data_processed / f"game_odds_{date_str}.csv"
+                if go_path.exists():
+                    go = pd.read_csv(go_path)
+                    if isinstance(go, pd.DataFrame) and not go.empty:
+                        hcol = "home_team" if "home_team" in go.columns else None
+                        acol = "visitor_team" if "visitor_team" in go.columns else ("away_team" if "away_team" in go.columns else None)
+                        if hcol and acol:
+                            slate_teams: set[str] = set()
+                            for _, row in go.iterrows():
+                                h = to_tricode(str(row.get(hcol) or ""))
+                                a = to_tricode(str(row.get(acol) or ""))
+                                if h:
+                                    slate_teams.add(h)
+                                if a:
+                                    slate_teams.add(a)
+                            if slate_teams:
+                                team_mask = preds["team"].astype(str).str.upper().str.strip().isin(slate_teams)
+                                preds = preds[team_mask].copy()
+            if "playing_today" in preds.columns:
+                pt_false = _falsey_mask(preds["playing_today"]).reindex(preds.index, fill_value=False)
+                preds = preds[~pt_false].copy()
+    except Exception:
+        pass
+
     # Guardrails: these are count stats; avoid negative predictions/SDs after calibration.
     try:
         preds = preds.copy()
@@ -6208,32 +6414,33 @@ def evaluate_props_cmd(start: str, end: str, slate_only: bool):
             feats = build_features_for_date(d)
             if slate_only:
                 try:
-                    sb = scoreboardv2.ScoreboardV2(game_date=str(d), day_offset=0, timeout=30)
-                    nd = sb.get_normalized_dict(); gh = pd.DataFrame(nd.get("GameHeader", [])); ls = pd.DataFrame(nd.get("LineScore", []))
-                    if not gh.empty and not ls.empty:
-                        ls_cols = {c.upper(): c for c in ls.columns}
-                        team_map = {}
-                        if {"TEAM_ID","TEAM_ABBREVIATION"}.issubset(ls_cols.keys()):
-                            for _, r in ls.iterrows():
-                                try:
-                                    team_map[int(r[ls_cols["TEAM_ID"]])] = str(r[ls_cols["TEAM_ABBREVIATION"]]).upper()
-                                except Exception:
-                                    pass
-                        gh_cols = {c.upper(): c for c in gh.columns}
-                        games = []
-                        if {"HOME_TEAM_ID","VISITOR_TEAM_ID"}.issubset(gh_cols.keys()):
-                            for _, g in gh.iterrows():
-                                try:
-                                    hid = int(g[gh_cols["HOME_TEAM_ID"]]); vid = int(g[gh_cols["VISITOR_TEAM_ID"]])
-                                    h = team_map.get(hid); v = team_map.get(vid)
-                                    if h and v:
-                                        games.append({"team": h}); games.append({"team": v})
-                                except Exception:
-                                    pass
-                        slate = pd.DataFrame(games)
-                        if not slate.empty and "team" in feats.columns:
-                            feats["team"] = feats["team"].astype(str).str.upper()
-                            feats = feats.merge(slate, on="team", how="inner")
+                    season = season_label_from_date(d)
+                    sched = None
+                    sched_csv = paths.data_processed / f"schedule_{season}.csv"
+                    sched_json = paths.data_processed / f"schedule_{season}.json"
+                    if sched_csv.exists():
+                        sched = pd.read_csv(sched_csv)
+                    elif sched_json.exists():
+                        sched = pd.read_json(sched_json)
+
+                    if isinstance(sched, pd.DataFrame) and not sched.empty:
+                        date_col = "date_est" if "date_est" in sched.columns else ("date_utc" if "date_utc" in sched.columns else None)
+                        home_col = "home_tricode" if "home_tricode" in sched.columns else None
+                        away_col = "away_tricode" if "away_tricode" in sched.columns else None
+                        if date_col and home_col and away_col:
+                            slate_rows = sched[sched[date_col].astype(str).str.strip() == str(d)].copy()
+                            if not slate_rows.empty:
+                                teams: set[str] = set()
+                                for _, row in slate_rows.iterrows():
+                                    h = to_tricode(str(row.get(home_col) or ""))
+                                    a = to_tricode(str(row.get(away_col) or ""))
+                                    if h:
+                                        teams.add(h)
+                                    if a:
+                                        teams.add(a)
+                                if teams and "team" in feats.columns:
+                                    feats["team"] = feats["team"].astype(str).str.upper().str.strip()
+                                    feats = feats[feats["team"].isin(teams)].copy()
                 except Exception:
                     pass
             from .props_train import predict_props  # Import here to avoid sklearn dependency
@@ -6299,40 +6506,45 @@ def predict_props_npu_cmd(date_str: str, out_path: str | None, slate_only: bool,
     except Exception as e:
         console.print(f"Failed to build features for {date_str}: {e}", style="red"); return
     
-    # Optional slate filter using ScoreboardV2
-    if slate_only:
+    # Optional slate filter using processed WNBA artifacts instead of ScoreboardV2.
+    if slate_only and isinstance(feats, pd.DataFrame) and not feats.empty and ("team" in feats.columns):
         try:
-            sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
-            nd = sb.get_normalized_dict()
-            gh = pd.DataFrame(nd.get("GameHeader", []))
-            ls = pd.DataFrame(nd.get("LineScore", []))
-            if not gh.empty and not ls.empty:
-                ls_cols = {c.upper(): c for c in ls.columns}
-                if {"TEAM_ID","TEAM_ABBREVIATION"}.issubset(ls_cols.keys()):
-                    team_map = {}
-                    for _, r in ls.iterrows():
-                        try:
-                            team_map[int(r[ls_cols["TEAM_ID"]])] = str(r[ls_cols["TEAM_ABBREVIATION"]]).upper()
-                        except Exception:
-                            continue
-                    gh_cols = {c.upper(): c for c in gh.columns}
-                    if {"HOME_TEAM_ID","VISITOR_TEAM_ID"}.issubset(gh_cols.keys()):
-                        games = []
-                        for _, g in gh.iterrows():
-                            try:
-                                hid = int(g[gh_cols["HOME_TEAM_ID"]]); vid = int(g[gh_cols["VISITOR_TEAM_ID"]])
-                                h = team_map.get(hid); v = team_map.get(vid)
-                                if h and v:
-                                    games.append({"team": h, "opponent": v, "home": True})
-                                    games.append({"team": v, "opponent": h, "home": False})
-                            except Exception:
-                                continue
-                        slate = pd.DataFrame(games)
-                        if not slate.empty and "team" in feats.columns:
-                            feats["team"] = feats["team"].astype(str).str.upper()
-                            feats = feats.merge(slate, on="team", how="inner")
+            slate = pd.DataFrame()
+            ls_path = paths.data_processed / f"league_status_{date_str}.csv"
+            if ls_path.exists():
+                lsdf = pd.read_csv(ls_path)
+                if isinstance(lsdf, pd.DataFrame) and not lsdf.empty:
+                    if {"team", "team_on_slate"}.issubset(set(lsdf.columns)):
+                        team_mask = _truthy_mask(lsdf["team_on_slate"])
+                        if bool(team_mask.any()):
+                            teams = sorted(
+                                lsdf.loc[team_mask, "team"].astype(str).str.upper().str.strip().dropna().unique().tolist()
+                            )
+                            if teams:
+                                slate = pd.DataFrame({"team": teams})
+
+            if slate.empty:
+                go_path = paths.data_processed / f"game_odds_{date_str}.csv"
+                if go_path.exists():
+                    go = pd.read_csv(go_path)
+                    if isinstance(go, pd.DataFrame) and not go.empty:
+                        hcol = "home_team" if "home_team" in go.columns else None
+                        acol = "visitor_team" if "visitor_team" in go.columns else ("away_team" if "away_team" in go.columns else None)
+                        if hcol and acol:
+                            games = []
+                            for _, row in go.iterrows():
+                                h = to_tricode(str(row.get(hcol) or ""))
+                                a = to_tricode(str(row.get(acol) or ""))
+                                if h and a:
+                                    games.append({"team": h, "opponent": a, "home": True})
+                                    games.append({"team": a, "opponent": h, "home": False})
+                            if games:
+                                slate = pd.DataFrame(games).drop_duplicates(subset=["team"], keep="first")
+
+            if not slate.empty:
+                feats["team"] = feats["team"].astype(str).str.upper().str.strip()
+                feats = feats.merge(slate, on="team", how="inner")
         except Exception:
-            # If scoreboard fails, proceed without filtering
             pass
     
     try:
@@ -6355,6 +6567,73 @@ def predict_props_npu_cmd(date_str: str, out_path: str | None, slate_only: bool,
             console.print({"calibration": biases})
         except Exception as _e:
             console.print(f"Calibration skipped due to error: {_e}", style="yellow")
+
+    # Final authority pass: align team metadata to league_status and then prune strictly to the slate.
+    try:
+        ls_path_final = paths.data_processed / f"league_status_{date_str}.csv"
+        if ls_path_final.exists() and ("player_id" in preds.columns):
+            lsdf = pd.read_csv(ls_path_final)
+            if isinstance(lsdf, pd.DataFrame) and (not lsdf.empty) and {"player_id", "team"}.issubset(set(lsdf.columns)):
+                keep_cols = [c for c in ("player_id", "team", "team_on_slate", "playing_today") if c in lsdf.columns]
+                tmp_ls = lsdf[keep_cols].copy()
+                tmp_ls["player_id"] = pd.to_numeric(tmp_ls["player_id"], errors="coerce")
+                tmp_ls = tmp_ls.dropna(subset=["player_id"]).copy()
+                tmp_ls["_pid"] = tmp_ls["player_id"].astype(int)
+                if "team" in tmp_ls.columns:
+                    tmp_ls["team"] = tmp_ls["team"].astype(str).str.upper().str.strip()
+
+                preds["player_id"] = pd.to_numeric(preds["player_id"], errors="coerce")
+                preds = preds.merge(
+                    tmp_ls[[c for c in ("_pid", "team", "team_on_slate", "playing_today") if c in tmp_ls.columns]],
+                    left_on=preds["player_id"].fillna(-1).astype(int),
+                    right_on="_pid",
+                    how="left",
+                    suffixes=("", "_ls"),
+                )
+                if "team_ls" in preds.columns:
+                    preds["team"] = preds["team_ls"].combine_first(preds.get("team"))
+                preds = preds.drop(columns=[c for c in ("_pid", "team_ls") if c in preds.columns], errors="ignore")
+
+                for col in ("team_on_slate", "playing_today"):
+                    ls_col = f"{col}_ls"
+                    if ls_col in preds.columns:
+                        if col in preds.columns:
+                            preds[col] = preds[ls_col].combine_first(preds[col])
+                        else:
+                            preds[col] = preds[ls_col]
+                        preds = preds.drop(columns=[ls_col], errors="ignore")
+    except Exception:
+        pass
+
+    try:
+        if slate_only and isinstance(preds, pd.DataFrame) and not preds.empty:
+            if "team_on_slate" in preds.columns:
+                on_mask = _truthy_mask(preds["team_on_slate"]).reindex(preds.index, fill_value=False)
+                preds = preds[on_mask].copy()
+            elif "team" in preds.columns:
+                go_path = paths.data_processed / f"game_odds_{date_str}.csv"
+                if go_path.exists():
+                    go = pd.read_csv(go_path)
+                    if isinstance(go, pd.DataFrame) and not go.empty:
+                        hcol = "home_team" if "home_team" in go.columns else None
+                        acol = "visitor_team" if "visitor_team" in go.columns else ("away_team" if "away_team" in go.columns else None)
+                        if hcol and acol:
+                            slate_teams: set[str] = set()
+                            for _, row in go.iterrows():
+                                h = to_tricode(str(row.get(hcol) or ""))
+                                a = to_tricode(str(row.get(acol) or ""))
+                                if h:
+                                    slate_teams.add(h)
+                                if a:
+                                    slate_teams.add(a)
+                            if slate_teams:
+                                team_mask = preds["team"].astype(str).str.upper().str.strip().isin(slate_teams)
+                                preds = preds[team_mask].copy()
+            if "playing_today" in preds.columns:
+                pt_false = _falsey_mask(preds["playing_today"]).reindex(preds.index, fill_value=False)
+                preds = preds[~pt_false].copy()
+    except Exception:
+        pass
     
     if not out_path:
         out_path = str(paths.data_processed / f"props_predictions_npu_{date_str}.csv")
@@ -7908,7 +8187,7 @@ def _export_best_edges_snapshot(
             # Best-effort game_id mapping via schedule
             schedule_map: dict[tuple[str, str], str] = {}
             try:
-                sched_p = proc / "schedule_2025_26.csv"
+                sched_p = proc / f"schedule_{season_year_from_date(pd.to_datetime(date_str).date())}.csv"
                 if sched_p.exists():
                     sdf = pd.read_csv(sched_p)
                     scols = {c.lower(): c for c in sdf.columns}
@@ -8735,12 +9014,12 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
     """Write a per-date OddsAPI player props snapshot under data/raw.
 
     Output (used by props-edges when --use-saved):
-    - data/raw/odds_nba_player_props_<date>.csv
+    - data/raw/{player_props_artifact_stem()}_<date>.csv
 
         Also writes (best-effort):
-        - data/raw/odds_nba_player_props_opening_<date>.parquet (or .csv fallback)
+        - data/raw/{player_props_artifact_stem()}_opening_<date>.parquet (or .csv fallback)
             Captures the first non-empty snapshot of the day for opening-line tracking.
-        - data/raw/odds_nba_player_props_history_<date>.csv
+        - data/raw/{player_props_artifact_stem()}_history_<date>.csv
             Append-only raw snapshot history (no in-memory rewrite).
     """
     console.rule("Odds Snapshots (player props)")
@@ -8775,7 +9054,7 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
     if df is not None and not df.empty:
         df = filter_player_prop_bookmakers_df(df, bookmakers)
 
-    out = paths.data_raw / f"odds_nba_player_props_{target_date}.csv"
+    out = player_props_raw_path(date_str=target_date, ext="csv")
     existing_snapshot_has_rows = False
     if out.exists():
         try:
@@ -8813,8 +9092,8 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
             import re
             import unicodedata
 
-            open_pq = paths.data_raw / f"odds_nba_player_props_opening_{target_date}.parquet"
-            open_csv = paths.data_raw / f"odds_nba_player_props_opening_{target_date}.csv"
+            open_pq = player_props_raw_path(date_str=target_date, variant="opening", ext="parquet")
+            open_csv = player_props_raw_path(date_str=target_date, variant="opening", ext="csv")
 
             open_cols = [
                 "snapshot_ts",
@@ -8974,7 +9253,7 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
     try:
         cur = df if isinstance(df, pd.DataFrame) else pd.DataFrame()
         if cur is not None and not cur.empty:
-            hist_csv = paths.data_raw / f"odds_nba_player_props_history_{target_date}.csv"
+            hist_csv = player_props_raw_path(date_str=target_date, variant="history", ext="csv")
             hist_csv.parent.mkdir(parents=True, exist_ok=True)
             hist_cols = [
                 "snapshot_ts",
@@ -9039,8 +9318,12 @@ def train_pbp_markets_cmd(start: str | None, end: str | None):
     # Best-effort backfill if requested
     if start and end:
         try:
-            from .pbp import backfill_pbp
-            _ = backfill_pbp(start, end, only_final=True, rate_delay=0.35)
+            if LEAGUE.code != "nba":
+                from .pbp_espn import backfill_pbp_espn_history
+                _ = backfill_pbp_espn_history(start, end, finals_only=True, rate_delay=0.25)
+            else:
+                from .pbp import backfill_pbp
+                _ = backfill_pbp(start, end, only_final=True, rate_delay=0.35)
         except Exception as e:
             console.print(f"PBP backfill failed: {e}", style="yellow")
     try:
@@ -9762,7 +10045,7 @@ def reconcile_pbp_markets_cmd(date_str: str):
             sec_left = _sec(t) if _sec else None
             if sec_left is None:
                 continue
-            elapsed = 12*60 - sec_left
+            elapsed = int(getattr(LEAGUE, "regulation_period_seconds", 12 * 60) or 12 * 60) - sec_left
             if elapsed is None or elapsed > 180:
                 continue
             text = " ".join([str(r.get(c, "")) for c in desc_cols]).lower()
@@ -11829,7 +12112,7 @@ def backtest_pbp_markets_cmd(start_date: str, end_date: str | None, ensure_preds
                             except Exception:
                                 sec_left = None
                         if sec_left is None: continue
-                        elapsed = 12*60 - sec_left
+                        elapsed = int(getattr(LEAGUE, "regulation_period_seconds", 12 * 60) or 12 * 60) - sec_left
                         if elapsed is None or elapsed > 180:
                             continue
                         text = " ".join([str(r.get(c, "")) for c in desc_cols]).lower()
@@ -12290,9 +12573,17 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
             "date": r.get("date"),
         })
     # Training feature columns
-    try:
-        feat_cols = joblib.load(paths.models / "feature_columns.joblib")
-    except FileNotFoundError:
+    feat_cols = None
+    for feature_path in (
+        paths.models / "feature_columns_enhanced.joblib",
+        paths.models / "feature_columns.joblib",
+    ):
+        try:
+            feat_cols = joblib.load(feature_path)
+            break
+        except FileNotFoundError:
+            continue
+    if feat_cols is None:
         feat_cols = ["elo_diff", "home_rest_days", "visitor_rest_days", "home_b2b", "visitor_b2b"]
 
     # Use enhanced feature building for 45 features
@@ -12382,6 +12673,25 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
                 res = calibrate_period_predictions(res, cfg)
         except Exception:
             pass
+
+        try:
+            from .game_calibration import apply_game_biases, compute_game_biases, save_game_calibration
+
+            date_values = pd.to_datetime(res.get("date"), errors="coerce").dropna().dt.strftime("%Y-%m-%d").unique().tolist()
+            for ds in date_values:
+                biases = compute_game_biases(str(ds), window_days=30, prior_games=10.0)
+                if not biases:
+                    continue
+                mask = pd.to_datetime(res.get("date"), errors="coerce").dt.strftime("%Y-%m-%d") == str(ds)
+                if bool(mask.any()):
+                    calibrated = apply_game_biases(res.loc[mask, :], biases)
+                    for col in calibrated.columns:
+                        if col not in res.columns:
+                            res[col] = np.nan
+                        res.loc[mask, col] = calibrated[col].values
+                    save_game_calibration(biases, str(ds))
+        except Exception:
+            pass
         
     except (FileNotFoundError, ImportError) as e:
         console.print(f"⚠️  NPU predictor not available: {e}", style="yellow")
@@ -12415,6 +12725,25 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
                 res[f"quarters_{q}_win"] = quarters[q]["win"].predict_proba(X)[:, 1]
                 res[f"quarters_{q}_margin"] = quarters[q]["margin"].predict(X)
                 res[f"quarters_{q}_total"] = quarters[q]["total"].predict(X)
+
+        try:
+            from .game_calibration import apply_game_biases, compute_game_biases, save_game_calibration
+
+            date_values = pd.to_datetime(res.get("date"), errors="coerce").dropna().dt.strftime("%Y-%m-%d").unique().tolist()
+            for ds in date_values:
+                biases = compute_game_biases(str(ds), window_days=30, prior_games=10.0)
+                if not biases:
+                    continue
+                mask = pd.to_datetime(res.get("date"), errors="coerce").dt.strftime("%Y-%m-%d") == str(ds)
+                if bool(mask.any()):
+                    calibrated = apply_game_biases(res.loc[mask, :], biases)
+                    for col in calibrated.columns:
+                        if col not in res.columns:
+                            res[col] = np.nan
+                        res.loc[mask, col] = calibrated[col].values
+                    save_game_calibration(biases, str(ds))
+        except Exception:
+            pass
     return res
 
 @cli.command("daily-update")
@@ -12650,7 +12979,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
             from .odds_api import fetch_player_props_current
             props_odds = fetch_player_props_current(cfg, date=target_date, markets=None, verbose=True)
             if props_odds is not None and not props_odds.empty:
-                out_csv = paths.data_raw / f"odds_nba_player_props_{target_date}.csv"
+                out_csv = player_props_raw_path(date_str=target_date, ext="csv")
                 props_odds.to_csv(out_csv, index=False)
                 console.print({"prop_odds_rows": int(len(props_odds)), "output": str(out_csv)})
         else:
@@ -12970,6 +13299,32 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
     # Fallback: build slate from live schedule data, then local schedule artifacts, when API/history fail
     def _build_slate_from_schedule(date_str_local: str) -> pd.DataFrame | None:
         try:
+            exact_payload = _scoreboard_for_date(pd.to_datetime(date_str_local).strftime("%Y%m%d"))
+            rows = []
+            for event in exact_payload.get("events") or []:
+                comp = (((event or {}).get("competitions") or [None])[0]) or {}
+                competitors = comp.get("competitors") or []
+                home = next((team for team in competitors if str((team or {}).get("homeAway") or "").strip().lower() == "home"), None)
+                away = next((team for team in competitors if str((team or {}).get("homeAway") or "").strip().lower() == "away"), None)
+                if not home or not away:
+                    continue
+                home_team = home.get("team") or {}
+                away_team = away.get("team") or {}
+                home_name = normalize_team(str(home_team.get("displayName") or home_team.get("name") or home_team.get("abbreviation") or ""))
+                away_name = normalize_team(str(away_team.get("displayName") or away_team.get("name") or away_team.get("abbreviation") or ""))
+                if not home_name or not away_name:
+                    continue
+                rows.append(
+                    {
+                        "date": pd.to_datetime(date_str_local).date(),
+                        "home_team": home_name,
+                        "visitor_team": away_name,
+                    }
+                )
+            exact_day = pd.DataFrame(rows).drop_duplicates() if rows else pd.DataFrame()
+            if not exact_day.empty:
+                return exact_day
+
             day = _load_schedule_day(date_str_local)
             if day.empty:
                 return None
@@ -14422,36 +14777,8 @@ def reconcile_date_cmd(date_str: str, pred_path: str | None):
     else:
         if margin_src is not None:
             preds["pred_margin"] = preds["pred_margin"].where(preds["pred_margin"].notna(), preds[margin_src])
-    # Normalize to tricodes using nba_api static map
-    try:
-        team_list = static_teams.get_teams()
-        full_to_abbr = {str(t.get('full_name')).upper(): str(t.get('abbreviation')).upper() for t in team_list}
-        alt = {
-            "LOS ANGELES CLIPPERS": "LAC",
-            "LA CLIPPERS": "LAC",
-            "PHOENIX SUNS": "PHX",
-            "GOLDEN STATE WARRIORS": "GSW",
-            "SAN ANTONIO SPURS": "SAS",
-            "NEW YORK KNICKS": "NYK",
-            "BROOKLYN NETS": "BKN",
-            "UTAH JAZZ": "UTA",
-        }
-        def to_tri(name: str) -> str:
-            if name is None:
-                return ""
-            s = str(name).strip().upper()
-            if s in full_to_abbr:
-                return full_to_abbr[s]
-            if s in alt:
-                return alt[s]
-            if len(s) <= 4:
-                return s
-            return s
-        preds["home_tri"] = preds.get("home_team").apply(to_tri)
-        preds["away_tri"] = preds.get("visitor_team").apply(to_tri)
-    except Exception:
-        preds["home_tri"] = preds.get("home_team").astype(str).str.upper()
-        preds["away_tri"] = preds.get("visitor_team").astype(str).str.upper()
+    preds["home_tri"] = preds.get("home_team", pd.Series(dtype=object)).map(lambda value: str(to_tricode(str(value or ""))).strip().upper())
+    preds["away_tri"] = preds.get("visitor_team", pd.Series(dtype=object)).map(lambda value: str(to_tricode(str(value or ""))).strip().upper())
     # Prefer processed finals CSV if available; else fetch via APIs with fallbacks
     try:
         finals = None
@@ -14470,7 +14797,33 @@ def reconcile_date_cmd(date_str: str, pred_path: str | None):
         except Exception:
             finals = None
 
-        # 1) If no processed finals, fetch via ScoreboardV2
+        # 1) If no processed finals, derive them from local boxscores when available.
+        if finals is None or finals.empty:
+            try:
+                box_path = paths.data_processed / f"boxscores_{target_date}.csv"
+                if box_path.exists():
+                    box_df = pd.read_csv(box_path)
+                    if not box_df.empty and {"TEAM_ABBREVIATION", "PTS"}.issubset(set(box_df.columns)):
+                        team_totals = (
+                            box_df.copy()
+                            .assign(
+                                TEAM_ABBREVIATION=lambda df: df["TEAM_ABBREVIATION"].astype(str).map(lambda value: str(to_tricode(str(value or ""))).strip().upper()),
+                                PTS=lambda df: pd.to_numeric(df["PTS"], errors="coerce"),
+                            )
+                            .dropna(subset=["TEAM_ABBREVIATION", "PTS"])
+                            .groupby("TEAM_ABBREVIATION", as_index=False)["PTS"]
+                            .sum()
+                        )
+                        if not team_totals.empty:
+                            pts_by_team = dict(zip(team_totals["TEAM_ABBREVIATION"], team_totals["PTS"]))
+                            finals = preds[["home_tri", "away_tri"]].drop_duplicates().copy()
+                            finals["home_pts"] = finals["home_tri"].map(pts_by_team)
+                            finals["visitor_pts"] = finals["away_tri"].map(pts_by_team)
+                            finals = finals.dropna(subset=["home_pts", "visitor_pts"], how="any")
+            except Exception:
+                finals = None
+
+        # 2) If no processed finals, fetch via ScoreboardV2
         try:
             nba_http.STATS_HEADERS.update({
                 'Accept': 'application/json, text/plain, */*',
@@ -14690,20 +15043,27 @@ def reconcile_date_cmd(date_str: str, pred_path: str | None):
 # ============================================================================
 
 @cli.command()
-@click.option("--season", type=int, default=2025, help="NBA season year (e.g., 2025 for 2024-25)")
+@click.option("--season", type=int, default=2025, help="Season label year (e.g., 2025 for the 2025 WNBA season)")
 @click.option("--as-of", "as_of", type=str, default=None, help="Optional cutoff date YYYY-MM-DD (prevents future leakage when using cached boxscores)")
 def fetch_advanced_stats(season: int, as_of: str | None):
-    """Fetch pace, efficiency, and Four Factors from Basketball Reference."""
+    """Fetch or build pace, efficiency, and Four Factors stats for the active league."""
     console.rule("Fetch Advanced Stats")
     try:
         from .scrapers import BasketballReferenceScraper
         from .advanced_stats_boxscores import compute_team_advanced_stats_from_boxscores
         from .advanced_stats_player_logs import compute_team_advanced_stats_from_player_logs
-        
-        scraper = BasketballReferenceScraper()
-        
-        console.print(f"Fetching team stats for {season} season...")
-        stats = scraper.get_team_stats(season)
+        local_min_games = 1 if (LEAGUE.code != "nba" and as_of) else 10
+
+        stats = pd.DataFrame()
+        if LEAGUE.code == "nba":
+            scraper = BasketballReferenceScraper()
+            console.print(f"Fetching team stats for {season} season...")
+            stats = scraper.get_team_stats(season)
+        else:
+            console.print(f"Building team stats for {season} season from local WNBA artifacts...")
+            stats = compute_team_advanced_stats_from_boxscores(season, min_games=local_min_games, as_of=as_of)
+            if stats is None or stats.empty:
+                stats = compute_team_advanced_stats_from_player_logs(season, min_games=local_min_games, as_of=as_of)
 
         # If Basketball Reference returns league-average fallback (or empty), build from cached boxscores.
         try:
@@ -14719,14 +15079,14 @@ def fetch_advanced_stats(season: int, as_of: str | None):
                 else:
                     console.print("Basketball Reference returned league-average fallback (no team variance); falling back to boxscore-derived stats.", style="yellow")
 
-                stats_bs = compute_team_advanced_stats_from_boxscores(season, as_of=as_of)
+                stats_bs = compute_team_advanced_stats_from_boxscores(season, min_games=local_min_games, as_of=as_of)
                 if stats_bs is not None and not stats_bs.empty:
                     stats = stats_bs
                     console.print(f"[OK] Built advanced stats from cached boxscores (teams={len(stats)}).", style="green")
                 else:
                     console.print("Boxscore-derived advanced stats unavailable; trying player-log-derived stats.", style="yellow")
                     try:
-                        stats_pl = compute_team_advanced_stats_from_player_logs(season, as_of=as_of)
+                        stats_pl = compute_team_advanced_stats_from_player_logs(season, min_games=local_min_games, as_of=as_of)
                         if stats_pl is not None and not stats_pl.empty:
                             stats = stats_pl
                             console.print(f"[OK] Built advanced stats from cached player logs (teams={len(stats)}).", style="green")
@@ -14742,9 +15102,9 @@ def fetch_advanced_stats(season: int, as_of: str | None):
         # without requiring any new external sources.
         try:
             opt_cols = ["fg3a_rate", "fg3_pct", "ts_pct", "ast_per_100"]
-            local = compute_team_advanced_stats_from_boxscores(season, as_of=as_of)
+            local = compute_team_advanced_stats_from_boxscores(season, min_games=local_min_games, as_of=as_of)
             if local is None or local.empty:
-                local = compute_team_advanced_stats_from_player_logs(season, as_of=as_of)
+                local = compute_team_advanced_stats_from_player_logs(season, min_games=local_min_games, as_of=as_of)
 
             if local is not None and not local.empty and "team" in local.columns:
                 local = local.copy()
@@ -14787,18 +15147,18 @@ def fetch_advanced_stats(season: int, as_of: str | None):
 
 
 @cli.command()
-@click.option("--date", "date_str", type=str, default=None, help="Target date YYYY-MM-DD (uses NBA official report when available).")
+@click.option("--date", "date_str", type=str, default=None, help="Target date YYYY-MM-DD (uses the active league's preferred injury source when available).")
 def fetch_injuries(date_str: str | None):
-    """Fetch current injury reports (prefers NBA official)."""
+    """Fetch current injury reports for the active league."""
     console.rule("Fetch Injury Reports")
     try:
         from .scrapers import NBAInjuryDatabase
         
         db = NBAInjuryDatabase()
         if date_str:
-            console.print(f"Fetching injury reports for {date_str} (NBA official preferred)...")
+            console.print(f"Fetching injury reports for {date_str}...")
         else:
-            console.print("Fetching injury reports (NBA official preferred)...")
+            console.print("Fetching injury reports...")
 
         injuries = db.update_injuries(date_str=date_str)
         

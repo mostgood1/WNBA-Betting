@@ -1,15 +1,111 @@
 from __future__ import annotations
 
 import os
-import pandas as pd
-from pathlib import Path
 import time
+from pathlib import Path
 
-from nba_api.stats.endpoints import commonteamroster
-from nba_api.stats.static import teams as static_teams
+import pandas as pd
+import requests
 
 from .config import paths
+from .league import LEAGUE
 from .roster_files import pick_rosters_file
+from .teams import to_tricode
+
+
+ESPN_SITE_ROOT = "https://site.web.api.espn.com/apis/site/v2"
+
+
+def _headers() -> dict[str, str]:
+    return {"Accept": "application/json", "User-Agent": LEAGUE.user_agent_product}
+
+
+def _season_year(season: str) -> int:
+    raw = str(season or "").strip()
+    if not raw:
+        return pd.Timestamp.utcnow().year
+    head = raw.split("-", 1)[0].strip()
+    try:
+        return int(head)
+    except Exception:
+        return pd.Timestamp.utcnow().year
+
+
+def _fetch_espn_teams() -> list[dict[str, object]]:
+    url = f"{ESPN_SITE_ROOT}/{LEAGUE.espn_sport_path}/teams"
+    resp = requests.get(url, headers=_headers(), timeout=30)
+    resp.raise_for_status()
+    payload = resp.json() or {}
+    sports = payload.get("sports") or []
+    leagues = (sports[0] or {}).get("leagues") if sports else []
+    teams = (leagues[0] or {}).get("teams") if leagues else []
+    out: list[dict[str, object]] = []
+    for item in teams or []:
+        team = item.get("team") or {}
+        team_id = str(team.get("id") or "").strip()
+        if not team_id:
+            continue
+        display_name = str(team.get("displayName") or team.get("shortDisplayName") or "").strip()
+        tricode = to_tricode(display_name)
+        if not tricode:
+            tricode = to_tricode(str(team.get("abbreviation") or ""))
+        if not display_name or not tricode:
+            continue
+        out.append(
+            {
+                "id": team_id,
+                "display_name": display_name,
+                "team_abbreviation": tricode,
+            }
+        )
+    return out
+
+
+def _fetch_espn_roster(team_id: str) -> list[dict[str, object]]:
+    url = f"{ESPN_SITE_ROOT}/{LEAGUE.espn_sport_path}/teams/{team_id}/roster"
+    resp = requests.get(url, headers=_headers(), timeout=30)
+    resp.raise_for_status()
+    payload = resp.json() or {}
+    athletes = payload.get("athletes") or []
+    return [ath for ath in athletes if isinstance(ath, dict)]
+
+
+def _build_roster_frame(team: dict[str, object], season: str, athletes: list[dict[str, object]]) -> pd.DataFrame:
+    rows: list[dict[str, object]] = []
+    season_year = _season_year(season)
+    tri = str(team.get("team_abbreviation") or "").strip().upper()
+    team_name = str(team.get("display_name") or "").strip()
+    team_id = str(team.get("id") or "").strip()
+    for athlete in athletes:
+        player_id_raw = str(athlete.get("id") or "").strip()
+        player_id = int(player_id_raw) if player_id_raw.isdigit() else None
+        first_name = str(athlete.get("firstName") or "").strip()
+        last_name = str(athlete.get("lastName") or "").strip()
+        player_name = str(athlete.get("displayName") or athlete.get("fullName") or "").strip()
+        position = (athlete.get("position") or {}).get("abbreviation")
+        status = (athlete.get("status") or {}).get("name")
+        experience = (athlete.get("experience") or {}).get("years")
+        rows.append(
+            {
+                "PLAYER": player_name,
+                "PLAYER_ID": player_id,
+                "TEAM_ID": int(team_id) if team_id.isdigit() else team_id,
+                "TEAM_ABBREVIATION": tri,
+                "TEAM_NAME": team_name,
+                "SEASON": season,
+                "LEAGUE_SEASON": season_year,
+                "NUM": athlete.get("jersey"),
+                "POSITION": position,
+                "HEIGHT": athlete.get("displayHeight"),
+                "AGE": athlete.get("age"),
+                "EXP": experience,
+                "STATUS": status,
+                "FIRST_NAME": first_name,
+                "LAST_NAME": last_name,
+                "BIRTH_DATE": athlete.get("dateOfBirth"),
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def _rosters_output_paths(season: str) -> tuple[Path, Path]:
@@ -76,7 +172,7 @@ def _persist_roster_frames(team_frames: dict[str, pd.DataFrame], out_csv: Path, 
 
 
 def fetch_rosters(
-    season: str = "2025-26",
+    season: str = "2026",
     rate_delay: float = 0.35,
     max_retries: int = 2,
     request_timeout: int = 10,
@@ -85,7 +181,7 @@ def fetch_rosters(
     """Fetch all team rosters for a given season and save to processed folder.
 
     Parameters
-    - season: NBA season string (e.g., '2025-26')
+    - season: season label used in the stored file name
 
     Returns a DataFrame with concatenated rosters across all teams.
     """
@@ -114,15 +210,42 @@ def fetch_rosters(
     except Exception:
         pass
 
-    team_list = static_teams.get_teams()
+    try:
+        env_rate = os.environ.get("WNBA_ROSTERS_RATE_DELAY", env_rate if 'env_rate' in locals() else "").strip()
+        if env_rate:
+            rate_delay = float(env_rate)
+    except Exception:
+        pass
+    try:
+        env_retries = os.environ.get("WNBA_ROSTERS_MAX_RETRIES", env_retries if 'env_retries' in locals() else "").strip()
+        if env_retries:
+            max_retries = max(1, int(env_retries))
+    except Exception:
+        pass
+    try:
+        env_timeout = os.environ.get("WNBA_ROSTERS_REQUEST_TIMEOUT_SEC", env_timeout if 'env_timeout' in locals() else "").strip()
+        if env_timeout:
+            request_timeout = max(3, int(env_timeout))
+    except Exception:
+        pass
+    try:
+        env_persist = os.environ.get("WNBA_ROSTERS_PERSIST_EVERY_TEAMS", env_persist if 'env_persist' in locals() else "").strip()
+        if env_persist:
+            persist_every = max(1, int(env_persist))
+    except Exception:
+        pass
+
+    team_list = _fetch_espn_teams()
     out_csv, out_parq = _rosters_output_paths(season)
     seed_csv = _pick_seed_roster_file(season, out_csv)
     team_frames = _load_existing_roster_frames(seed_csv) if seed_csv is not None else {}
     failed: dict[str, dict] = {}
     refreshed: list[str] = []
     fetch_successes = 0
-    teams_to_fetch = [t for t in team_list if t.get('id') and str(t.get('abbreviation') or '').strip()]
-    team_lookup = {str(t.get('abbreviation') or '').strip().upper(): t for t in teams_to_fetch}
+    teams_to_fetch = [t for t in team_list if t.get("id") and str(t.get("team_abbreviation") or "").strip()]
+    team_lookup = {str(t.get("team_abbreviation") or "").strip().upper(): t for t in teams_to_fetch}
+    if team_frames:
+        team_frames = {tri: frame for tri, frame in team_frames.items() if tri in team_lookup}
     total_teams = len(teams_to_fetch)
     try:
         print(
@@ -137,9 +260,9 @@ def fetch_rosters(
     def _refresh_team(t: dict, attempts: int, timeout_seconds: int) -> bool:
         nonlocal fetch_successes
 
-        tid = t.get('id')
-        tri = str(t.get('abbreviation') or '').strip().upper()
-        name = t.get('full_name')
+        tid = t.get("id")
+        tri = str(t.get("team_abbreviation") or "").strip().upper()
+        name = t.get("display_name")
         if not tid or not tri:
             return False
 
@@ -150,17 +273,11 @@ def fetch_rosters(
                     f"[fetch_rosters] team={tri or tid} attempt={attempt + 1}/{int(max(1, attempts))}",
                     flush=True,
                 )
-                # nba_api uses requests under the hood; explicit per-request timeout prevents hangs.
-                res = commonteamroster.CommonTeamRoster(team_id=tid, season=season, timeout=int(timeout_seconds))
-                nd = res.get_normalized_dict()
-                df = pd.DataFrame(nd.get('CommonTeamRoster', []))
+                athletes = _fetch_espn_roster(str(tid))
+                df = _build_roster_frame(t, season=season, athletes=athletes)
                 if df.empty:
                     last_err = "empty"
                     break
-                df['TEAM_ID'] = tid
-                df['TEAM_ABBREVIATION'] = tri
-                df['TEAM_NAME'] = name
-                df['SEASON'] = season
                 team_frames[tri] = df
                 refreshed.append(tri)
                 fetch_successes += 1
@@ -183,7 +300,6 @@ def fetch_rosters(
                     )
                 except Exception:
                     pass
-                # NBA Stats API is rate-limited; backoff a bit.
                 try:
                     time.sleep(float(rate_delay) * float(1 + attempt))
                 except Exception:

@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Dict, List
 from .config import paths
+from .league import season_label_from_date
+from .odds_api import player_props_raw_path
 from .teams import to_tricode
 import datetime as _dt
 import time as _time
@@ -58,12 +60,25 @@ def _today_slate_team_tricodes(date_str: str) -> set[str]:
     if odds_tris or sb_tris:
         return odds_tris | sb_tris
 
-    # Deterministic fallback: live schedule helper, then processed season schedule.
+    # Deterministic fallback: processed season schedule for the active league season.
     sched_tris: set[str] = set()
     try:
-        from .schedule import fetch_schedule_2025_26
+        season = _season_for_date(date_str)
+        candidates = [
+            paths.data_processed / f"schedule_{season}.csv",
+            paths.data_processed / f"schedule_{season}.json",
+        ]
+        sched_path = next((p for p in candidates if p.exists()), None)
+        if sched_path is not None:
+            if sched_path.suffix.lower() == ".csv":
+                df = pd.read_csv(sched_path)
+            else:
+                import json as _json
+                raw = _json.load(open(sched_path, 'r', encoding='utf-8'))
+                df = pd.DataFrame(raw if isinstance(raw, list) else [])
+        else:
+            df = pd.DataFrame()
 
-        df = fetch_schedule_2025_26()
         if df is not None and not df.empty:
             day_col = 'date_est' if 'date_est' in df.columns else ('date_utc' if 'date_utc' in df.columns else None)
             if day_col:
@@ -85,15 +100,18 @@ def _today_slate_team_tricodes(date_str: str) -> set[str]:
 
     try:
         season = _season_for_date(date_str)
-        season_str = season.replace('-', '_')
         candidates = [
-            paths.data_processed / f"schedule_{season_str}.json",
-            paths.data_processed / "schedule_2025_26.json",
+            paths.data_processed / f"schedule_{season}.json",
+            paths.data_processed / f"schedule_{season}.csv",
         ]
         sched_path = next((p for p in candidates if p.exists()), None)
         if sched_path is not None:
-            import json as _json
-            raw = _json.load(open(sched_path, 'r', encoding='utf-8'))
+            if sched_path.suffix.lower() == ".csv":
+                raw_df = pd.read_csv(sched_path)
+                raw = raw_df.to_dict(orient='records') if raw_df is not None and not raw_df.empty else []
+            else:
+                import json as _json
+                raw = _json.load(open(sched_path, 'r', encoding='utf-8'))
             if isinstance(raw, list) and raw:
                 for g in raw:
                     try:
@@ -124,8 +142,7 @@ def _season_for_date(date_str: str) -> str:
         d = pd.to_datetime(date_str).date()
     except Exception:
         d = _dt.date.today()
-    start_year = d.year if d.month >= 7 else d.year - 1
-    return f"{start_year}-{str(start_year+1)[-2:]}"
+    return str(season_label_from_date(d))
 
 
 def _pick_processed_roster_file(date_str: str | None) -> Path | None:
@@ -308,7 +325,7 @@ def build_league_status(date_str: str) -> pd.DataFrame:
         # Add participants from odds snapshot for the day to ensure rookies/ten-days get covered
         try:
             from .config import paths as _paths
-            raw_odds = _paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+            raw_odds = player_props_raw_path(date_str=date_str, ext="csv")
             if raw_odds.exists():
                 od = pd.read_csv(raw_odds)
                 name_col = next((c for c in od.columns if c.lower() in ('player','player_name','name')), None)
@@ -465,23 +482,25 @@ def build_league_status(date_str: str) -> pd.DataFrame:
             pass
         return out
 
-    # 1) Primary roster: resolve via CPI; fallback to team roster endpoint if CPI fails
-    rost = _resolve_league_via_cpi(date_str)
+    # 1) Primary roster: season-appropriate processed roster file.
+    # This is authoritative for WNBA and avoids cross-league contamination from CPI/NBA fallbacks.
+    rost = pd.DataFrame()
+    try:
+        roster_file = _pick_processed_roster_file(date_str)
+        if roster_file is not None and roster_file.exists():
+            df = pd.read_csv(roster_file)
+            c = {c.upper(): c for c in df.columns}
+            if {'PLAYER','PLAYER_ID'}.issubset(c.keys()):
+                if 'TEAM_ABBREVIATION' not in c:
+                    df['TEAM_ABBREVIATION'] = None
+                    c['TEAM_ABBREVIATION'] = 'TEAM_ABBREVIATION'
+                rost = df[[c['PLAYER'], c['PLAYER_ID'], c['TEAM_ABBREVIATION']]].rename(columns={c['PLAYER']: 'player_name', c['PLAYER_ID']: 'player_id', c['TEAM_ABBREVIATION']: 'team'})
+    except Exception:
+        rost = pd.DataFrame()
+    if rost is None or rost.empty:
+        rost = _resolve_league_via_cpi(date_str)
     if rost is None or rost.empty:
         rost = _fetch_league_rosters_via_nba(date_str)
-    if rost.empty:
-        # fallback: season-appropriate processed roster file
-        try:
-            roster_file = _pick_processed_roster_file(date_str)
-            if roster_file is not None and roster_file.exists():
-                df = pd.read_csv(roster_file)
-                c = {c.upper(): c for c in df.columns}
-                if {'PLAYER','PLAYER_ID'}.issubset(c.keys()):
-                    if 'TEAM_ABBREVIATION' not in c:
-                        df['TEAM_ABBREVIATION'] = None
-                    rost = df[[c['PLAYER'], c['PLAYER_ID'], c['TEAM_ABBREVIATION']]].rename(columns={c['PLAYER']: 'player_name', c['PLAYER_ID']: 'player_id', c['TEAM_ABBREVIATION']: 'team'})
-        except Exception:
-            pass
     rost['team'] = rost['team'].astype(str).map(lambda x: (to_tricode(str(x)) or str(x).strip().upper()))
     # Apply manual roster overrides if present (authoritative corrections)
     try:

@@ -1,5 +1,5 @@
 param(
-    [string]$TaskName = "NBA-Betting - Nightly Props Calibration"
+    [string]$TaskName = "WNBA-Betting - Nightly Props Calibration"
 )
 
 # Unregister the nightly props calibration task using schtasks (works without elevation for current user tasks).

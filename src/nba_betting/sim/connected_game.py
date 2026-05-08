@@ -8,6 +8,7 @@ import pandas as pd
 
 from .quarters import QuarterResult, sample_quarter_scores
 from ..config import paths
+from ..league import LEAGUE
 from ..player_names import normalize_player_name_key
 
 
@@ -717,7 +718,7 @@ def _dirichlet_weights(
 
 def _normalize_team_minutes(
     mins_raw: np.ndarray,
-    total_minutes: float = 240.0,
+    total_minutes: float = LEAGUE.regulation_team_minutes,
     cap_player_minutes: float = 44.0,
     floor_minutes: float = 0.0,
     max_iter: int = 20,
@@ -1824,7 +1825,7 @@ def simulate_connected_game(
             "minutes_total_raw": None,
             "minutes_total_sim": None,
             "minutes_cap": 40.0,
-            "minutes_target": 240.0,
+            "minutes_target": float(LEAGUE.regulation_team_minutes),
             "fillers_added": 0,
             "players": 0,
             "minutes_prior_coverage": None,
@@ -2087,7 +2088,7 @@ def simulate_connected_game(
                         # Apply a dynamic floor based on roster size to all players missing
                         # expected minutes. This prevents low priors (or low fallbacks) from
                         # starving the bench in true rotation-shock games.
-                        avg = 240.0 / float(max(1, raw.size))
+                        avg = float(LEAGUE.regulation_team_minutes) / float(max(1, raw.size))
                         floor_uncertain = float(np.clip(max(10.0, 0.90 * avg), 10.0, 18.0))
                         raw[miss] = np.maximum(raw[miss], floor_uncertain)
 
@@ -2546,14 +2547,22 @@ def simulate_connected_game(
             pass
         diag["minutes_cap"] = float(cap_player_minutes)
 
-        # If the raw minutes sum is meaningfully below 240, scaling everyone up can create
-        # unrealistic 40+ minute allocations. In that case, prefer to "fill" minutes into
+        # If the raw minutes sum is meaningfully below the league target, scaling everyone up can
+        # create unrealistic 40+ minute allocations. In that case, prefer to "fill" minutes into
         # bench players rather than inflating starters.
         try:
             raw2 = raw.copy()
             total_raw = float(np.sum(raw2))
             n_players = int(len(raw2))
-            if (not skip_bench_fill) and n_players >= 8 and np.isfinite(total_raw) and total_raw > 0 and total_raw < 232.0:
+            target_minutes = float(LEAGUE.regulation_team_minutes)
+            fill_trigger_minutes = float(target_minutes * (232.0 / 240.0))
+            if (
+                (not skip_bench_fill)
+                and n_players >= 8
+                and np.isfinite(total_raw)
+                and total_raw > 0
+                and total_raw < fill_trigger_minutes
+            ):
                 # Prefer explicit starters when provided.
                 top5 = None
                 try:
@@ -2576,7 +2585,7 @@ def simulate_connected_game(
                     bench_soft_cap = 28.0
                     raw2[bench_idx] = np.maximum(raw2[bench_idx], bench_floor)
                     # Spread any remaining deficit across the bench up to a soft cap.
-                    deficit = float(240.0 - float(np.sum(raw2)))
+                    deficit = float(float(LEAGUE.regulation_team_minutes) - float(np.sum(raw2)))
                     if deficit > 0:
                         headroom = np.maximum(0.0, bench_soft_cap - raw2)
                         headroom[list(top5)] = 0.0
@@ -2587,7 +2596,7 @@ def simulate_connected_game(
         except Exception:
             pass
 
-        sim_mins = _normalize_team_minutes(raw, total_minutes=240.0, cap_player_minutes=cap_player_minutes, floor_minutes=0.0)
+        sim_mins = _normalize_team_minutes(raw, total_minutes=LEAGUE.regulation_team_minutes, cap_player_minutes=cap_player_minutes, floor_minutes=0.0)
 
         # Optional: garbage-time/blowout adjustment to minutes.
         try:
@@ -2731,7 +2740,7 @@ def simulate_connected_game(
 
                             sim_mins = _normalize_team_minutes(
                                 mins1,
-                                total_minutes=240.0,
+                                total_minutes=LEAGUE.regulation_team_minutes,
                                 cap_player_minutes=cap_player_minutes,
                                 floor_minutes=0.0,
                             )
@@ -2906,7 +2915,7 @@ def simulate_connected_game(
 
             sim_mins = _normalize_team_minutes(
                 mins1,
-                total_minutes=240.0,
+                total_minutes=LEAGUE.regulation_team_minutes,
                 cap_player_minutes=cap_player_minutes,
                 floor_minutes=0.0,
             )
@@ -3946,8 +3955,8 @@ def simulate_connected_game(
                 if mx > 46.0:
                     _warn(f"{side}: max minutes unusually high ({mx:.1f}).")
                 totm = float(pd.to_numeric(df.get("_sim_min"), errors="coerce").fillna(0.0).sum())
-                if abs(totm - 240.0) > 0.75:
-                    _warn(f"{side}: team minutes not ~240 (got {totm:.1f}).")
+                if abs(totm - float(LEAGUE.regulation_team_minutes)) > 0.75:
+                    _warn(f"{side}: team minutes not ~{float(LEAGUE.regulation_team_minutes):.0f} (got {totm:.1f}).")
 
         # Roster coverage sanity (helps debug "missing players" complaints)
         try:

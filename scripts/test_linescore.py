@@ -2,7 +2,7 @@ import pandas as pd
 from pathlib import Path
 from nba_api.stats.endpoints import boxscoresummaryv2
 
-RAW_CSV = Path(r"C:\Users\mostg\OneDrive\Coding\NBA-Betting\data\raw\games_nba_api.csv")
+RAW_CSV = Path(r"C:\Users\mostg\OneDrive\Coding\WNBA-Betting\data\raw\games_nba_api.csv")
 
 def extract_linescore_df(bs):
     nd = bs.get_normalized_dict()

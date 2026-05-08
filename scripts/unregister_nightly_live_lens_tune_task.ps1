@@ -1,6 +1,6 @@
 param()
 
-$TaskName = "NBA-Betting - Nightly Live Lens Tune"
+$TaskName = "WNBA-Betting - Nightly Live Lens Tune"
 
 try {
     Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction Stop | Out-Null

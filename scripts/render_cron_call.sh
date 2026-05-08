@@ -4,24 +4,24 @@ set -euo pipefail
 # Render Cron Job helper: call token-gated /api/cron/* endpoints reliably.
 #
 # Required env:
-#   - NBA_BETTING_BASE_URL (or BASE_URL): e.g. https://nba-betting-5qgf.onrender.com
-#   - NBA_BETTING_CRON_TOKEN (or CRON_TOKEN)
+#   - WNBA_BETTING_BASE_URL (or BASE_URL)
+#   - WNBA_BETTING_CRON_TOKEN (or CRON_TOKEN)
 #
 # Usage examples:
 #   ./scripts/render_cron_call.sh /api/cron/ping
 #   ./scripts/render_cron_call.sh "/api/cron/refresh-oddsapi-props?date=$(date -u +%F)&regions=us&edges=1&export=1"
 #   ./scripts/render_cron_call.sh "/api/cron/run-all?push=0"
 
-BASE_URL="${NBA_BETTING_BASE_URL:-${BASE_URL:-${RENDER_EXTERNAL_URL:-}}}"
-TOKEN="${NBA_BETTING_CRON_TOKEN:-${CRON_TOKEN:-}}"
+BASE_URL="${WNBA_BETTING_BASE_URL:-${NBA_BETTING_BASE_URL:-${BASE_URL:-${RENDER_EXTERNAL_URL:-}}}}"
+TOKEN="${WNBA_BETTING_CRON_TOKEN:-${NBA_BETTING_CRON_TOKEN:-${CRON_TOKEN:-}}}"
 PATH_QS="${1:-/api/cron/ping}"
 
 if [[ -z "${BASE_URL}" ]]; then
-  echo "Missing base URL. Set NBA_BETTING_BASE_URL (recommended) or BASE_URL." >&2
+  echo "Missing base URL. Set WNBA_BETTING_BASE_URL (recommended) or BASE_URL." >&2
   exit 2
 fi
 if [[ -z "${TOKEN}" ]]; then
-  echo "Missing cron token. Set NBA_BETTING_CRON_TOKEN (recommended) or CRON_TOKEN." >&2
+  echo "Missing cron token. Set WNBA_BETTING_CRON_TOKEN (recommended) or CRON_TOKEN." >&2
   exit 2
 fi
 

@@ -4,7 +4,7 @@ param(
 
 # Registers a Windows Scheduled Task to run nightly metrics (alignment, validation, drift, sensitivity).
 
-$TaskName = "NBA-Betting - Nightly Metrics"
+$TaskName = "WNBA-Betting - Nightly Metrics"
 $Workspace = (Get-Location).Path
 $Runner = Join-Path $Workspace "scripts\run_nightly_metrics.ps1"
 $PsExe = (Get-Command powershell).Source

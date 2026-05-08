@@ -103,8 +103,7 @@ def roster_sanity_check(
         d = pd.to_datetime(date_str, errors="coerce")
         season = None
         if d is not None and not pd.isna(d):
-            start_year = int(d.year) if int(d.month) >= 7 else int(d.year) - 1
-            season = f"{start_year}-{str(start_year + 1)[-2:]}"
+            season = str(int(d.year))
         roster_path = pick_rosters_file(paths.data_processed, season=season)
         if roster_path is not None:
             roster_teams = roster_file_team_set(roster_path)

@@ -8,6 +8,8 @@ import unicodedata
 import numpy as np
 import pandas as pd
 
+from .odds_api import player_props_raw_path
+
 
 _OPENING_COLS = [
     "snapshot_ts",
@@ -182,9 +184,9 @@ def persist_props_snapshot_tracking(
     date_str = _normalize_date_str(target_date)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    open_pq = raw_dir / f"odds_nba_player_props_opening_{date_str}.parquet"
-    open_csv = raw_dir / f"odds_nba_player_props_opening_{date_str}.csv"
-    hist_csv = raw_dir / f"odds_nba_player_props_history_{date_str}.csv"
+    open_pq = player_props_raw_path(date_str=date_str, variant="opening", ext="parquet")
+    open_csv = player_props_raw_path(date_str=date_str, variant="opening", ext="csv")
+    hist_csv = player_props_raw_path(date_str=date_str, variant="history", ext="csv")
 
     current = snapshot_df.copy() if isinstance(snapshot_df, pd.DataFrame) else pd.DataFrame()
     current = _filter_to_slate_date(current, date_str) if not current.empty else current
@@ -238,12 +240,12 @@ def persist_props_snapshot_tracking(
 def _load_opening_join_frame(target_date: Any, *, raw_dir: Path) -> pd.DataFrame:
     date_str = _normalize_date_str(target_date)
     candidates = [
-        raw_dir / f"odds_nba_player_props_opening_{date_str}.parquet",
-        raw_dir / f"odds_nba_player_props_opening_{date_str}.csv",
-        raw_dir / f"odds_nba_player_props_history_{date_str}.parquet",
-        raw_dir / f"odds_nba_player_props_history_{date_str}.csv",
-        raw_dir / f"odds_nba_player_props_{date_str}.parquet",
-        raw_dir / f"odds_nba_player_props_{date_str}.csv",
+        player_props_raw_path(date_str=date_str, variant="opening", ext="parquet"),
+        player_props_raw_path(date_str=date_str, variant="opening", ext="csv"),
+        player_props_raw_path(date_str=date_str, variant="history", ext="parquet"),
+        player_props_raw_path(date_str=date_str, variant="history", ext="csv"),
+        player_props_raw_path(date_str=date_str, ext="parquet"),
+        player_props_raw_path(date_str=date_str, ext="csv"),
     ]
 
     raw = pd.DataFrame()

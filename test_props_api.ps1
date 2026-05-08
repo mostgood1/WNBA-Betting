@@ -3,13 +3,13 @@ Write-Host "Starting Flask app..." -ForegroundColor Cyan
 
 # Start Flask in background
 $env:PORT = "5051"
-$env:PYTHONPATH = "C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+$env:PYTHONPATH = "C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 $flaskJob = Start-Job -ScriptBlock {
     param($pythonPath, $appPath, $port, $pypath)
     $env:PORT = $port
     $env:PYTHONPATH = $pypath
     & $pythonPath $appPath 2>&1
-} -ArgumentList "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe", "C:\Users\mostg\OneDrive\Coding\NBA-Betting\app.py", "5051", "C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+} -ArgumentList "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe", "C:\Users\mostg\OneDrive\Coding\WNBA-Betting\app.py", "5051", "C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 
 Write-Host "Waiting for Flask to start..." -ForegroundColor Yellow
 Start-Sleep -Seconds 3

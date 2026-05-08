@@ -1,5 +1,5 @@
 param(
-  [string]$TaskName = 'NBA-Betting Morning Sync',
+  [string]$TaskName = 'WNBA-Betting Morning Sync',
   [string]$Time = '09:45',
   [switch]$RunWhenLoggedOff
 )

@@ -18,6 +18,7 @@ import pandas as pd
 from pypdf import PdfReader
 
 from ..config import paths
+from ..league import season_start_year_from_date
 from ..roster_files import pick_rosters_file
 try:
     from ..teams import to_tricode as _to_tri
@@ -31,7 +32,7 @@ def _season_for_date_str(date_str: str) -> str | None:
         d = datetime.strptime(str(date_str), "%Y-%m-%d")
     except Exception:
         return None
-    season_year = d.year if d.month >= 7 else (d.year - 1)
+    season_year = season_start_year_from_date(d.date())
     return f"{season_year}-{(season_year + 1) % 100:02d}"
 
 
@@ -234,6 +235,29 @@ def _apply_roster_team_corrections(df: pd.DataFrame, *, date_str: str | None) ->
     out = out[out["team"].astype(str).str.len() == 3].copy()
     return out.drop(columns=["_player_key"], errors="ignore")
 
+
+def _filter_to_roster_players(df: pd.DataFrame, *, date_str: str | None) -> pd.DataFrame:
+    if df is None or df.empty or "player" not in df.columns or "team" not in df.columns:
+        return df
+
+    exact_by_team, exact_any_unique, _ = _roster_player_indexes(date_str)
+    if not exact_by_team and not exact_any_unique:
+        return df
+
+    keep_mask: list[bool] = []
+    for _, row in df.iterrows():
+        team_tri = str(_to_tri(str(row.get("team") or "")) or "").strip().upper()
+        name_key = _norm_player_name_key(row.get("player"))
+        keep = False
+        if name_key:
+            if (team_tri, name_key) in exact_by_team:
+                keep = True
+            elif exact_any_unique.get(name_key):
+                keep = True
+        keep_mask.append(keep)
+
+    return df[pd.Series(keep_mask, index=df.index)].copy()
+
 # Robust team name -> abbreviation mapper (used by ESPN parser)
 def _map_team_name_to_abbr(team_name: str) -> str:
     """Convert a full ESPN team name to a standard three-letter abbreviation.
@@ -280,7 +304,7 @@ def _map_team_name_to_abbr(team_name: str) -> str:
 class ESPNInjuryScraper:
     """Scrapes NBA injury reports from ESPN."""
     
-    BASE_URL = "https://www.espn.com/nba/injuries"
+    BASE_URL = "https://www.espn.com/wnba/injuries"
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
@@ -834,6 +858,7 @@ class NBAInjuryDatabase:
             combined["status"] = status_norm
             combined = _clean_injury_player_names(combined, date_str=date_str)
             combined = _apply_roster_team_corrections(combined, date_str=date_str)
+            combined = _filter_to_roster_players(combined, date_str=date_str)
             # De-duplicate by team/player/date (keep last = prefer newest scrape in file order)
             if "date" in combined.columns:
                 combined["_row"] = _np.arange(len(combined))

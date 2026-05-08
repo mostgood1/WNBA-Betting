@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 import json
 
-root = Path('c:/Users/mostg/OneDrive/Coding/NBA-Betting')
+root = Path('c:/Users/mostg/OneDrive/Coding/WNBA-Betting')
 proc = root / 'data' / 'processed'
 csv = proc / 'reliability_props.csv'
 

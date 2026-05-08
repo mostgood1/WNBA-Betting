@@ -1,0 +1,17 @@
+[
+  {"tricode":"ATL","name":"Atlanta Dream","id":20,"primary":"#C8102E","secondary":"#8A8D8F"},
+  {"tricode":"CHI","name":"Chicago Sky","id":19,"primary":"#418FDE","secondary":"#FDB927"},
+  {"tricode":"CON","name":"Connecticut Sun","id":18,"primary":"#F58220","secondary":"#1D1160"},
+  {"tricode":"DAL","name":"Dallas Wings","id":3,"primary":"#0C2340","secondary":"#00788C"},
+  {"tricode":"GSV","name":"Golden State Valkyries","id":129689,"primary":"#000000","secondary":"#CDA349"},
+  {"tricode":"IND","name":"Indiana Fever","id":5,"primary":"#002D62","secondary":"#FDBB30"},
+  {"tricode":"LAS","name":"Los Angeles Sparks","id":6,"primary":"#552583","secondary":"#FDB927"},
+  {"tricode":"LVA","name":"Las Vegas Aces","id":17,"primary":"#000000","secondary":"#B4975A"},
+  {"tricode":"MIN","name":"Minnesota Lynx","id":8,"primary":"#005083","secondary":"#78BE20"},
+  {"tricode":"NYL","name":"New York Liberty","id":9,"primary":"#6ECEB2","secondary":"#000000"},
+  {"tricode":"PHX","name":"Phoenix Mercury","id":11,"primary":"#1D1160","secondary":"#FA9C1C"},
+  {"tricode":"POR","name":"Portland Fire","id":132052,"primary":"#E03A3E","secondary":"#000000"},
+  {"tricode":"SEA","name":"Seattle Storm","id":14,"primary":"#2C5234","secondary":"#F2A900"},
+  {"tricode":"TOR","name":"Toronto Tempo","id":131935,"primary":"#CE1141","secondary":"#000000"},
+  {"tricode":"WSH","name":"Washington Mystics","id":16,"primary":"#E31837","secondary":"#002B5C"}
+]

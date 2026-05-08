@@ -113,7 +113,7 @@ nothing to commit, working tree clean
 ```
 
 ### Remote Repository
-- **URL:** https://github.com/mostgood1/NBA-Betting.git
+- **URL:** https://github.com/mostgood1/WNBA-Betting.git
 - **Branch:** main
 - **Status:** ✅ Synced with origin
 

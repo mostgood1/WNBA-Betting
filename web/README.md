@@ -1,9 +1,9 @@
-# NBA Frontend (Local Preview)
+# WNBA Frontend (Local Preview)
 
-This is a lightweight static UI that renders the 2025–26 NBA schedule by date and shows model recommendations if a predictions CSV is present.
+This is a lightweight static UI that renders the processed WNBA schedule by date and shows model recommendations if a predictions CSV is present.
 
 ## Data sources
-- Schedule JSON: `../data/processed/schedule_2025_26.json` (generated via `python -m nba_betting.cli fetch-schedule`)
+- Schedule JSON: `../data/processed/schedule_YYYY.json`
 - Predictions CSV (optional): `../predictions_YYYY-MM-DD.csv` (generated via `python -m nba_betting.cli predict-date --date YYYY-MM-DD [--merge-odds odds.csv]`)
 
 ## Run locally
@@ -16,19 +16,15 @@ python app.py  # http://127.0.0.1:5050
 The date picker defaults to today if available in the schedule; otherwise the first schedule date. If a `predictions_YYYY-MM-DD.csv` exists for the selected date, recommendation badges are shown.
 
 ## Team assets (logos)
-Provide actual NBA team logos locally (not included in repo). Put files here:
+The frontend uses official WNBA logo assets via a same-origin backend proxy. The backend fetches the real files from the official WNBA CDN using verified team IDs:
 
 ```
-web/assets/logos/
-  BOS.svg
-  LAL.svg
-  ... (TRICODE.svg)
+https://cdn.wnba.com/logos/wnba/<TEAM_ID>/primary/L/logo.svg
 ```
 
-- SVG preferred; optionally provide a PNG with the same name for fallback.
-- If neither SVG nor PNG exists for a team, the UI automatically falls back to a colored badge with the team’s tricode.
-
-Note: Ensure you have rights to use and distribute these assets. If you’re unsure, keep them local and out of version control.
+- The browser requests `/api/team-logo/<TRICODE>.svg`, and the Flask app proxies the official CDN asset.
+- If a team ID is unavailable or the remote logo fails to load, the UI falls back to a colored badge with the team’s tricode.
+- If you need to self-host approved logo files later, prefer wiring them behind the backend logo helper rather than hardcoding file paths in the frontend.
 
 ## Predictions CSV format (minimal)
 Columns expected (case-sensitive) for basic badges:
@@ -48,5 +44,5 @@ Optional edge columns (if merging odds):
 
 ## Customization
 - Styles: `web/styles.css`
-- Team colors/names: `web/assets/teams_nba.json`
+- Team colors/names: `web/assets/teams_wnba.json`
 - Card rendering logic: `web/app.js`

@@ -10,11 +10,13 @@ import pandas as pd
 
 from .boxscores import _espn_event_id_for_matchup, _espn_summary, _nba_gid_to_tricodes
 from .config import paths
+from .league import LEAGUE
 from .pbp_espn import _clock_to_seconds_remaining, _parse_substitution, _team_id_to_tricode_from_summary
+from .teams import TEAM_TRICODES
 
 
-REGULATION_PERIOD_SECONDS = 12 * 60
-OT_PERIOD_SECONDS = 5 * 60
+REGULATION_PERIOD_SECONDS = LEAGUE.regulation_period_seconds
+OT_PERIOD_SECONDS = LEAGUE.overtime_period_seconds
 
 
 def _period_seconds(period: int) -> int:
@@ -431,7 +433,7 @@ def join_plays_to_segments(pbp: pd.DataFrame, segments: pd.DataFrame) -> pd.Data
 
 
 def fetch_rotations_for_game(date_str: str, game_id: str, home_tri: str, away_tri: str) -> dict[str, Any]:
-    """Build stints + merged segments + pair minutes for a single NBA gameId."""
+    """Build stints + merged segments + pair minutes for a single gameId."""
     eid = _espn_event_id_for_matchup(date_str, home_tri=home_tri, away_tri=away_tri)
     if not eid:
         return {"date": date_str, "game_id": game_id, "event_id": None, "error": "no_event"}
@@ -514,6 +516,15 @@ def update_rotations_history_for_date(date_str: str, rate_delay: float = 0.25) -
     gid_map = _nba_gid_to_tricodes(date_str)
     if not gid_map:
         return {"date": date_str, "games": 0, "rows_stints": 0, "rows_pairs": 0, "error": "no_games"}
+
+    active_tricodes = {str(team).upper() for team in TEAM_TRICODES}
+    gid_map = {
+        gid: (str(home).upper(), str(away).upper())
+        for gid, (home, away) in gid_map.items()
+        if str(home).upper() in active_tricodes and str(away).upper() in active_tricodes
+    }
+    if not gid_map:
+        return {"date": date_str, "games": 0, "rows_stints": 0, "rows_pairs": 0, "error": "no_league_games"}
 
     out_dir = paths.data_processed / "rotations_espn"
     out_dir.mkdir(parents=True, exist_ok=True)

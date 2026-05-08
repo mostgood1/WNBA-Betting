@@ -74,7 +74,7 @@ foreach ($u in $cronEndpoints) {
     $results += (Invoke-HealthCheck -Url $u -Headers $headers)
 }
 
-$root = "c:/Users/mostg/OneDrive/Coding/NBA-Betting"
+$root = "c:/Users/mostg/OneDrive/Coding/WNBA-Betting"
 $outDir = Join-Path $root 'data/processed/health_checks'
 if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir | Out-Null }
 

@@ -4,39 +4,10 @@ from pathlib import Path
 
 import pandas as pd
 
+from .teams import TEAM_TRICODES
 
-_EXPECTED_TEAM_CODES: tuple[str, ...] = (
-    "ATL",
-    "BKN",
-    "BOS",
-    "CHA",
-    "CHI",
-    "CLE",
-    "DAL",
-    "DEN",
-    "DET",
-    "GSW",
-    "HOU",
-    "IND",
-    "LAC",
-    "LAL",
-    "MEM",
-    "MIA",
-    "MIL",
-    "MIN",
-    "NOP",
-    "NYK",
-    "OKC",
-    "ORL",
-    "PHI",
-    "PHX",
-    "POR",
-    "SAC",
-    "SAS",
-    "TOR",
-    "UTA",
-    "WAS",
-)
+
+_EXPECTED_TEAM_CODES: tuple[str, ...] = TEAM_TRICODES
 
 
 def expected_roster_team_codes() -> list[str]:

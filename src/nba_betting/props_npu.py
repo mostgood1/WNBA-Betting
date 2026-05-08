@@ -1,6 +1,6 @@
 """
-🏀 NPU-Accelerated Props Prediction Module for NBA-Betting
-Integrates Qualcomm Snapdragon X Elite NPU with existing NBA-Betting pipeline
+🏀 NPU-Accelerated Props Prediction Module for WNBA-Betting
+Integrates Qualcomm Snapdragon X Elite NPU with existing WNBA-Betting pipeline
 """
 
 from __future__ import annotations
@@ -28,10 +28,10 @@ from .props_features import build_features_for_date
 
 
 class NPUPropsPredictor:
-    """NPU-accelerated props predictor for NBA-Betting integration"""
+    """NPU-accelerated props predictor for WNBA-Betting integration"""
     
     def __init__(self, models_dir: Optional[Path] = None):
-        """Initialize NPU predictor with models from NBA-Betting pipeline"""
+        """Initialize NPU predictor with models from WNBA-Betting pipeline"""
         self.models_dir = models_dir or paths.models
         self.sessions = {}
         self.feature_columns = None
@@ -88,11 +88,11 @@ class NPUPropsPredictor:
     def _load_models(self):
         """Load ONNX models for NPU or fallback to sklearn models"""
         
-        # Load feature columns from NBA-Betting pipeline
+        # Load feature columns from WNBA-Betting pipeline
         feature_cols_path = self.models_dir / "props_feature_columns.joblib"
         if feature_cols_path.exists():
             self.feature_columns = joblib.load(feature_cols_path)
-            print(f"✅ Loaded {len(self.feature_columns)} feature columns from NBA-Betting")
+            print(f"✅ Loaded {len(self.feature_columns)} feature columns from WNBA-Betting")
         else:
             raise FileNotFoundError(f"Feature columns not found: {feature_cols_path}")
         
@@ -194,7 +194,7 @@ class NPUPropsPredictor:
         
         print(f"🏀 Predicting props for {date} with NPU acceleration...")
         
-        # Use NBA-Betting's feature building pipeline
+        # Use WNBA-Betting's feature building pipeline
         try:
             features_df = build_features_for_date(date)
             if features_df.empty:
@@ -292,7 +292,7 @@ class NPUPropsPredictor:
 
 def integrate_npu_with_nba_betting(date: str, output_csv: bool = True) -> pd.DataFrame:
     """
-    Main integration function for NBA-Betting pipeline
+    Main integration function for WNBA-Betting pipeline
     
     Args:
         date: Date string (YYYY-MM-DD) for predictions
@@ -302,7 +302,7 @@ def integrate_npu_with_nba_betting(date: str, output_csv: bool = True) -> pd.Dat
         DataFrame with NPU-accelerated predictions
     """
     
-    print(f"🏀 NBA-Betting NPU Integration for {date}")
+    print(f"🏀 WNBA-Betting NPU Integration for {date}")
     print("=" * 60)
     
     try:
@@ -316,7 +316,7 @@ def integrate_npu_with_nba_betting(date: str, output_csv: bool = True) -> pd.Dat
             print("No predictions generated")
             return pd.DataFrame()
         
-        # Save to NBA-Betting standard location
+        # Save to WNBA-Betting standard location
         if output_csv:
             output_path = paths.data_processed / f"npu_props_predictions_{date}.csv"
             predictions_df.to_csv(output_path, index=False)
@@ -342,9 +342,9 @@ def integrate_npu_with_nba_betting(date: str, output_csv: bool = True) -> pd.Dat
 
 
 def benchmark_nba_betting_npu() -> None:
-    """Benchmark NPU performance for NBA-Betting integration"""
+    """Benchmark NPU performance for WNBA-Betting integration"""
     
-    print("🚀 NBA-Betting NPU Performance Benchmark")
+    print("🚀 WNBA-Betting NPU Performance Benchmark")
     print("=" * 50)
     
     try:
@@ -380,7 +380,7 @@ if __name__ == "__main__":
     from datetime import datetime
     today = datetime.now().strftime("%Y-%m-%d")
     
-    print("🏀 NBA-Betting NPU Integration Demo")
+    print("🏀 WNBA-Betting NPU Integration Demo")
     
     # Run benchmark
     benchmark_nba_betting_npu()

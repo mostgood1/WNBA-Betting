@@ -1,5 +1,5 @@
 param(
-  [string]$TaskName = 'NBA-Betting Daily Update',
+  [string]$TaskName = 'WNBA-Betting Daily Update',
   [string]$Time = '10:00',   # local time HH:mm
   [switch]$GitPush,
   # If set, registers task to run even when user is logged off (S4U). Requires 'Log on as a batch job' right.

@@ -403,11 +403,12 @@
 
   function logoForTri(tri) {
     const key = normalizeLogoTri(tri);
-    return key ? `/web/assets/logos/${encodeURIComponent(key)}.svg` : '';
+    const assetKey = key === 'CON' ? 'CONN' : key;
+    return assetKey ? `/web/assets/logos-wnba/${encodeURIComponent(assetKey)}.svg` : '';
   }
 
   function logoBadgeDataUrl(tri) {
-    const key = normalizeLogoTri(tri) || 'NBA';
+    const key = normalizeLogoTri(tri) || 'WNBA';
     const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="14" fill="#10243d" />
@@ -416,8 +417,8 @@
     return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg.trim())}`;
   }
 
-  function logoImgMarkup(teamTri, className, altText) {
-    const logo = logoForTri(teamTri);
+  function logoImgMarkup(teamTri, className, altText, explicitUrl) {
+    const logo = String(explicitUrl || '').trim();
     if (!logo) {
       return '';
     }
@@ -2837,7 +2838,7 @@
             <div class="cards-props-strip-card__identity">
               <div class="cards-props-strip-card__media">
                 ${photo ? `<img class="cards-props-strip-card__photo" src="${escapeHtml(photo)}" alt="${escapeHtml(String(safeItem.player || 'Player'))}" />` : `<div class="cards-props-strip-card__photo is-fallback">${escapeHtml(String(safeItem.team_tri || '?'))}</div>`}
-                ${logoImgMarkup(safeItem.team_tri, 'cards-props-strip-card__logo', `${String(safeItem.team_tri || '')} logo`)}
+                ${logoImgMarkup(safeItem.team_tri, 'cards-props-strip-card__logo', `${String(safeItem.team_tri || '')} logo`, safeItem.team_logo)}
               </div>
               <div class="cards-props-strip-card__copy">
                 <div class="cards-props-strip-card__name">${escapeHtml(String(safeItem.player || 'Unknown player'))}</div>
@@ -4326,12 +4327,12 @@
     return parts.join(' · ') || 'No market snapshot';
   }
 
-  function stripLogoMarkup(teamTri) {
-    return logoImgMarkup(teamTri, 'cards-strip-logo', `${teamTri} logo`);
+  function stripLogoMarkup(teamTri, logoUrl) {
+    return logoImgMarkup(teamTri, 'cards-strip-logo', `${teamTri} logo`, logoUrl);
   }
 
-  function teamHeaderMarkup(teamTri, teamName) {
-    const logoMarkup = logoImgMarkup(teamTri, 'cards-logo', `${teamTri || teamName || 'Team'} logo`);
+  function teamHeaderMarkup(teamTri, teamName, logoUrl) {
+    const logoMarkup = logoImgMarkup(teamTri, 'cards-logo', `${teamTri || teamName || 'Team'} logo`, logoUrl);
     return `
       <div class="cards-team-line">
         ${logoMarkup
@@ -4382,7 +4383,7 @@
           </div>
           <div class="cards-linescore-row">
             <div class="cards-linescore-team">
-              ${stripLogoMarkup(game.away_tri)}
+              ${stripLogoMarkup(game.away_tri, game.away_logo)}
               <strong>${escapeHtml(game.away_tri || 'AWY')}</strong>
             </div>
             <span class="cards-linescore-stat">${fmtInteger(awayScore)}</span>
@@ -4391,7 +4392,7 @@
           </div>
           <div class="cards-linescore-row">
             <div class="cards-linescore-team">
-              ${stripLogoMarkup(game.home_tri)}
+              ${stripLogoMarkup(game.home_tri, game.home_logo)}
               <strong>${escapeHtml(game.home_tri || 'HME')}</strong>
             </div>
             <span class="cards-linescore-stat">${fmtInteger(homeScore)}</span>
@@ -4481,7 +4482,7 @@
         <div class="cards-panel-card cards-panel-card--overview-main">
           <div class="cards-box-head">
             <div class="cards-table-title"><strong>Game lens</strong></div>
-            <span class="cards-overview-badge ${statusClass(game)}">${escapeHtml(game?.gameType || 'NBA')}</span>
+            <span class="cards-overview-badge ${statusClass(game)}">${escapeHtml(game?.gameType || 'WNBA')}</span>
           </div>
           <div class="cards-overview-main-grid">
             <div class="cards-live-lens-grid">${renderGameLens(game)}</div>
@@ -4574,8 +4575,8 @@
     `).join('');
   }
 
-  function renderActualBoxSection(teamTri, teamName, players, liveState) {
-    const logoMarkup = logoImgMarkup(teamTri, 'cards-box-team__logo', `${teamTri} logo`);
+  function renderActualBoxSection(teamTri, teamName, players, liveState, logoUrl) {
+    const logoMarkup = logoImgMarkup(teamTri, 'cards-box-team__logo', `${teamTri} logo`, logoUrl);
     const totals = actualTeamTotals(players);
     const liveStatus = liveState?.final ? 'Final' : (liveState?.in_progress ? 'Live' : 'Awaiting tipoff');
     const tableMarkup = safeArray(players).length
@@ -4638,8 +4639,8 @@
     }).join('');
   }
 
-  function renderBoxSection(teamTri, teamName, players, injuries, missingPlayers) {
-    const logoMarkup = logoImgMarkup(teamTri, 'cards-box-team__logo', `${teamTri} logo`);
+  function renderBoxSection(teamTri, teamName, players, injuries, missingPlayers, logoUrl) {
+    const logoMarkup = logoImgMarkup(teamTri, 'cards-box-team__logo', `${teamTri} logo`, logoUrl);
     const totals = teamSimTotals(players);
     const injuryBits = safeArray(injuries).map((item) => `<span class="box-injury">${escapeHtml(item.player_name || 'Player')} ${escapeHtml(item.injury_status || 'OUT')}</span>`).join('');
     const missingBits = safeArray(missingPlayers).slice(0, 6).map((item) => `<span class="box-missing">Prop-only ${escapeHtml(item.player_name || 'Player')}</span>`).join('');
@@ -4705,12 +4706,12 @@
     return `
       <div class="cards-box-grid">
         <div class="cards-box-column cards-box-column--actual">
-          ${renderActualBoxSection(game.away_tri, game.away_name, liveBoxscore.away, liveState)}
-          ${renderActualBoxSection(game.home_tri, game.home_name, liveBoxscore.home, liveState)}
+          ${renderActualBoxSection(game.away_tri, game.away_name, liveBoxscore.away, liveState, game.away_logo)}
+          ${renderActualBoxSection(game.home_tri, game.home_name, liveBoxscore.home, liveState, game.home_logo)}
         </div>
         <div class="cards-box-column cards-box-column--sim">
-          ${renderBoxSection(game.away_tri, game.away_name, game?.sim?.players?.away || [], game?.sim?.injuries?.away || [], game?.sim?.missing_prop_players?.away || [])}
-          ${renderBoxSection(game.home_tri, game.home_name, game?.sim?.players?.home || [], game?.sim?.injuries?.home || [], game?.sim?.missing_prop_players?.home || [])}
+          ${renderBoxSection(game.away_tri, game.away_name, game?.sim?.players?.away || [], game?.sim?.injuries?.away || [], game?.sim?.missing_prop_players?.away || [], game.away_logo)}
+          ${renderBoxSection(game.home_tri, game.home_name, game?.sim?.players?.home || [], game?.sim?.injuries?.home || [], game?.sim?.missing_prop_players?.home || [], game.home_logo)}
         </div>
       </div>
     `;
@@ -5294,12 +5295,12 @@
         <div class="cards-strip-head">
           <div class="cards-head-left cards-head-matchup">
             <div class="cards-head-team">
-              ${teamHeaderMarkup(game.away_tri, game.away_name)}
+              ${teamHeaderMarkup(game.away_tri, game.away_name, game.away_logo)}
               <div class="cards-head-team-score">${fmtNumber(awayScore, hasStarted ? 0 : 1)}</div>
             </div>
             <span class="cards-score-divider">@</span>
             <div class="cards-head-team">
-              ${teamHeaderMarkup(game.home_tri, game.home_name)}
+              ${teamHeaderMarkup(game.home_tri, game.home_name, game.home_logo)}
               <div class="cards-head-team-score">${fmtNumber(homeScore, hasStarted ? 0 : 1)}</div>
             </div>
           </div>

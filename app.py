@@ -49,6 +49,12 @@ if str(SRC_DIR) not in _sys_early.path:
     _sys_early.path.insert(0, str(SRC_DIR))
 
 try:
+    from nba_betting.league import LEAGUE, season_label_from_date  # type: ignore
+except Exception:  # pragma: no cover
+    LEAGUE = None  # type: ignore
+    season_label_from_date = None  # type: ignore
+
+try:
     # Optional (for scoreboard)
     from nba_api.stats.endpoints import scoreboardv2 as _scoreboardv2
     from nba_api.stats.library import http as _nba_http
@@ -99,7 +105,11 @@ except Exception:
         pass
 
 WEB_DIR = BASE_DIR / "web"
-_DATA_ROOT = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+_DATA_ROOT = (
+    os.environ.get(getattr(LEAGUE, "data_root_env", "WNBA_BETTING_DATA_ROOT"))
+    or os.environ.get(getattr(LEAGUE, "legacy_data_root_env", "NBA_BETTING_DATA_ROOT"))
+    or ""
+).strip()
 try:
     _DATA_ROOT_P = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
 except Exception:
@@ -138,7 +148,12 @@ def _live_lens_artifacts_dir() -> Path:
     can persist JSONL logs on a mounted disk, while local runs continue using
     the repo snapshot under data/processed.
     """
-    raw = (os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip()
+    raw = (
+        os.getenv(getattr(LEAGUE, "live_lens_env", "WNBA_LIVE_LENS_DIR"))
+        or os.getenv(getattr(LEAGUE, "legacy_live_lens_env", "NBA_LIVE_LENS_DIR"))
+        or os.getenv("LIVE_LENS_DIR")
+        or ""
+    ).strip()
     if raw:
         try:
             return Path(raw).expanduser()
@@ -467,8 +482,8 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
 
         # Fast direct HTTP calls with short timeouts (avoid blocking UI/pollers).
         base = "https://api.the-odds-api.com"
-        sport = "basketball_nba"
-        headers = {"Accept": "application/json", "User-Agent": "nba-betting/1.0"}
+        sport = LEAGUE.odds_api_sport_key
+        headers = {"Accept": "application/json", "User-Agent": getattr(LEAGUE, "user_agent_product", "wnba-betting/1.0")}
         timeout_s = 3
 
         # 1) List events and match by team tricodes.
@@ -835,8 +850,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         return ent[1]
 
     base = "https://api.the-odds-api.com"
-    sport = "basketball_nba"
-    headers = {"Accept": "application/json", "User-Agent": "nba-betting/1.0"}
+    sport = LEAGUE.odds_api_sport_key
+    headers = {"Accept": "application/json", "User-Agent": getattr(LEAGUE, "user_agent_product", "wnba-betting/1.0")}
     timeout_s = 3
 
     def _parse_iso_utc_naive(x: Any) -> datetime | None:
@@ -905,7 +920,6 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         *,
         current_lines: dict[str, Any],
         current_prices: dict[str, Any],
-        current_last_updates: dict[str, Any],
         default_observed_at: Any,
     ) -> None:
         keys = {
@@ -1709,7 +1723,8 @@ def _live_prop_progress_fraction(elapsed_min: Any) -> float:
         value = 0.0
     if not math.isfinite(value):
         value = 0.0
-    return float(max(0.0, min(1.0, value / 48.0)))
+    regulation_game_min = max(1.0, float(getattr(LEAGUE, "regulation_team_minutes", 240.0)) / 5.0)
+    return float(max(0.0, min(1.0, value / regulation_game_min)))
 
 
 def _live_prop_selected_gap(selected_side: Any, over_gap: Any) -> float:
@@ -1757,8 +1772,9 @@ def _live_prop_shape_payload(
     sim_selected = _live_prop_selected_gap(side, sim_gap)
     pregame_selected = _live_prop_selected_gap(side, pregame_gap)
     current_selected = _live_prop_selected_gap(side, current_gap)
+    regulation_game_min = max(1.0, float(getattr(LEAGUE, "regulation_team_minutes", 240.0)) / 5.0)
     progress = _live_prop_progress_fraction(
-        progress_fraction * 48.0
+        progress_fraction * regulation_game_min
         if _safe_float(progress_fraction) is not None and float(progress_fraction) <= 1.0
         else progress_fraction
     )
@@ -1905,7 +1921,12 @@ def _live_prop_rank_probability(
     sim_selected = _live_prop_selected_gap(selected_side, sim_gap)
     pregame_selected = _live_prop_selected_gap(selected_side, pregame_gap)
     current_selected = _live_prop_selected_gap(selected_side, current_gap)
-    progress = _live_prop_progress_fraction(progress_fraction * 48.0 if _safe_float(progress_fraction) is not None and float(progress_fraction) <= 1.0 else progress_fraction)
+    regulation_game_min = max(1.0, float(getattr(LEAGUE, "regulation_team_minutes", 240.0)) / 5.0)
+    progress = _live_prop_progress_fraction(
+        progress_fraction * regulation_game_min
+        if _safe_float(progress_fraction) is not None and float(progress_fraction) <= 1.0
+        else progress_fraction
+    )
     score_delta = _safe_float(score_diff_team) or 0.0
     bettable = _safe_float(bettable_score) or 0.0
     edge_sigma_val = _safe_float(edge_sigma) or 0.0
@@ -2255,7 +2276,7 @@ def _live_fetch_espn_summary(event_id: str) -> dict[str, Any]:
         ent = _live_espn_summary_cache.get(eid)
         if ent and (now - ent[0] < 15):
             return ent[1]
-        url = f"https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={eid}"
+        url = f"https://site.web.api.espn.com/apis/site/v2/{getattr(LEAGUE, 'espn_sport_path', 'sports/basketball/wnba')}/summary?event={eid}"
         try:
             headers = {
                 "Accept": "application/json, text/plain, */*",
@@ -3396,11 +3417,15 @@ def _live_pbp_score_by_minute(actions: list[dict[str, Any]]) -> dict[str, Any]:
       }
     Values are carried forward (last known) once a first score is observed.
     """
+    regulation_period_sec = int(getattr(LEAGUE, "regulation_period_seconds", 12 * 60) or (12 * 60))
+    regulation_game_min = max(1, int(round((float(regulation_period_sec) * 4.0) / 60.0)))
+    regulation_half_min = max(1, int(round(float(regulation_game_min) / 2.0)))
+
     def _empty_game():
-        return {"home": [None] * 49, "away": [None] * 49, "total": [None] * 49}
+        return {"home": [None] * (regulation_game_min + 1), "away": [None] * (regulation_game_min + 1), "total": [None] * (regulation_game_min + 1)}
 
     def _empty_half():
-        return {"home": [None] * 25, "away": [None] * 25, "total": [None] * 25}
+        return {"home": [None] * (regulation_half_min + 1), "away": [None] * (regulation_half_min + 1), "total": [None] * (regulation_half_min + 1)}
 
     out = {"game": _empty_game(), "half": _empty_half()}
     if not actions:
@@ -3424,9 +3449,9 @@ def _live_pbp_score_by_minute(actions: list[dict[str, Any]]) -> dict[str, Any]:
             sec_left = _live_parse_clock_to_sec_left(a.get("clock") or a.get("timeRemaining"))
             if sec_left is None:
                 continue
-            sec_left = int(max(0, min(12 * 60, sec_left)))
-            elapsed_sec = (per - 1) * (12 * 60) + ((12 * 60) - sec_left)
-            m = int(max(0, min(48, math.floor(elapsed_sec / 60.0))))
+            sec_left = int(max(0, min(regulation_period_sec, sec_left)))
+            elapsed_sec = (per - 1) * regulation_period_sec + (regulation_period_sec - sec_left)
+            m = int(max(0, min(regulation_game_min, math.floor(elapsed_sec / 60.0))))
 
             # Scores are usually present on action rows
             sh = a.get("scoreHome")
@@ -3441,8 +3466,8 @@ def _live_pbp_score_by_minute(actions: list[dict[str, Any]]) -> dict[str, Any]:
             game_map[m] = (h, aw)
 
             if per <= 2:
-                half_elapsed_sec = (per - 1) * (12 * 60) + ((12 * 60) - sec_left)
-                mh = int(max(0, min(24, math.floor(half_elapsed_sec / 60.0))))
+                half_elapsed_sec = (per - 1) * regulation_period_sec + (regulation_period_sec - sec_left)
+                mh = int(max(0, min(regulation_half_min, math.floor(half_elapsed_sec / 60.0))))
                 half_map[mh] = (h, aw)
         except Exception:
             continue
@@ -3450,7 +3475,7 @@ def _live_pbp_score_by_minute(actions: list[dict[str, Any]]) -> dict[str, Any]:
     # Carry-forward fill
     last_h = None
     last_a = None
-    for m in range(0, 49):
+    for m in range(0, regulation_game_min + 1):
         if m in game_map:
             last_h, last_a = game_map[m]
         if last_h is not None and last_a is not None:
@@ -3460,7 +3485,7 @@ def _live_pbp_score_by_minute(actions: list[dict[str, Any]]) -> dict[str, Any]:
 
     last_h = None
     last_a = None
-    for m in range(0, 25):
+    for m in range(0, regulation_half_min + 1):
         if m in half_map:
             last_h, last_a = half_map[m]
         if last_h is not None and last_a is not None:
@@ -3502,12 +3527,14 @@ def _live_pbp_quarter_totals(actions: list[dict[str, Any]]) -> dict[str, Any]:
             if per is None or per <= 0 or per > 4:
                 continue
 
+            regulation_period_sec = int(getattr(LEAGUE, "regulation_period_seconds", 12 * 60) or (12 * 60))
+
             sec_left = _live_parse_clock_to_sec_left(a.get("clock") or a.get("timeRemaining"))
             if sec_left is None:
                 continue
-            sec_left = int(max(0, min(12 * 60, sec_left)))
-            elapsed_in_period = int((12 * 60) - sec_left)
-            global_elapsed = int((per - 1) * (12 * 60) + elapsed_in_period)
+            sec_left = int(max(0, min(regulation_period_sec, sec_left)))
+            elapsed_in_period = int(regulation_period_sec - sec_left)
+            global_elapsed = int((per - 1) * regulation_period_sec + elapsed_in_period)
 
             sh = _safe_int(a.get("scoreHome"))
             sa = _safe_int(a.get("scoreAway"))
@@ -3568,12 +3595,14 @@ def _live_pbp_recent_window_stats(actions: list[dict[str, Any]], window_sec: int
             per = _safe_int(a.get("period"))
             if per is None or per < 1 or per > 4:
                 return None
+            regulation_period_sec = int(getattr(LEAGUE, "regulation_period_seconds", 12 * 60) or (12 * 60))
+            regulation_game_sec = regulation_period_sec * 4
             sec_left = _live_parse_clock_to_sec_left(a.get("clock") or a.get("timeRemaining"))
             if sec_left is None:
                 return None
-            sec_left = int(max(0, min(12 * 60, sec_left)))
-            elapsed = int((per - 1) * (12 * 60) + ((12 * 60) - sec_left))
-            return int(max(0, min(48 * 60, elapsed)))
+            sec_left = int(max(0, min(regulation_period_sec, sec_left)))
+            elapsed = int((per - 1) * regulation_period_sec + (regulation_period_sec - sec_left))
+            return int(max(0, min(regulation_game_sec, elapsed)))
         except Exception:
             return None
 
@@ -3821,6 +3850,9 @@ def _live_pbp_rotation_state(actions: list[dict[str, Any]], starters_by_team: di
       }
     """
 
+    regulation_period_sec = int(getattr(LEAGUE, "regulation_period_seconds", 12 * 60) or (12 * 60))
+    regulation_game_sec = int(4 * regulation_period_sec)
+
     def _elapsed_reg_sec(a: dict[str, Any]) -> int | None:
         try:
             per = _safe_int(a.get("period"))
@@ -3829,9 +3861,9 @@ def _live_pbp_rotation_state(actions: list[dict[str, Any]], starters_by_team: di
             sec_left = _live_parse_clock_to_sec_left(a.get("clock") or a.get("timeRemaining"))
             if sec_left is None:
                 return None
-            sec_left = int(max(0, min(12 * 60, sec_left)))
-            elapsed = int((per - 1) * (12 * 60) + ((12 * 60) - sec_left))
-            return int(max(0, min(48 * 60, elapsed)))
+            sec_left = int(max(0, min(regulation_period_sec, sec_left)))
+            elapsed = int((per - 1) * regulation_period_sec + (regulation_period_sec - sec_left))
+            return int(max(0, min(regulation_game_sec, elapsed)))
         except Exception:
             return None
 
@@ -4210,6 +4242,9 @@ def _enforce_minimal_ui_allowlist():
             "/api/live_player_lens",
         }
         if p in allowed_api:
+            return None
+
+        if p.startswith("/api/team-logo/"):
             return None
 
         if re.fullmatch(r"/api/season/\d+/betting-card(?:/day/\d{4}-\d{2}-\d{2})?/?", p):
@@ -6949,11 +6984,14 @@ def _redirect_with_request_params(target: str, *, extra_params: dict[str, Any] |
 @lru_cache(maxsize=1)
 def _betting_card_v2_team_assets() -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
-    fp = WEB_DIR / "assets" / "teams_nba.json"
-    try:
-        rows = json.loads(fp.read_text(encoding="utf-8"))
-    except Exception:
-        rows = []
+    rows = []
+    for fp in (WEB_DIR / "assets" / "teams_wnba.json", WEB_DIR / "assets" / "teams_nba.json"):
+        try:
+            rows = json.loads(fp.read_text(encoding="utf-8"))
+        except Exception:
+            rows = []
+        if isinstance(rows, list) and rows:
+            break
     if not isinstance(rows, list):
         return out
     for row in rows:
@@ -6969,19 +7007,55 @@ def _betting_card_v2_team_assets() -> dict[str, dict[str, Any]]:
     return out
 
 
+_WNBA_OFFICIAL_LOGO_TEAM_IDS: dict[str, int] = {
+    "ATL": 1611661330,
+    "CHI": 1611661329,
+    "CON": 1611661323,
+    "DAL": 1611661321,
+    "GSV": 1611661331,
+    "IND": 1611661325,
+    "LAS": 1611661320,
+    "LVA": 1611661319,
+    "MIN": 1611661324,
+    "NYL": 1611661313,
+    "PHX": 1611661317,
+    "POR": 1611661327,
+    "SEA": 1611661328,
+    "TOR": 1611661332,
+    "WSH": 1611661322,
+}
+
+
+def _wnba_official_logo_team_id(team_tri: Any) -> int | None:
+    tri = str(_get_tricode(str(team_tri or "")) or str(team_tri or "")).strip().upper()
+    if not tri:
+        return None
+    return _WNBA_OFFICIAL_LOGO_TEAM_IDS.get(tri)
+
+
+def _wnba_official_logo_cdn_url(team_tri: Any) -> str | None:
+    team_id = _wnba_official_logo_team_id(team_tri)
+    if team_id is None:
+        return None
+    return f"https://cdn.wnba.com/logos/wnba/{team_id}/primary/L/logo.svg"
+
+
+def _wnba_logo_url(team_tri: Any) -> str | None:
+    tri = str(_get_tricode(str(team_tri or "")) or str(team_tri or "")).strip().upper()
+    if not tri:
+        return None
+    team_id = _wnba_official_logo_team_id(tri)
+    if team_id is None:
+        return None
+    return f"/api/team-logo/{team_id}"
+
+
 def _betting_card_v2_team_meta(team_tri: Any, team_name: Any = None) -> dict[str, Any]:
     tri = str(_get_tricode(str(team_tri or "")) or str(team_tri or "")).strip().upper()
     assets = _betting_card_v2_team_assets().get(tri) or {}
     team_id = _safe_int(assets.get("id"))
-    if team_id is None:
-        try:
-            team_id = _get_team_id(tri)
-        except Exception:
-            team_id = None
     name = str(team_name or assets.get("name") or tri or "Team").strip()
-    logo = f"/web/assets/logos/{tri}.svg" if tri else None
-    if team_id:
-        logo = f"https://cdn.nba.com/logos/nba/{int(team_id)}/primary/L/logo.svg"
+    logo = _wnba_logo_url(tri)
     return {
         "id": team_id,
         "abbr": tri or None,
@@ -7095,7 +7169,7 @@ def _betting_card_v2_card(game: dict[str, Any], date_str: str, section: str) -> 
     markets = _betting_card_v2_game_markets(game, section)
     card = {
         "gamePk": game_pk,
-        "gameType": "NBA",
+        "gameType": LEAGUE.name,
         "gameDate": game_date or None,
         "startTime": _betting_card_v2_start_time(game_date),
         "officialDate": date_str,
@@ -8838,8 +8912,8 @@ def api_season_betting_card_day(season: int, date_str: str):
 def root():
     return _serve_cards_page(
         "cards.html",
-        title="NBA Game Cards",
-        heading="NBA Game Cards",
+        title=f"{LEAGUE.name} Game Cards",
+        heading=f"{LEAGUE.name} Game Cards",
         base_path="/",
     )
 
@@ -8880,6 +8954,33 @@ def web_index():
 def web_static(path: str):
     # Serve any static asset in web/
     return send_from_directory(str(WEB_DIR), path)
+
+
+@app.route("/api/team-logo/<team_ref>")
+@app.route("/api/team-logo/<team_ref>.svg")
+def api_team_logo(team_ref: str):
+    try:
+        raw_ref = str(team_ref or "").strip()
+        team_id = int(raw_ref) if raw_ref.isdigit() else _wnba_official_logo_team_id(raw_ref)
+        if team_id is None:
+            return ("", 404)
+        response = requests.get(
+            f"https://cdn.wnba.com/logos/wnba/{team_id}/primary/L/logo.svg",
+            headers={
+                "User-Agent": "Mozilla/5.0",
+                "Accept": "image/svg+xml,image/*;q=0.8,*/*;q=0.5",
+            },
+            timeout=10,
+        )
+        if response.status_code != 200 or not response.content:
+            return ("", 404)
+        from flask import Response as _Resp
+
+        out = _Resp(response.content, mimetype="image/svg+xml")
+        out.headers["Cache-Control"] = "public, max-age=86400"
+        return out
+    except Exception:
+        return ("", 404)
 
 
 @app.route("/data/<path:path>")
@@ -9360,6 +9461,26 @@ def _load_team_maps() -> dict[str, str]:
             mapping[str(full).strip().lower()] = str(abbr).strip().upper()
             mapping[str(abbr).strip().lower()] = str(abbr).strip().upper()
         abbr_to_id = {}
+    try:
+        wnba_rows = json.loads((WEB_DIR / "assets" / "teams_wnba.json").read_text(encoding="utf-8"))
+    except Exception:
+        wnba_rows = []
+    if isinstance(wnba_rows, list):
+        for row in wnba_rows:
+            if not isinstance(row, dict):
+                continue
+            full = str(row.get("name") or "").strip()
+            abbr = str(row.get("tricode") or "").strip().upper()
+            tid = row.get("id")
+            if full and abbr:
+                mapping[full.lower()] = abbr
+            if abbr:
+                mapping[abbr.lower()] = abbr
+                try:
+                    if tid is not None:
+                        abbr_to_id[abbr] = int(tid)
+                except Exception:
+                    pass
     _team_name_to_abbr = mapping
     _team_abbr_to_id = abbr_to_id
     return mapping
@@ -9808,7 +9929,7 @@ def _finals_from_espn_all(date_str_local: str) -> pd.DataFrame:
         return pd.DataFrame()
     try:
         ymd = date_str_local.replace('-', '')
-        url = f"https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={ymd}"
+        url = f"https://site.web.api.espn.com/apis/site/v2/{getattr(LEAGUE, 'espn_sport_path', 'sports/basketball/wnba')}/scoreboard?dates={ymd}"
         r = _rq.get(url, timeout=6)
         if r.status_code != 200:
             return pd.DataFrame()
@@ -10217,7 +10338,7 @@ def _maybe_fetch_remote_processed(fname: str) -> Optional[Path]:
         out = DATA_PROCESSED_DIR / fname
         if out.exists():
             return out
-        repo = os.environ.get("GITHUB_REPOSITORY") or "mostgood1/NBA-Betting"
+        repo = os.environ.get("GITHUB_REPOSITORY") or "mostgood1/WNBA-Betting"
         branch = os.environ.get("GIT_BRANCH") or os.environ.get("RENDER_GIT_BRANCH") or "main"
         url = f"https://raw.githubusercontent.com/{repo}/{branch}/data/processed/{fname}"
         try:
@@ -10226,7 +10347,7 @@ def _maybe_fetch_remote_processed(fname: str) -> Optional[Path]:
             return None
         try:
             r = _rq.get(url, timeout=8, headers={
-                "User-Agent": "NBA-Betting/props-backend",
+                "User-Agent": "wnba-betting/props-backend",
                 "Accept": "text/csv,application/octet-stream,*/*",
             })
             if r.status_code != 200 or not r.content:
@@ -10379,7 +10500,7 @@ def _ev_from_prob_and_american(p: Optional[float], odds: Any) -> Optional[float]
 
 
 def _has_games_for_date(date_str: str, verbose: bool = False) -> bool:
-    """Return True if there are NBA games on the given date.
+    """Return True if there are league games on the given date.
 
     Preference order:
     1) nba_api ScoreboardV2 (if available)
@@ -10406,12 +10527,16 @@ def _has_games_for_date(date_str: str, verbose: bool = False) -> bool:
     except Exception as e:
         if verbose:
             print(f"[_has_games_for_date] bovada error: {e}")
-    # Last-resort: check processed schedule JSON (if present)
+    # Last-resort: check the processed WNBA schedule JSON for this season.
     try:
-        sched = DATA_PROCESSED_DIR / "schedule_2025_26.json"
+        sched = _processed_schedule_json_path(date_str)
         if sched.exists():
             sdf = pd.read_json(sched)
             if not sdf.empty:
+                if "date_est" in sdf.columns:
+                    have = bool(sdf["date_est"].astype(str).str[:10].eq(str(date_str)).sum())
+                    if have:
+                        return True
                 if "date_utc" in sdf.columns:
                     sdf["date_utc"] = pd.to_datetime(sdf["date_utc"], errors="coerce").dt.date.astype(str)
                 have = bool((sdf.get("date_utc") == str(date_str)).sum())
@@ -10582,9 +10707,9 @@ def _load_refresh_oddsapi_props_meta(*, persist_stale: bool = False) -> dict[str
 
 
 def _run_detached_refresh_oddsapi_props_from_env() -> None:
-    payload_raw = (os.environ.get("NBA_BETTING_ODDSAPI_PROPS_JOB") or "").strip()
+    payload_raw = (os.environ.get("WNBA_BETTING_ODDSAPI_PROPS_JOB") or os.environ.get("NBA_BETTING_ODDSAPI_PROPS_JOB") or "").strip()
     if not payload_raw:
-        raise RuntimeError("missing NBA_BETTING_ODDSAPI_PROPS_JOB payload")
+        raise RuntimeError("missing WNBA_BETTING_ODDSAPI_PROPS_JOB payload")
     payload = json.loads(payload_raw)
     _oddsapi_props_refresh_job(
         date_str=str(payload.get("date_str") or ""),
@@ -10617,7 +10742,7 @@ def _launch_refresh_oddsapi_props_detached(
         existing_pythonpath = str(env.get("PYTHONPATH") or "").strip()
         env["PYTHONPATH"] = str(SRC_DIR) if not existing_pythonpath else f"{SRC_DIR}{os.pathsep}{existing_pythonpath}"
         env.setdefault("PYTHONUNBUFFERED", "1")
-        env["NBA_BETTING_ODDSAPI_PROPS_JOB"] = json.dumps({
+        payload = json.dumps({
             "date_str": date_str,
             "regions": regions,
             "bookmakers": bookmakers,
@@ -10628,6 +10753,8 @@ def _launch_refresh_oddsapi_props_detached(
             "log_file": str(log_file),
             "started_at": started_at,
         })
+        env["WNBA_BETTING_ODDSAPI_PROPS_JOB"] = payload
+        env["NBA_BETTING_ODDSAPI_PROPS_JOB"] = payload
         popen_kwargs: dict[str, Any] = {
             "cwd": str(BASE_DIR),
             "env": env,
@@ -10744,12 +10871,33 @@ def _active_player_logs_paths() -> list[Path]:
 
 def _file_is_fresh(path: Path, *, max_age_minutes: int) -> bool:
     try:
-        if max_age_minutes <= 0:
-            return path.exists() and path.stat().st_size > 0
         if not path.exists() or path.stat().st_size <= 0:
             return False
+        if path.suffix.lower() == ".csv":
+            if _count_csv_rows_quick(path) <= 0:
+                return False
+        elif path.suffix.lower() == ".parquet":
+            df = pd.read_parquet(path)
+            if not isinstance(df, pd.DataFrame) or df.empty:
+                return False
+        if max_age_minutes <= 0:
+            return True
         age_s = max(0.0, time.time() - float(path.stat().st_mtime))
         return age_s <= (float(max_age_minutes) * 60.0)
+    except Exception:
+        return False
+
+
+def _player_logs_artifact_exists_with_rows(path: Path) -> bool:
+    try:
+        if not path.exists() or path.stat().st_size <= 0:
+            return False
+        if path.suffix.lower() == ".csv":
+            return _count_csv_rows_quick(path) > 0
+        if path.suffix.lower() == ".parquet":
+            df = pd.read_parquet(path)
+            return isinstance(df, pd.DataFrame) and not df.empty
+        return True
     except Exception:
         return False
 
@@ -10780,7 +10928,7 @@ def _ensure_player_logs_for_props_refresh(
     # On Render, a full fetch-player-logs run can be expensive enough to destabilize
     # the web process. If any prior player_logs artifact already exists, accept it even
     # if it is older than the freshness target.
-    if any(path.exists() and path.stat().st_size > 0 for path in _active_player_logs_paths()):
+    if any(_player_logs_artifact_exists_with_rows(path) for path in _active_player_logs_paths()):
         return True, None
 
     allow_fetch_on_miss = (os.environ.get("REFRESH_PLAYER_LOGS_FETCH_ON_MISS") or "0").strip().lower() in {"1", "true", "yes"}
@@ -10797,7 +10945,7 @@ def _ensure_player_logs_for_props_refresh(
     )
     if int(rc_logs) != 0:
         return False, f"fetch-player-logs failed with exit code {int(rc_logs)}"
-    if not any(path.exists() and path.stat().st_size > 0 for path in _active_player_logs_paths()):
+    if not any(_player_logs_artifact_exists_with_rows(path) for path in _active_player_logs_paths()):
         return False, "player_logs missing after fetch-player-logs"
     return True, None
 
@@ -11331,7 +11479,7 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
                             env_url = f"https://github.com/{gh_repo}.git"
                     # Project-specific fallback (safe for this deployment)
                     if not env_url:
-                        env_url = "https://github.com/mostgood1/NBA-Betting.git"
+                        env_url = "https://github.com/mostgood1/WNBA-Betting.git"
                     if env_url:
                         subprocess.run(["git", "remote", "add", "origin", env_url], cwd=str(BASE_DIR), check=False)
                         origin = env_url
@@ -12106,14 +12254,12 @@ def api_cron_push_test():
 
 
 def _season_year_for_date(date_str: str) -> int:
-    # NBA season starts in Oct; treat Jul+ as new season year.
     d = datetime.strptime(date_str, "%Y-%m-%d").date()
-    return d.year if d.month >= 7 else (d.year - 1)
+    return d.year
 
 
 def _season_str_from_year(season_year: int) -> str:
-    # ex: 2025 -> "2025-26"
-    return f"{season_year}-{(season_year + 1) % 100:02d}"
+    return str(int(season_year))
 
 
 def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "full") -> None:
@@ -13273,15 +13419,101 @@ def _load_props_recommendations_by_team(date_str: str) -> dict[str, list[dict[st
     """
     out: dict[str, list[dict[str, Any]]] = {}
     p = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
+    edges_path = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
     if not p.exists():
         try:
             _maybe_fetch_remote_processed(p.name)
         except Exception:
             pass
     try:
+        def _load_from_edges_fallback(df: pd.DataFrame | None) -> dict[str, list[dict[str, Any]]]:
+            fallback_out: dict[str, list[dict[str, Any]]] = {}
+            if df is None or not isinstance(df, pd.DataFrame) or df.empty:
+                return fallback_out
+
+            grouped_rows: dict[tuple[str, str], list[dict[str, Any]]] = {}
+            for _, edge_row in df.iterrows():
+                try:
+                    team = str(edge_row.get("team") or "").strip().upper()
+                    player = str(edge_row.get("player") or edge_row.get("player_name") or "").strip()
+                    market = str(edge_row.get("stat") or edge_row.get("market") or "").strip().lower()
+                    side = str(edge_row.get("side") or "").strip().lower()
+                    if not team or not player or not market or not side:
+                        continue
+
+                    ev = _safe_float(edge_row.get("ev"))
+                    ev_pct = _safe_float(edge_row.get("ev_pct"))
+                    if ev_pct is None and ev is not None:
+                        ev_pct = float(ev) * 100.0
+
+                    grouped_rows.setdefault((team, player), []).append(
+                        {
+                            "market": market,
+                            "side": side,
+                            "line": _safe_float(edge_row.get("line")),
+                            "price": _safe_float(edge_row.get("price")),
+                            "edge": _safe_float(edge_row.get("edge")),
+                            "ev": ev,
+                            "ev_pct": ev_pct,
+                            "book": _canonical_bookmaker_key(edge_row.get("bookmaker") or edge_row.get("bookmaker_title")) or None,
+                            "implied_prob": _safe_float(edge_row.get("implied_prob")),
+                            "model_prob": _safe_float(edge_row.get("model_prob")),
+                            "player": player,
+                            "player_name": player,
+                            "team": team,
+                            "home_team": None if pd.isna(edge_row.get("home_team")) else edge_row.get("home_team"),
+                            "away_team": None if pd.isna(edge_row.get("away_team")) else edge_row.get("away_team"),
+                        }
+                    )
+                except Exception:
+                    continue
+
+            def _play_sort_key(play: dict[str, Any]) -> tuple[float, float, float, float]:
+                return (
+                    float(_safe_float(play.get("ev_pct")) or float("-inf")),
+                    float(_safe_float(play.get("edge")) or float("-inf")),
+                    float(_safe_float(play.get("price")) or float("-inf")),
+                    float(_safe_float(play.get("line")) or float("-inf")),
+                )
+
+            for (team, player), plays in grouped_rows.items():
+                normalized_plays = sorted(
+                    [dict(play) for play in plays if isinstance(play, dict)],
+                    key=_play_sort_key,
+                    reverse=True,
+                )
+                if not normalized_plays:
+                    continue
+                top_play = dict(normalized_plays[0])
+                fallback_out.setdefault(team, []).append(
+                    {
+                        "player": player,
+                        "team": team,
+                        "plays": normalized_plays,
+                        "top_play": top_play,
+                        "top_play_reasons": [],
+                        "top_play_explain": None,
+                        "top_play_baseline": None,
+                        "top_play_consensus": _safe_float(top_play.get("line")),
+                        "top_play_line_adv": _safe_float(top_play.get("edge")),
+                    }
+                )
+
+            for team in list(fallback_out.keys()):
+                try:
+                    fallback_out[team].sort(
+                        key=lambda rr: _safe_float(((rr.get("top_play") or {}) if isinstance(rr.get("top_play"), dict) else {}).get("ev_pct"))
+                        or float("-inf"),
+                        reverse=True,
+                    )
+                except Exception:
+                    pass
+            return fallback_out
+
         df = _read_csv_if_exists(p)
         if df is None or not isinstance(df, pd.DataFrame) or df.empty:
-            return out
+            edges_df = _read_csv_if_exists(edges_path)
+            return _load_from_edges_fallback(edges_df)
 
         import ast
 
@@ -13420,9 +13652,17 @@ def _load_props_recommendations_by_team(date_str: str) -> dict[str, list[dict[st
             except Exception:
                 pass
 
+        if not out:
+            edges_df = _read_csv_if_exists(edges_path)
+            return _load_from_edges_fallback(edges_df)
+
         return out
     except Exception:
-        return out
+        try:
+            edges_df = _read_csv_if_exists(edges_path)
+            return _load_from_edges_fallback(edges_df)
+        except Exception:
+            return out
 
 
 def _load_props_predictions_name_lookup(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
@@ -13819,18 +14059,19 @@ def _load_best_bets_props_team_scoring_context(date_str: str) -> dict[str, dict[
             entry["minutes_sum"] = float(entry.get("minutes_sum") or 0.0) + float(min_mean)
 
     for team_key, entry in out.items():
-        minutes_sum = max(0.0, min(240.0, float(entry.get("minutes_sum") or 0.0)))
-        coverage = _best_bets_clamp01(minutes_sum / 240.0) if minutes_sum > 0.0 else 0.0
+        regulation_team_minutes = max(1.0, float(getattr(LEAGUE, "regulation_team_minutes", 240.0)))
+        minutes_sum = max(0.0, min(regulation_team_minutes, float(entry.get("minutes_sum") or 0.0)))
+        coverage = _best_bets_clamp01(minutes_sum / regulation_team_minutes) if minutes_sum > 0.0 else 0.0
         points_sum = max(0.0, float(entry.get("points_sum") or 0.0))
         players_with_points = int(entry.get("players_with_points") or 0)
 
         prop_team_total = None
         if points_sum > 0.0:
-            if minutes_sum >= 120.0:
+            if minutes_sum >= (regulation_team_minutes / 2.0):
                 prop_team_total = float(points_sum / max(0.55, coverage))
             else:
                 per_min = float(points_sum / max(1.0, minutes_sum)) if minutes_sum > 0.0 else 0.0
-                prop_team_total = float(points_sum + (per_min * max(0.0, 240.0 - minutes_sum) * 0.55))
+                prop_team_total = float(points_sum + (per_min * max(0.0, regulation_team_minutes - minutes_sum) * 0.55))
             prop_team_total = float(max(70.0, min(140.0, prop_team_total)))
 
         blend_weight = max(0.0, min(0.60, (coverage - 0.45) / 0.55)) if coverage > 0.45 else 0.0
@@ -15420,7 +15661,15 @@ def _decorate_prop_best_bet_candidate(
     except Exception:
         b2b = False
 
-    p_win = _best_bets_prop_win_prob(baseline, sd, line, side)
+    p_win = (
+        _safe_float(top_play.get("model_prob"))
+        or _safe_float(top_play.get("prob_calib"))
+        or _safe_float(top_play.get("probability"))
+        or _safe_float(top_play.get("p_win"))
+        or _safe_float(top_play.get("prob"))
+    )
+    if p_win is None:
+        p_win = _best_bets_prop_win_prob(baseline, sd, line, side)
     if p_win is None:
         p_win = _best_bets_prob_from_ev(ev, price)
     implied_prob = _american_to_implied_prob(price)
@@ -17301,10 +17550,162 @@ def _load_cards_sim_detail_snapshot(date_str: str) -> dict[str, Any] | None:
         return None
 
 
+def _load_cards_sim_detail_scenario_fallback_index(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
+    path = DATA_PROCESSED_DIR / f"smartsim_player_scenarios_{date_str}.csv"
+    minutes_path = DATA_PROCESSED_DIR / f"pregame_expected_minutes_{date_str}.csv"
+    try:
+        df = _read_csv_if_exists(path)
+    except Exception:
+        df = None
+    if df is None or not isinstance(df, pd.DataFrame) or df.empty:
+        return {}
+
+    working = df.copy()
+    try:
+        if "date" in working.columns:
+            working = working.loc[working["date"].astype(str).str.strip() == str(date_str)]
+    except Exception:
+        pass
+    try:
+        if "split_type" in working.columns:
+            working = working.loc[working["split_type"].astype(str).str.strip().str.lower() == "scenario"]
+    except Exception:
+        pass
+    if working.empty:
+        return {}
+
+    minutes_lookup: dict[tuple[str, str], float] = {}
+    try:
+        minutes_df = _read_csv_if_exists(minutes_path)
+        if isinstance(minutes_df, pd.DataFrame) and not minutes_df.empty:
+            for _, raw in minutes_df.iterrows():
+                team_tri = str(_get_tricode(raw.get("team_tri")) or raw.get("team_tri") or "").strip().upper()
+                player_name = str(raw.get("player_name") or "").strip()
+                exp_min = _safe_float(raw.get("exp_min_mean"))
+                if not team_tri or not player_name or exp_min is None:
+                    continue
+                minutes_lookup[(team_tri, _norm_player_name(player_name))] = float(exp_min)
+    except Exception:
+        minutes_lookup = {}
+
+    def _weighted_stat(frame: pd.DataFrame, column: str) -> float | None:
+        if column not in frame.columns:
+            return None
+        total_weight = 0.0
+        weighted_sum = 0.0
+        for _, raw in frame.iterrows():
+            value = _safe_float(raw.get(column))
+            if value is None:
+                continue
+            weight = _safe_float(raw.get("n"))
+            weight = float(weight) if weight is not None and weight > 0 else 1.0
+            weighted_sum += float(value) * weight
+            total_weight += weight
+        if total_weight <= 0:
+            return None
+        return float(weighted_sum / total_weight)
+
+    index: dict[tuple[str, str], dict[str, Any]] = {}
+    group_cols = ["home", "away", "side", "team", "player_id", "player_name"]
+    available_group_cols = [column for column in group_cols if column in working.columns]
+    if len(available_group_cols) < 6:
+        return {}
+
+    for group_key, frame in working.groupby(available_group_cols, dropna=False):
+        key_map = dict(zip(available_group_cols, group_key if isinstance(group_key, tuple) else (group_key,)))
+        home_tri = str(_get_tricode(key_map.get("home")) or key_map.get("home") or "").strip().upper()
+        away_tri = str(_get_tricode(key_map.get("away")) or key_map.get("away") or "").strip().upper()
+        side_key = str(key_map.get("side") or "").strip().lower()
+        team_tri = str(_get_tricode(key_map.get("team")) or key_map.get("team") or "").strip().upper()
+        player_name = str(key_map.get("player_name") or "").strip()
+        if not home_tri or not away_tri or side_key not in {"home", "away"} or not team_tri or not player_name:
+            continue
+
+        pts_mean = _weighted_stat(frame, "pts_p50")
+        reb_mean = _weighted_stat(frame, "reb_p50")
+        ast_mean = _weighted_stat(frame, "ast_p50")
+        threes_mean = _weighted_stat(frame, "threes_p50")
+        pra_mean = _weighted_stat(frame, "pra_p50")
+        if pra_mean is None:
+            components = [value for value in (pts_mean, reb_mean, ast_mean) if value is not None]
+            if components:
+                pra_mean = float(sum(components))
+        min_mean = minutes_lookup.get((team_tri, _norm_player_name(player_name)))
+
+        player_row = {
+            "player_id": _safe_int(key_map.get("player_id")),
+            "player_name": player_name,
+            "team": team_tri,
+            "min_mean": min_mean,
+            "pts_mean": pts_mean,
+            "reb_mean": reb_mean,
+            "ast_mean": ast_mean,
+            "threes_mean": threes_mean,
+            "pra_mean": pra_mean,
+        }
+
+        matchup_key = (home_tri, away_tri)
+        entry = index.setdefault(
+            matchup_key,
+            {
+                "players": {"home": [], "away": []},
+                "missing_prop_players": {"home": [], "away": []},
+                "injuries": {"home": [], "away": []},
+                "players_summary": {},
+            },
+        )
+        entry["players"][side_key].append(player_row)
+
+    for detail in index.values():
+        for side_key in ("home", "away"):
+            rows = detail["players"].get(side_key) or []
+            filtered_rows: list[dict[str, Any]] = []
+            ranked_rows: list[tuple[float, float, dict[str, Any]]] = []
+            for row in rows:
+                min_mean = _safe_float(row.get("min_mean"))
+                if min_mean is None:
+                    continue
+                pra_mean = _safe_float(row.get("pra_mean")) or 0.0
+                ranked_rows.append((float(min_mean), float(pra_mean), row))
+            ranked_rows.sort(key=lambda item: (-item[0], -item[1], str(item[2].get("player_name") or "").strip().upper()))
+            for idx, (min_mean, _pra_mean, row) in enumerate(ranked_rows):
+                if min_mean < 4.0 and idx >= 10:
+                    continue
+                filtered_rows.append(row)
+            detail["players"][side_key] = filtered_rows
+        detail["players_summary"] = {
+            "home": int(len(detail["players"].get("home") or [])),
+            "away": int(len(detail["players"].get("away") or [])),
+            "missing_home": 0,
+            "missing_away": 0,
+            "injured_home": 0,
+            "injured_away": 0,
+        }
+    return index
+
+
 def _load_cards_sim_detail_index(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
     payload = _load_cards_sim_detail_snapshot(date_str) or {}
     games = payload.get("games") if isinstance(payload.get("games"), list) else []
     out: dict[tuple[str, str], dict[str, Any]] = {}
+
+    def _normalize_player_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        ranked_rows: list[tuple[float, float, dict[str, Any]]] = []
+        for row in rows:
+            min_mean = _safe_float(row.get("min_mean"))
+            if min_mean is None:
+                continue
+            pra_mean = _safe_float(row.get("pra_mean")) or 0.0
+            ranked_rows.append((float(min_mean), float(pra_mean), row))
+        ranked_rows.sort(key=lambda item: (-item[0], -item[1], str(item[2].get("player_name") or "").strip().upper()))
+
+        filtered_rows: list[dict[str, Any]] = []
+        for idx, (min_mean, _pra_mean, row) in enumerate(ranked_rows):
+            if min_mean < 4.0 and idx >= 10:
+                continue
+            filtered_rows.append(dict(row))
+        return filtered_rows
+
     for game in games:
         if not isinstance(game, dict):
             continue
@@ -17317,10 +17718,12 @@ def _load_cards_sim_detail_index(date_str: str) -> dict[tuple[str, str], dict[st
         missing_prop_players = sim.get("missing_prop_players") if isinstance(sim.get("missing_prop_players"), dict) else {"home": [], "away": []}
         injuries = sim.get("injuries") if isinstance(sim.get("injuries"), dict) else {"home": [], "away": []}
         summary = sim.get("players_summary") if isinstance(sim.get("players_summary"), dict) else {}
+        home_rows = _normalize_player_rows([row for row in (players.get("home") or []) if isinstance(row, dict)])
+        away_rows = _normalize_player_rows([row for row in (players.get("away") or []) if isinstance(row, dict)])
         out[(home_tri, away_tri)] = {
             "players": {
-                "home": [row for row in (players.get("home") or []) if isinstance(row, dict)],
-                "away": [row for row in (players.get("away") or []) if isinstance(row, dict)],
+                "home": home_rows,
+                "away": away_rows,
             },
             "missing_prop_players": {
                 "home": [row for row in (missing_prop_players.get("home") or []) if isinstance(row, dict)],
@@ -17330,8 +17733,23 @@ def _load_cards_sim_detail_index(date_str: str) -> dict[tuple[str, str], dict[st
                 "home": [row for row in (injuries.get("home") or []) if isinstance(row, dict)],
                 "away": [row for row in (injuries.get("away") or []) if isinstance(row, dict)],
             },
-            "players_summary": dict(summary),
+            "players_summary": {
+                **dict(summary),
+                "home": int(len(home_rows)),
+                "away": int(len(away_rows)),
+            },
         }
+    fallback_index = _load_cards_sim_detail_scenario_fallback_index(date_str)
+    for matchup_key, detail in fallback_index.items():
+        existing = out.get(matchup_key)
+        existing_rows = 0
+        if isinstance(existing, dict):
+            players = existing.get("players") if isinstance(existing.get("players"), dict) else {}
+            existing_rows = int(len(players.get("home") or [])) + int(len(players.get("away") or []))
+        fallback_players = detail.get("players") if isinstance(detail.get("players"), dict) else {}
+        fallback_rows = int(len(fallback_players.get("home") or [])) + int(len(fallback_players.get("away") or []))
+        if fallback_rows > existing_rows:
+            out[matchup_key] = detail
     return out
 
 
@@ -19970,8 +20388,8 @@ def api_cards():
 
         sim_error = obj.get("error")
 
-        home_tri = str(obj.get("home") or home_tri or "").strip().upper()
-        away_tri = str(obj.get("away") or away_tri or "").strip().upper()
+        home_tri = str(_get_tricode(str(obj.get("home") or "")) or obj.get("home") or home_tri or "").strip().upper()
+        away_tri = str(_get_tricode(str(obj.get("away") or "")) or obj.get("away") or away_tri or "").strip().upper()
         if not home_tri or not away_tri:
             continue
 
@@ -20117,7 +20535,22 @@ def api_cards():
                 if _exclude_from_sim_output(pr2):
                     continue
                 out_arr.append(pr2)
-            players_out[side] = out_arr
+
+            ranked_rows: list[tuple[float, float, dict[str, Any]]] = []
+            for row in out_arr:
+                min_mean = _safe_float(row.get("min_mean"))
+                if min_mean is None:
+                    continue
+                pra_mean = _safe_float(row.get("pra_mean")) or 0.0
+                ranked_rows.append((float(min_mean), float(pra_mean), row))
+            ranked_rows.sort(key=lambda item: (-item[0], -item[1], str(item[2].get("player_name") or "").strip().upper()))
+
+            trimmed_rows: list[dict[str, Any]] = []
+            for idx, (min_mean, _pra_mean, row) in enumerate(ranked_rows):
+                if min_mean < 4.0 and idx >= 10:
+                    continue
+                trimmed_rows.append(row)
+            players_out[side] = trimmed_rows
 
         def _missing_prop_players_for_team(team_tri: str, raw_players: Any) -> list[dict[str, Any]]:
             team_key = str(team_tri or "").strip().upper()
@@ -20235,20 +20668,22 @@ def api_cards():
 
         def _fallback_intervals_1m(total_mean: Optional[float]) -> dict[str, Any]:
             tm = 0.0 if total_mean is None else float(total_mean)
-            # Build a simple 48-minute regulation ladder. This is a last-resort visualization
+            regulation_game_minutes = max(1, int(round(float(getattr(LEAGUE, "regulation_team_minutes", 240.0)) / 5.0)))
+            regulation_period_minutes = max(1, int(round(float(getattr(LEAGUE, "regulation_period_seconds", 12 * 60)) / 60.0)))
+            # Build a simple regulation ladder. This is a last-resort visualization
             # fallback for historical pages; real SmartSim files should provide richer ladders.
             segs: list[dict[str, Any]] = []
-            for i in range(48):
+            for i in range(regulation_game_minutes):
                 end_min = i + 1
-                q = (i // 12) + 1
-                rem = 12 - (i % 12)
+                q = (i // regulation_period_minutes) + 1
+                rem = regulation_period_minutes - (i % regulation_period_minutes)
                 lab = f"Q{q} {rem}-{rem-1}" if rem >= 1 else f"Q{q}"
-                cum = tm * (end_min / 48.0) if tm else 0.0
+                cum = tm * (end_min / regulation_game_minutes) if tm else 0.0
                 segs.append(
                     {
                         "label": lab,
                         "quarter": q,
-                        "mu": tm / 48.0 if tm else 0.0,
+                        "mu": tm / regulation_game_minutes if tm else 0.0,
                         "q": {"p10": None, "p50": None, "p90": None},
                         "cum_mu": cum,
                         "cum_q": {"p10": None, "p50": cum, "p90": None},
@@ -20258,7 +20693,7 @@ def api_cards():
                 "segment_seconds": 60,
                 "ot_segment_seconds": 60,
                 "segments": segs,
-                "segments_per_quarter": 12,
+                "segments_per_quarter": regulation_period_minutes,
             }
 
         def _ensure_intervals(sim_obj: dict[str, Any]) -> tuple[Optional[dict[str, Any]], Optional[dict[str, Any]]]:
@@ -20630,6 +21065,8 @@ def api_cards():
             "away_tri": away_tri,
             "home_name": home_name,
             "away_name": away_name,
+            "home_logo": _wnba_logo_url(home_tri),
+            "away_logo": _wnba_logo_url(away_tri),
             "odds": odds,
             "sim": sim,
             "betting": bet,
@@ -23702,7 +24139,12 @@ def api_live_lens_accuracy():
     def _artifacts_dir_info() -> dict[str, Any]:
         try:
             base = _live_lens_artifacts_dir()
-            env_val = (os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip()
+            env_val = (
+                os.getenv(getattr(LEAGUE, "live_lens_env", "WNBA_LIVE_LENS_DIR"))
+                or os.getenv(getattr(LEAGUE, "legacy_live_lens_env", "NBA_LIVE_LENS_DIR"))
+                or os.getenv("LIVE_LENS_DIR")
+                or ""
+            ).strip()
             # Heuristic: on Render, missing env var means we fall back to repo data/processed (ephemeral).
             running_on_render = bool(os.getenv("RENDER") or os.getenv("RENDER_EXTERNAL_URL") or os.getenv("RENDER_SERVICE_ID"))
             persisted_configured = bool(env_val)
@@ -26764,7 +27206,7 @@ def _recommendations_all():
                                     pass
                                 # Enrich matchup and start time for games via schedule
                                 try:
-                                    sched_p = proc / "schedule_2025_26.csv"
+                                    sched_p = _processed_schedule_csv_path(str(d), proc)
                                     sched_df = pd.read_csv(sched_p) if sched_p.exists() else pd.DataFrame()
                                     if isinstance(sched_df, pd.DataFrame) and not sched_df.empty:
                                         cols = {c.lower(): c for c in sched_df.columns}
@@ -27920,7 +28362,7 @@ def _recommendations_all():
                     # Enrich props with team injuries and opponent context for explainability and scoring
                     try:
                         # Map teams on today's slate to their opponents via schedule
-                        sched_p = proc / "schedule_2025_26.csv"
+                        sched_p = _processed_schedule_csv_path(str(d), proc)
                         sched_df = pd.read_csv(sched_p) if sched_p.exists() else pd.DataFrame()
                         opp_map: dict[str, str] = {}
                         if isinstance(sched_df, pd.DataFrame) and not sched_df.empty:
@@ -28164,7 +28606,7 @@ def _recommendations_all():
                     df = fb_df.copy()
                     # Enrich matchup and start time via schedule
                     try:
-                        sched_p = proc / "schedule_2025_26.csv"
+                        sched_p = _processed_schedule_csv_path(str(d), proc)
                         sched_df = pd.read_csv(sched_p) if sched_p.exists() else pd.DataFrame()
                         if not sched_df.empty and ("game_id" in sched_df.columns):
                             cols = {c.lower(): c for c in sched_df.columns}
@@ -28211,7 +28653,7 @@ def _recommendations_all():
                         pass
                     # Pace hints for first basket using opponent allowed-PTS ranks via schedule tricodes
                     try:
-                        sched_p = proc / "schedule_2025_26.csv"
+                        sched_p = _processed_schedule_csv_path(str(d), proc)
                         sched_df = pd.read_csv(sched_p) if sched_p.exists() else pd.DataFrame()
                         averages, ranks = _compute_team_allowed_stats(d)
                         if not sched_df.empty and ("game_id" in sched_df.columns):
@@ -28305,7 +28747,7 @@ def _recommendations_all():
                         tmp["visitor_team"] = tmp["visitor"]
                     # Enrich team names via schedule join when missing
                     try:
-                        sched_p = proc / "schedule_2025_26.csv"
+                        sched_p = _processed_schedule_csv_path(str(d), proc)
                         sched_df = pd.read_csv(sched_p) if sched_p.exists() else pd.DataFrame()
                         if not sched_df.empty and ("game_id" in sched_df.columns):
                             # Build map from game_id to full names (city + name) preferred; fallback to name/tricode/city
@@ -31298,11 +31740,7 @@ def api_props_recommendations():
                                 nba_player_id=resolved_player_id,
                                 source_player_id=pid,
                             )
-                            team_id = _get_team_id(str(team)) if team is not None else None
-                            if team_id:
-                                team_logo = f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
-                            else:
-                                team_logo = (f"/web/assets/logos/{(tri or '').upper()}.svg" if tri else None)
+                            team_logo = _wnba_logo_url(tri)
 
                             items.append({
                                 "player": player,
@@ -31549,12 +31987,8 @@ def api_props_recommendations():
                         nba_player_id=resolved_player_id,
                         source_player_id=pid,
                     )
-                    team_id = _get_team_id(str(team)) if team is not None else None
-                    if team_id:
-                        team_logo = f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
-                    else:
-                        team_tri = (str(team).upper() if isinstance(team, str) else None)
-                        team_logo = (f"/web/assets/logos/{(team_tri or '').upper()}.svg" if team_tri else None)
+                    team_tri = (str(team).upper() if isinstance(team, str) else None)
+                    team_logo = _wnba_logo_url(team_tri)
                     key = (str(player), _tri(team))
                     cards_map[key] = {
                         "player": player,
@@ -32735,18 +33169,10 @@ def api_props_recommendations():
                     source_player_id=pid,
                 )
                 try:
-                    team_id = _get_team_id(str(team)) if team is not None else None
+                    team_tri = _get_tricode(str(team)) if team is not None else None
                 except Exception:
-                    team_id = None
-                if team_id:
-                    team_logo = f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
-                else:
-                    try:
-                        team_tri = _get_tricode(str(team)) if team is not None else None
-                    except Exception:
-                        team_tri = (str(team).upper() if isinstance(team, str) else None)
-                    # Prefer uppercase SVG path; UI will attempt lowercase or PNG fallback if 404s
-                    team_logo = (f"/web/assets/logos/{(team_tri or '').upper()}.svg" if team_tri else None)
+                    team_tri = (str(team).upper() if isinstance(team, str) else None)
+                team_logo = _wnba_logo_url(team_tri)
                 # Compute best metrics for sorting
                 best_ev = None
                 best_edge = None
@@ -34574,16 +35000,7 @@ def _prop_ladder_sort_key(value: object) -> tuple[int, float]:
 
 
 def _prop_ladder_team_logo_url(team_tri: object) -> str | None:
-    team_key = str(team_tri or "").strip().upper()
-    if not team_key:
-        return None
-    try:
-        team_id = _get_team_id(team_key)
-    except Exception:
-        team_id = None
-    if team_id:
-        return f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
-    return f"/web/assets/logos/{team_key}.svg"
+    return _wnba_logo_url(team_tri)
 
 
 def _build_prop_ladder_market_lines_from_options(
@@ -36063,7 +36480,7 @@ def _fetch_espn_scoreboard(date_str_local: str) -> Optional[dict[str, Any]]:
         return None
     try:
         ymd = date_str_local.replace('-', '')
-        url = f"https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={ymd}"
+        url = f"https://site.web.api.espn.com/apis/site/v2/{getattr(LEAGUE, 'espn_sport_path', 'sports/basketball/wnba')}/scoreboard?dates={ymd}"
         headers = {
             "Accept": "application/json, text/plain, */*",
             "Accept-Language": "en-US,en;q=0.9",
@@ -36474,9 +36891,10 @@ def api_live_game():
     sec_left_period = _live_parse_clock_to_sec_left(clock)
     # Compute regulation-based seconds remaining (OT handled as 5m chunks)
     game_sec_left = None
+    regulation_period_sec = int(getattr(LEAGUE, "regulation_period_seconds", 12 * 60) or (12 * 60))
     if period is not None and sec_left_period is not None:
         if period <= 4:
-            game_sec_left = (4 - period) * (12 * 60) + sec_left_period
+            game_sec_left = (4 - period) * regulation_period_sec + sec_left_period
         else:
             # OTs are 5 minutes
             game_sec_left = sec_left_period
@@ -36484,14 +36902,14 @@ def api_live_game():
     half_min_left = None
     if period is not None and sec_left_period is not None:
         if period <= 2:
-            half_sec_left = (2 - period) * (12 * 60) + sec_left_period
+            half_sec_left = (2 - period) * regulation_period_sec + sec_left_period
             half_min_left = half_sec_left / 60.0
         elif period > 2:
             half_min_left = 0.0
 
     # Round down to 3-minute ladder
-    game_min_left_3 = _live_round_to_step(game_min_left, 3, lo=0, hi=48)
-    half_min_left_3 = _live_round_to_step(half_min_left, 3, lo=0, hi=24)
+    game_min_left_3 = _live_round_to_step(game_min_left, 3, lo=0, hi=int(round((regulation_period_sec * 4) / 60.0)))
+    half_min_left_3 = _live_round_to_step(half_min_left, 3, lo=0, hi=int(round((regulation_period_sec * 2) / 60.0)))
 
     # PBP-derived attempts
     actions: list[dict[str, Any]] = []
@@ -36549,19 +36967,21 @@ def api_live_game():
     lens: dict[str, Any] = {"minute_resolution": 1, "available": bool(intervals)}
     try:
         if intervals and isinstance(intervals, dict):
+            regulation_game_minutes = max(1, int(round(float(getattr(LEAGUE, "regulation_team_minutes", 240.0)) / 5.0)))
+            regulation_half_minutes = max(1, int(round(regulation_game_minutes / 2.0)))
             # Precompute sim series once
-            sim_game_by_min = _live_cum_p50_series_by_min(intervals, total_minutes=48)
-            sim_half_by_min = _live_cum_p50_series_by_min(intervals, total_minutes=24)
-            sim_final_g = _live_interp_cum_p50(intervals, elapsed_min=48.0, total_minutes=48)
-            sim_final_h = _live_interp_cum_p50(intervals, elapsed_min=24.0, total_minutes=24)
+            sim_game_by_min = _live_cum_p50_series_by_min(intervals, total_minutes=regulation_game_minutes)
+            sim_half_by_min = _live_cum_p50_series_by_min(intervals, total_minutes=regulation_half_minutes)
+            sim_final_g = _live_interp_cum_p50(intervals, elapsed_min=float(regulation_game_minutes), total_minutes=regulation_game_minutes)
+            sim_final_h = _live_interp_cum_p50(intervals, elapsed_min=float(regulation_half_minutes), total_minutes=regulation_half_minutes)
 
             # If we have PBP score by minute, compute SmartSim-driven projected final totals by minute.
             act_game_total_by_min = (pbp_score_series.get("game") or {}).get("total") if isinstance(pbp_score_series, dict) else None
             act_half_total_by_min = (pbp_score_series.get("half") or {}).get("total") if isinstance(pbp_score_series, dict) else None
 
-            proj_final_total_by_min: list[float | None] = [None] * 49
-            if isinstance(act_game_total_by_min, list) and len(act_game_total_by_min) == 49 and sim_final_g is not None:
-                for m in range(0, 49):
+            proj_final_total_by_min: list[float | None] = [None] * (regulation_game_minutes + 1)
+            if isinstance(act_game_total_by_min, list) and len(act_game_total_by_min) == (regulation_game_minutes + 1) and sim_final_g is not None:
+                for m in range(0, regulation_game_minutes + 1):
                     try:
                         act = act_game_total_by_min[m]
                         sim_at = sim_game_by_min[m]
@@ -36571,9 +36991,9 @@ def api_live_game():
                     except Exception:
                         continue
 
-            proj_final_half_total_by_min: list[float | None] = [None] * 25
-            if isinstance(act_half_total_by_min, list) and len(act_half_total_by_min) == 25 and sim_final_h is not None:
-                for m in range(0, 25):
+            proj_final_half_total_by_min: list[float | None] = [None] * (regulation_half_minutes + 1)
+            if isinstance(act_half_total_by_min, list) and len(act_half_total_by_min) == (regulation_half_minutes + 1) and sim_final_h is not None:
+                for m in range(0, regulation_half_minutes + 1):
                     try:
                         act = act_half_total_by_min[m]
                         sim_at = sim_half_by_min[m]
@@ -36585,8 +37005,8 @@ def api_live_game():
 
             # Game lens
             if game_min_left is not None and total_pts is not None:
-                elapsed_g = float(max(0.0, min(48.0, 48.0 - float(game_min_left))))
-                sim_at_g = _live_interp_cum_p50(intervals, elapsed_min=elapsed_g, total_minutes=48)
+                elapsed_g = float(max(0.0, min(float(regulation_game_minutes), float(regulation_game_minutes) - float(game_min_left))))
+                sim_at_g = _live_interp_cum_p50(intervals, elapsed_min=elapsed_g, total_minutes=regulation_game_minutes)
                 pace_final_g = None
                 delta_g = None
                 if sim_at_g is not None and sim_final_g is not None:
@@ -36622,12 +37042,12 @@ def api_live_game():
                         q2 = _safe_float(q_totals.get("q2"))
                         if q1 is not None and q2 is not None:
                             half_total_pts = float(q1 + q2)
-                        elif isinstance(act_half_total_by_min, list) and len(act_half_total_by_min) >= 25 and act_half_total_by_min[24] is not None:
-                            half_total_pts = float(act_half_total_by_min[24])
+                        elif isinstance(act_half_total_by_min, list) and len(act_half_total_by_min) > regulation_half_minutes and act_half_total_by_min[regulation_half_minutes] is not None:
+                            half_total_pts = float(act_half_total_by_min[regulation_half_minutes])
                 except Exception:
                     half_total_pts = float(total_pts)
-                elapsed_h = float(max(0.0, min(24.0, 24.0 - float(half_min_left))))
-                sim_at_h = _live_interp_cum_p50(intervals, elapsed_min=elapsed_h, total_minutes=24)
+                elapsed_h = float(max(0.0, min(float(regulation_half_minutes), float(regulation_half_minutes) - float(half_min_left))))
+                sim_at_h = _live_interp_cum_p50(intervals, elapsed_min=elapsed_h, total_minutes=regulation_half_minutes)
                 pace_final_h = None
                 delta_h = None
                 if sim_at_h is not None and sim_final_h is not None:
@@ -36715,23 +37135,25 @@ def _parse_ttl_param(req, default: int, lo: int = 1, hi: int = 3600) -> int:
 def _live_game_elapsed_minutes(period: int | None, clock: Any, is_final: bool) -> float | None:
     """Compute elapsed regulation minutes from period + clock.
 
-    Mirrors client-side logic (48-minute regulation). OT is clamped to 48.
+    Mirrors client-side logic using league-configured regulation timing.
     """
     try:
+        regulation_period_sec = int(getattr(LEAGUE, "regulation_period_seconds", 12 * 60) or 12 * 60)
+        regulation_game_min = max(1.0, float(getattr(LEAGUE, "regulation_team_minutes", 240.0)) / 5.0)
         if is_final:
-            return 48.0
+            return regulation_game_min
         if period is None:
             return None
         p = int(period)
         if p < 1:
             return None
         if p > 4:
-            return 48.0
+            return regulation_game_min
         sec_left = _live_parse_clock_to_sec_left(clock)
         if sec_left is None:
             return None
-        elapsed_sec = ((p - 1) * 12 * 60) + max(0, (12 * 60 - int(sec_left)))
-        return float(max(0.0, min(48.0, elapsed_sec / 60.0)))
+        elapsed_sec = ((p - 1) * regulation_period_sec) + max(0, (regulation_period_sec - int(sec_left)))
+        return float(max(0.0, min(regulation_game_min, elapsed_sec / 60.0)))
     except Exception:
         return None
 
@@ -37410,7 +37832,9 @@ def api_live_player_lens():
         require_live_line_after_min = float(str(os.environ.get("LIVE_PLAYER_LENS_REQUIRE_LIVE_LINE_AFTER_MIN", "0")).strip())
     except Exception:
         require_live_line_after_min = 0.0
-    require_live_line_after_min = float(max(0.0, min(48.0, require_live_line_after_min)))
+        require_live_line_after_min = float(
+            max(0.0, min(float(getattr(LEAGUE, "regulation_team_minutes", 240.0)) / 5.0, require_live_line_after_min))
+        )
     try:
         require_min_books = int(float(str(os.environ.get("LIVE_PLAYER_LENS_REQUIRE_MIN_BOOKS", "0")).strip()))
     except Exception:
@@ -38099,10 +38523,12 @@ def api_live_player_lens():
                     pra = None
 
                 exp_min = _pred_exp_min(pred_row)
+                regulation_game_min = float((getattr(LEAGUE, "regulation_period_seconds", 12 * 60) or (12 * 60)) * 4) / 60.0
+                late_game_min = 0.75 * regulation_game_min
                 # Fallback: infer expected minutes from share of game played so far
                 if exp_min is None and mp is not None and elapsed_min is not None and elapsed_min > 0:
                     try:
-                        exp_min = float(max(mp, min(44.0, (mp / max(1e-6, elapsed_min)) * 48.0)))
+                        exp_min = float(max(mp, min(regulation_game_min, (mp / max(1e-6, elapsed_min)) * regulation_game_min)))
                     except Exception:
                         exp_min = None
 
@@ -38110,9 +38536,9 @@ def api_live_player_lens():
                 exp_min_eff = exp_min
                 if exp_min is not None and mp is not None and elapsed_min is not None and elapsed_min > 0:
                     try:
-                        inferred = float(max(mp, min(44.0, (mp / max(1e-6, elapsed_min)) * 48.0)))
+                        inferred = float(max(mp, min(regulation_game_min, (mp / max(1e-6, elapsed_min)) * regulation_game_min)))
                         # Conservative: at most 50% weight on live share, ramping with game progress.
-                        w_share = min(0.50, max(0.0, float(elapsed_min) / 48.0))
+                        w_share = min(0.50, max(0.0, float(elapsed_min) / regulation_game_min))
                         # Avoid twitchiness very early.
                         if elapsed_min >= 6.0 and mp >= 2.0:
                             exp_min_eff = float((1.0 - w_share) * float(exp_min) + w_share * inferred)
@@ -38140,9 +38566,10 @@ def api_live_player_lens():
                         rot_avg_rest_sec = _safe_float(rot.get("avg_rest_sec"))
                         stints_n = _safe_int(rot.get("stints_n")) or 0
                         rests_n = _safe_int(rot.get("rests_n")) or 0
+                        regulation_ratio = float(max(0.5, min(1.25, float(regulation_game_min) / 48.0)))
 
-                        base = float(max(float(mp), min(44.0, float(exp_min_eff))))
-                        rem_game_min = float(max(0.0, 48.0 - float(elapsed_min)))
+                        base = float(max(float(mp), min(float(regulation_game_min), float(exp_min_eff))))
+                        rem_game_min = float(max(0.0, regulation_game_min - float(elapsed_min)))
                         rem_target_min = float(max(0.0, base - float(mp)))
                         if rem_game_min > 0 and rem_target_min > 0:
                             st = None
@@ -38151,10 +38578,10 @@ def api_live_player_lens():
                             except Exception:
                                 st = None
                             # Fallback priors when we have no completed stint/rest history.
-                            avg_stint_sec = float(rot_avg_stint_sec) if rot_avg_stint_sec is not None else (390.0 if st is True else 330.0)
-                            avg_rest_sec = float(rot_avg_rest_sec) if rot_avg_rest_sec is not None else (240.0 if st is True else 300.0)
-                            avg_stint_sec = float(max(120.0, min(720.0, avg_stint_sec)))
-                            avg_rest_sec = float(max(60.0, min(900.0, avg_rest_sec)))
+                            avg_stint_sec = float(rot_avg_stint_sec) if rot_avg_stint_sec is not None else ((390.0 if st is True else 330.0) * regulation_ratio)
+                            avg_rest_sec = float(rot_avg_rest_sec) if rot_avg_rest_sec is not None else ((240.0 if st is True else 300.0) * regulation_ratio)
+                            avg_stint_sec = float(max(120.0 * regulation_ratio, min(720.0 * regulation_ratio, avg_stint_sec)))
+                            avg_rest_sec = float(max(60.0 * regulation_ratio, min(900.0 * regulation_ratio, avg_rest_sec)))
 
                             playable_min = None
                             if rot_on_court:
@@ -38167,7 +38594,7 @@ def api_live_player_lens():
                                 wait = float(max(0.0, avg_rest_sec - cur_off)) / 60.0
                                 playable_min = float(min(rem_target_min, max(0.0, rem_game_min - wait)))
 
-                            exp_min_rot = float(max(float(mp), min(44.0, float(mp) + float(max(0.0, playable_min)))))
+                                exp_min_rot = float(max(float(mp), min(float(regulation_game_min), float(mp) + float(max(0.0, playable_min)))))
 
                             # Confidence: more weight once we observed at least one true stint or rest.
                             conf = max(0.0, min(1.0, float(max(stints_n, rests_n)) / 2.0))
@@ -38181,12 +38608,12 @@ def api_live_player_lens():
                 proj_min_final = exp_min_eff_used
                 try:
                     if mp is not None and elapsed_min is not None:
-                        rem = float(max(0.0, 48.0 - float(elapsed_min)))
+                        rem = float(max(0.0, regulation_game_min - float(elapsed_min)))
                         base = float(proj_min_final) if proj_min_final is not None else None
 
                         if base is not None:
                             # Always at least what already played; cap to plausible max.
-                            base = float(max(float(mp), min(44.0, base)))
+                            base = float(max(float(mp), min(regulation_game_min, base)))
 
                             pf_i = None
                             try:
@@ -38202,7 +38629,7 @@ def api_live_player_lens():
                             # Foul trouble: cap remaining minutes more aggressively with 5+ fouls.
                             if pf_i is not None and pf_i >= 5 and rem > 0:
                                 base = float(min(base, float(mp) + 0.55 * rem))
-                            elif pf_i is not None and pf_i == 4 and rem > 0 and float(elapsed_min) <= 36.0:
+                            elif pf_i is not None and pf_i == 4 and rem > 0 and float(elapsed_min) <= late_game_min:
                                 base = float(min(base, float(mp) + 0.75 * rem))
 
                             # Blowout risk: only cap starters late (avoid inflating bench without more data).
@@ -38212,15 +38639,15 @@ def api_live_player_lens():
                                 m = float(abs(float(script_margin))) if script_margin is not None else None
                             except Exception:
                                 m = None
-                            if st is True and m is not None and m >= 18.0 and rem > 0 and float(elapsed_min) >= 30.0:
+                            if st is True and m is not None and m >= 18.0 and rem > 0 and float(elapsed_min) >= 0.625 * regulation_game_min:
                                 base = float(min(base, float(mp) + 0.55 * rem))
 
                             # Game-script prior (v1): late-game margin affects star minutes.
                             # Leading big late -> starters sit more; trailing big late -> starters may extend.
                             try:
                                 tm = _effective_team_margin_for_tri(team)
-                                rem_min = float(max(0.0, 48.0 - float(elapsed_min)))
-                                if st is True and tm is not None and rem_min > 0 and float(elapsed_min) >= 36.0:
+                                rem_min = float(max(0.0, regulation_game_min - float(elapsed_min)))
+                                if st is True and tm is not None and rem_min > 0 and float(elapsed_min) >= late_game_min:
                                     a = float(abs(tm))
                                     if tm >= 10.0 and a >= 10.0:
                                         base = float(min(base, float(mp) + 0.70 * rem_min))
@@ -38229,7 +38656,7 @@ def api_live_player_lens():
                             except Exception:
                                 pass
 
-                            proj_min_final = float(max(float(mp), min(44.0, base)))
+                            proj_min_final = float(max(float(mp), min(regulation_game_min, base)))
                 except Exception:
                     proj_min_final = exp_min_eff_used
 
@@ -38238,10 +38665,10 @@ def api_live_player_lens():
                 injury_gap = None
                 try:
                     if in_progress and not is_final and elapsed_min is not None and mp is not None and exp_min_eff_used is not None:
-                        if rot_on_court is False and rot_cur_off_sec is not None and float(elapsed_min) >= 10.0 and float(elapsed_min) <= 44.0:
-                            rem_game_min = float(max(0.0, 48.0 - float(elapsed_min)))
+                        if rot_on_court is False and rot_cur_off_sec is not None and float(elapsed_min) >= 10.0 and float(elapsed_min) <= regulation_game_min:
+                            rem_game_min = float(max(0.0, regulation_game_min - float(elapsed_min)))
                             if rem_game_min >= 6.0:
-                                expected_so_far = float(exp_min_eff_used) * float(elapsed_min) / 48.0
+                                expected_so_far = float(exp_min_eff_used) * float(elapsed_min) / regulation_game_min
                                 gap = float(expected_so_far - float(mp))
                                 injury_gap = gap
                                 pf_i = None
@@ -38261,14 +38688,14 @@ def api_live_player_lens():
                                     thr = max(thr, 1.8 * float(rot_avg_rest_sec))
                                 if gap >= 4.0 and float(rot_cur_off_sec) >= thr:
                                     if (pf_i is None) or (pf_i <= 3):
-                                        if (mabs is None) or (mabs < 18.0) or (float(elapsed_min) < 30.0):
+                                        if (mabs is None) or (mabs < 18.0) or (float(elapsed_min) < (0.625 * regulation_game_min)):
                                             # Only for players with meaningful expected role.
                                             if float(exp_min_eff_used) >= 18.0:
                                                 injury_flag = True
 
                         # If flagged, cap the remaining minutes more aggressively.
                         if injury_flag and proj_min_final is not None:
-                            rem_min = float(max(0.0, 48.0 - float(elapsed_min)))
+                            rem_min = float(max(0.0, regulation_game_min - float(elapsed_min)))
                             proj_min_final = float(min(float(proj_min_final), float(mp) + 0.40 * rem_min))
                 except Exception:
                     injury_flag = False
@@ -38591,7 +39018,7 @@ def api_live_player_lens():
                         team_3a_game0 = None
                         if actual is not None and mp is not None and mp > 0 and proj_min_final is not None and proj_min_final > 0:
                             try:
-                                em = float(max(mp, min(44.0, proj_min_final)))
+                                em = float(max(mp, min(regulation_game_min, proj_min_final)))
                                 pace_raw = float((actual / mp) * em)
 
                                 # Role/usage detection (v1): adjust pace_raw by recent-vs-game usage proxy ratio.
@@ -38662,7 +39089,7 @@ def api_live_player_lens():
                                         # Game-script prior (v1): shrink team pace shifts slightly by margin late.
                                         try:
                                             tm = _effective_team_margin_for_tri(tri0)
-                                            rem_min2 = float(max(0.0, 48.0 - float(elapsed_min)))
+                                            rem_min2 = float(max(0.0, regulation_game_min - float(elapsed_min)))
                                             if tm is not None and rem_min2 <= 6.0 and abs(float(tm)) >= 10.0:
                                                 # Leading tends to slow; trailing tends to speed.
                                                 script = 0.97 if tm >= 0 else 1.03
@@ -38762,7 +39189,7 @@ def api_live_player_lens():
                                     if stat_key in {"pts", "pra", "pa", "pr"} and period == 4 and in_progress and not is_final:
                                         sec_left = _live_parse_clock_to_sec_left(clock)
                                         if sec_left is not None:
-                                            sec_left = int(max(0, min(12 * 60, int(sec_left))))
+                                            sec_left = int(max(0, min(int(getattr(LEAGUE, "regulation_period_seconds", 12 * 60)), int(sec_left))))
                                             mabs = float(abs(int(margin))) if margin is not None else None
                                             if mabs is not None and 4.0 <= mabs <= 12.0 and sec_left <= 150:
                                                 w_time = float(max(0.0, min(1.0, (150.0 - float(sec_left)) / 150.0)))
@@ -38848,9 +39275,9 @@ def api_live_player_lens():
                                 except Exception:
                                     expm0 = None
                                 if expm0 is not None:
-                                    expm0 = float(max(1.0, min(48.0, expm0)))
+                                    expm0 = float(max(1.0, min(float(regulation_game_min), expm0)))
                                 if mp0 is not None:
-                                    mp0 = float(max(0.0, min(48.0, mp0)))
+                                    mp0 = float(max(0.0, min(float(regulation_game_min), mp0)))
 
                                 # Stat-specific SD floors: avoid pathological certainty late.
                                 try:
@@ -39975,6 +40402,39 @@ def _is_canon_gid(gid: str | None) -> bool:
     return len(g) == 10 and g.isdigit()
 
 
+def _processed_schedule_season_label(date_str: str | None = None) -> str:
+    try:
+        if date_str and callable(season_label_from_date):
+            return str(season_label_from_date(str(date_str)))
+    except Exception:
+        pass
+    try:
+        if callable(season_label_from_date):
+            return str(season_label_from_date(datetime.now().date().isoformat()))
+    except Exception:
+        pass
+    return str(datetime.now().year)
+
+
+def _processed_schedule_csv_path(date_str: str | None = None, base_dir: Path | None = None) -> Path:
+    directory = base_dir if isinstance(base_dir, Path) else DATA_PROCESSED_DIR
+    return directory / f"schedule_{_processed_schedule_season_label(date_str)}.csv"
+
+
+def _processed_schedule_json_path(date_str: str | None = None, base_dir: Path | None = None) -> Path:
+    directory = base_dir if isinstance(base_dir, Path) else DATA_PROCESSED_DIR
+    return directory / f"schedule_{_processed_schedule_season_label(date_str)}.json"
+
+
+def _processed_schedule_json_paths(base_dir: Path | None = None) -> list[Path]:
+    directory = base_dir if isinstance(base_dir, Path) else DATA_PROCESSED_DIR
+    try:
+        matches = [fp for fp in directory.glob("schedule_*.json") if re.fullmatch(r"schedule_\d{4}", fp.stem)]
+    except Exception:
+        matches = []
+    return sorted(matches, key=lambda fp: fp.stem)
+
+
 def _load_live_lens_schedule_index() -> dict[str, dict[tuple[str, str], str]]:
     """Load schedule index: date -> (home_tri, away_tri) -> canonical gid."""
     global _live_lens_schedule_idx
@@ -39983,26 +40443,22 @@ def _load_live_lens_schedule_index() -> dict[str, dict[tuple[str, str], str]]:
 
     idx: dict[str, dict[tuple[str, str], str]] = {}
     try:
-        p = DATA_PROCESSED_DIR / "schedule_2025_26.json"
-        if not p.exists():
-            _live_lens_schedule_idx = {}
-            return _live_lens_schedule_idx
-        raw = p.read_text(encoding="utf-8")
-        data = json.loads(raw)
-        if not isinstance(data, list):
-            _live_lens_schedule_idx = {}
-            return _live_lens_schedule_idx
-        for g in data:
-            if not isinstance(g, dict):
+        for p in _processed_schedule_json_paths():
+            raw = p.read_text(encoding="utf-8")
+            data = json.loads(raw)
+            if not isinstance(data, list):
                 continue
-            ds = str(g.get("date_est") or "")[:10]
-            if not ds:
-                continue
-            home = _live_lens_safe_upper(g.get("home_tricode"))
-            away = _live_lens_safe_upper(g.get("away_tricode"))
-            gid = _canon_nba_game_id10(g.get("game_id"))
-            if home and away and _is_canon_gid(gid):
-                idx.setdefault(ds, {})[(home, away)] = gid
+            for g in data:
+                if not isinstance(g, dict):
+                    continue
+                ds = str(g.get("date_est") or "")[:10]
+                if not ds:
+                    continue
+                home = _live_lens_safe_upper(g.get("home_tricode"))
+                away = _live_lens_safe_upper(g.get("away_tricode"))
+                gid = _canon_nba_game_id10(g.get("game_id"))
+                if home and away and _is_canon_gid(gid):
+                    idx.setdefault(ds, {})[(home, away)] = gid
     except Exception:
         idx = {}
 
@@ -40453,63 +40909,73 @@ def api_live_log():
 
 @app.route("/api/schedule")
 def api_schedule():
-    """Serve the NBA schedule as JSON. If the processed JSON is missing, attempt to generate it.
+    """Serve the processed WNBA schedule as JSON.
 
     Query params:
-      - season (optional): currently defaults to '2025-26'
+      - season (optional): WNBA single-year season label, with legacy multi-year values tolerated
       - date (optional): if provided, filter to that YYYY-MM-DD
     """
-    season = (request.args.get("season") or "2025-26").strip()
+    season = (request.args.get("season") or "").strip()
     date_str = _parse_date_param(request, default_to_today=False)
     out_dir = DATA_PROCESSED_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
-    json_path = out_dir / "schedule_2025_26.json"  # schema tied to function name for now
+
+    def _season_key(raw: str | None, fallback_date: str | None) -> str:
+        text = str(raw or "").strip()
+        years = re.findall(r"\d{4}", text)
+        if years:
+            return max(years)
+        if fallback_date and callable(season_label_from_date):
+            try:
+                return season_label_from_date(str(fallback_date))
+            except Exception:
+                pass
+        try:
+            if callable(season_label_from_date):
+                return season_label_from_date(datetime.now().date().isoformat())
+        except Exception:
+            pass
+        return str(datetime.now().year)
+
+    season_key = _season_key(season, date_str)
+    json_paths = [out_dir / f"schedule_{season_key}.json"]
+    csv_paths = [out_dir / f"schedule_{season_key}.csv"]
     try:
         data: Optional[list[dict[str, Any]]] = None
 
-        # Prefer serving the processed JSON directly (fast + avoids pandas/JSON serialization edge cases)
-        if json_path.exists():
+        for json_path in json_paths:
             try:
+                if not json_path.exists():
+                    continue
                 raw = json_path.read_text(encoding="utf-8")
                 parsed = json.loads(raw)
                 if isinstance(parsed, list):
-                    # Ensure dict elements
                     data = [x for x in parsed if isinstance(x, dict)]
+                    if data:
+                        break
             except Exception:
-                data = None
+                continue
 
-        # Fallback: load via pandas (handles some legacy formats)
         if not data:
-            try:
-                df = pd.read_json(json_path) if json_path.exists() else None
-            except Exception:
-                df = None
-            if df is not None and not df.empty:
+            for csv_path in csv_paths:
                 try:
-                    df = df.replace({np.nan: None})
+                    if not csv_path.exists():
+                        continue
+                    df = pd.read_csv(csv_path)
                 except Exception:
-                    pass
-                data = df.to_dict(orient="records")
-
-        # Last resort: attempt to rebuild
-        if not data:
-            try:
-                from nba_betting.schedule import fetch_schedule_2025_26  # type: ignore
-
-                df = fetch_schedule_2025_26()
+                    continue
                 if df is None or df.empty:
-                    return jsonify([])
-                try:
-                    df.to_json(json_path, orient="records", date_format="iso")
-                except Exception:
-                    pass
+                    continue
                 try:
                     df = df.replace({np.nan: None})
                 except Exception:
                     pass
                 data = df.to_dict(orient="records")
-            except Exception as e:
-                return jsonify({"error": f"Failed to load or build schedule: {e}"}), 500
+                if data:
+                    break
+
+        if not data:
+            return jsonify([])
 
         # Optional filter by date (YYYY-MM-DD) using an ET calendar day
         if date_str:
@@ -40545,6 +41011,10 @@ def api_schedule():
 
             data = [g for g in data if _et_key_from_game(g) == date_str]
 
+        try:
+            data = sorted(data, key=lambda row: str((row or {}).get("datetime_utc") or (row or {}).get("date_utc") or ""))
+        except Exception:
+            pass
         return jsonify(data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -42598,7 +43068,7 @@ def api_cron_reconcile_games():
             return pd.DataFrame()
         try:
             ymd = date_str_local.replace('-', '')
-            url = f"https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={ymd}"
+            url = f"https://site.web.api.espn.com/apis/site/v2/{getattr(LEAGUE, 'espn_sport_path', 'sports/basketball/wnba')}/scoreboard?dates={ymd}"
             r = _rq.get(url, timeout=6)
             if r.status_code != 200:
                 return pd.DataFrame()
@@ -43178,7 +43648,7 @@ def api_cron_assess_oddsapi():
         r = requests.get(
             f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events",
             params={"apiKey": api_key},
-            headers={"Accept": "application/json", "User-Agent": "nba-betting/1.0"},
+            headers={"Accept": "application/json", "User-Agent": getattr(LEAGUE, "user_agent_product", "wnba-betting/1.0")},
             timeout=45,
         )
         r.raise_for_status()
@@ -43453,7 +43923,8 @@ def api_cron_live_lens_tick():
             if raw_diff is None:
                 return {"diff_shrunk": None, "lambda": None, "lambda_poss": None, "lambda_time": None}
             tm = float(total_minutes)
-            scale = max(0.15, tm / 48.0) if tm > 0 else 1.0
+            regulation_game_min = max(1.0, float(getattr(LEAGUE, "regulation_team_minutes", 240.0)) / 5.0)
+            scale = max(0.15, tm / regulation_game_min) if tm > 0 else 1.0
             poss_min = 10.0 * scale
             poss_range = 25.0 * scale
             time_min = 6.0 * scale
@@ -43508,10 +43979,11 @@ def api_cron_live_lens_tick():
         try:
             if exp_pace is None or scope_minutes <= 0:
                 return ctx
-            poss_expected_full = float(exp_pace) * (float(scope_minutes) / 48.0)
+            regulation_game_min = max(1.0, float(getattr(LEAGUE, "regulation_team_minutes", 240.0)) / 5.0)
+            poss_expected_full = float(exp_pace) * (float(scope_minutes) / regulation_game_min)
             poss_expected_so_far = None
             if elapsed_scope is not None:
-                poss_expected_so_far = float(exp_pace) * (float(max(0.0, min(float(scope_minutes), float(elapsed_scope)))) / 48.0)
+                poss_expected_so_far = float(exp_pace) * (float(max(0.0, min(float(scope_minutes), float(elapsed_scope)))) / regulation_game_min)
             exp_ppp = None
             if sim_final_scope is not None and poss_expected_full > 1e-9:
                 exp_ppp = float(sim_final_scope) / poss_expected_full
@@ -43587,6 +44059,10 @@ def api_cron_live_lens_tick():
 
                 for g in inprog:
                     try:
+                        regulation_game_min = max(1.0, float(getattr(LEAGUE, "regulation_team_minutes", 240.0)) / 5.0)
+                        regulation_half_min = max(1.0, regulation_game_min / 2.0)
+                        regulation_period_min = max(1.0, float(getattr(LEAGUE, "regulation_period_seconds", 12 * 60)) / 60.0)
+                        regulation_period_sec = int(getattr(LEAGUE, "regulation_period_seconds", 12 * 60) or 12 * 60)
                         eid = str(g.get("espn_event_id") or "").strip()
                         gid = g.get("game_id")
                         home = g.get("home")
@@ -43621,12 +44097,12 @@ def api_cron_live_lens_tick():
                         except Exception:
                             home_margin = None
 
-                        game_min_left = (48.0 - float(elapsed_min)) if elapsed_min is not None else None
+                        game_min_left = (regulation_game_min - float(elapsed_min)) if elapsed_min is not None else None
                         half_min_left = None
                         if period is not None and sec_left_period is not None:
                             try:
                                 if int(period) <= 2:
-                                    half_min_left = (((2 - int(period)) * 12 * 60) + int(sec_left_period)) / 60.0
+                                    half_min_left = (((2 - int(period)) * regulation_period_sec) + int(sec_left_period)) / 60.0
                                 elif int(period) > 2:
                                     half_min_left = 0.0
                             except Exception:
@@ -43658,17 +44134,17 @@ def api_cron_live_lens_tick():
                             sim_at_g, sim_final_g, proj_g = _scope_projection(
                                 intervals,
                                 scope_start_min=0.0,
-                                scope_end_min=48.0,
+                                scope_end_min=regulation_game_min,
                                 elapsed_scope_min=float(elapsed_min),
                                 actual_total=float(total_pts),
                             )
                             if proj_g is None and total_mean is not None:
-                                sim_at_g = float(total_mean) * float(max(0.0, min(48.0, float(elapsed_min)))) / 48.0
+                                sim_at_g = float(total_mean) * float(max(0.0, min(regulation_game_min, float(elapsed_min)))) / regulation_game_min
                                 sim_final_g = float(total_mean)
                                 proj_g = max(float(total_pts), float(total_pts) + (float(sim_final_g) - float(sim_at_g)))
                             if proj_g is not None:
                                 edge_raw_g = float(proj_g) - float(game_total_line)
-                                shrink_g = _edge_shrink(edge_raw_g, game_poss_live, elapsed_min, 48.0)
+                                shrink_g = _edge_shrink(edge_raw_g, game_poss_live, elapsed_min, regulation_game_min)
                                 edge_g = _safe_float(shrink_g.get("diff_shrunk"))
                                 edge_g = edge_raw_g if edge_g is None else float(edge_g)
                                 klass = _klass(abs(edge_g), tot_watch, tot_bet)
@@ -43699,7 +44175,7 @@ def api_cron_live_lens_tick():
                                                 if throttle_ok:
                                                     game_ctx = _scope_pace_context(
                                                         actual_total=float(total_pts),
-                                                        scope_minutes=48.0,
+                                                        scope_minutes=regulation_game_min,
                                                         elapsed_scope=float(elapsed_min),
                                                         sim_final_scope=sim_final_g,
                                                         poss_live=game_poss_live,
@@ -43812,18 +44288,18 @@ def api_cron_live_lens_tick():
                         if total_pts is not None and period is not None and int(period) <= 2 and half_min_left is not None:
                             h1_line = _safe_float(period_totals.get("h1")) if isinstance(period_totals, dict) else None
                             if h1_line is not None:
-                                elapsed_h = float(max(0.0, min(24.0, 24.0 - float(half_min_left))))
+                                elapsed_h = float(max(0.0, min(regulation_half_min, regulation_half_min - float(half_min_left))))
                                 sim_at_h, sim_final_h, proj_h = _scope_projection(
                                     intervals,
                                     scope_start_min=0.0,
-                                    scope_end_min=24.0,
+                                    scope_end_min=regulation_half_min,
                                     elapsed_scope_min=elapsed_h,
                                     actual_total=float(total_pts),
                                 )
                                 if proj_h is not None:
                                     poss_h = _poss_avg(home, away, pbp_possessions_periods.get("h1") if isinstance(pbp_possessions_periods, dict) else None)
                                     edge_raw_h = float(proj_h) - float(h1_line)
-                                    shrink_h = _edge_shrink(edge_raw_h, poss_h, elapsed_h, 24.0)
+                                    shrink_h = _edge_shrink(edge_raw_h, poss_h, elapsed_h, regulation_half_min)
                                     edge_h = _safe_float(shrink_h.get("diff_shrunk"))
                                     edge_h = edge_raw_h if edge_h is None else float(edge_h)
                                     klass_h = _klass(abs(edge_h), half_watch, half_bet)
@@ -43854,7 +44330,7 @@ def api_cron_live_lens_tick():
                                                     if throttle_ok:
                                                         half_ctx = _scope_pace_context(
                                                             actual_total=float(total_pts),
-                                                            scope_minutes=24.0,
+                                                            scope_minutes=regulation_half_min,
                                                             elapsed_scope=elapsed_h,
                                                             sim_final_scope=sim_final_h,
                                                             poss_live=poss_h,
@@ -43961,9 +44437,9 @@ def api_cron_live_lens_tick():
                                 q_totals = pbp_quarters.get("q_totals") if isinstance(pbp_quarters, dict) and isinstance(pbp_quarters.get("q_totals"), dict) else {}
                                 q_total_now = _safe_float(q_totals.get(q_key)) if isinstance(q_totals, dict) else None
                             if q_line is not None and q_total_now is not None:
-                                elapsed_q = float(max(0.0, min(12.0, 12.0 - (float(sec_left_period) / 60.0))))
-                                q_start = float((int(q_num) - 1) * 12)
-                                q_end = float(int(q_num) * 12)
+                                elapsed_q = float(max(0.0, min(regulation_period_min, regulation_period_min - (float(sec_left_period) / 60.0))))
+                                q_start = float((int(q_num) - 1) * regulation_period_min)
+                                q_end = float(int(q_num) * regulation_period_min)
                                 sim_at_q, sim_final_q, proj_q = _scope_projection(
                                     intervals,
                                     scope_start_min=q_start,
@@ -43974,7 +44450,7 @@ def api_cron_live_lens_tick():
                                 if proj_q is not None:
                                     poss_q = _poss_avg(home, away, pbp_possessions_periods.get(q_key) if isinstance(pbp_possessions_periods, dict) else None)
                                     edge_raw_q = float(proj_q) - float(q_line)
-                                    shrink_q = _edge_shrink(edge_raw_q, poss_q, elapsed_q, 12.0)
+                                    shrink_q = _edge_shrink(edge_raw_q, poss_q, elapsed_q, regulation_period_min)
                                     edge_q = _safe_float(shrink_q.get("diff_shrunk"))
                                     edge_q = edge_raw_q if edge_q is None else float(edge_q)
                                     klass_q = _klass(abs(edge_q), qtr_watch, qtr_bet)
@@ -44005,7 +44481,7 @@ def api_cron_live_lens_tick():
                                                     if throttle_ok:
                                                         quarter_ctx = _scope_pace_context(
                                                             actual_total=float(q_total_now),
-                                                            scope_minutes=12.0,
+                                                            scope_minutes=regulation_period_min,
                                                             elapsed_scope=elapsed_q,
                                                             sim_final_scope=sim_final_q,
                                                             poss_live=poss_q,
@@ -44103,7 +44579,7 @@ def api_cron_live_lens_tick():
 
                         # ATS
                         if include_ats and home_spread is not None and margin_mean is not None and home_margin is not None and elapsed_min is not None:
-                            blend_w = float(max(0.0, min(1.0, float(elapsed_min) / 48.0)))
+                            blend_w = float(max(0.0, min(1.0, float(elapsed_min) / regulation_game_min)))
                             adj_margin_home = (1.0 - blend_w) * float(margin_mean) + blend_w * float(home_margin)
                             edge_home = adj_margin_home + float(home_spread)
                             edge_away = -adj_margin_home - float(home_spread)
@@ -44234,10 +44710,10 @@ def api_cron_live_lens_tick():
                             p_home_implied = _american_to_implied_prob(home_ml)
                             p_away_implied = _american_to_implied_prob(away_ml)
                             if p_home_implied is not None and p_away_implied is not None:
-                                min_left = float(max(0.0, 48.0 - float(elapsed_min)))
+                                min_left = float(max(0.0, regulation_game_min - float(elapsed_min)))
                                 scale = 6.0 + (0.35 * min_left)
                                 try:
-                                    poss_exp_so_far = (float(exp_pace) * float(elapsed_min) / 48.0) if (exp_pace is not None and elapsed_min is not None) else None
+                                    poss_exp_so_far = (float(exp_pace) * float(elapsed_min) / regulation_game_min) if (exp_pace is not None and elapsed_min is not None) else None
                                     if game_poss_live is not None and poss_exp_so_far is not None and poss_exp_so_far > 5.0:
                                         ratio = float(game_poss_live) / float(poss_exp_so_far)
                                         ratio_clamped = max(0.6, min(1.6, ratio))
@@ -44245,7 +44721,7 @@ def api_cron_live_lens_tick():
                                 except Exception:
                                     pass
                                 p_home_score = 1.0 / (1.0 + math.exp(-(float(home_margin) / float(scale))))
-                                blend_w = float(max(0.0, min(1.0, float(elapsed_min) / 48.0)))
+                                blend_w = float(max(0.0, min(1.0, float(elapsed_min) / regulation_game_min)))
                                 p_home_model = (1.0 - blend_w) * float(p_home_win) + blend_w * float(p_home_score)
                                 edge_home = float(p_home_model) - float(p_home_implied)
                                 edge_away = float(1.0 - p_home_model) - float(p_away_implied)

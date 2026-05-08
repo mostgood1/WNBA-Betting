@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Iterable, Dict, List
 
 from .config import paths
+from .player_logs import _fallback_player_logs_from_boxscores_history, _write_player_logs
 
 
 NUM_COL_MAP = {
@@ -114,14 +115,26 @@ def load_player_logs() -> pd.DataFrame:
     c = paths.data_processed / "player_logs.csv"
     if p.exists():
         try:
-            return pd.read_parquet(p)
+            df = pd.read_parquet(p)
+            if isinstance(df, pd.DataFrame) and not df.empty:
+                return df
         except Exception as e:
             # Fallback to CSV if parquet engine isn't available
             if c.exists():
-                return pd.read_csv(c)
+                df = pd.read_csv(c)
+                if isinstance(df, pd.DataFrame) and not df.empty:
+                    return df
             raise RuntimeError(f"Failed to read {p} and CSV fallback missing. Install pyarrow/fastparquet or provide player_logs.csv. Original error: {e}")
     if c.exists():
-        return pd.read_csv(c)
+        df = pd.read_csv(c)
+        if isinstance(df, pd.DataFrame) and not df.empty:
+            return df
+    fallback = _fallback_player_logs_from_boxscores_history()
+    if isinstance(fallback, pd.DataFrame) and not fallback.empty:
+        try:
+            return _write_player_logs(fallback)
+        except Exception:
+            return fallback
     raise FileNotFoundError("player_logs not found; run fetch-player-logs")
 
 
@@ -217,8 +230,10 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
         g = g.copy()
         g["minutes"] = g[minc]
         denom = g["minutes"].replace(0, np.nan)
-        g["season_game_number"] = np.arange(1, len(g) + 1, dtype=float)
-        g["days_rest"] = g[dcol].diff().dt.days.astype(float)
+        engineered: dict[str, object] = {
+            "season_game_number": np.arange(1, len(g) + 1, dtype=float),
+            "days_rest": g[dcol].diff().dt.days.astype(float),
+        }
 
         recent_7 = []
         recent_14 = []
@@ -232,46 +247,46 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
             delta_days = (game_date - prior).dt.days
             recent_7.append(float(((delta_days > 0) & (delta_days <= 7)).sum()))
             recent_14.append(float(((delta_days > 0) & (delta_days <= 14)).sum()))
-        g["games_last7"] = recent_7
-        g["games_last14"] = recent_14
+        engineered["games_last7"] = recent_7
+        engineered["games_last14"] = recent_14
 
         if matchup_col is not None and matchup_col in g.columns:
             matchup_context = g[matchup_col].apply(_parse_matchup_context)
-            g["is_home"] = matchup_context.map(lambda t: t[0]).astype(float)
-            g["opp_team"] = matchup_context.map(lambda t: t[1])
+            engineered["is_home"] = matchup_context.map(lambda t: t[0]).astype(float)
+            engineered["opp_team"] = matchup_context.map(lambda t: t[1])
         else:
-            g["is_home"] = 0.0
-            g["opp_team"] = None
+            engineered["is_home"] = pd.Series(0.0, index=g.index, dtype=float)
+            engineered["opp_team"] = pd.Series([None] * len(g), index=g.index, dtype=object)
 
         # Derived "opportunity" features (all additive)
-        g["_pts_per_min"] = g[pts] / denom
-        g["_reb_per_min"] = g[reb] / denom
-        g["_ast_per_min"] = g[ast] / denom
-        g["_fg3m_per_min"] = g[fg3m] / denom
+        engineered["_pts_per_min"] = g[pts] / denom
+        engineered["_reb_per_min"] = g[reb] / denom
+        engineered["_ast_per_min"] = g[ast] / denom
+        engineered["_fg3m_per_min"] = g[fg3m] / denom
         if fg3a is not None and fg3a in g.columns:
-            g["_fg3a_per_min"] = g[fg3a] / denom
+            engineered["_fg3a_per_min"] = g[fg3a] / denom
         else:
-            g["_fg3a_per_min"] = np.nan
+            engineered["_fg3a_per_min"] = pd.Series(np.nan, index=g.index, dtype=float)
 
         if fga is not None and fga in g.columns:
-            g["_fga_per_min"] = g[fga] / denom
+            engineered["_fga_per_min"] = g[fga] / denom
         else:
-            g["_fga_per_min"] = np.nan
+            engineered["_fga_per_min"] = pd.Series(np.nan, index=g.index, dtype=float)
 
         if fta is not None and fta in g.columns:
-            g["_fta_per_min"] = g[fta] / denom
+            engineered["_fta_per_min"] = g[fta] / denom
         else:
-            g["_fta_per_min"] = np.nan
+            engineered["_fta_per_min"] = pd.Series(np.nan, index=g.index, dtype=float)
 
         if tov is not None and tov in g.columns:
-            g["_tov_per_min"] = g[tov] / denom
+            engineered["_tov_per_min"] = g[tov] / denom
         else:
-            g["_tov_per_min"] = np.nan
+            engineered["_tov_per_min"] = pd.Series(np.nan, index=g.index, dtype=float)
 
         if (fga is not None and fga in g.columns) and (fta is not None and fta in g.columns) and (tov is not None and tov in g.columns):
-            g["_usage_per_min"] = (g[fga] + 0.44 * g[fta] + g[tov]) / denom
+            engineered["_usage_per_min"] = (g[fga] + 0.44 * g[fta] + g[tov]) / denom
         else:
-            g["_usage_per_min"] = np.nan
+            engineered["_usage_per_min"] = pd.Series(np.nan, index=g.index, dtype=float)
 
         derived_map = {
             "pts_per_min": "_pts_per_min",
@@ -287,74 +302,78 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
         
         # Rolling features for all stats
         for w in windows:
-            g[f"roll{w}_min"] = g["minutes"].rolling(w, min_periods=1).mean().shift(1)
-            g[f"roll{w}_min_std"] = g["minutes"].rolling(w, min_periods=2).std().shift(1)
+            engineered[f"roll{w}_min"] = g["minutes"].rolling(w, min_periods=1).mean().shift(1)
+            engineered[f"roll{w}_min_std"] = g["minutes"].rolling(w, min_periods=2).std().shift(1)
             for stat_name, stat_col in stat_map.items():
                 if stat_col is not None and stat_col in g.columns:
-                    g[f"roll{w}_{stat_name}"] = g[stat_col].rolling(w, min_periods=1).mean().shift(1)
+                    engineered[f"roll{w}_{stat_name}"] = g[stat_col].rolling(w, min_periods=1).mean().shift(1)
 
             for feat_name, feat_col in derived_map.items():
-                if feat_col in g.columns:
-                    g[f"roll{w}_{feat_name}"] = g[feat_col].rolling(w, min_periods=1).mean().shift(1)
-                    g[f"roll{w}_{feat_name}_std"] = g[feat_col].rolling(w, min_periods=2).std().shift(1)
+                feat_series = engineered.get(feat_col)
+                if feat_series is not None:
+                    engineered[f"roll{w}_{feat_name}"] = pd.Series(feat_series, index=g.index).rolling(w, min_periods=1).mean().shift(1)
+                    engineered[f"roll{w}_{feat_name}_std"] = pd.Series(feat_series, index=g.index).rolling(w, min_periods=2).std().shift(1)
         
         # Lag1 features for all stats
-        g["lag1_min"] = g["minutes"].shift(1)
+        engineered["lag1_min"] = g["minutes"].shift(1)
         for stat_name, stat_col in stat_map.items():
             if stat_col is not None and stat_col in g.columns:
-                g[f"lag1_{stat_name}"] = g[stat_col].shift(1)
+                engineered[f"lag1_{stat_name}"] = g[stat_col].shift(1)
 
         for feat_name, feat_col in derived_map.items():
-            if feat_col in g.columns:
-                g[f"lag1_{feat_name}"] = g[feat_col].shift(1)
+            feat_series = engineered.get(feat_col)
+            if feat_series is not None:
+                engineered[f"lag1_{feat_name}"] = pd.Series(feat_series, index=g.index).shift(1)
         
         # b2b indicator: played previous day
-        g["b2b"] = (g[dcol].diff().dt.days == 1).shift(0).astype(float)
+        engineered["b2b"] = (g[dcol].diff().dt.days == 1).shift(0).astype(float)
         
         # Targets for this game
-        g["t_pts"] = g[pts]
-        g["t_reb"] = g[reb]
-        g["t_ast"] = g[ast]
-        g["t_threes"] = g[fg3m]
-        g["t_pra"] = g[[pts, reb, ast]].sum(axis=1, skipna=True)
+        engineered["t_pts"] = g[pts]
+        engineered["t_reb"] = g[reb]
+        engineered["t_ast"] = g[ast]
+        engineered["t_threes"] = g[fg3m]
+        engineered["t_pra"] = g[[pts, reb, ast]].sum(axis=1, skipna=True)
         
         # Additional targets
         if stl and stl in g.columns:
-            g["t_stl"] = g[stl]
+            engineered["t_stl"] = g[stl]
         if blk and blk in g.columns:
-            g["t_blk"] = g[blk]
+            engineered["t_blk"] = g[blk]
         if tov and tov in g.columns:
-            g["t_tov"] = g[tov]
+            engineered["t_tov"] = g[tov]
         if fgm and fgm in g.columns:
-            g["t_fgm"] = g[fgm]
+            engineered["t_fgm"] = g[fgm]
         if fga and fga in g.columns:
-            g["t_fga"] = g[fga]
+            engineered["t_fga"] = g[fga]
         if fg_pct and fg_pct in g.columns:
-            g["t_fg_pct"] = g[fg_pct]
+            engineered["t_fg_pct"] = g[fg_pct]
         if ftm and ftm in g.columns:
-            g["t_ftm"] = g[ftm]
+            engineered["t_ftm"] = g[ftm]
         if fta and fta in g.columns:
-            g["t_fta"] = g[fta]
+            engineered["t_fta"] = g[fta]
         if ft_pct and ft_pct in g.columns:
-            g["t_ft_pct"] = g[ft_pct]
+            engineered["t_ft_pct"] = g[ft_pct]
         if oreb and oreb in g.columns:
-            g["t_oreb"] = g[oreb]
+            engineered["t_oreb"] = g[oreb]
         if dreb and dreb in g.columns:
-            g["t_dreb"] = g[dreb]
+            engineered["t_dreb"] = g[dreb]
         if pf and pf in g.columns:
-            g["t_pf"] = g[pf]
+            engineered["t_pf"] = g[pf]
         if plus_minus and plus_minus in g.columns:
-            g["t_plus_minus"] = g[plus_minus]
+            engineered["t_plus_minus"] = g[plus_minus]
         
         # Combo stat targets
         if "_STOCKS" in g.columns:
-            g["t_stocks"] = g["_STOCKS"]
+            engineered["t_stocks"] = g["_STOCKS"]
         if "_PR" in g.columns:
-            g["t_pr"] = g["_PR"]
+            engineered["t_pr"] = g["_PR"]
         if "_PA" in g.columns:
-            g["t_pa"] = g["_PA"]
+            engineered["t_pa"] = g["_PA"]
         if "_RA" in g.columns:
-            g["t_ra"] = g["_RA"]
+            engineered["t_ra"] = g["_RA"]
+
+        g = pd.concat([g, pd.DataFrame(engineered, index=g.index)], axis=1)
         
         # Build keep list dynamically
         keep = list(base_cols.values()) + ["b2b", "is_home", "days_rest", "games_last7", "games_last14", "season_game_number"]

@@ -15,13 +15,29 @@ import numpy as np
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter, retry_if_exception_type
 
 from .config import paths
+from .league import LEAGUE
 from .teams import normalize_team
 
 
 ODDS_HOST = "https://api.the-odds-api.com"
-NBA_SPORT_KEY = "basketball_nba"
+SPORT_KEY = LEAGUE.odds_api_sport_key
+NBA_SPORT_KEY = SPORT_KEY
 # Empty means no bookmaker allowlist. With regions='us', this keeps the full US book set.
 DEFAULT_PLAYER_PROP_BOOKMAKERS: tuple[str, ...] = tuple()
+
+
+def player_props_artifact_stem() -> str:
+    return f"odds_{str(LEAGUE.code).strip().lower()}_player_props"
+
+
+def player_props_raw_path(*, date_str: str | None = None, variant: str | None = None, ext: str = "csv"):
+    stem = player_props_artifact_stem()
+    suffix = ""
+    if variant:
+        suffix += f"_{str(variant).strip()}"
+    if date_str:
+        suffix += f"_{str(date_str).strip()}"
+    return paths.data_raw / f"{stem}{suffix}.{str(ext).strip().lstrip('.')}"
 
 _PLAYER_PROP_BOOKMAKER_ALIASES = {
     "fanduel": "fanduel",
@@ -89,7 +105,7 @@ def player_prop_bookmakers_csv(raw: str | None = None) -> str | None:
 
 
 def _headers() -> dict:
-    return {"Accept": "application/json", "User-Agent": "nba-betting/1.0"}
+    return {"Accept": "application/json", "User-Agent": LEAGUE.user_agent_product}
 
 
 @retry(retry=retry_if_exception_type(Exception), wait=wait_exponential_jitter(initial=1, max=30), stop=stop_after_attempt(4), reraise=True)
@@ -149,7 +165,7 @@ def fetch_game_odds_current(config: OddsApiConfig, date: datetime, markets: list
         markets = [m.strip() for m in (config.markets.split(',') if config.markets else ["h2h","spreads","totals"])]
 
     # Fetch events and filter to the target ET calendar day
-    events_url = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events"
+    events_url = f"{ODDS_HOST}/v4/sports/{SPORT_KEY}/events"
     try:
         ev_resp = _get(events_url, {"apiKey": config.api_key})
         events = ev_resp.json() or []
@@ -196,7 +212,7 @@ def fetch_game_odds_current(config: OddsApiConfig, date: datetime, markets: list
     # For each event fetch odds and flatten
     rows: list[dict] = []
     snap = pd.Timestamp.utcnow().isoformat()
-    odds_url_tpl = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events/{{event_id}}/odds"
+    odds_url_tpl = f"{ODDS_HOST}/v4/sports/{SPORT_KEY}/events/{{event_id}}/odds"
     params_common = {
         "apiKey": config.api_key,
         "regions": config.regions,
@@ -522,8 +538,8 @@ def backfill_player_props(config: OddsApiConfig, date: datetime, markets: list[s
     - Usage cost: 10 x [#unique markets returned] x [#regions] per event.
     """
     paths.data_raw.mkdir(parents=True, exist_ok=True)
-    out_parq = paths.data_raw / "odds_nba_player_props.parquet"
-    out_csv = paths.data_raw / "odds_nba_player_props.csv"
+    out_parq = player_props_raw_path(ext="parquet")
+    out_csv = player_props_raw_path(ext="csv")
     if markets is None:
         markets = [
             # Core modeled markets

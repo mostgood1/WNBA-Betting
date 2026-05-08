@@ -5,7 +5,7 @@ param(
 # Registers a Windows Scheduled Task to capture closing-ish game lines nightly.
 # Produces data/processed/games_closing_lines_<date>.csv.
 
-$TaskName = "NBA-Betting - Nightly Games Closing Lines"
+$TaskName = "WNBA-Betting - Nightly Games Closing Lines"
 $Workspace = (Get-Location).Path
 $PyExe = Join-Path $Workspace ".venv\Scripts\python.exe"
 $ScriptPath = Join-Path $Workspace "tools\capture_games_closing_lines.py"

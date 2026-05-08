@@ -1,4 +1,4 @@
-Param([string]$TaskName = 'NBA-Betting Weekly Backfill')
+Param([string]$TaskName = 'WNBA-Betting Weekly Backfill')
 $ErrorActionPreference = 'Stop'
 if (Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue) {
   Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false | Out-Null

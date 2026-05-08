@@ -1,8 +1,16 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 import pandas as pd
+import requests
+
+from .league import LEAGUE, season_label_from_date
+from .teams import to_tricode
+
+
+EASTERN_TZ = ZoneInfo("America/New_York")
 
 
 def team_last_game_dates(games: pd.DataFrame) -> dict[str, datetime]:
@@ -49,29 +57,145 @@ def compute_rest_for_matchups(matchups: pd.DataFrame, history_games: pd.DataFram
 
 
 def _request_schedule_payload() -> dict[str, Any]:
-    """Fetch schedule JSON payload from cdn.nba.com with a simple fallback.
+    """Fetch a representative ESPN scoreboard payload for the active league.
 
     Returns the parsed JSON dict. Raises on failure.
     """
-    import requests
-    urls = [
-        "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2.json",
-        "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json",
-    ]
-    last_err: Exception | None = None
-    for url in urls:
-        try:
-            r = requests.get(url, timeout=30)
-            r.raise_for_status()
-            return r.json()
-        except Exception as e:  # pragma: no cover - network
-            last_err = e
-            continue
-    raise RuntimeError(f"Failed to fetch NBA schedule payload: {last_err}")
+    ymd = datetime.utcnow().strftime("%Y%m%d")
+    url = f"https://site.web.api.espn.com/apis/site/v2/{LEAGUE.espn_sport_path}/scoreboard?dates={ymd}"
+    r = requests.get(url, headers={"Accept": "application/json", "User-Agent": LEAGUE.user_agent_product}, timeout=30)
+    r.raise_for_status()
+    payload = r.json()
+    if not isinstance(payload, dict):
+        raise RuntimeError("Failed to fetch scoreboard payload")
+    return payload
 
 
-def fetch_schedule_2025_26() -> pd.DataFrame:
-    """Fetch and normalize the 2025-26 NBA schedule from the public CDN feed.
+def _scoreboard_for_date(date_ymd: str) -> dict[str, Any]:
+    url = f"https://site.web.api.espn.com/apis/site/v2/{LEAGUE.espn_sport_path}/scoreboard?dates={date_ymd}"
+    r = requests.get(url, headers={"Accept": "application/json", "User-Agent": LEAGUE.user_agent_product}, timeout=30)
+    r.raise_for_status()
+    payload = r.json()
+    return payload if isinstance(payload, dict) else {}
+
+
+def _season_year_from_token(season: str | None) -> int | None:
+    token = str(season or "").strip()
+    if not token:
+        return None
+    head = token.split("-", 1)[0].strip()
+    try:
+        return int(head)
+    except Exception:
+        return None
+
+
+def _season_scan_dates(start_year: int) -> list[str]:
+    start = date(start_year, max(1, int(LEAGUE.season_start_month)), 1)
+    end = date(start_year, 12, 31)
+    dates: list[str] = []
+    cur = start
+    while cur <= end:
+        dates.append(cur.strftime("%Y%m%d"))
+        cur += timedelta(days=1)
+    return dates
+
+
+def _phase_label_from_event(event: dict[str, Any], season_meta: dict[str, Any]) -> tuple[str | None, str | None]:
+    event_season = event.get("season") or {}
+    slug = str(event_season.get("slug") or "").strip().lower()
+    season_type = event_season.get("type")
+
+    if slug == "preseason" or season_type == 1:
+        return "Preseason", "preseason"
+    if slug == "regular-season" or season_type == 2:
+        return "Regular Season", "regular-season"
+    if slug == "post-season" or season_type == 3:
+        return "Playoffs", "post-season"
+
+    fallback = None
+    if isinstance(season_meta.get("type"), dict):
+        fallback = str((season_meta.get("type") or {}).get("name") or "").strip() or None
+    if fallback:
+        return fallback, slug or None
+    return None, slug or None
+
+
+def _schedule_rows_from_payloads(game_dates: list[str], season_meta: dict[str, Any]) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    seen_game_ids: set[str] = set()
+    for ymd in game_dates:
+        day_payload = _scoreboard_for_date(ymd)
+        for event in day_payload.get("events") or []:
+            comp = (((event or {}).get("competitions") or [None])[0]) or {}
+            status = comp.get("status") or {}
+            status_type = status.get("type") or {}
+            competitors = comp.get("competitors") or []
+            home = next((team for team in competitors if str((team or {}).get("homeAway") or "").strip().lower() == "home"), None)
+            away = next((team for team in competitors if str((team or {}).get("homeAway") or "").strip().lower() == "away"), None)
+            if not home or not away:
+                continue
+
+            game_id = str((event or {}).get("id") or "").strip()
+            if not game_id or game_id in seen_game_ids:
+                continue
+            seen_game_ids.add(game_id)
+
+            home_team = (home.get("team") or {})
+            away_team = (away.get("team") or {})
+            venue = comp.get("venue") or {}
+            geo = venue.get("address") or {}
+            game_label, season_slug = _phase_label_from_event(event, season_meta)
+
+            broadcasts = []
+            for source in (comp.get("broadcasts") or []):
+                names = source.get("names") or []
+                broadcasts.extend(str(name) for name in names if str(name).strip())
+
+            dt_utc = pd.to_datetime(comp.get("date"), utc=True, errors="coerce") if comp.get("date") else pd.NaT
+            date_est = dt_utc.tz_convert(EASTERN_TZ) if pd.notna(dt_utc) else pd.NaT
+            rows.append(
+                {
+                    "game_id": game_id,
+                    "season_year": season_label_from_date(comp.get("date")) if comp.get("date") else str((event.get("season") or {}).get("year") or season_meta.get("year") or ""),
+                    "game_label": game_label,
+                    "game_subtype": (comp.get("type") or {}).get("abbreviation") if isinstance(comp.get("type"), dict) else None,
+                    "season_type_slug": season_slug,
+                    "game_status": status_type.get("id"),
+                    "game_status_text": status_type.get("description") or status.get("displayClock"),
+                    "date_utc": dt_utc.date() if pd.notna(dt_utc) else None,
+                    "time_utc": dt_utc.strftime("%H:%M") if pd.notna(dt_utc) else None,
+                    "datetime_utc": dt_utc,
+                    "date_est": date_est.date() if pd.notna(date_est) else None,
+                    "time_est": date_est.strftime("%H:%M") if pd.notna(date_est) else None,
+                    "datetime_est": date_est,
+                    "home_team_id": home_team.get("id"),
+                    "home_tricode": to_tricode(str(home_team.get("abbreviation") or home_team.get("displayName") or "")),
+                    "home_city": home_team.get("location"),
+                    "home_name": home_team.get("name") or home_team.get("displayName"),
+                    "away_team_id": away_team.get("id"),
+                    "away_tricode": to_tricode(str(away_team.get("abbreviation") or away_team.get("displayName") or "")),
+                    "away_city": away_team.get("location"),
+                    "away_name": away_team.get("name") or away_team.get("displayName"),
+                    "arena_name": venue.get("fullName"),
+                    "arena_city": geo.get("city"),
+                    "arena_state": geo.get("state"),
+                    "broadcasters_national": " | ".join(dict.fromkeys(broadcasts)) if broadcasts else None,
+                }
+            )
+
+    df = pd.DataFrame(rows)
+    for col in ("datetime_utc", "datetime_est"):
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors="coerce")
+    for col in ("date_utc", "date_est"):
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors="coerce").dt.date
+    return df
+
+
+def fetch_schedule_2025_26(season: str | None = None) -> pd.DataFrame:
+    """Fetch and normalize the active WNBA schedule from ESPN scoreboard feeds.
 
     Returns a DataFrame with a stable schema suitable for frontend consumption:
     - game_id (str)
@@ -87,90 +211,25 @@ def fetch_schedule_2025_26() -> pd.DataFrame:
     - broadcasters_national (pipe-delimited)
     """
     payload = _request_schedule_payload()
-    ls = payload.get("leagueSchedule", {})
-    season_year = ls.get("seasonYear") or "2025-26"
-    game_dates = ls.get("gameDates", []) or []
+    leagues = payload.get("leagues") or []
+    league = (leagues[0] or {}) if leagues else {}
+    season_meta = league.get("season") or {}
+    requested_year = _season_year_from_token(season)
+    active_year = None
+    try:
+        active_year = int(season_meta.get("year")) if season_meta.get("year") is not None else None
+    except Exception:
+        active_year = None
 
-    rows: list[dict[str, Any]] = []
-    for gd in game_dates:
-        games = gd.get("games", []) or []
-        for g in games:
-            # Basic fields with safe access
-            game_id = str(g.get("gameId"))
-            game_label = g.get("gameLabel")
-            game_subtype = g.get("gameSubtype")
-            game_status = g.get("gameStatus")
-            game_status_text = g.get("gameStatusText")
-
-            # Times
-            dt_utc = g.get("gameDateTimeUTC") or g.get("gameTimeUTC")
-            date_utc = g.get("gameDateUTC")
-            time_utc = g.get("gameTimeUTC")
-            dt_est = g.get("gameDateTimeEst") or g.get("gameTimeEst")
-            date_est = g.get("gameDateEst")
-            time_est = g.get("gameTimeEst")
-
-            # Teams
-            h = g.get("homeTeam", {}) or {}
-            a = g.get("awayTeam", {}) or {}
-            home_team_id = h.get("teamId")
-            home_tricode = h.get("teamTricode")
-            home_city = h.get("teamCity")
-            home_name = h.get("teamName")
-            away_team_id = a.get("teamId")
-            away_tricode = a.get("teamTricode")
-            away_city = a.get("teamCity")
-            away_name = a.get("teamName")
-
-            # Arena
-            arena_name = g.get("arenaName")
-            arena_city = g.get("arenaCity")
-            arena_state = g.get("arenaState")
-
-            # Broadcasters: national
-            nat = []
+    if requested_year is not None and active_year is not None and requested_year != active_year:
+        game_dates = _season_scan_dates(requested_year)
+    else:
+        calendar = league.get("calendar") or []
+        game_dates = []
+        for value in calendar:
             try:
-                for b in (g.get("broadcasters", {}) or {}).get("national", []) or []:
-                    name = b.get("broadcasterName")
-                    if name:
-                        nat.append(str(name))
+                game_dates.append(pd.to_datetime(value, utc=True).strftime("%Y%m%d"))
             except Exception:
-                pass
-            broadcasters_national = " | ".join(nat) if nat else None
+                continue
 
-            rows.append({
-                "game_id": game_id,
-                "season_year": season_year,
-                "game_label": game_label,
-                "game_subtype": game_subtype,
-                "game_status": game_status,
-                "game_status_text": game_status_text,
-                "date_utc": date_utc,
-                "time_utc": time_utc,
-                "datetime_utc": dt_utc,
-                "date_est": date_est,
-                "time_est": time_est,
-                "datetime_est": dt_est,
-                "home_team_id": home_team_id,
-                "home_tricode": home_tricode,
-                "home_city": home_city,
-                "home_name": home_name,
-                "away_team_id": away_team_id,
-                "away_tricode": away_tricode,
-                "away_city": away_city,
-                "away_name": away_name,
-                "arena_name": arena_name,
-                "arena_city": arena_city,
-                "arena_state": arena_state,
-                "broadcasters_national": broadcasters_national,
-            })
-
-    df = pd.DataFrame(rows)
-    # Normalize date columns to useful types for downstream if needed
-    for col in ("datetime_utc", "datetime_est"):
-        if col in df.columns:
-            df[col] = pd.to_datetime(df[col], errors="coerce")
-    for col in ("date_utc", "date_est"):
-        if col in df.columns:
-            df[col] = pd.to_datetime(df[col], errors="coerce").dt.date
-    return df
+    return _schedule_rows_from_payloads(game_dates, season_meta)

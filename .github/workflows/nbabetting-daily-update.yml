@@ -1,4 +1,4 @@
-name: "NBA Betting: Daily Update (7AM Central)"
+name: "WNBA Betting: Daily Update (7AM Central)"
 
 on:
   workflow_dispatch: {}
@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: nbabetting-daily-update
+  group: wnbabetting-daily-update
   cancel-in-progress: false
 
 jobs:
@@ -111,8 +111,8 @@ jobs:
         if: steps.decide.outputs.run == 'true'
         shell: powershell
         env:
-          NBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.NBA_BETTING_BASE_URL }}
-          LIVE_LENS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.NBA_BETTING_ADMIN_TOKEN }}
+          WNBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.WNBA_BETTING_BASE_URL || secrets.NBA_BETTING_BASE_URL }}
+          LIVE_LENS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.WNBA_BETTING_ADMIN_TOKEN || secrets.NBA_BETTING_ADMIN_TOKEN }}
         run: |
           function Set-UploadOutput([string]$status, [string]$detail = '') {
             "status=$status" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
@@ -121,7 +121,7 @@ jobs:
             }
           }
 
-          $baseUrl = "${env:NBA_BETTING_BASE_URL}".Trim()
+          $baseUrl = "${env:WNBA_BETTING_BASE_URL}".Trim()
           $adminToken = "${env:LIVE_LENS_ADMIN_TOKEN}".Trim()
           $overridePath = Join-Path $PWD 'data\processed\live_lens_tuning_override.json'
 
@@ -131,8 +131,8 @@ jobs:
             exit 0
           }
           if (-not $baseUrl) {
-            Write-Host 'Skipping upload: NBA_BETTING_BASE_URL secret not configured.'
-            Set-UploadOutput 'skipped_missing_base_url' 'NBA_BETTING_BASE_URL secret not configured'
+            Write-Host 'Skipping upload: WNBA_BETTING_BASE_URL secret not configured.'
+            Set-UploadOutput 'skipped_missing_base_url' 'WNBA_BETTING_BASE_URL secret not configured'
             exit 0
           }
           if (-not $adminToken) {
@@ -156,8 +156,8 @@ jobs:
         if: steps.decide.outputs.run == 'true'
         shell: powershell
         env:
-          NBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.NBA_BETTING_BASE_URL }}
-          LIVE_LENS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.NBA_BETTING_ADMIN_TOKEN }}
+          WNBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.WNBA_BETTING_BASE_URL || secrets.NBA_BETTING_BASE_URL }}
+          LIVE_LENS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.WNBA_BETTING_ADMIN_TOKEN || secrets.NBA_BETTING_ADMIN_TOKEN }}
         run: |
           function Set-UploadOutput([string]$status, [string]$detail = '') {
             "status=$status" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
@@ -166,7 +166,7 @@ jobs:
             }
           }
 
-          $baseUrl = "${env:NBA_BETTING_BASE_URL}".Trim()
+          $baseUrl = "${env:WNBA_BETTING_BASE_URL}".Trim()
           $adminToken = "${env:LIVE_LENS_ADMIN_TOKEN}".Trim()
           $latestOptimized = Get-ChildItem (Join-Path $PWD 'data\processed') -Filter 'live_lens_adjustments_optimized_*.json' -ErrorAction SilentlyContinue |
             Sort-Object Name -Descending |
@@ -178,8 +178,8 @@ jobs:
             exit 0
           }
           if (-not $baseUrl) {
-            Write-Host 'Skipping upload: NBA_BETTING_BASE_URL secret not configured.'
-            Set-UploadOutput 'skipped_missing_base_url' 'NBA_BETTING_BASE_URL secret not configured'
+            Write-Host 'Skipping upload: WNBA_BETTING_BASE_URL secret not configured.'
+            Set-UploadOutput 'skipped_missing_base_url' 'WNBA_BETTING_BASE_URL secret not configured'
             exit 0
           }
           if (-not $adminToken) {

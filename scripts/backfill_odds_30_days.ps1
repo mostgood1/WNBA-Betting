@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$python = 'C:\Users\mostg\OneDrive\Coding\NBA-Betting\.venv\Scripts\python.exe'
+$python = 'C:\Users\mostg\OneDrive\Coding\WNBA-Betting\.venv\Scripts\python.exe'
 
 Write-Host "Backfilling odds snapshots for last $Days days..."
 for($i = 1; $i -le $Days; $i++){

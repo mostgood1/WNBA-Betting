@@ -182,7 +182,7 @@ H2     | GSW 100.0% |  +1.3  | 112.1
 ### Generate Predictions with Quarters
 ```powershell
 # Set environment
-$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 
 # Run prediction (uses NPU automatically)
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" `

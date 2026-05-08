@@ -11,9 +11,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # Prefer repo secrets, but default the base URL to the known Render service.
-  NBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.NBA_BETTING_BASE_URL || 'https://nba-betting-5qgf.onrender.com' }}
-  NBA_BETTING_CRON_TOKEN: ${{ secrets.CRON_TOKEN || secrets.NBA_BETTING_CRON_TOKEN }}
+  WNBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.WNBA_BETTING_BASE_URL || secrets.NBA_BETTING_BASE_URL }}
+  WNBA_BETTING_CRON_TOKEN: ${{ secrets.CRON_TOKEN || secrets.WNBA_BETTING_CRON_TOKEN || secrets.NBA_BETTING_CRON_TOKEN }}
 
 jobs:
   assess-oddsapi-daily:
@@ -23,13 +22,13 @@ jobs:
       - name: Preflight (config + cron ping)
         run: |
           set -euo pipefail
-          test -n "${NBA_BETTING_BASE_URL}" || (echo 'Missing NBA_BETTING_BASE_URL' && exit 1)
-          test -n "${NBA_BETTING_CRON_TOKEN}" || (echo 'Missing NBA_BETTING_CRON_TOKEN (set CRON_TOKEN or NBA_BETTING_CRON_TOKEN secret)' && exit 1)
-          URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
           echo "[preflight] GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -60,11 +59,11 @@ jobs:
           }
           DATE="$(slate_date)"
           echo "Using slate date $DATE (tz=$SLATE_TZ, cutoff=6)"
-          URL="${NBA_BETTING_BASE_URL%/}/api/cron/assess-oddsapi?date=${DATE}&regions=us"
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/assess-oddsapi?date=${DATE}&regions=us"
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -88,13 +87,13 @@ jobs:
       - name: Preflight (config + cron ping)
         run: |
           set -euo pipefail
-          test -n "${NBA_BETTING_BASE_URL}" || (echo 'Missing NBA_BETTING_BASE_URL' && exit 1)
-          test -n "${NBA_BETTING_CRON_TOKEN}" || (echo 'Missing NBA_BETTING_CRON_TOKEN (set CRON_TOKEN or NBA_BETTING_CRON_TOKEN secret)' && exit 1)
-          URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
           echo "[preflight] GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -114,11 +113,11 @@ jobs:
         run: |
           set -euo pipefail
           DATE=$(date -u -d yesterday +%F)
-          URL="${NBA_BETTING_BASE_URL%/}/api/cron/reconcile-games?date=${DATE}"
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/reconcile-games?date=${DATE}"
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -142,13 +141,13 @@ jobs:
       - name: Preflight (config + cron ping)
         run: |
           set -euo pipefail
-          test -n "${NBA_BETTING_BASE_URL}" || (echo 'Missing NBA_BETTING_BASE_URL' && exit 1)
-          test -n "${NBA_BETTING_CRON_TOKEN}" || (echo 'Missing NBA_BETTING_CRON_TOKEN (set CRON_TOKEN or NBA_BETTING_CRON_TOKEN secret)' && exit 1)
-          URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
           echo "[preflight] GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -167,11 +166,11 @@ jobs:
       - name: Call run-all
         run: |
           set -euo pipefail
-          URL="${NBA_BETTING_BASE_URL%/}/api/cron/run-all"
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/run-all"
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -202,11 +201,11 @@ jobs:
           }
           DATE="$(slate_date)"
           echo "Using slate date $DATE (tz=$SLATE_TZ, cutoff=6)"
-          URL="${NBA_BETTING_BASE_URL%/}/api/cron/predict-date?date=${DATE}&async=1&push=0&skip_if_no_games=1"
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/predict-date?date=${DATE}&async=1&push=0&skip_if_no_games=1"
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
@@ -226,7 +225,7 @@ jobs:
         run: |
           set -euo pipefail
           # Hitting summary once populates recommendations_summary.json on the server
-          URL="${NBA_BETTING_BASE_URL%/}/recommendations?format=json&view=summary"
+          URL="${WNBA_BETTING_BASE_URL%/}/recommendations?format=json&view=summary"
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e

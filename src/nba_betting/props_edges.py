@@ -15,7 +15,7 @@ from .config import paths
 from .props_calibration import compute_biases as _compute_biases, apply_biases as _apply_biases
 from .props_features import build_features_for_date
 # from .props_train import _load_features as _load_props_features  # MOVED TO CONDITIONAL - requires sklearn
-from .odds_api import OddsApiConfig, backfill_player_props, fetch_player_props_current
+from .odds_api import OddsApiConfig, backfill_player_props, fetch_player_props_current, player_props_artifact_stem, player_props_raw_path
 from .teams import to_tricode as _tri, normalize_team as _norm_team
 from .odds_bovada import fetch_bovada_player_props_current
 
@@ -128,7 +128,7 @@ def _load_opening_props_odds_for_date(date: datetime) -> pd.DataFrame:
     since the earliest saved snapshot, we shrink model probabilities toward the
     market break-even.
 
-    Source: data/raw/odds_nba_player_props*.parquet/csv (OddsAPI snapshots).
+    Source: data/raw/{player_props_artifact_stem()}*.parquet/csv (OddsAPI snapshots).
     """
     day_str = pd.to_datetime(date).date().isoformat()
     if day_str in _PROPS_OPENING_CACHE:
@@ -136,14 +136,14 @@ def _load_opening_props_odds_for_date(date: datetime) -> pd.DataFrame:
 
     # Prefer a per-day "opening" snapshot first (small, avoids loading an all-day history),
     # then fall back to per-day history, then the per-day latest snapshot, then the cumulative history file.
-    raw_open_pq = paths.data_raw / f"odds_nba_player_props_opening_{day_str}.parquet"
-    raw_open_csv = paths.data_raw / f"odds_nba_player_props_opening_{day_str}.csv"
-    raw_hist_pq = paths.data_raw / f"odds_nba_player_props_history_{day_str}.parquet"
-    raw_hist_csv = paths.data_raw / f"odds_nba_player_props_history_{day_str}.csv"
-    raw_day_pq = paths.data_raw / f"odds_nba_player_props_{day_str}.parquet"
-    raw_day_csv = paths.data_raw / f"odds_nba_player_props_{day_str}.csv"
-    raw_all_pq = paths.data_raw / "odds_nba_player_props.parquet"
-    raw_all_csv = paths.data_raw / "odds_nba_player_props.csv"
+    raw_open_pq = player_props_raw_path(date_str=day_str, variant="opening", ext="parquet")
+    raw_open_csv = player_props_raw_path(date_str=day_str, variant="opening", ext="csv")
+    raw_hist_pq = player_props_raw_path(date_str=day_str, variant="history", ext="parquet")
+    raw_hist_csv = player_props_raw_path(date_str=day_str, variant="history", ext="csv")
+    raw_day_pq = player_props_raw_path(date_str=day_str, ext="parquet")
+    raw_day_csv = player_props_raw_path(date_str=day_str, ext="csv")
+    raw_all_pq = player_props_raw_path(ext="parquet")
+    raw_all_csv = player_props_raw_path(ext="csv")
     candidates = [raw_open_pq, raw_open_csv, raw_hist_pq, raw_hist_csv, raw_day_pq, raw_day_csv, raw_all_pq, raw_all_csv]
 
     usecols = [
@@ -697,10 +697,10 @@ def _odds_for_date_from_saved(date: datetime) -> pd.DataFrame:
             except Exception:
                 return None
 
-    raw_pq = paths.data_raw / f"odds_nba_player_props_{date_str}.parquet"
-    raw_csv = paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
-    raw_all_pq = paths.data_raw / "odds_nba_player_props.parquet"
-    raw_all_csv = paths.data_raw / "odds_nba_player_props.csv"
+    raw_pq = player_props_raw_path(date_str=date_str, ext="parquet")
+    raw_csv = player_props_raw_path(date_str=date_str, ext="csv")
+    raw_all_pq = player_props_raw_path(ext="parquet")
+    raw_all_csv = player_props_raw_path(ext="csv")
     df = None
     if raw_pq.exists():
         try:

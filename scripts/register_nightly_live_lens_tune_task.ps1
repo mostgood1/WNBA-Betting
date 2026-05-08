@@ -8,7 +8,7 @@ param(
 # Registers a Windows Scheduled Task to run the Live Lens tuning optimizer nightly
 # after games have finished. Writes data/processed/live_lens_tuning_override.json.
 
-$TaskName = "NBA-Betting - Nightly Live Lens Tune"
+$TaskName = "WNBA-Betting - Nightly Live Lens Tune"
 $Workspace = (Get-Location).Path
 $PyExe = Join-Path $Workspace ".venv\Scripts\python.exe"
 $ScriptPath = Join-Path $Workspace "tools\daily_live_lens_tune.py"

@@ -12,11 +12,12 @@ Requires-Dist: beautifulsoup4>=4.12.3
 Requires-Dist: lxml>=5.3
 Requires-Dist: tenacity>=8.5
 Requires-Dist: pyarrow>=17.0
-Requires-Dist: scikit-learn>=1.5
 Requires-Dist: click>=8.1
 Requires-Dist: rich>=13.7
 Requires-Dist: matplotlib>=3.9
 Requires-Dist: seaborn>=0.13
+Provides-Extra: train
+Requires-Dist: scikit-learn>=1.5; extra == "train"
 
 # NBA Betting Predictor
 
@@ -131,6 +132,120 @@ python -m nba_betting.cli backfill-player-props --date 2025-10-24 --mode auto
 
 Notes: Some snapshots may return 422 if props aren’t available at that timestamp; try `--mode current` on game day.
 
+## Local-Only Daily Workflow
+
+All operations can run locally without remote tokens or servers.
+
+- Start the local server:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& '.\\.venv\\Scripts\\python.exe' -m waitress --listen=0.0.0.0:5051 app:app"
+```
+
+- End-to-end daily run + health check (includes predictions, odds, props):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\render_smoke.ps1 -Date "2026-01-01" -RunDailyUpdate
+```
+
+- Canonical betting card API (games + props):
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://localhost:5051/api/betting-card?date=2026-01-01' | Select-Object -ExpandProperty Content
+```
+
+- Human-facing pages:
+
+```text
+http://localhost:5051/betting-card
+http://localhost:5051/betting-recap
+```
+
+- Legacy machine-facing compatibility remains available for internal tooling:
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://localhost:5051/recommendations?format=json&view=all&date=2026-01-01&compact=1&regular_only=1' | Select-Object -ExpandProperty Content
+```
+
+### Timezone Defaults (USA)
+
+By default, the API resolves "today" using a US timezone to avoid UTC rollover into the next day.
+
+- Default timezone: `America/New_York` (US Eastern)
+- Override via environment variables before starting the server:
+
+```powershell
+$env:APP_TZ = 'America/Los_Angeles'   # or America/Chicago, America/Denver, America/New_York
+$env:APP_TZ_OFFSET_HOURS = '-8'       # optional explicit offset fallback
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& '.\\.venv\\Scripts\\python.exe' -m waitress --listen=0.0.0.0:5051 app:app"
+```
+
+- Debug the resolved date:
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://localhost:5051/api/debug/date' | Select-Object -ExpandProperty Content
+```
+
+- Fallback behavior: when no `date` parameter is provided and there are no artifacts for computed "today", endpoints may fall back to the previous day to avoid empty results late at night.
+
+- Schedule local tasks (Windows Task Scheduler):
+	- Daily updater at 10:00:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\register_daily_task.ps1 -Time 10:00 -GitPush
+```
+
+	- Weekly backfill (finals-only, 21 days):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\register_weekly_backfill_task.ps1 -DayOfWeek Monday -Time 09:30 -Days 21 -FinalsOnly
+```
+
+	- Nightly props calibration at 23:15:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\register_nightly_calibration_task.ps1 -Time 23:15
+```
+
+The script `scripts\daily_update.ps1` ignores any token flags and enforces local-only execution.
+
+### Connected Sim Guardrails (Optional)
+
+Connected sim supports opt-in **model guardrails** (soft anchoring of sampled quarter scoring toward model priors). Default is OFF.
+
+For the daily connected-realism evaluation step inside `scripts\daily_update.ps1`, you can enable guardrails via env vars:
+
+```powershell
+# OFF by default
+$env:DAILY_CONNECTED_REALISM_GUARDRAIL_ALPHA = '0.10'      # recommended starting point
+$env:DAILY_CONNECTED_REALISM_GUARDRAIL_MAX_SCALE = '0.10'  # clamp |scale-1| per team/quarter
+
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\daily_update.ps1 -Date "2026-01-24"
+```
+
+To run **only** the connected-realism evaluation (skip the rest of the daily pipeline), set one of:
+
+- `DAILY_ONLY_CONNECTED_REALISM=1`, or
+- `DAILY_MODE=connected-realism`
+
+Example:
+
+```powershell
+$env:DAILY_ONLY_CONNECTED_REALISM = '1'
+$env:DAILY_CONNECTED_REALISM_DAYS = '1'
+$env:DAILY_CONNECTED_REALISM_TOPK = '8'
+$env:DAILY_CONNECTED_REALISM_GUARDRAIL_ALPHA = '0.10'
+$env:DAILY_CONNECTED_REALISM_GUARDRAIL_MAX_SCALE = '0.10'
+
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\daily_update.ps1 -Date "2026-01-24"
+```
+
+Notes:
+- A recent sweep summary (30d window ending 2026-01-24) was written to:
+	`data/processed/guardrail_alpha_sweep_summary_2025-12-26_2026-01-24.csv`
+- The API endpoint `/api/sim/game-story` also supports runtime knobs:
+	`guardrail_alpha`, `guardrail_max_scale` (or env `CONNECTED_GUARDRAIL_ALPHA`, `CONNECTED_GUARDRAIL_MAX_SCALE`).
+
 ## Player Prop Actuals (nbastatR)
 
 We use nbastatR (R) to fetch player game logs and compute actuals for props: PTS, REB, AST, 3PM, PRA.
@@ -218,6 +333,23 @@ This produces an edges CSV you can sort by EV or edge for actionable picks witho
 - Rscript not found: install R, add `Rscript.exe` to PATH, or set `RSCRIPT_PATH` to the full path.
 - OddsAPI 422 for player props: the API may not have props at your snapshot timestamp; re-run with `--mode current` near tip-off or try a different date.
 
+## Deployment helpers: commit/push daily artifacts
+
+To keep the repo clean and the site up-to-date, use the helper to commit only the processed files for a specific date:
+
+PowerShell (manual):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\commit_processed.ps1 -Date 2025-10-27 -IncludeJson -Push
+```
+
+VS Code tasks:
+- Data: commit processed (today) — commits today’s `data/processed/*_YYYY-MM-DD.{csv,json}` and pushes.
+- Data: commit processed (pick date) — prompts for a date, commits those artifacts, and pushes.
+
+Daily automation:
+The `scripts/daily_update.ps1` now calls `scripts/commit_processed.ps1` at the end (when `-GitPush` is enabled), committing yesterday’s reconciliation/finals first and then today’s predictions/edges with a push.
+
 ## Frontend & Render Deployment (mirrors NHL-Betting)
 
 This repo deploys like the NHL site: a minimal Flask app serves the cards at `/` using the static assets in `web/`. Gunicorn runs the Flask app on Render.
@@ -268,9 +400,11 @@ Environment variables (optional but consistent with NFL app):
 - `PYTHONUNBUFFERED=1`
 
 Routing:
-- `/` serves the cards page directly
+- `/` and `/betting-card` serve the canonical daily betting card
+- `/betting-recap` serves the canonical betting recap page
 - Static assets are under `/web/*` (e.g., `/web/assets/logos/BOS.svg`)
-- Legacy `/web/` and `/web/index.html` redirect to `/` for a single canonical entrypoint
+- Legacy `/recommendations`, `/best-bets-parlays`, `/props/recommendations`, `/props/best-bets-parlays`, and `/reconciliation` redirect to the canonical betting card or recap routes
+- Legacy `/web/` and `/web/index.html` redirect to `/`, and `/pregame` and `/live` remain compatibility entrypoints for the cards experience
 
 Notes:
 - Use the Flask app for both UI and APIs (no separate static http.server is needed).
@@ -280,27 +414,30 @@ Notes:
 ### New pages and APIs for player props parity
 
 Frontend pages (under `web/`):
-- `/props` – existing props-by-day table
-- `/props/recommendations` – per-player cards of best edges (NFL-style)
-- `/props/reconciliation` – table view of reconciled props/actuals
+- `/betting-card` – canonical daily pregame card for game plays and prop plays
+- `/betting-recap` – canonical recap page for settled games and props performance
+- `/prop-ladders` – player distribution and ladder board
 
 APIs:
+- `GET /api/betting-card?date=YYYY-MM-DD[&section=all|games|props]`
+	- Returns the unified daily card payload built from `/api/cards`, including flattened game plays and prop plays.
+- `GET /api/betting-recap?[&days=14][&since=YYYY-MM-DD&until=YYYY-MM-DD]`
+	- Returns canonical recap summaries for games and props over the selected window.
 - `GET /api/props?date=YYYY-MM-DD[&home_team=...&away_team=...&min_edge=...&min_ev=...]`
 	- Returns raw props rows (edges or predictions) with optional collapse to best-of-book.
 - `GET /api/props/recommendations?date=YYYY-MM-DD[&market=pts|reb|ast|threes][&onlyEV=1][&minEV=1.0][&home_team=...&away_team=...]`
-	- Aggregates props edges into player cards with plays sorted by EV% then edge. `minEV` is percent.
-	- Includes `games` array built from the day’s predictions when available.
+	- Legacy machine-facing compatibility endpoint still used by internal tooling.
 - `GET /api/props/reconciliation?date=YYYY-MM-DD[&team=...][&player=...]`
 	- Serves reconciled props rows for the date (built from nbastatR logs), filterable by team/player.
 
 Examples (PowerShell):
 
 ```powershell
-# Cards aggregation with min EV filter
-Invoke-RestMethod 'http://localhost:5050/api/props/recommendations?date=2025-10-05&onlyEV=1&minEV=10'
+# Unified betting card
+Invoke-RestMethod 'http://localhost:5050/api/betting-card?date=2025-10-05&section=props'
 
-# Reconciliation table for a past date
-Invoke-RestMethod 'http://localhost:5050/api/props/reconciliation?date=2025-10-04'
+# Betting recap window
+Invoke-RestMethod 'http://localhost:5050/api/betting-recap?days=7'
 ```
 
 ## Admin endpoints (optional)
@@ -366,3 +503,20 @@ Invoke-RestMethod -Method Post -Uri "$base/api/cron/reconcile-games?date=$y" -He
 Scheduling on Render:
 - Use Render Cron Jobs to hit these endpoints on your cadence. Include the Bearer header.
 - If you attach a Render Disk, ensure `data/` points to that disk path (default here is repo-relative). Update paths in `src/nba_betting/config.py` if needed.
+
+## Period calibration (quarters/halves)
+
+Quarter and half totals are calibrated using a blend of model outputs and team/league scoring shares while enforcing constraints (quarters sum to game total; halves sum to quarters; quarter margins sum to spread).
+
+- Default blend weight: 0.8 (shares-heavy). Override at runtime with the environment variable `NBA_CALIB_TOTALS_WEIGHT` (0.0=model-only .. 1.0=shares-only).
+- Decision note: see `PERIOD_CALIBRATION_DECISION.md` for the sweep and rationale.
+- Backtest calibration and baselines over a date range:
+
+```powershell
+python -m nba_betting.cli backtest-period-calibration --start 2024-11-01 --end 2024-12-01
+```
+
+This writes a CSV summary to `data/processed/backtest_period_calibration_<start>_to_<end>.csv` with:
+- method: calibrated or baselines (baseline_equal, baseline_league)
+- weight (for calibrated rows)
+- MAE for quarter totals, half totals, game totals, and quarter margins

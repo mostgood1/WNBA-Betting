@@ -217,7 +217,7 @@ https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/{p
 
 1. **Generate Props Predictions** ⏳
 ```powershell
-cd C:\Users\mostg\OneDrive\Coding\NBA-Betting
+cd C:\Users\mostg\OneDrive\Coding\WNBA-Betting
 $env:PYTHONPATH="$PWD\src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -m nba_betting.cli predict-props --date 2025-10-17 --slate-only
 ```
@@ -230,7 +230,7 @@ Expected output:
 2. **Restart Flask App** (Already done) ✅
 ```powershell
 $env:PORT=5051
-$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\NBA-Betting\src"
+$env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" app.py
 ```
 

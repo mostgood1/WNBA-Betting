@@ -1,8 +1,16 @@
 param(
-    [string]$RenderUrl = 'https://nba-betting-5qgf.onrender.com'
+    [string]$RenderUrl = 'https://wnba-betting.onrender.com'
 )
 
 $ErrorActionPreference = 'Stop'
+
+if ([string]::IsNullOrWhiteSpace($RenderUrl)) {
+    if (-not [string]::IsNullOrWhiteSpace($env:WNBA_BETTING_BASE_URL)) {
+        $RenderUrl = $env:WNBA_BETTING_BASE_URL
+    } else {
+        $RenderUrl = $env:NBA_BETTING_BASE_URL
+    }
+}
 
 function Require-GHCLI {
     if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {

@@ -229,11 +229,11 @@ class PureONNXGamePredictor:
         # The spread model is well-calibrated, but the win_prob model is overconfident.
         # Convert spread → win probability using logistic function:
         #   P(home wins) = 1 / (1 + exp(-spread / σ))
-        # where σ ≈ 12 points (NBA historical spread standard deviation)
+        # where σ is league-configured so the spread calibration follows the active league.
         #
         # This leverages the NN's spread predictions directly rather than
         # relying on the overconfident binary classifier.
-        sigma = 12.0  # Standard deviation of NBA point spreads
+        sigma = float(LEAGUE.spread_winprob_sigma)
         win_probs_calibrated = 1.0 / (1.0 + np.exp(-spreads / sigma))
         
         # Blend: 80% spread-based (calibrated), 20% direct model

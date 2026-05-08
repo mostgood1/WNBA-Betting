@@ -11,6 +11,7 @@ import pandas as pd
 from .events import EventSimConfig, simulate_event_level_boxscore, simulate_pbp_game_boxscore
 from .quarters import GameInputs, QuarterResult, TeamContext, simulate_quarters
 from ..config import paths
+from ..league import LEAGUE, season_year_from_date
 from ..prop_ladders import build_exact_ladder_payload
 from ..player_priors import PlayerPriorsConfig, compute_player_priors, _norm_player_key  # type: ignore
 from ..roster_files import pick_rosters_file
@@ -309,17 +310,12 @@ def _compute_player_priors_cached(asof_date_str: str, days_back: int) -> Any:
 
 
 def _season_from_date_str(date_str: str) -> int:
-    """Infer NBA season-year from a YYYY-MM-DD date.
-
-    Example: 2026-02-13 -> 2026 (2025-26 season).
-    """
+    """Infer the internal season-year from a YYYY-MM-DD date."""
     try:
         ts = pd.to_datetime(str(date_str), errors="coerce")
         if ts is None or pd.isna(ts):
             raise ValueError("bad date")
-        y = int(ts.year)
-        m = int(ts.month)
-        return int(y + 1) if m >= 7 else int(y)
+        return season_year_from_date(ts.date())
     except Exception:
         # Conservative fallback
         try:
@@ -433,9 +429,9 @@ def _league_means(df: pd.DataFrame) -> dict[str, float]:
     out: dict[str, float] = {}
     if df is None or df.empty:
         return {
-            "pace": 98.0,
-            "off_rtg": 110.0,
-            "def_rtg": 110.0,
+            "pace": LEAGUE.baseline_pace,
+            "off_rtg": LEAGUE.baseline_off_rating,
+            "def_rtg": LEAGUE.baseline_def_rating,
             "tov_pct": 0.135,
             "orb_pct": 0.240,
             "ft_rate": 0.220,
@@ -451,9 +447,9 @@ def _league_means(df: pd.DataFrame) -> dict[str, float]:
         except Exception:
             return float(default)
 
-    out["pace"] = mean_col("pace", 98.0)
-    out["off_rtg"] = mean_col("off_rtg", 110.0)
-    out["def_rtg"] = mean_col("def_rtg", 110.0)
+    out["pace"] = mean_col("pace", LEAGUE.baseline_pace)
+    out["off_rtg"] = mean_col("off_rtg", LEAGUE.baseline_off_rating)
+    out["def_rtg"] = mean_col("def_rtg", LEAGUE.baseline_def_rating)
     out["tov_pct"] = mean_col("tov_pct", 0.135)
     out["orb_pct"] = mean_col("orb_pct", 0.240)
     out["ft_rate"] = mean_col("ft_rate", 0.220)
@@ -502,15 +498,15 @@ def _team_adj_from_advanced_stats(
         # Pace multiplier: based on average matchup pace vs league.
         pace_vals = [float(h.get("pace", float("nan"))), float(a.get("pace", float("nan")))]
         pace_vals = [x for x in pace_vals if np.isfinite(x) and x > 0]
-        league_pace = float(lg.get("pace", 98.0))
+        league_pace = float(lg.get("pace", LEAGUE.baseline_pace))
         if pace_vals and np.isfinite(league_pace) and league_pace > 0:
             pace_match = float(np.mean(pace_vals))
             pace_mult = float(np.clip(pace_match / league_pace, 0.92, 1.08))
         else:
             pace_mult = 1.0
 
-        league_off = float(lg.get("off_rtg", 110.0))
-        league_def = float(lg.get("def_rtg", 110.0))
+        league_off = float(lg.get("off_rtg", LEAGUE.baseline_off_rating))
+        league_def = float(lg.get("def_rtg", LEAGUE.baseline_def_rating))
 
         def _ratio(x: float, base: float, lo: float, hi: float) -> float:
             try:
@@ -1479,7 +1475,7 @@ def _minutes_caps_from_team_df(team_df: pd.DataFrame, base_minutes: Optional[pd.
     return cap.clip(lower=12.0, upper=44.0).astype(float)
 
 
-def _scale_minutes_to_target(mins: pd.Series, total_target: float = 240.0) -> pd.Series:
+def _scale_minutes_to_target(mins: pd.Series, total_target: float = LEAGUE.regulation_team_minutes) -> pd.Series:
     try:
         out = pd.to_numeric(mins, errors="coerce").fillna(0.0).astype(float)
     except Exception:
@@ -1513,7 +1509,7 @@ def _regularize_rotation_minutes(
     if (not np.isfinite(total)) or total <= 0.0:
         return out, diag
 
-    base_scaled = _scale_minutes_to_target(base, total_target=240.0)
+    base_scaled = _scale_minutes_to_target(base, total_target=LEAGUE.regulation_team_minutes)
     blend = 0.10 + (0.18 * float(exp_cov))
     try:
         if mapped_minutes_frac is not None and np.isfinite(float(mapped_minutes_frac)):
@@ -1536,7 +1532,7 @@ def _regularize_rotation_minutes(
                 use_floor = exp_floor.notna() & (out < (exp * 0.60)) & ((starter >= 0.75) | (exp >= 24.0))
                 if int(use_floor.sum()) > 0:
                     out = out.where(~use_floor, other=exp_floor)
-                    out = _scale_minutes_to_target(out, total_target=240.0)
+                    out = _scale_minutes_to_target(out, total_target=LEAGUE.regulation_team_minutes)
                     diag["exp_floor_n"] = float(int(use_floor.sum()))
         except Exception:
             pass
@@ -1559,7 +1555,7 @@ def _rotation_minutes_signal_guardrail(
         base = _roll_minutes_unscaled(team_df, date_str=date_str, team_tri=team_tri)
         if len(base) != len(current):
             return diag
-        base = _scale_minutes_to_target(base, total_target=240.0)
+        base = _scale_minutes_to_target(base, total_target=LEAGUE.regulation_team_minutes)
         if base.empty:
             return diag
 
@@ -1913,7 +1909,7 @@ def _rotation_sim_minutes_from_history(
     if not np.isfinite(total_hist) or total_hist <= 0:
         diag["reason"] = "bad_history_total_minutes"
         return None, None, None, diag
-    mins_df["minutes_scaled"] = mins_df["minutes"] * (240.0 / total_hist)
+    mins_df["minutes_scaled"] = mins_df["minutes"] * (float(LEAGUE.regulation_team_minutes) / total_hist)
     id_to_min = dict(zip(mins_df["player_id"].astype(str), mins_df["minutes_scaled"].astype(float)))
 
     base_w = _roll_minutes_unscaled(tmp, date_str=str(date_str), team_tri=team_u)
@@ -1941,7 +1937,7 @@ def _rotation_sim_minutes_from_history(
         mapped_players += int(len(idx))
         mapped_minutes_sum += float(alloc.sum())
 
-    leftover = float(240.0 - mapped_minutes_sum)
+    leftover = float(float(LEAGUE.regulation_team_minutes) - mapped_minutes_sum)
     if leftover > 1e-6:
         # IMPORTANT: history stints include minutes for ESPN IDs that may not exist on the
         # current roster (trades, new players, missing mappings). Those "missing" minutes
@@ -1954,12 +1950,12 @@ def _rotation_sim_minutes_from_history(
         else:
             sim_min = sim_min + ((w / ws) * float(leftover))
 
-    # Normalize to 240.
+    # Normalize to regulation team minutes.
     total_sim = float(sim_min.sum())
     if np.isfinite(total_sim) and total_sim > 0:
-        sim_min = sim_min * (240.0 / total_sim)
+        sim_min = sim_min * (float(LEAGUE.regulation_team_minutes) / total_sim)
 
-    mapped_frac = float(mapped_minutes_sum) / 240.0 if np.isfinite(mapped_minutes_sum) else 0.0
+    mapped_frac = float(mapped_minutes_sum) / float(LEAGUE.regulation_team_minutes) if np.isfinite(mapped_minutes_sum) else 0.0
     sim_min, reg_diag = _regularize_rotation_minutes(
         tmp,
         sim_min,
@@ -1971,7 +1967,7 @@ def _rotation_sim_minutes_from_history(
     # Enforce a regulation-style cap. History-based allocation can otherwise assign
     # unrealistic minutes to a single player (e.g., 45-55) due to noisy mapping/weights.
     caps = _minutes_caps_from_team_df(tmp, base_minutes=sim_min)
-    sim_min = _cap_and_redistribute_minutes(sim_min, total_target=240.0, cap=caps, iters=12)
+    sim_min = _cap_and_redistribute_minutes(sim_min, total_target=LEAGUE.regulation_team_minutes, cap=caps, iters=12)
 
     signal_guard = _rotation_minutes_signal_guardrail(
         tmp,
@@ -2028,7 +2024,7 @@ def _rotation_sim_minutes_from_history(
     # (e.g., assigning ~all minutes/scoring to a single mapped player). In that case, do not apply
     # rotation minutes; caller should fall back to roll-based minutes.
     try:
-        total_target = 240.0
+        total_target = float(LEAGUE.regulation_team_minutes)
         mapped_ids = [pid for pid in sorted(set(espn_ids[have].tolist())) if float(id_to_min.get(str(pid), 0.0)) > 0.0]
         mapped_id_n = int(len(mapped_ids))
         frac = float(mapped_minutes_sum) / float(max(1e-6, total_target))
@@ -2565,7 +2561,7 @@ def _roll_minutes_unscaled(team_df: pd.DataFrame, *, date_str: str | None = None
 
 def _cap_and_redistribute_minutes(
     mins: pd.Series,
-    total_target: float = 240.0,
+    total_target: float = LEAGUE.regulation_team_minutes,
     cap: float | pd.Series | np.ndarray = 44.0,
     iters: int = 12,
 ) -> pd.Series:
@@ -2722,7 +2718,7 @@ def _rotation_sim_minutes_for_team(
     diag["rotation_total_minutes_raw"] = total_raw
     # Guardrail: rotation stints files can occasionally be incomplete/corrupt; treat them
     # as a distribution only if totals look plausible.
-    if (not np.isfinite(total_raw)) or total_raw <= 0 or total_raw < 200.0 or total_raw > 340.0:
+    if (not np.isfinite(total_raw)) or total_raw <= 0 or total_raw < (0.8 * float(LEAGUE.regulation_team_minutes)) or total_raw > (1.42 * float(LEAGUE.regulation_team_minutes)):
         sim_min, lineups, lw, diag2 = _rotation_sim_minutes_from_history(
             team_df=team_df,
             date_str=date_str,
@@ -2738,9 +2734,9 @@ def _rotation_sim_minutes_for_team(
         return sim_min, lineups, lw, diag
 
     # Treat stints minutes as a *distribution*; normalize to regulation team minutes.
-    mins_df["minutes_scaled"] = mins_df["minutes"] * (240.0 / float(total_raw))
+    mins_df["minutes_scaled"] = mins_df["minutes"] * (float(LEAGUE.regulation_team_minutes) / float(total_raw))
     id_to_min = dict(zip(mins_df["player_id"].astype(str), mins_df["minutes_scaled"].astype(float)))
-    total_target = 240.0
+    total_target = float(LEAGUE.regulation_team_minutes)
     diag["rotation_total_minutes"] = float(total_target)
 
     # Assign mapped minutes; handle duplicated ESPN IDs by splitting proportionally.
@@ -2805,7 +2801,7 @@ def _rotation_sim_minutes_for_team(
 
     # Enforce a regulation-style cap and preserve team minutes.
     caps = _minutes_caps_from_team_df(tmp, base_minutes=sim_min)
-    sim_min = _cap_and_redistribute_minutes(sim_min, total_target=240.0, cap=caps, iters=12)
+    sim_min = _cap_and_redistribute_minutes(sim_min, total_target=LEAGUE.regulation_team_minutes, cap=caps, iters=12)
 
     # Build observed lineup pool from stints (5-man units) mapped to row indices.
     lineup_pool: List[List[int]] = []
@@ -2886,9 +2882,9 @@ def _derive_sim_minutes(team_df: pd.DataFrame, *, date_str: str | None = None, t
     if float(mins.sum()) <= 0.0:
         mins = pd.Series([24.0] * len(team_df), index=team_df.index, dtype=float)
 
-    mins = _scale_minutes_to_target(mins, total_target=240.0)
+    mins = _scale_minutes_to_target(mins, total_target=LEAGUE.regulation_team_minutes)
     caps = _minutes_caps_from_team_df(team_df, base_minutes=mins)
-    mins = _cap_and_redistribute_minutes(mins, total_target=240.0, cap=caps, iters=12)
+    mins = _cap_and_redistribute_minutes(mins, total_target=LEAGUE.regulation_team_minutes, cap=caps, iters=12)
     return mins.astype(float)
 
 
@@ -3362,7 +3358,7 @@ def simulate_smart_game(
         # Mild pace drag: consistent with quarters model.
         b2b_drag = (1.0 if hb2b else 0.0) + (1.0 if ab2b else 0.0)
         inj_drag = 0.3 * float(max(0, h_outs)) + 0.3 * float(max(0, a_outs))
-        pace = float(max(90.0, pace - b2b_drag - inj_drag))
+        pace = float(max(LEAGUE.baseline_pace - 8.0, pace - b2b_drag - inj_drag))
 
         if np.isfinite(pace) and pace > 0:
             event_cfg = replace(event_cfg, possessions_per_game=float(pace))
@@ -3396,9 +3392,9 @@ def simulate_smart_game(
         )
         pm = float(pace_mult) if np.isfinite(float(pace_mult)) else 1.0
         if np.isfinite(pm) and pm != 1.0:
-            base_poss = float(getattr(event_cfg, "possessions_per_game", 98.0))
+            base_poss = float(getattr(event_cfg, "possessions_per_game", LEAGUE.baseline_pace))
             # Keep bounded to preserve existing tuning + quarters model.
-            new_poss = float(np.clip(base_poss * pm, 88.0, 112.0))
+            new_poss = float(np.clip(base_poss * pm, LEAGUE.baseline_pace - 8.0, LEAGUE.baseline_pace + 10.0))
             event_cfg = replace(event_cfg, possessions_per_game=float(new_poss))
             team_adv_diag["possessions_per_game_before"] = float(base_poss)
             team_adv_diag["possessions_per_game_after"] = float(new_poss)
@@ -3458,8 +3454,8 @@ def simulate_smart_game(
     # Quarter distribution
     if quarters is None:
         # Minimal fallback TeamContext from prediction-implied ratings. (Caller should prefer passing quarters.)
-        home_ctx = TeamContext(team=home_tri, pace=98.0, off_rating=112.0, def_rating=112.0)
-        away_ctx = TeamContext(team=away_tri, pace=98.0, off_rating=112.0, def_rating=112.0)
+        home_ctx = TeamContext(team=home_tri, pace=LEAGUE.baseline_pace, off_rating=LEAGUE.baseline_off_rating, def_rating=LEAGUE.baseline_def_rating)
+        away_ctx = TeamContext(team=away_tri, pace=LEAGUE.baseline_pace, off_rating=LEAGUE.baseline_off_rating, def_rating=LEAGUE.baseline_def_rating)
         inp = GameInputs(date=date_str, home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=market_home_spread)
         quarters = simulate_quarters(inp, n_samples=3000).quarters
 

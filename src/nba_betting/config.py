@@ -3,6 +3,8 @@ import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .league import LEAGUE
+
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -16,10 +18,14 @@ def _data_root(repo_root: Path) -> Path:
     """Root directory for data artifacts.
 
     Defaults to <repo>/data.
-    Can be overridden (e.g., on Render) via NBA_BETTING_DATA_ROOT to point at a
+    Can be overridden (e.g., on Render) via WNBA_BETTING_DATA_ROOT to point at a
     persistent disk mount.
     """
-    env = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+    env = (
+        os.environ.get(LEAGUE.data_root_env)
+        or os.environ.get(LEAGUE.legacy_data_root_env)
+        or ""
+    ).strip()
     if env:
         try:
             return Path(env)
@@ -73,7 +79,7 @@ paths = Paths()
 def reconcile_repo_data_to_active() -> dict[str, object]:
     """Reconcile repo-committed data into the active data root.
 
-    Why: On Render we often set NBA_BETTING_DATA_ROOT to a persistent disk.
+    Why: On Render we often set WNBA_BETTING_DATA_ROOT to a persistent disk.
     That means code reads/writes under that mount, but deploys bring updated
     repo-committed artifacts under <repo>/data. Without reconciliation, the
     persistent disk can lag behind the repo after a deploy.
@@ -83,14 +89,23 @@ def reconcile_repo_data_to_active() -> dict[str, object]:
     - Copies missing files and overwrites only when the repo copy is newer.
 
     Controls:
-    - NBA_BETTING_RECONCILE_REPO_DATA=0 disables.
-    - Defaults to enabled when NBA_BETTING_DATA_ROOT is set.
+    - WNBA_BETTING_RECONCILE_REPO_DATA=0 disables.
+    - Defaults to enabled when WNBA_BETTING_DATA_ROOT is set.
     """
     try:
-        override_set = bool((os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip())
-        if _falsy_env("NBA_BETTING_RECONCILE_REPO_DATA", default=False):
+        override_set = bool(
+            (
+                os.environ.get(LEAGUE.data_root_env)
+                or os.environ.get(LEAGUE.legacy_data_root_env)
+                or ""
+            ).strip()
+        )
+        if _falsy_env("WNBA_BETTING_RECONCILE_REPO_DATA", default=False) or _falsy_env("NBA_BETTING_RECONCILE_REPO_DATA", default=False):
             return {"ok": True, "skipped": True, "reason": "disabled"}
-        if not override_set and not _truthy_env("NBA_BETTING_RECONCILE_REPO_DATA", default=False):
+        if not override_set and not (
+            _truthy_env("WNBA_BETTING_RECONCILE_REPO_DATA", default=False)
+            or _truthy_env("NBA_BETTING_RECONCILE_REPO_DATA", default=False)
+        ):
             return {"ok": True, "skipped": True, "reason": "no override"}
 
         src_root = paths.repo_data_root

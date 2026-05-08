@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 
 from nba_betting.config import paths
+from nba_betting.league import LEAGUE
 from nba_betting.sim.quarters import GameInputs, TeamContext, sample_quarter_scores, simulate_quarters
 
 
@@ -112,8 +113,8 @@ def _build_context_from_row(row: pd.Series) -> tuple[TeamContext, TeamContext, f
         or _to_float(row.get("margin_pred"))
     )
 
-    home_pace = _to_float(row.get("home_pace")) or 98.0
-    away_pace = _to_float(row.get("away_pace")) or 98.0
+    home_pace = _to_float(row.get("home_pace")) or float(LEAGUE.baseline_pace)
+    away_pace = _to_float(row.get("away_pace")) or float(LEAGUE.baseline_pace)
 
     home_mu_implied = None
     away_mu_implied = None
@@ -123,16 +124,16 @@ def _build_context_from_row(row: pd.Series) -> tuple[TeamContext, TeamContext, f
 
     def _rating_from_mu(mu: float | None, pace: float) -> float:
         if mu is None:
-            return 112.0
+            return float(LEAGUE.baseline_off_rating)
         try:
             return float((mu / max(1e-6, pace)) * 100.0)
         except Exception:
-            return 112.0
+            return float(LEAGUE.baseline_off_rating)
 
     home_off = _to_float(row.get("home_off_rating")) or _rating_from_mu(home_mu_implied, home_pace)
     away_off = _to_float(row.get("away_off_rating")) or _rating_from_mu(away_mu_implied, away_pace)
-    home_def = _to_float(row.get("home_def_rating")) or 112.0
-    away_def = _to_float(row.get("away_def_rating")) or 112.0
+    home_def = _to_float(row.get("home_def_rating")) or float(LEAGUE.baseline_def_rating)
+    away_def = _to_float(row.get("away_def_rating")) or float(LEAGUE.baseline_def_rating)
 
     home_ctx = TeamContext(team=home, pace=float(home_pace), off_rating=float(home_off), def_rating=float(home_def), injuries_out=0, back_to_back=False)
     away_ctx = TeamContext(team=away, pace=float(away_pace), off_rating=float(away_off), def_rating=float(away_def), injuries_out=0, back_to_back=False)

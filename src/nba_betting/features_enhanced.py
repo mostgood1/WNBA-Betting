@@ -11,6 +11,7 @@ import numpy as np
 from typing import Optional
 
 from .config import paths
+from .league import LEAGUE
 from .scrapers import BasketballReferenceScraper, NBAInjuryDatabase
 
 
@@ -27,22 +28,29 @@ def add_advanced_stats_features(df: pd.DataFrame, season: int = 2025) -> pd.Data
     """
     # Try to load cached advanced stats
     stats_file = paths.data_processed / f"team_advanced_stats_{season}.csv"
-    
-    if stats_file.exists():
-        stats_df = pd.read_csv(stats_file)
-        print(f"Loaded advanced stats from {stats_file}")
-    else:
-        # Fetch from Basketball Reference
+    stats_candidates = [stats_file]
+    stats_candidates.extend(sorted(paths.data_processed.glob(f"team_advanced_stats_{season}_asof_*.csv"), reverse=True))
+
+    stats_df = pd.DataFrame()
+    chosen_stats_file = next((path for path in stats_candidates if path.exists()), None)
+    if chosen_stats_file is not None:
+        stats_df = pd.read_csv(chosen_stats_file)
+        print(f"Loaded advanced stats from {chosen_stats_file}")
+    elif LEAGUE.code == "nba":
+        # Fetch from Basketball Reference only for NBA mode.
         print(f"Fetching advanced stats for season {season}...")
         scraper = BasketballReferenceScraper()
         stats_df = scraper.get_team_stats(season)
-        
+
         if not stats_df.empty:
             stats_df.to_csv(stats_file, index=False)
             print(f"Saved advanced stats to {stats_file}")
         else:
             print("No advanced stats available, skipping...")
             return df
+    else:
+        print("No cached advanced stats available for this WNBA season, skipping...")
+        return df
     
     # Merge stats for home team
     df = df.merge(

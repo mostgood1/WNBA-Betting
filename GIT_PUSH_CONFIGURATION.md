@@ -182,7 +182,7 @@ git push
 
 ### Check What Will Be Pushed
 ```powershell
-cd "C:\Users\mostg\OneDrive\Coding\NBA-Betting"
+cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
 git add -- data data\processed
 git diff --cached --name-only
 ```
@@ -197,7 +197,7 @@ git ls-files data/processed/*.csv | Sort-Object
 
 ### Manual Push (if needed)
 ```powershell
-cd "C:\Users\mostg\OneDrive\Coding\NBA-Betting"
+cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
 git add data/processed/*.csv
 git commit -m "Update predictions and props for {DATE}"
 git push origin main

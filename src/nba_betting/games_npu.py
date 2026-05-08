@@ -1,5 +1,5 @@
 """
-NPU-Accelerated Game Projection Module for NBA-Betting
+NPU-Accelerated Game Projection Module for WNBA-Betting
 Optimizes win probability, spread, totals, halves, and quarters models with Qualcomm NPU
 """
 
@@ -62,6 +62,7 @@ except ImportError:
     ort = None
 
 from .config import paths
+from .league import LEAGUE
 
 # Only import train when needed (requires sklearn)
 try:
@@ -76,7 +77,7 @@ class NPUGamePredictor:
     """NPU-accelerated game predictor for win probability, spread, totals, halves, quarters"""
     
     def __init__(self, models_dir: Optional[Path] = None):
-        """Initialize NPU game predictor with models from NBA-Betting pipeline"""
+        """Initialize NPU game predictor with models from WNBA-Betting pipeline"""
         self.models_dir = models_dir or paths.models
         self.npu_sessions = {}
         self.fallback_models = {}
@@ -335,12 +336,12 @@ class NPUGamePredictor:
         # The spread model is well-calibrated, but the win_prob model is overconfident.
         # Convert spread → win probability using logistic function:
         #   P(home wins) = 1 / (1 + exp(-spread / σ))
-        # where σ ≈ 12 points (NBA historical spread standard deviation)
+        # where σ is league-configured so the spread calibration follows the active league.
         #
         # This leverages the NN's spread predictions directly rather than
         # relying on the overconfident binary classifier.
         if "spread_margin" in predictions:
-            sigma = 12.0  # Standard deviation of NBA point spreads
+            sigma = float(LEAGUE.spread_winprob_sigma)
             spread_based_prob = 1.0 / (1.0 + np.exp(-predictions["spread_margin"] / sigma))
             predictions["win_prob_from_spread"] = float(spread_based_prob)
             

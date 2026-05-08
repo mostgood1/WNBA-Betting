@@ -1,5 +1,5 @@
 Param(
-  [string]$TaskName = 'NBA-Betting Weekly Backfill',
+  [string]$TaskName = 'WNBA-Betting Weekly Backfill',
   [string]$DayOfWeek = 'Monday',
   [string]$Time = '09:30',
   [int]$Days = 21,

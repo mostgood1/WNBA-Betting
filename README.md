@@ -350,7 +350,7 @@ python app.py  # http://127.0.0.1:5050
 
 Deploy on Render (Blueprint):
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/mostgood1/NBA-Betting)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/mostgood1/WNBA-Betting)
 
 1) Click the button above (or in Render: New → Blueprint → paste this repo URL). Render will detect `render.yaml`.
 2) Review resources to be created:
@@ -370,8 +370,8 @@ Deploy on Render (Blueprint):
 Notes:
 - The cron jobs in `render.yaml` already include Authorization headers and use `async=1` where appropriate to avoid timeouts.
 - If you prefer not to use Render cron jobs, this repo also includes a GitHub Actions scheduler (`.github/workflows/nbabetting-scheduler.yml`). Add two repo secrets to enable it:
-  - `NBA_BETTING_BASE_URL` → your Render service URL
-  - `NBA_BETTING_CRON_TOKEN` → the same `CRON_TOKEN` value
+	- `WNBA_BETTING_BASE_URL` → your Render service URL
+	- `WNBA_BETTING_CRON_TOKEN` → the same `CRON_TOKEN` value
   The workflow will call the same cron endpoints on an overnight + midday cadence.
 
 Environment variables (optional but consistent with NFL app):

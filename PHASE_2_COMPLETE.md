@@ -147,7 +147,7 @@ All models successfully converted to ONNX format with **45 input features**:
 
 ```bash
 # Backup current models
-cd C:\Users\mostg\OneDrive\Coding\NBA-Betting\models
+cd C:\Users\mostg\OneDrive\Coding\WNBA-Betting\models
 mkdir backup_baseline
 cp *.onnx backup_baseline/
 
@@ -349,7 +349,7 @@ PHASE_2_COMPLETE.md                ✅ This file
 
 ```bash
 # Test loading enhanced ONNX models with NPU
-cd C:\Users\mostg\OneDrive\Coding\NBA-Betting
+cd C:\Users\mostg\OneDrive\Coding\WNBA-Betting
 python test_npu_enhanced.py
 ```
 
