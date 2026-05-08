@@ -14,13 +14,28 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  WNBA_BETTING_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL || secrets.RENDER_URL }}
-  WNBA_BETTING_CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN || secrets.CRON_TOKEN }}
+  PRIMARY_WNBA_BETTING_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL }}
+  PRIMARY_WNBA_BETTING_CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN }}
+  FALLBACK_WNBA_BETTING_CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
 
 jobs:
   refresh-oddsapi-props-pregame:
     runs-on: ubuntu-latest
     steps:
+      - name: Resolve workflow secrets
+        run: |
+          set -euo pipefail
+          BASE_URL="${PRIMARY_WNBA_BETTING_BASE_URL:-}"
+          CRON_TOKEN="${PRIMARY_WNBA_BETTING_CRON_TOKEN:-}"
+          if [ -z "$CRON_TOKEN" ]; then
+            CRON_TOKEN="${FALLBACK_WNBA_BETTING_CRON_TOKEN:-}"
+          fi
+
+          {
+            echo "WNBA_BETTING_BASE_URL=$BASE_URL"
+            echo "WNBA_BETTING_CRON_TOKEN=$CRON_TOKEN"
+          } >> "$GITHUB_ENV"
+
       - name: Preflight (config + cron ping)
         run: |
           set -euo pipefail
@@ -68,7 +83,7 @@ jobs:
       - name: Refresh OddsAPI props locally + upload to Render
         env:
           PYTHONPATH: src
-          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY || secrets.THE_ODDS_API_KEY }}
+          PRIMARY_ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
           ALLOW_REMOTE_ARTIFACTS: "1"
           # Keep the default refresh lightweight, but allow the worker to force
           # a targeted SmartSim-backed props rebuild when new lined players are
@@ -83,6 +98,7 @@ jobs:
           NUMEXPR_NUM_THREADS: "1"
         run: |
           set -euo pipefail
+          export ODDS_API_KEY="${PRIMARY_ODDS_API_KEY:-}"
           SLATE_TZ="${APP_TZ:-America/New_York}"
           slate_date() {
             local local_hour

@@ -7,9 +7,24 @@ jobs:
   refresh-odds:
     runs-on: ubuntu-latest
     env:
-      BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL || secrets.RENDER_URL }}
-      CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN || secrets.CRON_TOKEN }}
+      PRIMARY_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL }}
+      PRIMARY_CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN }}
+      FALLBACK_CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
     steps:
+      - name: Resolve workflow secrets
+        run: |
+          set -euo pipefail
+          BASE_URL="${PRIMARY_BASE_URL:-}"
+          CRON_TOKEN="${PRIMARY_CRON_TOKEN:-}"
+          if [ -z "$CRON_TOKEN" ]; then
+            CRON_TOKEN="${FALLBACK_CRON_TOKEN:-}"
+          fi
+
+          {
+            echo "BASE_URL=$BASE_URL"
+            echo "CRON_TOKEN=$CRON_TOKEN"
+          } >> "$GITHUB_ENV"
+
       - name: Validate config
         run: |
           test -n "$BASE_URL" || (echo 'Missing secret WNBA_BETTING_BASE_URL' && exit 1)
