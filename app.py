@@ -11876,6 +11876,47 @@ def api_cron_refresh_oddsapi_props_status():
     return jsonify(payload), 200
 
 
+def _invalidate_uploaded_props_derived_artifacts(date_str: str) -> dict[str, Any]:
+    removed_files: list[str] = []
+    cache_keys_removed: list[str] = []
+
+    candidate_files = [
+        DATA_PROCESSED_DIR / f"cards_props_snapshot_{date_str}.json",
+        DATA_PROCESSED_DIR / f"props_recommendations_top_by_game_{date_str}.json",
+        DATA_PROCESSED_DIR / f"recommendations_slate_{date_str}.json",
+        DATA_PROCESSED_DIR / f"best_edges_props_{date_str}.csv",
+    ]
+
+    for path in candidate_files:
+        try:
+            if path.exists():
+                path.unlink()
+                removed_files.append(str(path))
+        except Exception:
+            continue
+
+    cache_prefixes = (
+        f"recs_slate_prob:{date_str}:",
+        f"props_edges:{date_str}:",
+        f"props_recommendations_lines:{date_str}:",
+        f"period_lines:{date_str}:",
+    )
+    try:
+        for cache_key in list(_live_processed_cache.keys()):
+            if not isinstance(cache_key, str):
+                continue
+            if any(cache_key.startswith(prefix) for prefix in cache_prefixes):
+                _live_processed_cache.pop(cache_key, None)
+                cache_keys_removed.append(cache_key)
+    except Exception:
+        pass
+
+    return {
+        "removed_files": removed_files,
+        "removed_cache_keys": cache_keys_removed,
+    }
+
+
 @app.route("/api/cron/upload-props-refresh-artifacts", methods=["POST"])
 def api_cron_upload_props_refresh_artifacts():
     """Upload precomputed props refresh artifacts to the live Render disk.
@@ -12102,6 +12143,8 @@ def api_cron_upload_props_refresh_artifacts():
 
     _oddsapi_props_job_state.update(_refresh_oddsapi_props_payload_from_meta(refresh_meta))
 
+    invalidation_meta = _invalidate_uploaded_props_derived_artifacts(date_str)
+
     return jsonify({
         "ok": True,
         "date": date_str,
@@ -12121,6 +12164,7 @@ def api_cron_upload_props_refresh_artifacts():
         "predictions_path": str(predictions_path),
         "edges_path": str(edges_path),
         "recs_path": str(recommendations_path),
+        "invalidated": invalidation_meta,
     }), 200
 
 

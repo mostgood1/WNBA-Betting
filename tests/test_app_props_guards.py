@@ -1742,6 +1742,59 @@ def test_upload_props_refresh_artifacts_accepts_snapshot_only(tmp_path, monkeypa
     assert not (processed / "props_edges_2026-03-18.csv").exists()
 
 
+def test_upload_props_refresh_artifacts_invalidates_stale_props_snapshots(tmp_path, monkeypatch):
+    raw = tmp_path / "data" / "raw"
+    processed = tmp_path / "data" / "processed"
+    raw.mkdir(parents=True)
+    processed.mkdir(parents=True)
+
+    stale_cards_snapshot = processed / "cards_props_snapshot_2026-03-18.json"
+    stale_top_by_game = processed / "props_recommendations_top_by_game_2026-03-18.json"
+    stale_slate = processed / "recommendations_slate_2026-03-18.json"
+    stale_best_edges = processed / "best_edges_props_2026-03-18.csv"
+    for path in (stale_cards_snapshot, stale_top_by_game, stale_slate, stale_best_edges):
+        path.write_text("stale", encoding="utf-8")
+
+    monkeypatch.setattr(app_module, "DATA_RAW_DIR", raw)
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "_cron_auth_ok", lambda _req: True)
+    monkeypatch.setattr(app_module, "_admin_auth_ok", lambda _req: True)
+
+    client = app_module.app.test_client()
+    response = client.post(
+        "/api/cron/upload-props-refresh-artifacts",
+        data={
+            "date": "2026-03-18",
+            "snapshot": (
+                io.BytesIO(
+                    (
+                        "snapshot_ts,event_id,commence_time,bookmaker,market,outcome_name,player_name,point,price,home_team,away_team\n"
+                        "2026-03-18T10:05:00Z,evt-1,2026-03-18T23:00:00Z,fanduel,player_points,Over,Jayson Tatum,27.5,-110,Boston Celtics,Miami Heat\n"
+                        "2026-03-18T10:05:00Z,evt-1,2026-03-18T23:00:00Z,fanduel,player_points,Under,Jayson Tatum,27.5,-110,Boston Celtics,Miami Heat\n"
+                    ).encode("utf-8")
+                ),
+                "odds_nba_player_props_2026-03-18.csv",
+            ),
+        },
+        content_type="multipart/form-data",
+    )
+
+    assert response.status_code == 200
+    payload = response.get_json()
+
+    assert payload["ok"] is True
+    assert not stale_cards_snapshot.exists()
+    assert not stale_top_by_game.exists()
+    assert not stale_slate.exists()
+    assert not stale_best_edges.exists()
+    assert sorted(path.rsplit("/", 1)[-1] for path in payload["invalidated"]["removed_files"]) == [
+        "best_edges_props_2026-03-18.csv",
+        "cards_props_snapshot_2026-03-18.json",
+        "props_recommendations_top_by_game_2026-03-18.json",
+        "recommendations_slate_2026-03-18.json",
+    ]
+
+
 def test_cards_shell_routes_use_single_main_page():
     client = app_module.app.test_client()
 
