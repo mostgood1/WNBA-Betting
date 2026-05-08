@@ -1,5 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-03-12,2026-03-13T02:40:00Z,Los Angeles Lakers,Chicago Bulls,-443.08609686869363,443.0860968686934,-11.0,11.0,-110.0,-110.0,240.0,-100.72490032620514,100.72490032620514,11.0,11.0,6,6,oddsapi_consensus
-2026-03-12,2026-03-13T01:43:00Z,Oklahoma City Thunder,Boston Celtics,-111.99268790634537,111.99268790634537,-2.5,2.5,-115.0,-115.0,213.5,-117.56756756756758,117.56756756756758,8.0,8.0,3,2,oddsapi_consensus
-2026-03-12,2026-03-13T00:11:00Z,Memphis Grizzlies,Dallas Mavericks,,,10.5,-10.5,,,228.5,-111.44492131616597,111.44492131616596,3.0,,3,1,oddsapi_consensus
-2026-03-12,2026-03-13T01:11:00Z,San Antonio Spurs,Denver Nuggets,-582.6744997930592,582.6744997930595,-12.5,12.5,-120.0,-110.0,246.5,101.39022564431612,-101.39022564431612,8.0,8.0,4,4,oddsapi_consensus

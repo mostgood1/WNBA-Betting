@@ -1,2 +1,0 @@
-home,away,error
-PHX,DEN,'numpy.float64' object has no attribute 'fillna'

@@ -1,6 +1,0 @@
-home,away,error
-ATL,BOS,'numpy.float64' object has no attribute 'fillna'
-DAL,MIN,'numpy.float64' object has no attribute 'fillna'
-MEM,PHX,'numpy.float64' object has no attribute 'fillna'
-MIA,PHI,'numpy.float64' object has no attribute 'fillna'
-SAS,CHI,'numpy.float64' object has no attribute 'fillna'

@@ -1,9 +1,0 @@
-home,away,error
-BKN,SAC,'str' object has no attribute 'map'
-CHA,BOS,'numpy.float64' object has no attribute 'fillna'
-DEN,GSW,'str' object has no attribute 'map'
-IND,MIA,'str' object has no attribute 'map'
-MIL,LAC,'numpy.float64' object has no attribute 'fillna'
-NOP,HOU,'str' object has no attribute 'map'
-POR,WAS,'str' object has no attribute 'map'
-TOR,ORL,'str' object has no attribute 'map'

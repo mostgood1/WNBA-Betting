@@ -1,8 +1,0 @@
-market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ATS,Minnesota Timberwolves,Minnesota Timberwolves,Phoenix Suns,2025-12-08,,,,1.2350053787231445,-8.0,9.235005378723145,8.0,,Low
-ML,New Orleans Pelicans,New Orleans Pelicans,San Antonio Spurs,2025-12-08,0.5734477099838481,338.45454545454544,0.22807381297947338,,,,,,High
-ATS,New Orleans Pelicans,New Orleans Pelicans,San Antonio Spurs,2025-12-08,,,,7.022975206375122,9.5,-2.477024793624878,-9.5,,High
-TOTAL,Under,New Orleans Pelicans,San Antonio Spurs,2025-12-08,,,,-7.991455078125,237.5,,,229.508544921875,High
-ML,Indiana Pacers,Indiana Pacers,Sacramento Kings,2025-12-08,0.10228203366560329,-173.1818181818182,0.6339434276206323,,,,,,High
-ATS,Indiana Pacers,Indiana Pacers,Sacramento Kings,2025-12-08,,,,2.0521750450134277,-4.0,6.052175045013428,4.0,,Medium
-TOTAL,Under,Indiana Pacers,Sacramento Kings,2025-12-08,,,,-6.2543487548828125,234.5,,,228.2456512451172,High

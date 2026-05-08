@@ -1,7 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2025-11-18,0022500249,ORL,GSW,0.4850044983805899,,,,Franz Wagner,0.1176663681762557,,,,,1.2289621072409858,0.7074038964828653,,,
-2025-11-18,0022500250,BKN,BOS,0.5,,,,Derrick White,0.1139688015170428,,,,,1.386082758430793,0.7499470937303685,,,
-2025-11-18,0022500251,ATL,DET,0.5448788923735801,,,,Cade Cunningham,0.1185272901200282,,,,,1.084987455181859,0.662093975162245,,,
-2025-11-18,0022500252,SAS,MEM,0.51499550161941,,,,Victor Wembanyama,0.1157956771249189,,,,,1.20898349276321,0.7014994467636857,,,
-2025-11-18,0022500253,LAL,UTA,0.4700359482354282,,,,Luka Dončić,0.1149928797314022,,,,,1.1828744056208127,0.6936032369472679,,,
-2025-11-18,0022500254,POR,PHX,0.51499550161941,,,,Devin Booker,0.1149787493214347,,,,,1.3298818420395313,0.7354914867600941,,,

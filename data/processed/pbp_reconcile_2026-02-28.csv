@@ -1,6 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2026-02-28,0022500863,CHA,POR,0.5,,,,Deni Avdija,0.1112429468795016,,,,,1.3701338405136303,0.7459270479773399,,,
-2026-02-28,0022500864,MIA,HOU,0.5,,,,Amen Thompson,0.1157448349566056,,,,,1.1100335828182717,0.6704521062576734,,,
-2026-02-28,0022500865,WAS,TOR,0.5,,,,Scottie Barnes,0.1136919046128663,,,,,1.129483526837865,0.6767998624792331,,,
-2026-02-28,0022500866,GSW,LAL,0.5,,,,Luka Dončić,0.1180742669674884,,,,,1.2764612943214593,0.7209770644651619,,,
-2026-02-28,0022500867,UTA,NOP,0.5,,,,Trey Murphy III,0.1174310973596526,,,,,1.1276656006375203,0.6762117740925984,,,

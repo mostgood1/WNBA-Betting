@@ -1,9 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
-2025-11-02,2025-11-02T23:10:00Z,Toronto Raptors,Memphis Grizzlies,-211.27272727272728,176.0,-5.5,5.5,238.5,oddsapi_consensus
-2025-11-02,2025-11-02T20:30:00Z,Oklahoma City Thunder,New Orleans Pelicans,-694.3636363636364,487.72727272727275,-12.5,12.5,229.5,oddsapi_consensus
-2025-11-02,2025-11-02T23:00:00Z,Brooklyn Nets,Philadelphia 76ers,171.45454545454547,-205.9090909090909,5.5,-5.5,234.0,oddsapi_consensus
-2025-11-02,2025-11-03T02:30:00Z,Los Angeles Lakers,Miami Heat,-198.0,165.45454545454547,-5.0,5.0,233.5,oddsapi_consensus
-2025-11-02,2025-11-02T23:00:00Z,Charlotte Hornets,Utah Jazz,-124.45454545454545,104.36363636363636,-1.5,1.5,238.0,oddsapi_consensus
-2025-11-02,2025-11-03T01:00:00Z,Phoenix Suns,San Antonio Spurs,186.54545454545453,-227.0,5.5,-5.5,227.5,oddsapi_consensus
-2025-11-02,2025-11-02T23:00:00Z,Cleveland Cavaliers,Atlanta Hawks,-237.9090909090909,194.36363636363637,-6.0,6.0,229.5,oddsapi_consensus
-2025-11-02,2025-11-03T00:00:00Z,New York Knicks,Chicago Bulls,-267.72727272727275,217.54545454545453,-7.5,7.5,237.0,oddsapi_consensus

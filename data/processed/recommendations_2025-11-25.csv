@@ -1,9 +1,0 @@
-market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Orlando Magic,Philadelphia 76ers,Orlando Magic,2025-11-25,0.2895206910661654,-137.8181818181818,0.5795107033639144,,,,,,High
-ATS,Orlando Magic,Philadelphia 76ers,Orlando Magic,2025-11-25,,,,-6.772907257080078,-2.5,-9.272907257080078,-2.5,,High
-TOTAL,Under,Philadelphia 76ers,Orlando Magic,2025-11-25,,,,-6.338470458984403,229.0,,,222.6615295410156,High
-ML,Washington Wizards,Washington Wizards,Atlanta Hawks,2025-11-25,0.30107681553700594,378.8181818181818,0.20884754129485475,,,,,,High
-ATS,Washington Wizards,Washington Wizards,Atlanta Hawks,2025-11-25,,,,2.522195816040039,10.5,-7.977804183959961,-10.5,,Medium
-TOTAL,Under,Washington Wizards,Atlanta Hawks,2025-11-25,,,,-7.6488037109375,236.5,,,228.8511962890625,High
-ML,Los Angeles Clippers,Los Angeles Lakers,Los Angeles Clippers,2025-11-25,0.9937655881869932,203.3636363636364,0.3296373988612526,,,,,,High
-ATS,Los Angeles Clippers,Los Angeles Lakers,Los Angeles Clippers,2025-11-25,,,,-9.956891775131226,6.5,-3.4568917751312256,6.5,,High

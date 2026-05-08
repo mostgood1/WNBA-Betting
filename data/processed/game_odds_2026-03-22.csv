@@ -1,6 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-03-22,2026-03-23T00:10:00Z,Boston Celtics,Minnesota Timberwolves,-335.0270903014707,335.02709030147093,-10.0,10.0,-110,-110,220.0,-100.0,-100.0,11,11,8,5,oddsapi_consensus
-2026-03-22,2026-03-22T21:10:00Z,Denver Nuggets,Portland Trail Blazers,-305.1407419074718,305.1407419074718,-8.5,8.5,-110,-110,241.5,-100.0,-100.0,11,11,7,5,oddsapi_consensus
-2026-03-22,2026-03-22T23:40:00Z,New York Knicks,Washington Wizards,-1229.6313502438184,1229.6313502438165,-20.0,20.0,-110,-110,227.5,-100.0576963423451,100.0576963423451,11,11,9,8,oddsapi_consensus
-2026-03-22,2026-03-23T01:10:00Z,Phoenix Suns,Toronto Raptors,130.49034007869102,-130.490340078691,2.5,-2.5,135,-180,220.0,-100.0,-100.0,11,11,11,6,oddsapi_consensus
-2026-03-22,2026-03-22T22:10:00Z,Sacramento Kings,Brooklyn Nets,-209.0371741491709,209.0371741491709,-6.5,6.5,-115,-105,218.5,-100.0,-100.0,11,11,4,9,oddsapi_consensus

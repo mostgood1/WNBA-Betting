@@ -1,4 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-05-01,2026-05-01T23:10:00Z,Orlando Magic,Detroit Pistons,150.35665303474778,-150.35665303474778,3.5,-3.5,-115,-105,209.5,100.14146272457205,-100.1414627245721,11,11,9,9,oddsapi_consensus
-2026-05-01,2026-05-02T01:40:00Z,Houston Rockets,Los Angeles Lakers,-149.64602662130395,149.64602662130392,-3.5,3.5,-260,190,206.5,101.74863387978142,-101.7486338797814,11,11,10,5,oddsapi_consensus
-2026-05-01,2026-05-01T23:40:00Z,Toronto Raptors,Cleveland Cavaliers,155.159979560071,-155.159979560071,3.5,-3.5,190,-260,219.5,100.32575382079445,-100.32575382079445,11,11,7,8,oddsapi_consensus

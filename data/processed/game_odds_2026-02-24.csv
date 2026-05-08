@@ -1,8 +1,0 @@
-date,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,bookmaker
-2026-02-24,Cleveland Cavaliers,New York Knicks,2026-02-25T00:30:00+00:00,-2000,900,-16.0,16.0,-125,-105,198.0,-110,-110,bovada
-2026-02-24,Chicago Bulls,Charlotte Hornets,2026-02-25T01:00:00+00:00,1100,-2800,32.5,-32.5,-115,-115,233.5,-110,-110,bovada
-2026-02-24,New Orleans Pelicans,Golden State Warriors,2026-02-25T01:00:00+00:00,-230,175,-3.5,3.5,-115,-115,210.0,-110,-110,bovada
-2026-02-24,Milwaukee Bucks,Miami Heat,2026-02-25T01:00:00+00:00,190,-260,4.0,-4.0,-120,-110,248.0,-110,-110,bovada
-2026-02-24,Phoenix Suns,Boston Celtics,2026-02-25T02:00:00+00:00,210,-285,5.5,-5.5,-115,-115,195.5,-110,-110,bovada
-2026-02-24,Portland Trail Blazers,Minnesota Timberwolves,2026-02-25T03:00:00+00:00,190,-230,6.0,-6.0,-105,-115,234.0,-110,-110,bovada
-2026-02-24,Los Angeles Lakers,Orlando Magic,2026-02-25T03:30:00+00:00,-235,195,-6.0,6.0,-110,-110,228.5,-110,-110,bovada

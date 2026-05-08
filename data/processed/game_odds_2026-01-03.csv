@@ -1,9 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-01-03,2026-01-04T03:10:00Z,Golden State Warriors,Utah Jazz,-474.45454545454544,359.1818181818182,-10.5,10.5,-109.77777777777777,,245.0,-109.4,-109.4,11,11,9,5,oddsapi_consensus
-2026-01-03,2026-01-04T00:40:00Z,Toronto Raptors,Atlanta Hawks,-186.45454545454547,155.9090909090909,-4.5,4.5,-112.33333333333333,,231.0,-108.66666666666667,-110.33333333333333,11,11,6,6,oddsapi_consensus
-2026-01-03,2026-01-04T01:10:00Z,San Antonio Spurs,Portland Trail Blazers,-299.6363636363636,240.27272727272728,-7.5,7.5,-108.2,,235.5,-108.5,-110.5,11,11,10,6,oddsapi_consensus
-2026-01-03,2026-01-04T03:40:00Z,Los Angeles Clippers,Boston Celtics,-120.63636363636364,-8.545454545454545,-1.5,1.5,-109.5,,220.0,-109.5,-109.5,11,11,10,6,oddsapi_consensus
-2026-01-03,2026-01-04T00:40:00Z,New York Knicks,Philadelphia 76ers,-142.72727272727272,120.27272727272727,-2.5,2.5,-110.0,,233.5,-107.125,-112.25,11,11,9,8,oddsapi_consensus
-2026-01-03,2026-01-03T22:11:00Z,Miami Heat,Minnesota Timberwolves,251.875,-350.75,6.5,-6.5,-115.0,,222.5,-110.0,-119.0,8,8,2,2,oddsapi_consensus
-2026-01-03,2026-01-04T01:40:00Z,Dallas Mavericks,Houston Rockets,255.54545454545453,-321.90909090909093,8.0,-8.0,-109.66666666666667,,227.5,-110.0,-110.0,11,11,9,7,oddsapi_consensus
-2026-01-03,2026-01-04T01:10:00Z,Chicago Bulls,Charlotte Hornets,-119.45454545454545,26.818181818181817,-1.5,1.5,-109.0,,240.5,-110.6,-109.4,11,11,6,5,oddsapi_consensus

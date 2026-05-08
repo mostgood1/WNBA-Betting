@@ -1,3 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-01-21,2026-01-22T02:47:00Z,Milwaukee Bucks,Oklahoma City Thunder,1806.2126144460938,-1806.2126144460908,19.5,-19.5,-105,-115,233.5,-101.85793911676433,101.85793911676433,5,5,5,3,oddsapi_consensus
-2026-01-21,2026-01-22T03:12:00Z,Sacramento Kings,Toronto Raptors,-112.79480596830359,112.79480596830355,-1.5,1.5,-115,-105,226.5,100.52438384897745,-100.52438384897745,7,7,4,4,oddsapi_consensus

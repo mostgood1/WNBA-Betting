@@ -1,8 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2026-03-06,0022500908,BOS,DAL,0.5,,,,Jaylen Brown,0.1120334934554191,,,,,1.1932088651336448,0.6967533763593249,,,
-2026-03-06,0022500909,CHA,MIA,0.5,,,,Kon Knueppel,0.1069374166895368,,,,,1.2897117741051491,0.7246498653074214,,,
-2026-03-06,0022500910,HOU,POR,0.4551211076264199,,,,Amen Thompson,0.1142018070459037,,,,,1.1899709094013389,0.695769885825872,,,
-2026-03-06,0022500911,DEN,NYK,0.5,,,,Jamal Murray,0.1080429258052995,,,,,1.2077680489971692,0.7011364155497741,,,
-2026-03-06,0022500912,PHX,NOP,0.5,,,,Trey Murphy III,0.1171188844645318,,,,,1.1897558386010685,0.6957044477750954,,,
-2026-03-06,0022500913,SAS,LAC,0.5,,,,James Harden,0.1166113633342934,,,,,1.1599379041776992,0.686494352330816,,,
-2026-03-06,0022500914,LAL,IND,0.5,,,,Luka Dončić,0.1137099746572168,,,,,1.1473867120947183,0.6825346854391399,,,

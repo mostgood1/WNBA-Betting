@@ -1,7 +1,0 @@
-date,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,bookmaker
-2026-02-25,Memphis Grizzlies,Golden State Warriors,2026-02-26T00:30:00+00:00,150,-175,4.0,-4.0,-110,-110,230.5,-110,-110,bovada
-2026-02-25,Detroit Pistons,Oklahoma City Thunder,2026-02-26T00:30:00+00:00,-290,240,-7.5,7.5,-110,-110,220.5,-110,-110,bovada
-2026-02-25,Toronto Raptors,San Antonio Spurs,2026-02-26T00:30:00+00:00,240,-290,7.5,-7.5,-110,-110,229.5,-110,-110,bovada
-2026-02-25,Milwaukee Bucks,Cleveland Cavaliers,2026-02-26T01:00:00+00:00,305,-410,9.0,-9.0,-110,-110,228.0,-110,-110,bovada
-2026-02-25,Houston Rockets,Sacramento Kings,2026-02-26T01:00:00+00:00,-1000,625,-14.0,14.0,-110,-110,222.0,-110,-110,bovada
-2026-02-25,Denver Nuggets,Boston Celtics,2026-02-26T03:00:00+00:00,-165,140,3.5,-3.5,-250,185,229.5,-110,-110,bovada

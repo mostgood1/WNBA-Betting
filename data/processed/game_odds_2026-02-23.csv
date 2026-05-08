@@ -1,4 +1,0 @@
-date,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,bookmaker
-2026-02-23,Detroit Pistons,San Antonio Spurs,2026-02-24T00:00:00+00:00,-115,-105,-1.0,1.0,-110,-110,232.0,-110,-110,bovada
-2026-02-23,Memphis Grizzlies,Sacramento Kings,2026-02-24T01:00:00+00:00,-160,135,-4.0,4.0,-105,-115,233.5,-110,-110,bovada
-2026-02-23,Houston Rockets,Utah Jazz,2026-02-24T02:30:00+00:00,-850,550,-13.0,13.0,-115,-105,229.0,-110,-110,bovada

@@ -1,7 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2025-11-11,0022500207,BKN,TOR,0.5,,,,Brandon Ingram,0.1141133113101262,,,,,1.2291643189757644,0.7074630568668834,,,
-2025-11-11,0022500208,NYK,MEM,0.4551211076264199,,,,Mikal Bridges,0.1166458800816314,,,,,1.3379293548000126,0.7376115802142251,,,
-2025-11-11,0022500209,PHI,BOS,0.5,,,,Tyrese Maxey,0.1290866002341318,,,,,1.3055730243953865,0.7289828089201482,,,
-2025-11-11,0022500210,OKC,GSW,0.51499550161941,,,,Shai Gilgeous-Alexander,0.112771570093182,,,,,1.3456176638445905,0.7396211684088076,,,
-2025-11-11,0022500211,UTA,IND,0.51499550161941,,,,Bennedict Mathurin,0.1177250573394495,,,,,1.2809867935570876,0.7222369296370271,,,
-2025-11-11,0022500212,SAC,DEN,0.4850044983805899,,,,Zach LaVine,0.1109430407663343,,,,,1.0341102827043944,0.6444574273803325,,,

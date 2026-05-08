@@ -1,7 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-04-02,2026-04-02T23:10:00Z,Charlotte Hornets,Phoenix Suns,-197.94190011159313,197.9419001115931,-6.0,6.0,-105,-115,225.5,-100.06568399298726,100.06568399298726,11,11,7,7,oddsapi_consensus
-2026-04-02,2026-04-03T02:10:00Z,Portland Trail Blazers,New Orleans Pelicans,-220.2574014885,220.2574014885,-6.5,6.5,-110,-110,233.5,100.34698126301178,-100.34698126301178,11,11,9,10,oddsapi_consensus
-2026-04-02,2026-04-03T02:10:00Z,Golden State Warriors,Cleveland Cavaliers,375.3712283287474,-375.37122832874763,10.0,-10.0,-110,-110,228.5,-100.0,-100.0,11,11,9,7,oddsapi_consensus
-2026-04-02,2026-04-03T02:40:00Z,Los Angeles Clippers,San Antonio Spurs,149.4424442317957,-149.44244423179566,3.5,-3.5,180,-245,231.0,100.62102158049991,-100.62102158049993,11,11,11,7,oddsapi_consensus
-2026-04-02,2026-04-03T01:40:00Z,Oklahoma City Thunder,Los Angeles Lakers,-298.1354689508028,298.13546895080293,-9.0,9.0,-105,-115,232.0,-100.59144025762484,100.59144025762481,11,11,8,6,oddsapi_consensus
-2026-04-02,2026-04-02T23:10:00Z,Detroit Pistons,Minnesota Timberwolves,-146.92308747716314,146.92308747716305,-3.5,3.5,-245,180,223.5,-100.38191178185433,100.38191178185437,11,11,11,7,oddsapi_consensus

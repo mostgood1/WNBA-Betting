@@ -1,8 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2026-03-07,0022500919,MIL,UTA,0.5,,,,Lauri Markkanen,0.1129370899416909,Kuzma,False,False,,1.2160579213171645,0.7036037155750738,5.0,3.7839420786828355,0.08785075742090173
-2026-03-07,0022500915,MIN,ORL,0.5,,,,Anthony Edwards,0.109315497867195,,,,,1.1594263756768275,0.68633394423369,,,
-2026-03-07,0022500916,DET,BKN,0.5,,,,Cade Cunningham,0.1234099050100287,,,,,1.149770568409227,0.6832905758089151,,,
-2026-03-07,0022500917,ATL,PHI,0.5,,,,Tyrese Maxey,0.1164186739540782,,,,,1.2194833867019907,0.7046172738421079,,,
-2026-03-07,0022500918,MEM,LAC,0.5,,,,James Harden,0.1197905214051664,,,,,1.168265629374468,0.6890943003601492,,,
-2026-03-07,0022500919,MIL,UTA,0.5,,,,Lauri Markkanen,0.1129370899416909,Kuzma,False,False,,1.2160579213171645,0.7036037155750738,5.0,3.7839420786828355,0.08785075742090173
-2026-03-07,0022500920,OKC,GSW,0.5,,,,Shai Gilgeous-Alexander,0.1151859965464116,,,,,1.3451430215436238,0.7394975522666538,,,

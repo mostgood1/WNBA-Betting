@@ -1,8 +1,0 @@
-date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
-2026-01-14,Chicago Bulls,Utah Jazz,CHI,UTA,128,126,,,2,254,,
-2026-01-14,Dallas Mavericks,Denver Nuggets,DAL,DEN,109,118,,,-9,227,,
-2026-01-14,Indiana Pacers,Toronto Raptors,IND,TOR,101,115,,,-14,216,,
-2026-01-14,Los Angeles Clippers,Washington Wizards,LAC,WAS,119,105,,,14,224,,
-2026-01-14,New Orleans Pelicans,Brooklyn Nets,NOP,BKN,116,113,,,3,229,,
-2026-01-14,Philadelphia 76ers,Cleveland Cavaliers,PHI,CLE,107,133,,,-26,240,,
-2026-01-14,Sacramento Kings,New York Knicks,SAC,NYK,112,101,,,11,213,,

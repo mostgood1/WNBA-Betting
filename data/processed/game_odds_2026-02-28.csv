@@ -1,6 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-02-28,2026-02-28T20:10:00Z,Miami Heat,Houston Rockets,129.31394704152711,-129.31394704152714,2.5,-2.5,,,225.5,100.39390521940913,-100.39390521940913,11,11,11,9,oddsapi_consensus
-2026-02-28,2026-02-28T18:10:00Z,Charlotte Hornets,Portland Trail Blazers,-270.49009227298,270.4900922729799,-7.5,7.5,,,228.5,100.34716195105015,-100.34716195105015,11,11,9,10,oddsapi_consensus
-2026-02-28,2026-03-01T02:40:00Z,Utah Jazz,New Orleans Pelicans,219.17858784072877,-219.17858784072868,6.5,-6.5,,,245.5,-100.0,-100.0,11,11,9,6,oddsapi_consensus
-2026-02-28,2026-03-01T00:10:00Z,Washington Wizards,Toronto Raptors,590.0690466477603,-590.0690466477602,13.0,-13.0,,,227.0,-101.34219400526759,101.34219400526761,11,11,5,6,oddsapi_consensus
-2026-02-28,2026-03-01T01:40:00Z,Golden State Warriors,Los Angeles Lakers,161.0502435245639,-161.0502435245639,4.5,-4.5,,,230.0,-100.0,-100.0,11,11,6,7,oddsapi_consensus

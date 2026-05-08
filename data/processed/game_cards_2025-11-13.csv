@@ -1,4 +1,0 @@
-date,game_id,home_team,visitor_team,commence_time,prob_home_tip,early_threes_expected,early_threes_prob_ge_1,first_basket_top5
-2025-11-13,0022500227,Utah Jazz,Atlanta Hawks,2025-11-14T02:10:00Z,0.5,1.1880926675023984,0.6951979311120016,UTA: Lauri Markkanen (11.7%); UTA: Keyonte George (11.1%); ATL: Dyson Daniels (11.0%); ATL: Jalen Johnson (10.5%); UTA: Walker Kessler (10.3%)
-2025-11-13,0022500225,Cleveland Cavaliers,Toronto Raptors,2025-11-14T00:10:00Z,0.65,1.3075868548762757,0.7295280424122104,CLE: Evan Mobley (11.2%); CLE: Donovan Mitchell (11.2%); TOR: Brandon Ingram (11.0%); TOR: Scottie Barnes (10.8%); TOR: RJ Barrett (10.7%)
-2025-11-13,0022500226,Phoenix Suns,Indiana Pacers,2025-11-14T02:10:00Z,0.5,1.309054541926927,0.7299247194318568,IND: Bennedict Mathurin (11.6%); PHX: Devin Booker (11.5%); IND: Pascal Siakam (11.2%); PHX: Grayson Allen (10.7%); IND: Aaron Nesmith (10.0%)

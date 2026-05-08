@@ -1,3 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-04-14,2026-04-15T02:10:00Z,Phoenix Suns,Portland Trail Blazers,-142.73630467941527,142.73630467941527,-3.0,3.0,-250,185,217.0,-100.0,-100.0,10,10,6,6,oddsapi_consensus
-2026-04-14,2026-04-14T23:40:00Z,Charlotte Hornets,Miami Heat,-196.95305242435305,196.95305242435293,-5.5,5.5,-110,-110,229.5,-100.0,-100.0,10,10,9,4,oddsapi_consensus

@@ -1,8 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-01-13,2026-01-14T00:40:00Z,Miami Heat,Phoenix Suns,-123.63636363636364,103.63636363636364,-1.5,1.5,-111.125,-110,230.5,-112.6,-107.4,11,11,8,5,oddsapi_consensus
-2026-01-13,2026-01-14T04:10:00Z,Golden State Warriors,Portland Trail Blazers,-461.3636363636364,349.8181818181818,-10.5,10.5,-112.7,-110,226.0,-109.5,-109.5,11,11,10,6,oddsapi_consensus
-2026-01-13,2026-01-14T01:10:00Z,New Orleans Pelicans,Denver Nuggets,82.18181818181819,-120.27272727272727,1.5,-1.5,-110.27272727272727,-110,233.0,-109.5,-109.5,11,11,11,6,oddsapi_consensus
-2026-01-13,2026-01-14T01:10:00Z,Oklahoma City Thunder,San Antonio Spurs,-326.54545454545456,259.3636363636364,-9.0,9.0,-109.6,-110,230.0,-109.5,-109.5,11,11,5,6,oddsapi_consensus
-2026-01-13,2026-01-14T01:10:00Z,Houston Rockets,Chicago Bulls,-595.2727272727273,430.0,-13.0,13.0,-109.0,-110,224.5,-109.33333333333333,-110.66666666666667,11,11,8,6,oddsapi_consensus
-2026-01-13,2026-01-14T03:40:00Z,Los Angeles Lakers,Atlanta Hawks,126.0909090909091,-149.63636363636363,3.0,-3.0,-108.85714285714286,-115,231.5,-110.11111111111111,-109.22222222222223,11,11,7,9,oddsapi_consensus
-2026-01-13,2026-01-14T01:10:00Z,Milwaukee Bucks,Minnesota Timberwolves,-142.54545454545453,119.9090909090909,-2.5,2.5,-112.375,-110,229.5,-108.85714285714286,-110.28571428571429,11,11,8,7,oddsapi_consensus

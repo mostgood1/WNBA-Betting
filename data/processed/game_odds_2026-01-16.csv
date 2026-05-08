@@ -1,7 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-01-16,2026-01-17T00:41:00Z,Brooklyn Nets,Chicago Bulls,-210.0,160.57142857142858,-4.5,4.5,-117.8,-110,217.5,-39.333333333333336,-124.66666666666667,7,7,5,3,oddsapi_consensus
-2026-01-16,2026-01-17T02:40:00Z,Houston Rockets,Minnesota Timberwolves,-172.45454545454547,144.54545454545453,-4.5,4.5,-109.375,240,221.5,-109.83333333333333,-109.16666666666667,11,11,8,6,oddsapi_consensus
-2026-01-16,2026-01-17T00:42:00Z,Toronto Raptors,Los Angeles Clippers,-280.14285714285717,210.71428571428572,-5.5,5.5,-123.0,-105,218.5,-121.25,-57.75,7,7,3,4,oddsapi_consensus
-2026-01-16,2026-01-17T00:13:00Z,Philadelphia 76ers,Cleveland Cavaliers,-287.42857142857144,215.0,-6.5,6.5,-108.0,135,235.5,-118.66666666666667,-110.66666666666667,7,7,4,3,oddsapi_consensus
-2026-01-16,2026-01-17T00:10:00Z,Indiana Pacers,New Orleans Pelicans,-376.42857142857144,271.42857142857144,-7.5,7.5,-110.5,-110,255.5,-112.33333333333333,-115.16666666666667,7,7,6,6,oddsapi_consensus
-2026-01-16,2026-01-17T03:10:00Z,Sacramento Kings,Washington Wizards,-272.3636363636364,220.1818181818182,-7.5,7.5,-110.875,-105,233.5,-106.6,-112.2,11,11,8,5,oddsapi_consensus

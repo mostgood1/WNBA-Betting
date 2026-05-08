@@ -1,2 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2025-11-06,0022500182,PHX,LAC,0.65,,,,Devin Booker,0.1209568403111102,,,,,1.2962599482796908,0.7264470155005305,,,

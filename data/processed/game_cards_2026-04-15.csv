@@ -1,3 +1,0 @@
-date,game_id,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,bookmaker,home_tri,away_tri
-2026-04-15,0052500131,Los Angeles Clippers,Golden State Warriors,2026-04-16T02:10:00Z,-196.34119727206385,196.34119727206385,-5.5,5.5,-110,-110,220.5,-100.0,-100.0,10,oddsapi_consensus,LAC,GSW
-2026-04-15,0052500101,Philadelphia 76ers,Orlando Magic,2026-04-15T23:40:00Z,-112.4160867378408,112.41608673784071,-1.5,1.5,-135,105,224.5,-100.32575382079445,100.32575382079445,10,oddsapi_consensus,PHI,ORL

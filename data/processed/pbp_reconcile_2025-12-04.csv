@@ -1,6 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2025-12-04,0022500333,PHI,GSW,0.5,,,,Tyrese Maxey,0.127032931044236,,,,,1.311883492458436,0.7306876693577468,,,
-2025-12-04,0022500334,WAS,BOS,0.5,,,,Jaylen Brown,0.1149319530396099,,,,,1.2749981318663604,0.7205685097637133,,,
-2025-12-04,0022500335,BKN,UTA,0.4700359482354282,,,,Lauri Markkanen,0.1198359431056832,,,,,1.3165344074704728,0.731937309880742,,,
-2025-12-04,0022500336,TOR,LAL,0.5,,,,Luka Dončić,0.1132565897534559,,,,,1.0517262148099644,0.6506657975384718,,,
-2025-12-04,0022500337,NOP,MIN,0.4700359482354282,,,,Trey Murphy III,0.1121721911578843,,,,,1.1404365569018546,0.6803205669135858,,,

@@ -1,7 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2025-11-04,0022500165,TOR,MIL,0.51499550161941,,,,Scottie Barnes,0.109048178613396,,,,,0.8207315194961213,0.5598904120226464,,,
-2025-11-04,0022500166,ATL,ORL,0.5448788923735801,,,,Franz Wagner,0.1120347510859714,,,,,0.6727863140166692,0.4897152185032722,,,
-2025-11-04,0022500167,CHI,PHI,0.4551211076264199,,,,Tyrese Maxey,0.129823846858772,,,,,0.846159601687902,0.5709404685307433,,,
-2025-11-04,0022500168,NOP,CHA,0.51499550161941,,,,Trey Murphy III,0.1166407465007776,,,,,0.8654233003180389,0.5791266409114652,,,
-2025-11-04,0022500169,GSW,PHX,0.4850044983805899,,,,Devin Booker,0.1159793814432989,,,,,1.056519190728998,0.6523361418009708,,,
-2025-11-04,0022500170,LAC,OKC,0.65,,,,Shai Gilgeous-Alexander,0.1154022988505747,,,,,0.934772615386532,0.6073248563333423,,,

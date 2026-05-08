@@ -1,6 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-04-06,2026-04-07T00:10:00Z,San Antonio Spurs,Philadelphia 76ers,-283.2383280530845,283.2383280530846,-7.5,7.5,-110,-110,237.0,-100.0,-100.0,11,11,7,8,oddsapi_consensus
-2026-04-06,2026-04-07T01:10:00Z,Denver Nuggets,Portland Trail Blazers,-285.5442467415406,285.54424674154046,-8.5,8.5,-115,-105,239.5,-100.82810217201134,100.82810217201134,11,11,9,11,oddsapi_consensus
-2026-04-06,2026-04-07T00:10:00Z,Memphis Grizzlies,Cleveland Cavaliers,740.3884373069056,-740.3884373069062,13.5,-13.5,-110,-110,237.0,-100.80407100735843,100.80407100735843,11,11,8,7,oddsapi_consensus
-2026-04-06,2026-04-06T23:10:00Z,Atlanta Hawks,New York Knicks,-109.18662509700292,109.18662509700296,-1.5,1.5,-135,105,229.0,-100.0,-100.0,11,11,11,7,oddsapi_consensus
-2026-04-06,2026-04-06T23:10:00Z,Orlando Magic,Detroit Pistons,147.48977099481704,-147.48977099481698,3.5,-3.5,180,-245,225.0,-100.0,-100.0,11,11,10,5,oddsapi_consensus

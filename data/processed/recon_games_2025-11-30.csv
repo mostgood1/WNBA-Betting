@@ -1,9 +1,0 @@
-date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
-2025-11-30,Utah Jazz,Houston Rockets,UTA,HOU,101,129,,,-28,230,,
-2025-11-30,Cleveland Cavaliers,Boston Celtics,CLE,BOS,115,117,,,-2,232,,
-2025-11-30,New York Knicks,Toronto Raptors,NYK,TOR,116,94,,,22,210,,
-2025-11-30,Philadelphia 76ers,Atlanta Hawks,PHI,ATL,134,142,,,-8,276,,
-2025-11-30,Portland Trail Blazers,Oklahoma City Thunder,POR,OKC,115,123,,,-8,238,,
-2025-11-30,Minnesota Timberwolves,San Antonio Spurs,MIN,SAS,125,112,,,13,237,,
-2025-11-30,Sacramento Kings,Memphis Grizzlies,SAC,MEM,107,115,,,-8,222,,
-2025-11-30,Los Angeles Lakers,New Orleans Pelicans,LAL,NOP,133,121,,,12,254,,

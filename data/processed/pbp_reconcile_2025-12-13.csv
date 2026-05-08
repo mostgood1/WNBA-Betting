@@ -1,3 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2025-12-13,0022501229,ORL,NYK,0.4850044983805899,,,,Jalen Brunson,0.1096584340554072,,,,,1.1962790371916583,0.6976829679366796,,,
-2025-12-13,0022501230,OKC,SAS,0.4551211076264199,,,,Victor Wembanyama,0.1122308097413781,,,,,1.202804983317857,0.6996494490470329,,,

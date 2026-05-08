@@ -1,7 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2025-12-21,0022500396,ATL,CHI,0.574442516811659,,,,Jalen Johnson,0.1140521519730747,,,,,1.2350179989765149,0.7091704723130963,,,
-2025-12-21,0022500397,BKN,TOR,0.5,,,,Brandon Ingram,0.1129356457088868,,,,,1.2067697290675057,0.7008379050974922,,,
-2025-12-21,0022500398,NYK,MIA,0.5,,,,Jalen Brunson,0.1092810453570716,,,,,1.2141058850344966,0.703024574205244,,,
-2025-12-21,0022500399,WAS,SAS,0.440286350732807,,,,Devin Vassell,0.1056828060727284,,,,,1.1919841112658571,0.696381746352938,,,
-2025-12-21,0022500400,MIN,MIL,0.5597136492671929,,,,Anthony Edwards,0.1105026513702431,,,,,1.2159967479447868,0.7035855834601998,,,
-2025-12-21,0022500401,SAC,HOU,0.5299640517645717,,,,Keegan Murray,0.1122998235455117,,,,,0.9779955523928454,0.6239358552461736,,,

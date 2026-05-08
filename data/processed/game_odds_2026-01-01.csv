@@ -1,4 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-01-01,2026-01-02T01:41:00Z,Dallas Mavericks,Philadelphia 76ers,413.75,-659.375,7.5,-7.5,-77.0,-110,230.5,-113.0,-116.0,8,8,6,5,oddsapi_consensus
-2026-01-01,2026-01-02T03:11:00Z,Sacramento Kings,Boston Celtics,260.0,-345.54545454545456,7.5,-7.5,-111.66666666666667,-105,229.0,-114.33333333333333,-104.0,11,11,3,3,oddsapi_consensus
-2026-01-01,2026-01-02T03:40:00Z,Los Angeles Clippers,Utah Jazz,-846.6363636363636,568.4545454545455,-14.0,14.0,-110.11111111111111,-110,230.0,-109.4,-109.4,11,11,9,5,oddsapi_consensus

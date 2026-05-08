@@ -1,7 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-02-06,2026-02-07T00:42:00Z,Detroit Pistons,New York Knicks,-171.14724410812298,171.14724410812298,-5.0,5.0,-110,-110,220.5,-100.49873650507554,100.49873650507556,11,11,6,9,oddsapi_consensus
-2026-02-06,2026-02-07T00:40:00Z,Boston Celtics,Miami Heat,-201.95924974894433,201.95924974894433,-6.0,6.0,-110,-110,228.0,101.38700068451402,-101.38700068451405,11,11,6,7,oddsapi_consensus
-2026-02-06,2026-02-07T01:10:00Z,Milwaukee Bucks,Indiana Pacers,107.84400022021444,-107.84400022021444,1.5,-1.5,105,-135,223.0,-101.55732331874736,101.55732331874741,11,11,8,6,oddsapi_consensus
-2026-02-06,2026-02-07T01:10:00Z,Minnesota Timberwolves,New Orleans Pelicans,-298.27563538213997,298.27563538213985,-8.5,8.5,-110,-110,237.0,-101.09380599562695,101.09380599562695,11,11,7,8,oddsapi_consensus
-2026-02-06,2026-02-07T03:10:00Z,Sacramento Kings,Los Angeles Clippers,157.62556031269656,-157.6255603126966,4.0,-4.0,240,-340,222.0,-100.0,-100.0,10,10,7,8,oddsapi_consensus
-2026-02-06,2026-02-07T03:00:00Z,Portland Trail Blazers,Memphis Grizzlies,-278.5738049599191,278.5738049599191,-9.5,9.5,-115,-105,235.0,-100.0,-100.0,11,11,10,5,oddsapi_consensus

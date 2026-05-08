@@ -1,6 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2025-12-15,0022501222,BOS,DET,0.51499550161941,,,,Cade Cunningham,0.1197054940844135,,,,,1.2196460409456873,0.7046653151888618,,,
-2025-12-15,0022501224,UTA,DAL,0.51499550161941,,,,Lauri Markkanen,0.11681093785079,,,,,1.1990960620356252,0.6985334041144404,,,
-2025-12-15,0022501225,DEN,HOU,0.5448788923735801,,,,Amen Thompson,0.1117273238817763,,,,,1.0379319213744258,0.6458135895931674,,,
-2025-12-15,0022501226,LAC,MEM,0.65,,,,James Harden,0.1218221151706357,,,,,1.1981917129333166,0.6982606497550846,,,
-2025-12-15,0022501227,MIA,TOR,0.5,,,,Brandon Ingram,0.1085394378799431,,,,,1.0857690337449493,0.6623579720869899,,,

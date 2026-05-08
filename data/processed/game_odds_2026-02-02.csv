@@ -1,4 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-02-02,2026-02-03T00:40:00Z,Memphis Grizzlies,Minnesota Timberwolves,256.3496375946482,-256.3496375946481,7.5,-7.5,-110,-110,231.5,-101.01637173009611,101.01637173009608,11,11,10,6,oddsapi_consensus
-2026-02-02,2026-02-03T00:10:00Z,Indiana Pacers,Houston Rockets,225.43208797988655,-225.43208797988643,6.5,-6.5,-115,-105,218.5,100.32552800906342,-100.32552800906339,11,11,11,8,oddsapi_consensus
-2026-02-02,2026-02-03T03:10:00Z,Los Angeles Clippers,Philadelphia 76ers,105.41683343438645,-105.41683343438645,1.0,-1.0,-110,-110,218.5,100.80548970361677,-100.80548970361677,11,11,7,7,oddsapi_consensus

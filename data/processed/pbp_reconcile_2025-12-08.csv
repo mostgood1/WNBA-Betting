@@ -1,4 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2025-12-08,0022500364,IND,SAC,0.5,,,,Keegan Murray,0.1170735771978466,,,,,1.0973482748897632,0.6662450623398463,,,
-2025-12-08,0022500365,MIN,PHX,0.5299640517645717,,,,Devin Booker,0.1096401996896325,,,,,1.2541123141597297,0.7146709816305226,,,
-2025-12-08,0022500366,NOP,SAS,0.4551211076264199,,,,Trey Murphy III,0.1116480159952218,,,,,1.1183132718150637,0.6731693956486381,,,

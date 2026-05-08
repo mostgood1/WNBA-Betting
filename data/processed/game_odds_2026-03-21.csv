@@ -1,3 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-03-21,2026-03-22T01:41:00Z,Utah Jazz,Philadelphia 76ers,206.94029850746273,-206.94029850746276,10.5,-10.5,,,229.5,-100.0,-100.0,2,1,2,1,oddsapi_consensus
-2026-03-21,2026-03-22T02:10:00Z,Phoenix Suns,Milwaukee Bucks,-285.78273915728937,285.78273915728937,-4.5,4.5,-115.0,-115.0,209.5,101.44888694472927,-101.44888694472931,8,8,6,6,oddsapi_consensus

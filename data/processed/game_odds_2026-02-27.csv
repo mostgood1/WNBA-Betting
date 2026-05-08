@@ -1,6 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-02-27,2026-02-28T01:10:00Z,Milwaukee Bucks,New York Knicks,256.185563985596,-256.1855639855959,8.5,-8.5,-110,-110,219.0,-100.92634151767656,100.92634151767656,11,11,8,7,oddsapi_consensus
-2026-02-27,2026-02-28T01:40:00Z,Dallas Mavericks,Memphis Grizzlies,-171.20149269057592,171.20149269057583,-4.5,4.5,-115,-105,240.5,100.21694785855566,-100.21694785855566,11,11,8,8,oddsapi_consensus
-2026-02-27,2026-02-28T02:40:00Z,Oklahoma City Thunder,Denver Nuggets,-258.66387481026845,258.66387481026845,-8.5,8.5,-110,-110,233.5,-101.3084154423713,101.3084154423713,11,11,8,8,oddsapi_consensus
-2026-02-27,2026-02-28T00:13:00Z,Detroit Pistons,Cleveland Cavaliers,-131.77518446512045,131.77518446512045,-2.5,2.5,-110,-110,226.5,-101.05152471083069,101.05152471083069,8,8,3,2,oddsapi_consensus
-2026-02-27,2026-02-28T00:40:00Z,Boston Celtics,Brooklyn Nets,-838.36052807737,838.3605280773698,-16.5,16.5,-115,-105,215.5,-103.80058728484477,103.80058728484481,11,11,3,4,oddsapi_consensus

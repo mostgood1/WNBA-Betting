@@ -1,7 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-01-12,2026-01-13T03:10:00Z,Sacramento Kings,Los Angeles Lakers,290.6363636363636,-368.27272727272725,9.5,-9.5,-110.25,-110,230.0,-109.5,-109.5,11,11,8,6,oddsapi_consensus
-2026-01-12,2026-01-13T03:40:00Z,Los Angeles Clippers,Charlotte Hornets,-192.45454545454547,161.0909090909091,-5.0,5.0,-108.0,235,223.5,-110.1,-109.3,11,11,6,10,oddsapi_consensus
-2026-01-12,2026-01-13T00:10:00Z,Cleveland Cavaliers,Utah Jazz,-578.6363636363636,421.09090909090907,-13.0,13.0,-111.0,-105,249.5,-109.5,-109.5,11,11,8,6,oddsapi_consensus
-2026-01-12,2026-01-13T00:40:00Z,Toronto Raptors,Philadelphia 76ers,127.27272727272727,-150.9090909090909,3.0,-3.0,-107.25,-240,220.0,-109.5,-109.5,11,11,8,6,oddsapi_consensus
-2026-01-12,2026-01-13T00:40:00Z,Indiana Pacers,Boston Celtics,168.63636363636363,-202.9090909090909,5.0,-5.0,-108.0,-115,227.0,-109.5,-109.5,11,11,6,6,oddsapi_consensus
-2026-01-12,2026-01-13T01:40:00Z,Dallas Mavericks,Brooklyn Nets,-167.45454545454547,140.72727272727272,-4.0,4.0,-108.75,180,219.5,-109.88888888888889,-109.44444444444444,11,11,8,9,oddsapi_consensus

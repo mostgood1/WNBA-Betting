@@ -1,7 +1,0 @@
-date,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,bookmaker
-2025-10-14,Cleveland Cavaliers,Detroit Pistons,2025-10-14T23:00:00+00:00,-185,160,-5.0,5.0,-105,-115,233.5,-110,-110,bovada
-2025-10-14,New Orleans Pelicans,Houston Rockets,2025-10-15T00:00:00+00:00,175,-210,5.0,-5.0,-105,-115,231.5,-110,-110,bovada
-2025-10-14,Milwaukee Bucks,Oklahoma City Thunder,2025-10-15T00:00:00+00:00,160,-185,5.0,-5.0,-115,-105,231.5,-110,-110,bovada
-2025-10-14,Denver Nuggets,Chicago Bulls,2025-10-15T01:00:00+00:00,-210,175,-5.5,5.5,-105,-115,232.5,-110,-110,bovada
-2025-10-14,Portland Trail Blazers,Golden State Warriors,2025-10-15T02:00:00+00:00,105,-125,2.0,-2.0,-110,-110,235.5,-110,-110,bovada
-2025-10-14,Phoenix Suns,Los Angeles Lakers,2025-10-15T02:00:00+00:00,265,-330,7.5,-7.5,-115,-105,224.5,-110,-110,bovada

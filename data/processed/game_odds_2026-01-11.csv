@@ -1,5 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-01-11,2026-01-12T01:11:00Z,Denver Nuggets,Milwaukee Bucks,-421.42857142857144,290.7142857142857,-4.5,4.5,-123.75,-180,212.5,-116.25,-113.75,7,7,4,4,oddsapi_consensus
-2026-01-11,2026-01-12T01:42:00Z,Golden State Warriors,Atlanta Hawks,127.57142857142857,-165.14285714285714,2.5,-2.5,-122.0,-110,228.5,-117.0,-111.5,7,7,3,4,oddsapi_consensus
-2026-01-11,2026-01-12T02:10:00Z,Sacramento Kings,Houston Rockets,247.14285714285714,-344.2857142857143,6.5,-6.5,-115.0,-110,205.5,-133.0,110.0,7,7,3,1,oddsapi_consensus
-2026-01-11,2026-01-12T01:11:00Z,Phoenix Suns,Washington Wizards,-10000.0,3300.0,-22.5,22.5,-115.6,-110,211.5,-115.0,-115.0,5,1,5,2,oddsapi_consensus

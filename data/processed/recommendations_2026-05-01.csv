@@ -1,4 +1,0 @@
-market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ATS,Orlando Magic,Orlando Magic,Detroit Pistons,2026-05-01,0.33497203889810623,-115.0,0.5348837209302325,6.783235654100012,3.5,3.283235654100012,-3.5,,High
-TOTAL,Over,Orlando Magic,Detroit Pistons,2026-05-01,0.6175283210670491,100.14146272457204,0.49964659315804366,13.940078976040468,209.5,,,223.44007897604047,High
-ML,Cleveland Cavaliers,Toronto Raptors,Cleveland Cavaliers,2026-05-01,0.025123472803083857,-155.159979560071,0.6080890107750714,,,,,,Medium

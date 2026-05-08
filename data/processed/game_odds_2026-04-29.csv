@@ -1,4 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-04-29,2026-04-30T02:10:00Z,Los Angeles Lakers,Houston Rockets,-161.73990831434662,161.73990831434662,-4.0,4.0,-115,-105,208.5,102.40324243662612,-102.40324243662612,10,10,6,5,oddsapi_consensus
-2026-04-29,2026-04-29T23:40:00Z,Cleveland Cavaliers,Toronto Raptors,-317.79034967241324,317.7903496724133,-9.0,9.0,-110,-110,216.5,-100.0,-100.0,10,10,6,8,oddsapi_consensus
-2026-04-29,2026-04-29T23:10:00Z,Detroit Pistons,Orlando Magic,-324.16107826201653,324.1610782620166,-10.0,10.0,-110,-110,211.5,100.38560906952534,-100.38560906952534,10,10,6,9,oddsapi_consensus

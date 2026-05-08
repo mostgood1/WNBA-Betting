@@ -1,5 +1,0 @@
-market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ATS,Minnesota Timberwolves,Minnesota Timberwolves,Denver Nuggets,2026-04-30,0.5115415455759532,-110.0,0.5238095238095238,9.75051260571892,5.5,4.25051260571892,-5.5,,High
-TOTAL,Over,Minnesota Timberwolves,Denver Nuggets,2026-04-30,0.02218857381156325,-100.0,0.5,0.4450054178814753,225.5,,,225.94500541788148,Low
-ATS,Boston Celtics,Philadelphia 76ers,Boston Celtics,2026-04-30,0.30440111534333547,-115.0,0.5348837209302325,-6.213662988088377,-6.0,-12.213662988088377,-6.0,,High
-TOTAL,Over,Philadelphia 76ers,Boston Celtics,2026-04-30,0.19455364714643686,-100.38580991145663,0.5009626677448545,3.988433756097521,212.5,,,216.48843375609752,Medium

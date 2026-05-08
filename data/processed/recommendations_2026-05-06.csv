@@ -1,5 +1,0 @@
-market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ATS,New York Knicks,New York Knicks,Philadelphia 76ers,2026-05-06,0.14205574774391705,-115.0,0.5348837209302325,3.37895426241343,-7.0,10.37895426241343,7.0,,High
-TOTAL,Over,New York Knicks,Philadelphia 76ers,2026-05-06,0.2991983634041542,-100.0,0.5,6.147817055920029,215.0,,,221.14781705592003,High
-ATS,Minnesota Timberwolves,San Antonio Spurs,Minnesota Timberwolves,2026-05-06,0.7002820911813304,-115.0,0.5348837209302325,-16.04874584134467,9.5,-6.54874584134467,9.5,,High
-TOTAL,Over,San Antonio Spurs,Minnesota Timberwolves,2026-05-06,0.42946337112235256,-100.0,0.5,9.076181671640228,215.5,,,224.57618167164023,High

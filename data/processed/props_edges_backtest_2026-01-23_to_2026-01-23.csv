@@ -1,6 +1,0 @@
-date,player_id,player_name,team,stat,side,line,price,bookmaker,edge,ev,actual,result,profit,home_team,away_team,commence_time
-2026-01-23,1630174.0,Aaron Nesmith,IND,threes,UNDER,1.5,205,bovada,0.1965007211307785,0.5993271994488742,3.0,L,-1.0,Oklahoma City Thunder,Indiana Pacers,2026-01-24T01:10:00Z
-2026-01-23,1630700.0,Dyson Daniels,ATL,threes,OVER,0.5,230,betmgm,0.1957265573287308,0.6458976391848118,0.0,L,-1.0,Atlanta Hawks,Phoenix Suns,2026-01-24T00:40:00Z
-2026-01-23,1629111.0,Jock Landale,MEM,threes,OVER,1.5,196,fanduel,0.1805637242586921,0.5344686238057287,2.0,W,1.96,Memphis Grizzlies,New Orleans Pelicans,2026-01-24T01:10:00Z
-2026-01-23,202685.0,Jonas Valanciunas,DEN,threes,OVER,0.5,340,betmgm,0.1772772991169085,0.7800201161143976,,,,Milwaukee Bucks,Denver Nuggets,2026-01-24T02:40:00Z
-2026-01-23,1642875.0,Maxime Raynaud,SAC,threes,OVER,0.5,280,betmgm,0.1766715204220514,0.6713517776037952,0.0,L,-1.0,Cleveland Cavaliers,Sacramento Kings,2026-01-24T00:40:00Z

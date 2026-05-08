@@ -1,3 +1,0 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-04-17,2026-04-18T02:10:00Z,Phoenix Suns,Golden State Warriors,-140.27868880283742,140.27868880283742,-3.5,3.5,-245,180,220.0,-101.87170282895816,101.87170282895816,11,11,7,5,oddsapi_consensus
-2026-04-17,2026-04-17T23:40:00Z,Orlando Magic,Charlotte Hornets,145.78276213066636,-145.7827621306664,3.5,-3.5,-105,-115,218.5,100.67073815618018,-100.67073815618014,11,11,9,11,oddsapi_consensus

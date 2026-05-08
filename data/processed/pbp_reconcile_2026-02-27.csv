@@ -1,6 +1,0 @@
-date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
-2026-02-27,0022500858,DET,CLE,0.5,,,,Cade Cunningham,0.115455042707499,,,,,1.1537646159447192,0.6845530055236939,,,
-2026-02-27,0022500859,BOS,BKN,0.5,,,,Derrick White,0.1176880395305322,,,,,1.333675199290376,0.736492961370318,,,
-2026-02-27,0022500860,MIL,NYK,0.5,,,,Jalen Brunson,0.1095120166008022,,,,,1.2508443728458651,0.7137370179052108,,,
-2026-02-27,0022500861,DAL,MEM,0.5,,,,Cooper Flagg,0.1153382559751058,,,,,1.1299659241678677,0.6769557357631789,,,
-2026-02-27,0022500862,OKC,DEN,0.5,,,,Jamal Murray,0.1132937943061518,,,,,1.1769133068129132,0.6917713208766498,,,
