@@ -1,0 +1,43 @@
+{
+  "date": "2026-05-08",
+  "rows_league_status": 230,
+  "rows_slate": 95,
+  "rows_expected_dressed": 95,
+  "min_dressed_per_team": 8,
+  "min_total_roster_per_team": 10,
+  "team_counts": {
+    "CON": {
+      "roster_rows": 15,
+      "expected_dressed_rows": 15,
+      "explicit_excluded_rows": 0
+    },
+    "GSV": {
+      "roster_rows": 14,
+      "expected_dressed_rows": 14,
+      "explicit_excluded_rows": 0
+    },
+    "NYL": {
+      "roster_rows": 21,
+      "expected_dressed_rows": 21,
+      "explicit_excluded_rows": 0
+    },
+    "SEA": {
+      "roster_rows": 15,
+      "expected_dressed_rows": 15,
+      "explicit_excluded_rows": 0
+    },
+    "TOR": {
+      "roster_rows": 17,
+      "expected_dressed_rows": 17,
+      "explicit_excluded_rows": 0
+    },
+    "WSH": {
+      "roster_rows": 13,
+      "expected_dressed_rows": 13,
+      "explicit_excluded_rows": 0
+    }
+  },
+  "issues": [],
+  "warnings": [],
+  "ok": true
+}

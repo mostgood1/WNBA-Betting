@@ -1,0 +1,1110 @@
+{
+  "date": "2026-05-08",
+  "players": [
+    {
+      "id": 1054,
+      "name": "Tiffany Hayes",
+      "team": "GSV",
+      "predictions": {
+        "pts": 4.1869392,
+        "reb": 1.5562586,
+        "ast": 1.4478799,
+        "threes": 0.5383475,
+        "pra": 7.191079
+      }
+    },
+    {
+      "id": 1107,
+      "name": "Shey Peddy",
+      "team": "CON",
+      "predictions": {
+        "pts": 2.3803158,
+        "reb": 1.0457858,
+        "ast": 0.6513758,
+        "threes": 0.29199663,
+        "pra": 4.0774775
+      }
+    },
+    {
+      "id": 2327695,
+      "name": "Rebekah Gardner",
+      "team": "NYL",
+      "predictions": {
+        "pts": 5.4801264,
+        "reb": 2.250688,
+        "ast": 1.1484376,
+        "threes": 0.65417826,
+        "pra": 8.879252
+      }
+    },
+    {
+      "id": 2490553,
+      "name": "Brittney Griner",
+      "team": "CON",
+      "predictions": {
+        "pts": 9.189534,
+        "reb": 4.041136,
+        "ast": 1.6051574,
+        "threes": 0.13645983,
+        "pra": 14.835829
+      }
+    },
+    {
+      "id": 2529183,
+      "name": "Stefanie Dolson",
+      "team": "SEA",
+      "predictions": {
+        "pts": 4.055758,
+        "reb": 2.5582118,
+        "ast": 0.86174244,
+        "threes": 0.43571043,
+        "pra": 7.475712
+      }
+    },
+    {
+      "id": 2529622,
+      "name": "Kayla Thornton",
+      "team": "GSV",
+      "predictions": {
+        "pts": 4.79405,
+        "reb": 1.9367678,
+        "ast": 0.8469974,
+        "threes": 0.63414377,
+        "pra": 7.577816
+      }
+    },
+    {
+      "id": 2566453,
+      "name": "Isabelle Harrison",
+      "team": "TOR",
+      "predictions": {
+        "pts": 1.8571253,
+        "reb": 0.9948361,
+        "ast": 0.120355904,
+        "threes": 0.07294956,
+        "pra": 2.9723172
+      }
+    },
+    {
+      "id": 2569044,
+      "name": "Temi Fagbenle",
+      "team": "TOR",
+      "predictions": {
+        "pts": 6.0311985,
+        "reb": 3.8683257,
+        "ast": 1.5634454,
+        "threes": 0.3355264,
+        "pra": 11.462969
+      }
+    },
+    {
+      "id": 2590093,
+      "name": "Kiah Stokes",
+      "team": "GSV",
+      "predictions": {
+        "pts": 3.2908146,
+        "reb": 2.0018532,
+        "ast": 0.38914344,
+        "threes": 0.30306622,
+        "pra": 5.681812
+      }
+    },
+    {
+      "id": 2593770,
+      "name": "Betnijah Laney-Hamilton",
+      "team": "NYL",
+      "predictions": {
+        "pts": 4.938463,
+        "reb": 1.4958543,
+        "ast": 1.4155014,
+        "threes": 0.47325286,
+        "pra": 7.849819
+      }
+    },
+    {
+      "id": 2988756,
+      "name": "Brittney Sykes",
+      "team": "TOR",
+      "predictions": {
+        "pts": 4.0689387,
+        "reb": 1.5608974,
+        "ast": 0.73400384,
+        "threes": 0.11103222,
+        "pra": 6.3638406
+      }
+    },
+    {
+      "id": 2998928,
+      "name": "Breanna Stewart",
+      "team": "NYL",
+      "predictions": {
+        "pts": 12.029782,
+        "reb": 4.78271,
+        "ast": 1.6744237,
+        "threes": 0.66957384,
+        "pra": 18.486917
+      }
+    },
+    {
+      "id": 2999101,
+      "name": "Jonquel Jones",
+      "team": "NYL",
+      "predictions": {
+        "pts": 5.223399,
+        "reb": 5.3375845,
+        "ast": 1.558742,
+        "threes": 0.3755961,
+        "pra": 12.119724
+      }
+    },
+    {
+      "id": 3058892,
+      "name": "Lexie Brown",
+      "team": "SEA",
+      "predictions": {
+        "pts": 6.3057737,
+        "reb": 2.7911692,
+        "ast": 1.1555332,
+        "threes": 0.73153,
+        "pra": 10.252476
+      }
+    },
+    {
+      "id": 3102133,
+      "name": "Rebecca Allen",
+      "team": "NYL",
+      "predictions": {
+        "pts": 1.9322699,
+        "reb": 1.3018944,
+        "ast": 0.45753884,
+        "threes": 0.28876147,
+        "pra": 3.6917038
+      }
+    },
+    {
+      "id": 3142327,
+      "name": "Kia Nurse",
+      "team": "TOR",
+      "predictions": {
+        "pts": 8.259321,
+        "reb": 1.9737153,
+        "ast": 1.1960608,
+        "threes": 1.6948645,
+        "pra": 11.429098
+      }
+    },
+    {
+      "id": 3142328,
+      "name": "Gabby Williams",
+      "team": "GSV",
+      "predictions": {
+        "pts": 4.842986,
+        "reb": 1.9030464,
+        "ast": 1.1175315,
+        "threes": 0.39639246,
+        "pra": 7.863564
+      }
+    },
+    {
+      "id": 3904576,
+      "name": "Marina Mabrey",
+      "team": "TOR",
+      "predictions": {
+        "pts": 7.8435774,
+        "reb": 1.3768682,
+        "ast": 2.1290224,
+        "threes": 1.1016848,
+        "pra": 11.34947
+      }
+    },
+    {
+      "id": 3906753,
+      "name": "Natisha Hiedeman",
+      "team": "SEA",
+      "predictions": {
+        "pts": 6.5504966,
+        "reb": 1.778754,
+        "ast": 2.4014792,
+        "threes": 0.62684053,
+        "pra": 10.73073
+      }
+    },
+    {
+      "id": 3910470,
+      "name": "Maria Conde",
+      "team": "TOR",
+      "predictions": {
+        "pts": 2.8114533,
+        "reb": 1.2159617,
+        "ast": 0.652334,
+        "threes": 0.233214,
+        "pra": 4.679749
+      }
+    },
+    {
+      "id": 3917453,
+      "name": "Katie Lou Samuelson",
+      "team": "SEA",
+      "predictions": {
+        "pts": 2.4479892,
+        "reb": 1.0567348,
+        "ast": 0.49072433,
+        "threes": 0.19278525,
+        "pra": 3.9954486
+      }
+    },
+    {
+      "id": 3920741,
+      "name": "Kitija Laksa",
+      "team": "TOR",
+      "predictions": {
+        "pts": 2.032559,
+        "reb": 0.94193316,
+        "ast": 0.27862322,
+        "threes": 0.18490995,
+        "pra": 3.2531147
+      }
+    },
+    {
+      "id": 3922628,
+      "name": "Kennedy Burke",
+      "team": "CON",
+      "predictions": {
+        "pts": 6.548362,
+        "reb": 2.3843045,
+        "ast": 1.6065605,
+        "threes": 0.9647106,
+        "pra": 10.539227
+      }
+    },
+    {
+      "id": 4001679,
+      "name": "Julie Allemand",
+      "team": "TOR",
+      "predictions": {
+        "pts": 1.8617674,
+        "reb": 1.3510656,
+        "ast": 2.4815726,
+        "threes": 0.52336776,
+        "pra": 5.6944065
+      }
+    },
+    {
+      "id": 4038379,
+      "name": "Marine Johannes",
+      "team": "NYL",
+      "predictions": {
+        "pts": 0.28201342,
+        "reb": -0.3692633,
+        "ast": 0.13978755,
+        "threes": 0.30466866,
+        "pra": 0.05253744
+      }
+    },
+    {
+      "id": 4065780,
+      "name": "Kaila Charles",
+      "team": "GSV",
+      "predictions": {
+        "pts": 3.6197882,
+        "reb": 3.2605038,
+        "ast": 0.37275144,
+        "threes": 0.18543926,
+        "pra": 7.253045
+      }
+    },
+    {
+      "id": 4066527,
+      "name": "Jaelyn Brown",
+      "team": "SEA",
+      "predictions": {
+        "pts": 4.52771,
+        "reb": 1.7019632,
+        "ast": 0.54137933,
+        "threes": 0.52629447,
+        "pra": 6.7710533
+      }
+    },
+    {
+      "id": 4066533,
+      "name": "Sabrina Ionescu",
+      "team": "NYL",
+      "predictions": {
+        "pts": 8.055178,
+        "reb": 3.08878,
+        "ast": 3.793972,
+        "threes": 1.1385517,
+        "pra": 14.937932
+      }
+    },
+    {
+      "id": 4257500,
+      "name": "Cecilia Zandalasini",
+      "team": "GSV",
+      "predictions": {
+        "pts": 5.321206,
+        "reb": 2.039169,
+        "ast": 0.75522655,
+        "threes": 0.6872865,
+        "pra": 8.1156025
+      }
+    },
+    {
+      "id": 4280888,
+      "name": "Rennia Davis",
+      "team": "SEA",
+      "predictions": {
+        "pts": 5.656156,
+        "reb": 3.1524272,
+        "ast": 0.6716716,
+        "threes": 0.19377066,
+        "pra": 9.480256
+      }
+    },
+    {
+      "id": 4281929,
+      "name": "Satou Sabally",
+      "team": "NYL",
+      "predictions": {
+        "pts": 8.211315,
+        "reb": 2.6728652,
+        "ast": 0.29977515,
+        "threes": 1.1400015,
+        "pra": 11.183956
+      }
+    },
+    {
+      "id": 4281930,
+      "name": "Anneli Maley",
+      "team": "NYL",
+      "predictions": {
+        "pts": 14.78641,
+        "reb": 6.064679,
+        "ast": 3.2029965,
+        "threes": 0.61864555,
+        "pra": 24.054081
+      }
+    },
+    {
+      "id": 4282173,
+      "name": "Michaela Onyenwere",
+      "team": "WSH",
+      "predictions": {
+        "pts": 4.7501307,
+        "reb": 1.2422574,
+        "ast": 0.55629003,
+        "threes": 0.33828506,
+        "pra": 6.548678
+      }
+    },
+    {
+      "id": 4337216,
+      "name": "Han Xu",
+      "team": "NYL",
+      "predictions": {
+        "pts": 17.267704,
+        "reb": 3.4741554,
+        "ast": 1.9824424,
+        "threes": 1.466886,
+        "pra": 22.7243
+      }
+    },
+    {
+      "id": 4398768,
+      "name": "Nyara Sabally",
+      "team": "TOR",
+      "predictions": {
+        "pts": 4.0197654,
+        "reb": 1.7315825,
+        "ast": 0.7436334,
+        "threes": 0.3170779,
+        "pra": 6.494981
+      }
+    },
+    {
+      "id": 4398907,
+      "name": "Kate Martin",
+      "team": "GSV",
+      "predictions": {
+        "pts": 7.5886345,
+        "reb": 3.6056106,
+        "ast": 1.5293448,
+        "threes": 1.2595716,
+        "pra": 12.723591
+      }
+    },
+    {
+      "id": 4398911,
+      "name": "Shakira Austin",
+      "team": "WSH",
+      "predictions": {
+        "pts": 7.1868105,
+        "reb": 3.6654572,
+        "ast": 0.5428138,
+        "threes": -0.13583261,
+        "pra": 11.39508
+      }
+    },
+    {
+      "id": 4398935,
+      "name": "Veronica Burton",
+      "team": "GSV",
+      "predictions": {
+        "pts": 10.604833,
+        "reb": 3.2743828,
+        "ast": 5.480052,
+        "threes": 1.2187222,
+        "pra": 19.359268
+      }
+    },
+    {
+      "id": 4398966,
+      "name": "Olivia Nelson-Ododa",
+      "team": "CON",
+      "predictions": {
+        "pts": 4.797472,
+        "reb": 2.5760045,
+        "ast": 0.53524387,
+        "threes": 0.15724416,
+        "pra": 7.908721
+      }
+    },
+    {
+      "id": 4399342,
+      "name": "Lexi Held",
+      "team": "TOR",
+      "predictions": {
+        "pts": 5.660612,
+        "reb": 2.0860708,
+        "ast": 1.2436442,
+        "threes": 0.84797263,
+        "pra": 8.990328
+      }
+    },
+    {
+      "id": 4420318,
+      "name": "Ezi Magbegor",
+      "team": "SEA",
+      "predictions": {
+        "pts": 0.01599145,
+        "reb": 2.507743,
+        "ast": 0.33829373,
+        "threes": -0.21328786,
+        "pra": 2.8620293
+      }
+    },
+    {
+      "id": 4432830,
+      "name": "Jordan Horston",
+      "team": "SEA",
+      "predictions": {
+        "pts": 2.6502428,
+        "reb": 1.1446362,
+        "ast": 0.6250464,
+        "threes": 0.2178269,
+        "pra": 4.4199257
+      }
+    },
+    {
+      "id": 4432832,
+      "name": "Zia Cooke",
+      "team": "SEA",
+      "predictions": {
+        "pts": 6.573516,
+        "reb": 1.8132215,
+        "ast": 1.1272264,
+        "threes": 0.81046116,
+        "pra": 9.513964
+      }
+    },
+    {
+      "id": 4432834,
+      "name": "Laeticia Amihere",
+      "team": "GSV",
+      "predictions": {
+        "pts": 4.6602697,
+        "reb": 3.0426617,
+        "ast": 0.79574907,
+        "threes": 0.25079504,
+        "pra": 8.498681
+      }
+    },
+    {
+      "id": 4433408,
+      "name": "Aaliyah Edwards",
+      "team": "CON",
+      "predictions": {
+        "pts": 5.7355795,
+        "reb": 4.2289886,
+        "ast": 0.60962766,
+        "threes": 0.040142015,
+        "pra": 10.574196
+      }
+    },
+    {
+      "id": 4433411,
+      "name": "Angela Dugalic",
+      "team": "WSH",
+      "predictions": {
+        "pts": 6.72483,
+        "reb": 4.7109213,
+        "ast": 0.31286162,
+        "threes": 0.5292132,
+        "pra": 11.748613
+      }
+    },
+    {
+      "id": 4433413,
+      "name": "Madison Hayes",
+      "team": "CON",
+      "predictions": {
+        "pts": 3.1121519,
+        "reb": 1.4056404,
+        "ast": 1.1980268,
+        "threes": 0.60657835,
+        "pra": 5.7158194
+      }
+    },
+    {
+      "id": 4433514,
+      "name": "Saniya Rivers",
+      "team": "CON",
+      "predictions": {
+        "pts": 8.227208,
+        "reb": 2.3260717,
+        "ast": 2.2174766,
+        "threes": 1.156707,
+        "pra": 12.770756
+      }
+    },
+    {
+      "id": 4433523,
+      "name": "Rori Harmon",
+      "team": "WSH",
+      "predictions": {
+        "pts": 3.1925588,
+        "reb": 1.8498052,
+        "ast": 1.1663619,
+        "threes": -0.23793739,
+        "pra": 6.2087255
+      }
+    },
+    {
+      "id": 4433524,
+      "name": "Sonia Citron",
+      "team": "WSH",
+      "predictions": {
+        "pts": 9.766003,
+        "reb": 2.5549126,
+        "ast": 1.7545693,
+        "threes": 1.1511301,
+        "pra": 14.075485
+      }
+    },
+    {
+      "id": 4433635,
+      "name": "Diamond Miller",
+      "team": "CON",
+      "predictions": {
+        "pts": 6.9492216,
+        "reb": 2.9271708,
+        "ast": 1.5989511,
+        "threes": 0.72896063,
+        "pra": 11.475344
+      }
+    },
+    {
+      "id": 4433643,
+      "name": "Mackenzie Holmes",
+      "team": "SEA",
+      "predictions": {
+        "pts": 5.7626247,
+        "reb": 3.2034688,
+        "ast": 0.81827545,
+        "threes": 0.40362525,
+        "pra": 9.7843685
+      }
+    },
+    {
+      "id": 4433744,
+      "name": "Ugonne Onyiah",
+      "team": "NYL",
+      "predictions": {
+        "pts": 2.7839966,
+        "reb": 1.2001749,
+        "ast": 0.6473998,
+        "threes": 0.23226131,
+        "pra": 4.6315713
+      }
+    },
+    {
+      "id": 4433798,
+      "name": "Taylor Bigby",
+      "team": "CON",
+      "predictions": {
+        "pts": 4.4314694,
+        "reb": 1.981159,
+        "ast": 1.2023706,
+        "threes": 0.59477377,
+        "pra": 7.6149993
+      }
+    },
+    {
+      "id": 4433815,
+      "name": "Lucy Olsen",
+      "team": "WSH",
+      "predictions": {
+        "pts": 7.450242,
+        "reb": 3.1213217,
+        "ast": 1.6091083,
+        "threes": 0.8611344,
+        "pra": 12.180672
+      }
+    },
+    {
+      "id": 4434020,
+      "name": "Teonni Key",
+      "team": "TOR",
+      "predictions": {
+        "pts": 1.8405931,
+        "reb": 1.7902732,
+        "ast": 0.26359585,
+        "threes": 0.44533977,
+        "pra": 3.8944616
+      }
+    },
+    {
+      "id": 4565505,
+      "name": "Kiki Rice",
+      "team": "TOR",
+      "predictions": {
+        "pts": 6.867342,
+        "reb": 1.5794642,
+        "ast": 2.243036,
+        "threes": 0.48177636,
+        "pra": 10.689841
+      }
+    },
+    {
+      "id": 4583144,
+      "name": "Cotie McMahon",
+      "team": "WSH",
+      "predictions": {
+        "pts": 11.704544,
+        "reb": 3.8554049,
+        "ast": 2.123927,
+        "threes": 0.97381246,
+        "pra": 17.683876
+      }
+    },
+    {
+      "id": 4595823,
+      "name": "Alex Fowler",
+      "team": "NYL",
+      "predictions": {
+        "pts": 9.323716,
+        "reb": 5.394352,
+        "ast": 1.204403,
+        "threes": 0.15207195,
+        "pra": 15.922471
+      }
+    },
+    {
+      "id": 4597509,
+      "name": "Aaliyah Nye",
+      "team": "TOR",
+      "predictions": {
+        "pts": 3.3470373,
+        "reb": 1.4098964,
+        "ast": 0.82619196,
+        "threes": 0.4759553,
+        "pra": 5.5831256
+      }
+    },
+    {
+      "id": 4683006,
+      "name": "Leonie Fiebich",
+      "team": "NYL",
+      "predictions": {
+        "pts": 1.7556092,
+        "reb": 1.160982,
+        "ast": 0.037620902,
+        "threes": 0.61810994,
+        "pra": 2.9542117
+      }
+    },
+    {
+      "id": 4684384,
+      "name": "Aneesah Morrow",
+      "team": "CON",
+      "predictions": {
+        "pts": 10.789757,
+        "reb": 8.239254,
+        "ast": 0.291392,
+        "threes": 0.5577367,
+        "pra": 19.3204
+      }
+    },
+    {
+      "id": 4698736,
+      "name": "Flau'jae Johnson",
+      "team": "SEA",
+      "predictions": {
+        "pts": 12.652489,
+        "reb": 3.8559246,
+        "ast": 0.58163947,
+        "threes": 1.389267,
+        "pra": 17.090057
+      }
+    },
+    {
+      "id": 4703579,
+      "name": "Derin Erdogan",
+      "team": "NYL",
+      "predictions": {
+        "pts": 11.119183,
+        "reb": 1.7058682,
+        "ast": 1.7384291,
+        "threes": 0.98593044,
+        "pra": 14.563481
+      }
+    },
+    {
+      "id": 4703609,
+      "name": "Charlisse Leger-Walker",
+      "team": "CON",
+      "predictions": {
+        "pts": 8.221442,
+        "reb": 2.622291,
+        "ast": 3.8683195,
+        "threes": 0.3017468,
+        "pra": 14.712054
+      }
+    },
+    {
+      "id": 4704180,
+      "name": "Georgia Amoore",
+      "team": "WSH",
+      "predictions": {
+        "pts": 4.4645185,
+        "reb": 1.8622067,
+        "ast": 1.1139191,
+        "threes": 0.57846963,
+        "pra": 7.440644
+      }
+    },
+    {
+      "id": 4790258,
+      "name": "Raquel Carrera",
+      "team": "NYL",
+      "predictions": {
+        "pts": 2.7839966,
+        "reb": 1.2001749,
+        "ast": 0.6473998,
+        "threes": 0.23226131,
+        "pra": 4.6315713
+      }
+    },
+    {
+      "id": 4790260,
+      "name": "Marine Fauthoux",
+      "team": "NYL",
+      "predictions": {
+        "pts": 2.7839966,
+        "reb": 1.2001749,
+        "ast": 0.6473998,
+        "threes": 0.23226131,
+        "pra": 4.6315713
+      }
+    },
+    {
+      "id": 4790263,
+      "name": "Iliana Rupert",
+      "team": "GSV",
+      "predictions": {
+        "pts": 2.659187,
+        "reb": 2.0586505,
+        "ast": 0.760382,
+        "threes": 0.7301279,
+        "pra": 5.4782195
+      }
+    },
+    {
+      "id": 4790264,
+      "name": "Janelle Salaun",
+      "team": "GSV",
+      "predictions": {
+        "pts": 5.551282,
+        "reb": 2.9072177,
+        "ast": -0.104007185,
+        "threes": 1.032832,
+        "pra": 8.354494
+      }
+    },
+    {
+      "id": 4874475,
+      "name": "Nikolina Milic",
+      "team": "TOR",
+      "predictions": {
+        "pts": 2.8163865,
+        "reb": 1.2181056,
+        "ast": 0.6556101,
+        "threes": 0.23382477,
+        "pra": 4.690102
+      }
+    },
+    {
+      "id": 4898384,
+      "name": "Kiki Iriafen",
+      "team": "WSH",
+      "predictions": {
+        "pts": 9.217631,
+        "reb": 5.0503616,
+        "ast": 0.2652714,
+        "threes": -0.049945146,
+        "pra": 14.533265
+      }
+    },
+    {
+      "id": 4898898,
+      "name": "Gianna Kneepkens",
+      "team": "CON",
+      "predictions": {
+        "pts": 5.3685102,
+        "reb": 2.4285164,
+        "ast": 0.022739708,
+        "threes": 0.7313561,
+        "pra": 7.819767
+      }
+    },
+    {
+      "id": 4899328,
+      "name": "Kaitlyn Chen",
+      "team": "GSV",
+      "predictions": {
+        "pts": 6.1125507,
+        "reb": 2.173779,
+        "ast": 1.4901991,
+        "threes": 0.35655737,
+        "pra": 9.776528
+      }
+    },
+    {
+      "id": 5017726,
+      "name": "Jade Melbourne",
+      "team": "SEA",
+      "predictions": {
+        "pts": 5.235771,
+        "reb": 1.7896278,
+        "ast": 2.8221943,
+        "threes": 0.60262996,
+        "pra": 9.847593
+      }
+    },
+    {
+      "id": 5105731,
+      "name": "Grace VanSlooten",
+      "team": "SEA",
+      "predictions": {
+        "pts": 2.3529785,
+        "reb": 2.0103145,
+        "ast": 0.29213384,
+        "threes": 0.15457016,
+        "pra": 4.6554275
+      }
+    },
+    {
+      "id": 5105732,
+      "name": "Raegan Beers",
+      "team": "CON",
+      "predictions": {
+        "pts": 4.7742896,
+        "reb": 4.873355,
+        "ast": 1.8178871,
+        "threes": 0.114941835,
+        "pra": 11.465532
+      }
+    },
+    {
+      "id": 5105737,
+      "name": "Lauren Betts",
+      "team": "WSH",
+      "predictions": {
+        "pts": 13.222236,
+        "reb": 4.999507,
+        "ast": 1.1957629,
+        "threes": 0.5403565,
+        "pra": 19.41751
+      }
+    },
+    {
+      "id": 5106145,
+      "name": "Darianna Littlepage-Buggs",
+      "team": "WSH",
+      "predictions": {
+        "pts": 6.36605,
+        "reb": 2.9191556,
+        "ast": 0.42849925,
+        "threes": 0.5512785,
+        "pra": 9.713704
+      }
+    },
+    {
+      "id": 5107752,
+      "name": "Charlise Dunn",
+      "team": "TOR",
+      "predictions": {
+        "pts": 2.8163865,
+        "reb": 1.2181056,
+        "ast": 0.6556101,
+        "threes": 0.23382477,
+        "pra": 4.690102
+      }
+    },
+    {
+      "id": 5122345,
+      "name": "Cassandre Prosper",
+      "team": "WSH",
+      "predictions": {
+        "pts": 9.674694,
+        "reb": 4.52038,
+        "ast": 1.8196092,
+        "threes": 0.34037194,
+        "pra": 16.014687
+      }
+    },
+    {
+      "id": 5208981,
+      "name": "Leila Lacan",
+      "team": "CON",
+      "predictions": {
+        "pts": 5.526417,
+        "reb": 1.1755297,
+        "ast": 1.6078832,
+        "threes": 0.23517504,
+        "pra": 8.30983
+      }
+    },
+    {
+      "id": 5220150,
+      "name": "Dominique Malonga",
+      "team": "SEA",
+      "predictions": {
+        "pts": 9.179991,
+        "reb": 6.365534,
+        "ast": 0.6991507,
+        "threes": 0.08808936,
+        "pra": 16.244675
+      }
+    },
+    {
+      "id": 5277552,
+      "name": "Juste Jocyte",
+      "team": "GSV",
+      "predictions": {
+        "pts": 2.7741306,
+        "reb": 1.1958871,
+        "ast": 0.64084744,
+        "threes": 0.23103976,
+        "pra": 4.610865
+      }
+    },
+    {
+      "id": 5278157,
+      "name": "Alex Wilson",
+      "team": "WSH",
+      "predictions": {
+        "pts": 2.9362116,
+        "reb": 1.178664,
+        "ast": 0.5343157,
+        "threes": 0.4228497,
+        "pra": 4.6491914
+      }
+    },
+    {
+      "id": 5278238,
+      "name": "Annika Soltau",
+      "team": "NYL",
+      "predictions": {
+        "pts": 0.58884573,
+        "reb": -0.032951355,
+        "ast": 0.07738584,
+        "threes": 0.13390635,
+        "pra": 0.6332798
+      }
+    },
+    {
+      "id": 5345319,
+      "name": "Nell Angloma",
+      "team": "CON",
+      "predictions": {
+        "pts": 2.8163865,
+        "reb": 1.2181056,
+        "ast": 0.6556101,
+        "threes": 0.23382477,
+        "pra": 4.690102
+      }
+    },
+    {
+      "id": 5345320,
+      "name": "Pauline Astier",
+      "team": "NYL",
+      "predictions": {
+        "pts": 2.7839966,
+        "reb": 1.2001749,
+        "ast": 0.6473998,
+        "threes": 0.23226131,
+        "pra": 4.6315713
+      }
+    },
+    {
+      "id": 5345325,
+      "name": "Awa Fam",
+      "team": "SEA",
+      "predictions": {
+        "pts": 2.6502428,
+        "reb": 1.1446362,
+        "ast": 0.6250464,
+        "threes": 0.2178269,
+        "pra": 4.4199257
+      }
+    },
+    {
+      "id": 5345334,
+      "name": "Saffron Shiels",
+      "team": "TOR",
+      "predictions": {
+        "pts": 2.8163865,
+        "reb": 1.2181056,
+        "ast": 0.6556101,
+        "threes": 0.23382477,
+        "pra": 4.690102
+      }
+    },
+    {
+      "id": 5345336,
+      "name": "Kokoro Tanaka",
+      "team": "GSV",
+      "predictions": {
+        "pts": 2.7839966,
+        "reb": 1.2001749,
+        "ast": 0.6473998,
+        "threes": 0.23226131,
+        "pra": 4.6315713
+      }
+    },
+    {
+      "id": 5345444,
+      "name": "Laura Juskaite",
+      "team": "TOR",
+      "predictions": {
+        "pts": 11.06122,
+        "reb": 4.498183,
+        "ast": 2.1558006,
+        "threes": 0.21532947,
+        "pra": 17.715202
+      }
+    }
+  ],
+  "last_updated": "2026-05-08T13:15:03.465213"
+}

@@ -1,0 +1,16 @@
+{
+  "start": "2026-05-08",
+  "end": "2026-05-08",
+  "processed": "C:\\Users\\mostg\\OneDrive\\Coding\\WNBA-Betting\\data\\processed",
+  "ok_days": 0,
+  "days": 1,
+  "ran_at": "2026-05-08T16:50:31Z",
+  "results": [
+    {
+      "date": "2026-05-08",
+      "status": "skip_no_minutes_col",
+      "props": "C:\\Users\\mostg\\OneDrive\\Coding\\WNBA-Betting\\data\\processed\\props_predictions_2026-05-08.csv",
+      "out": "C:\\Users\\mostg\\OneDrive\\Coding\\WNBA-Betting\\data\\processed\\pregame_expected_minutes_2026-05-08.csv"
+    }
+  ]
+}
