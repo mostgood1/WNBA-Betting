@@ -1,21 +1,21 @@
-name: NBA Betting Pregame Props Refresh
+name: WNBA Betting Pregame Props Refresh
 
 on:
   workflow_dispatch: {}
   schedule:
     # Run hourly all day so overnight / early-morning windows do not go dark.
     - cron: "7 * * * *"
-    # Add extra 20-minute refreshes during likely NBA windows (UTC).
+    # Add extra 20-minute refreshes during likely WNBA slate windows (UTC).
     - cron: "27,47 15-23 * * *"
     - cron: "27,47 0-3 * * *"
 
 concurrency:
-  group: nbabetting-pregame-props-refresh
+  group: wnbabetting-pregame-props-refresh
   cancel-in-progress: false
 
 env:
-  WNBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.WNBA_BETTING_BASE_URL || secrets.NBA_BETTING_BASE_URL }}
-  WNBA_BETTING_CRON_TOKEN: ${{ secrets.CRON_TOKEN || secrets.WNBA_BETTING_CRON_TOKEN || secrets.NBA_BETTING_CRON_TOKEN }}
+  WNBA_BETTING_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL || secrets.RENDER_URL }}
+  WNBA_BETTING_CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN || secrets.CRON_TOKEN }}
 
 jobs:
   refresh-oddsapi-props-pregame:

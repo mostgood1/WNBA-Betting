@@ -27,7 +27,7 @@ ensure_pkg <- function(pkg, gh = NULL){
   }
 }
 
-# Prefer hoopR for PBP (more stable), then fallback to nbastatR if needed
+# Prefer hoopR for WNBA PBP (more stable), then fallback to nbastatR if needed
 has_hoopr <- requireNamespace("hoopR", quietly = TRUE)
 has_nbastatr <- requireNamespace("nbastatR", quietly = TRUE)
 if (!has_hoopr && !has_nbastatr){
@@ -115,10 +115,10 @@ fetch_one_date <- function(d){
   ymd <- format(as.Date(d), "%Y-%m-%d")
   message(sprintf("Fetching PBP for %s", ymd))
   if (has_hoopr){
-    # hoopR approach: get schedule for the season, filter by date, then fetch PBP per game id
+    # hoopR approach: get the WNBA schedule for the season, filter by date, then fetch PBP per game id
     suppressPackageStartupMessages(library(hoopR))
     season <- unique(lubridate::year(d) + (lubridate::month(d) >= 7))
-    sched <- tryCatch({ hoopR::nba_schedule(seasons = season) }, error=function(e) NULL)
+    sched <- tryCatch({ hoopR::wnba_schedule(seasons = season) }, error=function(e) NULL)
     if (!is.null(sched) && nrow(sched) > 0){
       # Find a date column and normalize to Date
       date_col <- intersect(c("game_date","gamedate","dateGame","gameDate","game_date_time"), names(sched))
@@ -149,7 +149,7 @@ fetch_one_date <- function(d){
           pbp_list <- list()
           for (gid in gids){
             if (is.na(gid) || gid == "") next
-            pbp_g <- tryCatch({ hoopR::nba_pbp(game_id = gid) }, error=function(e) NULL)
+            pbp_g <- tryCatch({ hoopR::wnba_pbp(game_id = gid) }, error=function(e) NULL)
             if (is.null(pbp_g) || nrow(pbp_g) == 0) next
             pbp_g$game_id <- gid
             pbp_list[[length(pbp_list)+1]] <- pbp_g

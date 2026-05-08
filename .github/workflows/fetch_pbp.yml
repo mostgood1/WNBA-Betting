@@ -1,4 +1,4 @@
-name: Fetch PBP outcomes via R
+name: Fetch WNBA PBP outcomes via R
 
 on:
   workflow_dispatch:
@@ -59,7 +59,7 @@ jobs:
             if (!ok) { stop("hoopR not available") }
             suppressPackageStartupMessages(library(hoopR))
 
-            pbp <- tryCatch({ hoopR::load_nba_pbp(seasons=season) }, error=function(e) NULL)
+            pbp <- tryCatch({ hoopR::load_wnba_pbp(seasons=season) }, error=function(e) NULL)
             if (is.null(pbp) || nrow(pbp)==0) { quit(status=0) }
 
             # find a date column
@@ -140,7 +140,7 @@ jobs:
           set -euo pipefail
           START=${{ steps.dates.outputs.start }}
           END=${{ steps.dates.outputs.end }}
-          echo "Fetching PBP from $START to $END"
+          echo "Fetching WNBA PBP from $START to $END"
           cur="$START"
           while [ "$(date -u -d "$cur" +%s)" -le "$(date -u -d "$END" +%s)" ]; do
             echo "Fetching $cur"

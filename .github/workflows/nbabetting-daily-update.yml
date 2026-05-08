@@ -92,7 +92,7 @@ jobs:
         env:
           GIT_TERMINAL_PROMPT: "0"
           # Optional: OddsAPI for odds/props edges. If unset, pipeline should fall back where supported.
-          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY || secrets.THE_ODDS_API_KEY }}
           DAILY_SKIP_HISTORICAL_MAINTENANCE: "1"
           DAILY_SMARTSIM_NSIMS: "500"
           DAILY_FORCE_SMARTSIM_DATE: "1"
@@ -111,8 +111,8 @@ jobs:
         if: steps.decide.outputs.run == 'true'
         shell: powershell
         env:
-          WNBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.WNBA_BETTING_BASE_URL || secrets.NBA_BETTING_BASE_URL }}
-          LIVE_LENS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.WNBA_BETTING_ADMIN_TOKEN || secrets.NBA_BETTING_ADMIN_TOKEN }}
+          WNBA_BETTING_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL || secrets.RENDER_URL }}
+          LIVE_LENS_ADMIN_TOKEN: ${{ secrets.WNBA_BETTING_ADMIN_TOKEN || secrets.ADMIN_TOKEN }}
         run: |
           function Set-UploadOutput([string]$status, [string]$detail = '') {
             "status=$status" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
@@ -156,8 +156,8 @@ jobs:
         if: steps.decide.outputs.run == 'true'
         shell: powershell
         env:
-          WNBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.WNBA_BETTING_BASE_URL || secrets.NBA_BETTING_BASE_URL }}
-          LIVE_LENS_ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN || secrets.WNBA_BETTING_ADMIN_TOKEN || secrets.NBA_BETTING_ADMIN_TOKEN }}
+          WNBA_BETTING_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL || secrets.RENDER_URL }}
+          LIVE_LENS_ADMIN_TOKEN: ${{ secrets.WNBA_BETTING_ADMIN_TOKEN || secrets.ADMIN_TOKEN }}
         run: |
           function Set-UploadOutput([string]$status, [string]$detail = '') {
             "status=$status" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8

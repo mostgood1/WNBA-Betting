@@ -1,10 +1,10 @@
-name: Train Enhanced Models + ONNX
+name: Train WNBA Enhanced Models + ONNX
 
 on:
   workflow_dispatch:
     inputs:
       fetch_data:
-        description: "Fetch 2 seasons of games via NBA API before training"
+        description: "Fetch 2 seasons of WNBA games before training"
         type: boolean
         default: true
       python_version:
@@ -29,7 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           # Ensure training/conversion deps available
-          pip install scikit-learn>=1.5 skl2onnx>=1.16 onnx>=1.16 onnxruntime>=1.19
+          pip install "scikit-learn>=1.5" "skl2onnx>=1.16" "onnx>=1.16" "onnxruntime>=1.19"
 
       - name: Fetch data (optional)
         if: inputs.fetch_data == true

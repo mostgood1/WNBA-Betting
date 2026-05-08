@@ -7,8 +7,8 @@ jobs:
   refresh-odds:
     runs-on: ubuntu-latest
     env:
-      BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL || secrets.NBA_BETTING_BASE_URL }}
-      CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN || secrets.NBA_BETTING_CRON_TOKEN }}
+      BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL || secrets.RENDER_URL }}
+      CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN || secrets.CRON_TOKEN }}
     steps:
       - name: Validate config
         run: |
