@@ -878,6 +878,28 @@ if ($IsCiRun) {
 $NoSlateDay = $false
 $LastSlateDate = $null
 try {
+  function Get-ScheduleSlateDate {
+    param($Game)
+
+    foreach ($field in @('date_est', 'date', 'game_date', 'date_utc')) {
+      try {
+        $rawValue = $Game.$field
+        if ($null -eq $rawValue) { continue }
+        $text = [string]$rawValue
+        if ([string]::IsNullOrWhiteSpace($text)) { continue }
+        return ([datetime]::Parse($text)).ToString('yyyy-MM-dd')
+      } catch {
+        try {
+          $fallbackText = [string]$Game.$field
+          if (-not [string]::IsNullOrWhiteSpace($fallbackText)) {
+            return $fallbackText.Substring(0, [Math]::Min(10, $fallbackText.Length))
+          }
+        } catch { }
+      }
+    }
+    return $null
+  }
+
   $scheduleYear = ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null)).Year
   $scheduleCandidates = @(
     (Join-Path $RepoRoot ("data\\processed\\schedule_{0}.json" -f $scheduleYear)),
@@ -892,12 +914,11 @@ try {
     try {
       $games = @($sched | Where-Object {
         try {
-          $d = $_.date_utc
-          if ($null -eq $d) { return $false }
-          $ds = ([datetime]::Parse($d)).ToString('yyyy-MM-dd')
+          $ds = Get-ScheduleSlateDate -Game $_
+          if ([string]::IsNullOrWhiteSpace($ds)) { return $false }
           return $ds -eq $Date
         } catch {
-          return ($_.date_utc -eq $Date)
+          return ((Get-ScheduleSlateDate -Game $_) -eq $Date)
         }
       }).Count
     } catch {
@@ -910,13 +931,11 @@ try {
         $allDates = @()
         foreach ($g in @($sched)) {
           try {
-            $d = $g.date_utc
-            if ($null -eq $d) { continue }
-            $ds = ([datetime]::Parse($d)).ToString('yyyy-MM-dd')
+            $ds = Get-ScheduleSlateDate -Game $g
             if ($ds) { $allDates += $ds }
           } catch {
             try {
-              $ds2 = [string]$g.date_utc
+              $ds2 = Get-ScheduleSlateDate -Game $g
               if ($ds2) {
                 $allDates += $ds2
               }
