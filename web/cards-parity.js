@@ -936,7 +936,7 @@
   }
 
   function getLiveState(game) {
-    return state.liveStates.get(gameMatchupKey(game)) || null;
+    return state.liveStates.get(gameMatchupKey(game)) || game?.live_state || null;
   }
 
   function getLivePlayerBoxscore(game) {
@@ -1740,6 +1740,8 @@
       state.liveGameLens = nextLiveGameLens;
       state.livePlayerBoxscores = nextLivePlayerBoxscores;
       state.liveStates = nextLiveStates;
+      renderHeaderMeta();
+      renderFilters();
     } catch (error) {
       if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
         return;
@@ -3055,6 +3057,8 @@
           return;
         }
         state.liveStates = mergedLiveStates;
+        renderHeaderMeta();
+        renderFilters();
         liveGames = safeArray(liveStatePayload?.games)
           .filter((game) => Boolean(game?.in_progress) && !Boolean(game?.final));
         eventIds = liveGames
