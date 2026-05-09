@@ -4362,11 +4362,13 @@
     const awayScore = hasStarted && Number.isFinite(Number(liveState?.away_pts)) ? Number(liveState.away_pts) : score.away_mean;
     const homeScore = hasStarted && Number.isFinite(Number(liveState?.home_pts)) ? Number(liveState.home_pts) : score.home_mean;
     const stripMeta = hasStarted
-      ? (hasStarted ? [
-        liveLens?.compactSignals?.[0]?.detail,
-        liveLens?.signals?.total?.detail,
-        liveLens?.signals?.ats?.detail,
-      ].filter(Boolean)[0] || 'Waiting for a live edge.' : 'Pregame betting board ready')
+      ? (liveState?.final
+        ? 'Final score locked.'
+        : ([
+          liveLens?.compactSignals?.[0]?.detail,
+          liveLens?.signals?.total?.detail,
+          liveLens?.signals?.ats?.detail,
+        ].filter(Boolean)[0] || 'Waiting for a live edge.'))
       : 'Pregame betting board ready';
     return `
       <a class="cards-strip-card ${liveLens?.overallClass === 'BET' ? 'cards-live-lens--bet' : (liveLens?.overallClass === 'WATCH' ? 'cards-live-lens--watch' : '')}" data-card-id="${escapeHtml(id)}" data-matchup-key="${escapeHtml(gameMatchupKey(game))}" href="#game-card-${encodeURIComponent(id)}">

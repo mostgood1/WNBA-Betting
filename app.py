@@ -21149,6 +21149,7 @@ def api_cards():
             or (game_started and props_source != "runtime")
             or (props_source == "auto" and not isinstance(prop_recommendations_snapshot, dict))
         )
+        started_source_prop_fallback = None
         if use_source_prop_recommendations:
             prop_recommendations = _build_cards_prop_recommendations_from_source(
                 props_recs_by_team,
@@ -21198,6 +21199,12 @@ def api_cards():
         except Exception:
             pass
 
+        if game_started and use_source_prop_recommendations and isinstance(prop_recommendations, dict):
+            started_source_prop_fallback = {
+                "home": [dict(row) for row in (prop_recommendations.get("home") or []) if isinstance(row, dict)],
+                "away": [dict(row) for row in (prop_recommendations.get("away") or []) if isinstance(row, dict)],
+            }
+
         try:
             snapshot_picks = cards_prop_snapshot_index.get((home_tri, away_tri)) or []
             _apply_cards_prop_recommendation_buckets(
@@ -21212,6 +21219,27 @@ def api_cards():
                     row for row in rows
                     if isinstance(row, dict) and str(row.get("card_bucket") or "").strip().lower() in {"official", "playable"}
                 ]
+            if (
+                game_started
+                and use_source_prop_recommendations
+                and isinstance(started_source_prop_fallback, dict)
+                and not any(prop_recommendations.get(side_key) for side_key in ("home", "away"))
+            ):
+                playable_rank = 0
+                prop_recommendations = {
+                    "home": [dict(row) for row in (started_source_prop_fallback.get("home") or []) if isinstance(row, dict)],
+                    "away": [dict(row) for row in (started_source_prop_fallback.get("away") or []) if isinstance(row, dict)],
+                }
+                for side_key in ("home", "away"):
+                    rows = prop_recommendations.get(side_key) if isinstance(prop_recommendations, dict) else []
+                    if not isinstance(rows, list):
+                        continue
+                    for row in rows:
+                        if not isinstance(row, dict):
+                            continue
+                        playable_rank += 1
+                        row["card_bucket"] = "playable"
+                        row["card_rank"] = playable_rank
         except Exception:
             pass
 
