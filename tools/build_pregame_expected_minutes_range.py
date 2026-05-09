@@ -297,11 +297,60 @@ def build_for_date(
     else:
         out["player_name"] = ""
 
-    baseline = pd.to_numeric(focus[min_col], errors="coerce")
+    minute_weights = {
+        "lag1_min": 0.20,
+        "roll3_min": 0.25,
+        "roll5_min": 0.35,
+        "roll10_min": 0.20,
+        "pred_min": 1.00,
+    }
+    baseline = pd.Series(np.nan, index=focus.index, dtype=float)
+    baseline_source = pd.Series("", index=focus.index, dtype=object)
+    weighted_sum = pd.Series(0.0, index=focus.index, dtype=float)
+    weight_total = pd.Series(0.0, index=focus.index, dtype=float)
+    source_labels: dict[str, pd.Series] = {}
+    source_counts = pd.Series(0, index=focus.index, dtype=int)
+    for candidate in min_candidates:
+        if candidate not in focus.columns:
+            continue
+        values = pd.to_numeric(focus[candidate], errors="coerce")
+        source_labels[candidate] = values
+        candidate_weight = float(minute_weights.get(candidate, 0.0))
+        present_mask = values.notna()
+        if candidate_weight > 0.0 and bool(present_mask.any()):
+            weighted_sum.loc[present_mask] = weighted_sum.loc[present_mask] + (values.loc[present_mask] * candidate_weight)
+            weight_total.loc[present_mask] = weight_total.loc[present_mask] + candidate_weight
+            source_counts.loc[present_mask] = source_counts.loc[present_mask] + 1
+
+    weighted_mask = weight_total.gt(0.0)
+    if bool(weighted_mask.any()):
+        baseline.loc[weighted_mask] = (weighted_sum.loc[weighted_mask] / weight_total.loc[weighted_mask]).astype(float)
+
+    if bool(baseline.isna().any()):
+        fallback_values = pd.to_numeric(focus[min_col], errors="coerce")
+        fallback_mask = baseline.isna() & fallback_values.notna()
+        if bool(fallback_mask.any()):
+            baseline.loc[fallback_mask] = fallback_values.loc[fallback_mask]
+            baseline_source.loc[fallback_mask] = min_col
+
+    single_source_mask = source_counts.eq(1)
+    for candidate in min_candidates:
+        values = source_labels.get(candidate)
+        if values is None:
+            continue
+        only_source_mask = single_source_mask & values.notna() & baseline_source.eq("")
+        if bool(only_source_mask.any()):
+            baseline_source.loc[only_source_mask] = candidate
+    blend_mask = baseline_source.eq("") & weight_total.gt(0.0)
+    if bool(blend_mask.any()):
+        baseline_source.loc[blend_mask] = "blend_lag1_roll3_roll5_roll10"
+
     baseline = baseline.where(baseline.notna(), np.nan)
     baseline = baseline.clip(lower=0.0, upper=float(cap_minutes))
+    baseline_source = baseline_source.where(baseline_source.astype(str).str.len().gt(0), other=min_col)
     # Preserve baseline minutes aligned to the output rows so merges don't break shape/index alignment.
     out["_baseline_min"] = baseline.to_numpy(copy=True)
+    out["_baseline_source"] = baseline_source.to_numpy(copy=True)
 
     src = str(source or "props").strip().lower()
     if src not in {"props", "rotations"}:
@@ -337,14 +386,16 @@ def build_for_date(
         out["exp_min_mean"] = pd.to_numeric(out["exp_min_mean"], errors="coerce")
         out["exp_min_mean"] = out["exp_min_mean"].where(out["exp_min_mean"].notna(), base_val)
         out["exp_min_mean"] = pd.to_numeric(out["exp_min_mean"], errors="coerce").clip(lower=0.0, upper=float(cap_minutes))
+        baseline_src = out.get("_baseline_source", pd.Series([min_col] * len(out), index=out.index)).astype(str)
         out["exp_min_source"] = np.where(
             pd.to_numeric(out.get("exp_min_mean_rot"), errors="coerce").notna(),
             ("rotations_espn_history" if a >= 1.0 else f"rotations_espn_history_blend:{a:.2f}"),
-            f"baseline:{min_col}",
+            ("baseline:" + baseline_src),
         )
     else:
         out["exp_min_mean"] = pd.to_numeric(out.get("_baseline_min"), errors="coerce")
-        out["exp_min_source"] = f"baseline:{min_col}"
+        baseline_src = out.get("_baseline_source", pd.Series([min_col] * len(out), index=out.index)).astype(str)
+        out["exp_min_source"] = "baseline:" + baseline_src
 
     if include_uncertainty:
         # Simple default uncertainty; higher for low-minute players.

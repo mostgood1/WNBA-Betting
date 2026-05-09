@@ -1,0 +1,5 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-05-09,2026-05-09T19:30:00Z,Las Vegas Aces,Phoenix Mercury,-359.82838684852265,359.8283868485224,-9.5,9.5,,,167.5,100.522158900986,-100.52215890098604,11,11,10,11,oddsapi_consensus
+2026-05-09,2026-05-10T01:00:00Z,Portland Fire,Chicago Sky,211.4869222615237,-211.48692226152363,5.5,-5.5,,,162.5,102.23346825158546,-102.23346825158544,11,11,11,7,oddsapi_consensus
+2026-05-09,2026-05-10T00:00:00Z,Minnesota Lynx,Atlanta Dream,169.15709726153256,-169.15709726153256,4.5,-4.5,,,158.5,-100.62102158049993,100.62102158049991,11,11,9,7,oddsapi_consensus
+2026-05-09,2026-05-09T17:00:00Z,Indiana Fever,Dallas Wings,-203.9435640762272,203.94356407622726,-5.5,5.5,,,178.5,-102.50018181821486,102.50018181821486,11,11,10,9,oddsapi_consensus

@@ -304,6 +304,7 @@ def _prune_pregame_rotation_pool(
     team_tri: str,
     min_keep: int = 8,
     max_keep: Optional[int] = None,
+    protected_names: Optional[set[str]] = None,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     diag: dict[str, Any] = {
         "attempted": True,
@@ -354,15 +355,21 @@ def _prune_pregame_rotation_pool(
     cand["_roll3_min"] = roll3.reindex(cand.index).fillna(0.0).astype(float)
     cand["_lag1_min"] = lag1.reindex(cand.index).fillna(0.0).astype(float)
     cand["_name"] = _frame_series(cand, "player_name", "").astype(str).str.strip()
+    protected_keys = {
+        _norm_player_key(name)
+        for name in (protected_names or set())
+        if str(name or "").strip()
+    }
+    cand["_protected"] = cand["_name"].map(_norm_player_key).isin(protected_keys).astype(int)
 
     keep = (
         cand.sort_values(
-            ["_starter_prob", "_exp_min_mean", "_roll5_min", "_roll10_min", "_roll3_min", "_lag1_min", "_name"],
-            ascending=[False, False, False, False, False, False, True],
+            ["_protected", "_starter_prob", "_exp_min_mean", "_roll5_min", "_roll10_min", "_roll3_min", "_lag1_min", "_name"],
+            ascending=[False, False, False, False, False, False, False, True],
             kind="stable",
         )
         .head(int(max_keep))
-        .drop(columns=["_starter_prob", "_exp_min_mean", "_roll5_min", "_roll10_min", "_roll3_min", "_lag1_min", "_name"], errors="ignore")
+        .drop(columns=["_protected", "_starter_prob", "_exp_min_mean", "_roll5_min", "_roll10_min", "_roll3_min", "_lag1_min", "_name"], errors="ignore")
         .reset_index(drop=True)
     )
 
@@ -388,6 +395,109 @@ def _prune_pregame_rotation_pool(
         pass
     diag["applied"] = True
     return keep, diag
+
+
+def _market_player_names_for_matchup(
+    props_df: pd.DataFrame | None,
+    *,
+    date_str: str | None = None,
+    home_tri: str,
+    away_tri: str,
+) -> dict[str, set[str]]:
+    out: dict[str, set[str]] = {
+        str(home_tri).upper().strip(): set(),
+        str(away_tri).upper().strip(): set(),
+    }
+    if props_df is None or not isinstance(props_df, pd.DataFrame) or props_df.empty:
+        return out
+    required = {"team", "player_name"}
+    if not required.issubset(set(props_df.columns)):
+        return out
+
+    try:
+        market_names: set[str] = set()
+        ds = str(date_str or "").strip()
+        if ds:
+            market_names = _load_market_player_names_by_matchup(ds).get(
+                (str(home_tri).upper().strip(), str(away_tri).upper().strip()),
+                set(),
+            )
+
+        tmp = props_df.copy()
+        tmp["team"] = tmp["team"].astype(str).str.upper().str.strip()
+        tmp["player_name"] = tmp["player_name"].astype(str).str.strip()
+        tmp = tmp[tmp["player_name"].ne("")].copy()
+        if "opponent" in tmp.columns:
+            tmp["opponent"] = tmp["opponent"].astype(str).str.upper().str.strip()
+            tmp = tmp[
+                ((tmp["team"] == str(home_tri).upper().strip()) & (tmp["opponent"] == str(away_tri).upper().strip()))
+                | ((tmp["team"] == str(away_tri).upper().strip()) & (tmp["opponent"] == str(home_tri).upper().strip()))
+            ].copy()
+        else:
+            tmp = tmp[tmp["team"].isin({str(home_tri).upper().strip(), str(away_tri).upper().strip()})].copy()
+
+        if "playing_today" in tmp.columns:
+            pt = tmp["playing_today"].astype(str).str.lower().str.strip()
+            tmp = tmp[~pt.isin(["false", "0", "no", "n"])].copy()
+        if "team_on_slate" in tmp.columns:
+            tos = tmp["team_on_slate"].astype(str).str.lower().str.strip()
+            tmp = tmp[~tos.isin(["false", "0", "no", "n"])].copy()
+        if market_names:
+            tmp = tmp[tmp["player_name"].isin(market_names)].copy()
+
+        for team_code, team_rows in tmp.groupby("team"):
+            key = str(team_code).upper().strip()
+            if key in out:
+                out[key].update(str(v).strip() for v in team_rows["player_name"].tolist() if str(v).strip())
+    except Exception:
+        return out
+    return out
+
+
+@lru_cache(maxsize=64)
+def _load_market_player_names_by_matchup(date_str: str) -> dict[tuple[str, str], set[str]]:
+    ds = str(date_str or "").strip()
+    if not ds:
+        return {}
+
+    candidates = [
+        paths.data_raw / f"odds_nba_player_props_{ds}.csv",
+        paths.data_processed / f"oddsapi_player_props_{ds}.csv",
+    ]
+    snapshot_path = next((path for path in candidates if path.exists()), None)
+    if snapshot_path is None:
+        return {}
+
+    try:
+        odds = pd.read_csv(snapshot_path)
+    except Exception:
+        return {}
+    if odds is None or odds.empty:
+        return {}
+    required = {"home_team", "away_team", "player_name"}
+    if not required.issubset(set(odds.columns)):
+        return {}
+
+    try:
+        tmp = odds.copy()
+        tmp["home_tri"] = tmp["home_team"].astype(str).map(lambda value: (to_tricode(str(value or "")) or str(value or "").strip().upper()))
+        tmp["away_tri"] = tmp["away_team"].astype(str).map(lambda value: (to_tricode(str(value or "")) or str(value or "").strip().upper()))
+        tmp["player_name"] = tmp["player_name"].astype(str).str.strip()
+        tmp = tmp[
+            tmp["home_tri"].astype(str).str.len().gt(0)
+            & tmp["away_tri"].astype(str).str.len().gt(0)
+            & tmp["player_name"].ne("")
+        ].copy()
+        if tmp.empty:
+            return {}
+
+        market_players: dict[tuple[str, str], set[str]] = {}
+        for row in tmp[["home_tri", "away_tri", "player_name"]].drop_duplicates().itertuples(index=False):
+            key = (str(row.home_tri).upper().strip(), str(row.away_tri).upper().strip())
+            market_players.setdefault(key, set()).add(str(row.player_name).strip())
+        return market_players
+    except Exception:
+        return {}
 
 
 @lru_cache(maxsize=96)
@@ -3722,6 +3832,12 @@ def simulate_smart_game(
     # Merge pregame expected minutes into the roster rows (if available).
     pem_diag: dict[str, Any] = {"home": None, "away": None}
     pregame_pool_diag: dict[str, Any] = {"home": None, "away": None}
+    market_player_names = _market_player_names_for_matchup(
+        props_df,
+        date_str=str(date_str),
+        home_tri=str(home_tri),
+        away_tri=str(away_tri),
+    )
     try:
         home_raw, pem_diag_home = _merge_pregame_expected_minutes_for_team(home_raw, date_str=str(date_str), team_tri=str(home_tri))
         away_raw, pem_diag_away = _merge_pregame_expected_minutes_for_team(away_raw, date_str=str(date_str), team_tri=str(away_tri))
@@ -3730,8 +3846,16 @@ def simulate_smart_game(
         pem_diag = {"home": None, "away": None}
 
     try:
-        home_raw, home_pool_diag = _prune_pregame_rotation_pool(home_raw, team_tri=str(home_tri))
-        away_raw, away_pool_diag = _prune_pregame_rotation_pool(away_raw, team_tri=str(away_tri))
+        home_raw, home_pool_diag = _prune_pregame_rotation_pool(
+            home_raw,
+            team_tri=str(home_tri),
+            protected_names=market_player_names.get(str(home_tri).upper().strip()),
+        )
+        away_raw, away_pool_diag = _prune_pregame_rotation_pool(
+            away_raw,
+            team_tri=str(away_tri),
+            protected_names=market_player_names.get(str(away_tri).upper().strip()),
+        )
         pregame_pool_diag = {"home": home_pool_diag, "away": away_pool_diag}
     except Exception:
         pregame_pool_diag = {"home": None, "away": None}
