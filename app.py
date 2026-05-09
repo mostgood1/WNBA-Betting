@@ -4177,6 +4177,8 @@ def _enforce_minimal_ui_allowlist():
 
         # APIs required by the 4 pages
         allowed_api = {
+            "/api/status",
+            "/api/runtime-info",
             "/api/status/props-refresh",
             "/api/cards",
             "/api/cards-v2",
@@ -12695,6 +12697,37 @@ def api_status():
             "status": "ok",
             "processed_files": files,
             "have_cards_page": (WEB_DIR / "cards.html").exists()
+        })
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+
+@app.route("/api/runtime-info")
+def api_runtime_info():
+    try:
+        route_rules = sorted(rule.rule for rule in app.url_map.iter_rules())
+        return jsonify({
+            "status": "ok",
+            "cwd": str(Path.cwd()),
+            "base_dir": str(BASE_DIR),
+            "data_dir": str(DATA_DIR),
+            "data_raw_dir": str(DATA_RAW_DIR),
+            "data_processed_dir": str(DATA_PROCESSED_DIR),
+            "repo_data_dir": str(REPO_DATA_DIR),
+            "repo_data_processed_dir": str(REPO_DATA_PROCESSED_DIR),
+            "env": {
+                "WNBA_BETTING_DATA_ROOT": os.environ.get("WNBA_BETTING_DATA_ROOT", ""),
+                "NBA_BETTING_DATA_ROOT": os.environ.get("NBA_BETTING_DATA_ROOT", ""),
+                "RENDER_SERVICE_ID": os.environ.get("RENDER_SERVICE_ID", ""),
+                "RENDER_GIT_COMMIT": os.environ.get("RENDER_GIT_COMMIT", ""),
+                "RENDER_GIT_BRANCH": os.environ.get("RENDER_GIT_BRANCH", ""),
+                "RENDER_INSTANCE_ID": os.environ.get("RENDER_INSTANCE_ID", ""),
+                "GIT_BRANCH": os.environ.get("GIT_BRANCH", ""),
+                "GITHUB_REPOSITORY": os.environ.get("GITHUB_REPOSITORY", ""),
+            },
+            "have_cards_page": (WEB_DIR / "cards.html").exists(),
+            "have_api_status_route": "/api/status" in route_rules,
+            "route_count": len(route_rules),
         })
     except Exception as e:  # noqa: BLE001
         return jsonify({"status": "error", "error": str(e)}), 500
