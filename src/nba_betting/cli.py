@@ -61,7 +61,7 @@ from .odds_bovada import fetch_bovada_odds_current
 from .props_actuals import fetch_prop_actuals_via_nbastatr, upsert_props_actuals
 from .props_actuals import fetch_prop_actuals_via_nba_cdn, fetch_prop_actuals_via_nbaapi
 from .props_features import build_props_features, build_features_for_date
-from .finals import fetch_finals, write_finals_csv
+from .finals import fetch_finals, fetch_finals_offline_or_network, write_finals_csv
 from .pbp import fetch_pbp_for_date, backfill_pbp
 from .boxscores import fetch_boxscores_for_date, backfill_boxscores, update_boxscores_history_for_date
 from .pbp_espn import fetch_pbp_espn_for_date, update_pbp_espn_history_for_date, backfill_pbp_espn_history
@@ -14739,7 +14739,7 @@ def backtest_periods_vs_market_cmd(odds_csv: str, start: int|None, end: int|None
 @click.option("--date", "date_str", type=str, required=True, help="Game date YYYY-MM-DD to reconcile")
 @click.option("--predictions", "pred_path", type=click.Path(exists=False, dir_okay=False), required=False, help="Optional predictions CSV path; defaults to data/processed/predictions_YYYY-MM-DD.csv then repo-root predictions_YYYY-MM-DD.csv")
 def reconcile_date_cmd(date_str: str, pred_path: str | None):
-    """Build reconciliation CSV for a date by joining predictions with NBA final scores.
+    """Build reconciliation CSV for a date by joining predictions with final scores.
 
     Writes data/processed/recon_games_YYYY-MM-DD.csv
     Columns: date, home_team, visitor_team, home_tri, away_tri, home_pts, visitor_pts, pred_margin, pred_total, actual_margin, total_actual, margin_error, total_error
@@ -14797,25 +14797,11 @@ def reconcile_date_cmd(date_str: str, pred_path: str | None):
             preds["pred_margin"] = preds["pred_margin"].where(preds["pred_margin"].notna(), preds[margin_src])
     preds["home_tri"] = preds.get("home_team", pd.Series(dtype=object)).map(lambda value: str(to_tricode(str(value or ""))).strip().upper())
     preds["away_tri"] = preds.get("visitor_team", pd.Series(dtype=object)).map(lambda value: str(to_tricode(str(value or ""))).strip().upper())
-    # Prefer processed finals CSV if available; else fetch via APIs with fallbacks
+    # Prefer league-aware finals helpers so WNBA reconciliation does not fall back to NBA-only scoreboards.
     try:
-        finals = None
-        # 0) Use previously exported finals if present
-        try:
-            from .config import paths as _paths2
-            fpath = _paths2.data_processed / f"finals_{target_date}.csv"
-            if fpath.exists():
-                fdf = pd.read_csv(fpath)
-                # Normalize column names
-                cols = {c.lower(): c for c in fdf.columns}
-                need = {"home_tri","away_tri","home_pts","visitor_pts"}
-                if need.issubset(set(cols.keys())):
-                    finals = fdf[[cols["home_tri"], cols["away_tri"], cols["home_pts"], cols["visitor_pts"]]].copy()
-                    finals.columns = ["home_tri","away_tri","home_pts","visitor_pts"]
-        except Exception:
-            finals = None
+        finals = fetch_finals_offline_or_network(str(target_date))
 
-        # 1) If no processed finals, derive them from local boxscores when available.
+        # If network/offline finals are still empty, derive team totals from local boxscores.
         if finals is None or finals.empty:
             try:
                 box_path = paths.data_processed / f"boxscores_{target_date}.csv"
@@ -14840,167 +14826,6 @@ def reconcile_date_cmd(date_str: str, pred_path: str | None):
                             finals = finals.dropna(subset=["home_pts", "visitor_pts"], how="any")
             except Exception:
                 finals = None
-
-        # 2) If no processed finals, fetch via ScoreboardV2
-        try:
-            nba_http.STATS_HEADERS.update({
-                'Accept': 'application/json, text/plain, */*',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Origin': 'https://www.nba.com',
-                'Referer': 'https://www.nba.com/stats/',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-                'Connection': 'keep-alive',
-            })
-        except Exception:
-            pass
-        def fetch_finals_for(game_date: str) -> pd.DataFrame:
-            tries = 0
-            finals_local = pd.DataFrame()
-            while tries < 2 and (finals_local is None or finals_local.empty):
-                try:
-                    sb = scoreboardv2.ScoreboardV2(game_date=game_date, day_offset=0, timeout=45)
-                    nd = sb.get_normalized_dict()
-                    gh = pd.DataFrame(nd.get("GameHeader", []))
-                    ls = pd.DataFrame(nd.get("LineScore", []))
-                    if not gh.empty and not ls.empty:
-                        cgh = {c.upper(): c for c in gh.columns}
-                        cls = {c.upper(): c for c in ls.columns}
-                        team_rows = {}
-                        for _, r in ls.iterrows():
-                            try:
-                                tid = int(r[cls["TEAM_ID"]])
-                                tri = str(r[cls["TEAM_ABBREVIATION"]]).upper()
-                                pts = None
-                                if "PTS" in cls:
-                                    try:
-                                        pts = int(r[cls["PTS"]])
-                                    except Exception:
-                                        pts = None
-                                team_rows[tid] = {"tri": tri, "pts": pts}
-                            except Exception:
-                                continue
-                        out_rows = []
-                        for _, g in gh.iterrows():
-                            try:
-                                hid = int(g[cgh["HOME_TEAM_ID"]]); vid = int(g[cgh["VISITOR_TEAM_ID"]])
-                                gid = str(g.get(cgh.get("GAME_ID", "GAME_ID"), "")).strip()
-                                h = team_rows.get(hid, {}); v = team_rows.get(vid, {})
-                                out_rows.append({
-                                    "game_id": gid,
-                                    "home_tri": str(h.get("tri") or "").upper(),
-                                    "away_tri": str(v.get("tri") or "").upper(),
-                                    "home_pts": h.get("pts"),
-                                    "visitor_pts": v.get("pts"),
-                                })
-                            except Exception:
-                                continue
-                        finals_local = pd.DataFrame(out_rows)
-                    break
-                except Exception:
-                    tries += 1
-                    time.sleep(3)
-            return finals_local
-
-        if finals is None or finals.empty:
-            finals = fetch_finals_for(str(target_date))
-        if finals is None or finals.empty:
-            # Try +1 day then -1 day to handle timezone/date slippage
-            from datetime import timedelta as _td
-            finals = fetch_finals_for(str(target_date + _td(days=1)))
-            if finals is None or finals.empty:
-                finals = fetch_finals_for(str(target_date - _td(days=1)))
-
-        # Preseason often lacks PTS in nba_api; fallback to NBA CDN daily scoreboard
-        def fetch_finals_via_nba_cdn(dt) -> pd.DataFrame:
-            try:
-                import requests as _req
-                ymd = pd.to_datetime(dt).strftime('%Y%m%d')
-                url = f"https://cdn.nba.com/static/json/liveData/scoreboard/scoreboard_{ymd}.json"
-                headers = {
-                    'User-Agent': 'Mozilla/5.0',
-                    'Accept': 'application/json, text/plain, */*',
-                    'Origin': 'https://www.nba.com',
-                    'Referer': 'https://www.nba.com/'
-                }
-                resp = _req.get(url, headers=headers, timeout=30)
-                if resp.status_code != 200:
-                    return pd.DataFrame()
-                js = resp.json()
-                games = (js or {}).get('scoreboard', {}).get('games', [])
-                rows = []
-                for g in games:
-                    try:
-                        home = g.get('homeTeam', {})
-                        away = g.get('awayTeam', {})
-                        htri = str(home.get('triCode') or '').upper()
-                        atri = str(away.get('triCode') or '').upper()
-                        # Scores can be strings; coerce to int if possible
-                        def _to_int(x):
-                            try:
-                                return int(x)
-                            except Exception:
-                                try:
-                                    return int(float(x))
-                                except Exception:
-                                    return None
-                        hpts = _to_int(home.get('score'))
-                        apts = _to_int(away.get('score'))
-                        rows.append({
-                            'home_tri': htri,
-                            'away_tri': atri,
-                            'home_pts': hpts,
-                            'visitor_pts': apts,
-                        })
-                    except Exception:
-                        continue
-                return pd.DataFrame(rows)
-            except Exception:
-                return pd.DataFrame()
-
-        # Use CDN results if nba_api finals missing or all pts are NaN/None
-        if finals is None or finals.empty or not (pd.to_numeric(finals.get('home_pts'), errors='coerce').notna().any() and pd.to_numeric(finals.get('visitor_pts'), errors='coerce').notna().any()):
-            cdn_df = fetch_finals_via_nba_cdn(target_date)
-            if cdn_df is not None and not cdn_df.empty:
-                finals = cdn_df
-
-        # If still missing points but we have game_ids from ScoreboardV2, try BoxScoreTraditionalV3 to compute team points
-        def fill_pts_via_boxscore(df: pd.DataFrame) -> pd.DataFrame:
-            if df is None or df.empty or 'game_id' not in df.columns:
-                return df
-            rows = []
-            for _, row in df.iterrows():
-                try:
-                    gid = str(row.get('game_id') or '').strip()
-                    if not gid:
-                        rows.append(row)
-                        continue
-                    bs = boxscoretraditionalv3.BoxScoreTraditionalV3(game_id=gid, timeout=45)
-                    nd = bs.get_normalized_dict()
-                    tstats = pd.DataFrame(nd.get('TeamStats', []))
-                    htri = str(row.get('home_tri') or '').upper(); atri = str(row.get('away_tri') or '').upper()
-                    hpts = row.get('home_pts'); apts = row.get('visitor_pts')
-                    if not tstats.empty:
-                        c = {c.upper(): c for c in tstats.columns}
-                        for _, tr in tstats.iterrows():
-                            tri = str(tr.get(c.get('TEAM_ABBREVIATION','TEAM_ABBREVIATION'), '')).upper()
-                            try:
-                                pts = int(tr.get(c.get('PTS','PTS')))
-                            except Exception:
-                                pts = None
-                            if tri == htri:
-                                hpts = pts
-                            elif tri == atri:
-                                apts = pts
-                    new_row = row.copy()
-                    new_row['home_pts'] = hpts
-                    new_row['visitor_pts'] = apts
-                    rows.append(new_row)
-                except Exception:
-                    rows.append(row)
-            return pd.DataFrame(rows)
-
-        if finals is not None and not finals.empty and not (pd.to_numeric(finals.get('home_pts'), errors='coerce').notna().any() and pd.to_numeric(finals.get('visitor_pts'), errors='coerce').notna().any()):
-            finals = fill_pts_via_boxscore(finals)
 
         # Last resort: derive team totals from recon_props CSV if available (sum of player PTS often equals team score in preseason box files)
         if finals is not None and not finals.empty and (finals['home_pts'].isna().all() or finals['visitor_pts'].isna().all()):
