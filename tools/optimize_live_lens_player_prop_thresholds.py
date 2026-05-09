@@ -492,7 +492,7 @@ def main() -> int:
 
     if not frames:
         print("No settled player_prop rows found in window")
-        return 2
+        return 0
 
     df = pd.concat(frames, ignore_index=True)
 
@@ -502,7 +502,7 @@ def main() -> int:
     res_raw = _best_thresholds(df, "strength", watch_grid, bet_grid, min_bets=int(args.min_bets))
     if res_raw.empty:
         print("No thresholds met min_bets (raw strength)")
-        return 2
+        return 0
     res_raw["stat_scope"] = "ALL"
 
     # ---- Sigma thresholds (optional) ----

@@ -56,6 +56,19 @@ jobs:
             if [ "$rc" -ne 0 ]; then http="000"; fi
             cat resp.txt || true
             if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              python - <<'PY'
+import json
+from pathlib import Path
+
+resp = json.loads(Path('resp.txt').read_text(encoding='utf-8'))
+bad = []
+for key in ('rc_audit', 'rc_roi', 'rc_rollup'):
+    value = resp.get(key)
+    if value is not None and int(value) != 0:
+        bad.append(f"{key}={value}")
+if bad:
+    raise SystemExit('Render live-lens reports returned nonzero rc: ' + ', '.join(bad))
+PY
               exit 0
             fi
             echo "Request attempt $i -> HTTP $http" >&2
@@ -110,6 +123,15 @@ jobs:
             if [ "$rc" -ne 0 ]; then http="000"; fi
             cat resp.txt || true
             if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              python - <<'PY'
+import json
+from pathlib import Path
+
+resp = json.loads(Path('resp.txt').read_text(encoding='utf-8'))
+value = resp.get('rc')
+if value is not None and int(value) != 0:
+    raise SystemExit(f'Render live-lens tune returned nonzero rc: rc={value}')
+PY
               exit 0
             fi
             echo "Request attempt $i -> HTTP $http" >&2

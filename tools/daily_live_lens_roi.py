@@ -938,7 +938,7 @@ def main() -> int:
     )
     if not scored:
         print(f"No scored rows for {ds} (missing logs or no settled markets)")
-        return 2
+        return 0
 
     df = pd.DataFrame([r.__dict__ for r in scored])
 
