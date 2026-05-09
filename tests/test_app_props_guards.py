@@ -35,6 +35,63 @@ def test_espn_to_tri_uses_wnba_aliases_for_live_scoreboard():
     assert app_module._espn_to_tri("WAS") == "WSH"
     assert app_module._espn_to_tri("GS") == "GSV"
     assert app_module._espn_to_tri("GSW") == "GSV"
+    assert app_module._espn_to_tri("LAS") == "LVA"
+    assert app_module._espn_to_tri("LV") == "LVA"
+
+
+def test_live_build_scoreboard_games_prefers_final_duplicate_espn_pair(monkeypatch):
+    monkeypatch.setattr(
+        app_module,
+        "_live_sim_matchups_for_date",
+        lambda _date: [{"game_id": "0401856894", "home": "LVA", "away": "PHX"}],
+    )
+    monkeypatch.setattr(app_module, "_live_fetch_espn_scoreboard", lambda _date: {"ok": True})
+    monkeypatch.setattr(
+        app_module,
+        "_live_extract_espn_games",
+        lambda _payload: [
+            {
+                "game_id": "evt-final",
+                "home": "LVA",
+                "away": "PHX",
+                "home_pts": 66,
+                "away_pts": 99,
+                "status_id": 3,
+                "status": "Final",
+                "period": 4,
+                "clock": "10:00",
+                "in_progress": False,
+                "final": True,
+                "periods": [],
+            },
+            {
+                "game_id": "evt-scheduled",
+                "home": "LVA",
+                "away": "PHX",
+                "home_pts": None,
+                "away_pts": None,
+                "status_id": 1,
+                "status": "Scheduled",
+                "period": None,
+                "clock": None,
+                "in_progress": False,
+                "final": False,
+                "periods": [],
+            },
+        ],
+    )
+
+    source, games = app_module._live_build_scoreboard_games("2026-05-09")
+
+    assert source == "espn"
+    assert len(games) == 1
+    assert games[0]["home"] == "LVA"
+    assert games[0]["away"] == "PHX"
+    assert games[0]["final"] is True
+    assert games[0]["status"] == "Final"
+    assert games[0]["espn_event_id"] == "evt-final"
+    assert games[0]["home_pts"] == 66
+    assert games[0]["away_pts"] == 99
 
 
 def test_prune_invalid_props_recommendations_artifact_removes_model_only_cards(tmp_path):

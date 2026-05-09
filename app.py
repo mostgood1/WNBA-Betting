@@ -2820,6 +2820,16 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
 
     Falls back to NBA CDN when SmartSim games are unavailable or ESPN fails.
     """
+    def _scoreboard_game_priority(game: dict[str, Any]) -> tuple[int, int, int]:
+        if not isinstance(game, dict):
+            return (0, 0, 0)
+        final = bool(game.get("final"))
+        in_progress = bool(game.get("in_progress"))
+        status_id = _safe_int(game.get("status_id")) or 0
+        event_id = 1 if str(game.get("game_id") or "").strip() else 0
+        state_rank = 2 if final else (1 if in_progress else 0)
+        return (state_rank, status_id, event_id)
+
     try:
         sim_games = _live_sim_matchups_for_date(date_str)
         jd = _live_fetch_espn_scoreboard(date_str)
@@ -2834,9 +2844,16 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
             espn_by_pair: dict[tuple[str, str], dict[str, Any]] = {}
             for eg in espn_games:
                 try:
-                    k = (str(eg.get("home") or "").upper(), str(eg.get("away") or "").upper())
+                    home_tri = str(_get_tricode(str(eg.get("home") or "")) or eg.get("home") or "").strip().upper()
+                    away_tri = str(_get_tricode(str(eg.get("away") or "")) or eg.get("away") or "").strip().upper()
+                    k = (home_tri, away_tri)
                     if k[0] and k[1]:
-                        espn_by_pair[k] = eg
+                        prev = espn_by_pair.get(k)
+                        if prev is None or _scoreboard_game_priority(eg) >= _scoreboard_game_priority(prev):
+                            eg_norm = dict(eg)
+                            eg_norm["home"] = home_tri
+                            eg_norm["away"] = away_tri
+                            espn_by_pair[k] = eg_norm
                 except Exception:
                     continue
 
@@ -18662,8 +18679,8 @@ def _cards_started_matchups_index(date_str: str, now_local: datetime | None = No
     for game in (games or []):
         if not isinstance(game, dict):
             continue
-        home_tri = str(game.get("home") or "").strip().upper()
-        away_tri = str(game.get("away") or "").strip().upper()
+        home_tri = str(_get_tricode(str(game.get("home") or "")) or game.get("home") or "").strip().upper()
+        away_tri = str(_get_tricode(str(game.get("away") or "")) or game.get("away") or "").strip().upper()
         if not home_tri or not away_tri:
             continue
         out[(home_tri, away_tri)] = {
@@ -36701,6 +36718,8 @@ def _espn_to_tri(abbr: str) -> str:
         fix = {
             'GS': 'GSV',
             'GSW': 'GSV',
+            'LAS': 'LVA',
+            'LV': 'LVA',
             'NY': 'NYL',
             'NYK': 'NYL',
             'WAS': 'WSH',
