@@ -34,6 +34,10 @@ Param(
 
 $ErrorActionPreference = 'Stop'
 
+$CliModule = 'wnba_betting.cli'
+$PropsRefreshModule = 'wnba_betting.refresh_oddsapi_props_job'
+$PropsRawArtifactStem = 'odds_wnba_player_props'
+
 if ([string]::IsNullOrWhiteSpace($RemoteBaseUrl)) {
   if (-not [string]::IsNullOrWhiteSpace($env:WNBA_BETTING_BASE_URL)) {
     $RemoteBaseUrl = $env:WNBA_BETTING_BASE_URL
@@ -1045,6 +1049,7 @@ function Write-StreamToLogAndHost {
 
 function Invoke-PyMod {
   param([string[]]$plist)
+  $plist = Normalize-PyModuleArgs -plist $plist
   $cmd = @($Python) + $plist
   Write-Log ("Run: {0}" -f ($cmd -join ' '))
   # Capture both stdout and stderr, but don't fail on stderr output
@@ -1067,6 +1072,32 @@ function Invoke-PyMod {
     $ErrorActionPreference = 'Stop'
   }
   return $exitCode
+}
+
+function Normalize-PyModuleArgs {
+  param([string[]]$plist)
+
+  if ($null -eq $plist -or $plist.Count -eq 0) {
+    return @()
+  }
+
+  $normalized = @()
+  for ($i = 0; $i -lt $plist.Count; $i++) {
+    $item = [string]$plist[$i]
+    if ($item -eq '-m' -and ($i + 1) -lt $plist.Count) {
+      $normalized += $item
+      $moduleName = [string]$plist[$i + 1]
+      if ($moduleName -like 'nba_betting.*') {
+        $moduleName = 'wnba_betting.' + $moduleName.Substring('nba_betting.'.Length)
+      }
+      $normalized += $moduleName
+      $i += 1
+      continue
+    }
+    $normalized += $item
+  }
+
+  return ,$normalized
 }
 
 function Invoke-LoggedNativeCommand {
@@ -1219,16 +1250,23 @@ function Invoke-SharedPropsRefreshWorker {
     started_at = [DateTime]::UtcNow.ToString('o')
   } | ConvertTo-Json -Compress -Depth 5
 
-  $env:NBA_BETTING_ODDSAPI_PROPS_JOB = $payload
+  $env:WNBA_BETTING_ODDSAPI_PROPS_JOB = $payload
   try {
     Write-Log ("Running shared OddsAPI props refresh worker for {0} (bookmakers={1})" -f $TargetDate, $bookmakersDisplay)
-    $rc = Invoke-PyMod -plist @('-m', 'nba_betting.refresh_oddsapi_props_job')
+    $rc = Invoke-PyMod -plist @('-m', $PropsRefreshModule)
     Write-Log ("refresh_oddsapi_props_job exit code: {0}" -f $rc)
   } finally {
-    Remove-Item Env:NBA_BETTING_ODDSAPI_PROPS_JOB -ErrorAction SilentlyContinue
+    Remove-Item Env:WNBA_BETTING_ODDSAPI_PROPS_JOB -ErrorAction SilentlyContinue
   }
 
-  $rawSnapshotPath = Join-Path $RepoRoot ("data/raw/odds_nba_player_props_{0}.csv" -f $TargetDate)
+  $rawSnapshotCandidates = @(
+    (Join-Path $RepoRoot ("data/raw/{0}_{1}.csv" -f $PropsRawArtifactStem, $TargetDate)),
+    (Join-Path $RepoRoot ("data/raw/odds_nba_player_props_{0}.csv" -f $TargetDate))
+  )
+  $rawSnapshotPath = $rawSnapshotCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+  if ([string]::IsNullOrWhiteSpace($rawSnapshotPath)) {
+    $rawSnapshotPath = $rawSnapshotCandidates[0]
+  }
   $snapshotAliasPath = Join-Path $RepoRoot ("data/processed/oddsapi_player_props_{0}.csv" -f $TargetDate)
   $edgesPath = Join-Path $RepoRoot ("data/processed/props_edges_{0}.csv" -f $TargetDate)
   $propsRecsPath = Join-Path $RepoRoot ("data/processed/props_recommendations_{0}.csv" -f $TargetDate)
@@ -1269,6 +1307,7 @@ function Invoke-PyModWithTimeout {
     [int]$TimeoutSeconds = 180,
     [string]$Label = 'python'
   )
+  $plist = Normalize-PyModuleArgs -plist $plist
   $cmd = @($Python) + $plist
   Write-Log ("Run (timeout={0}s): {1}" -f $TimeoutSeconds, ($cmd -join ' '))
 
@@ -2237,7 +2276,7 @@ def _exists_nonempty(p: Path) -> bool:
 
 missing = []
 try:
-    from nba_betting.boxscores import _nba_gid_to_tricodes
+    from wnba_betting.boxscores import _nba_gid_to_tricodes
     gid_map = _nba_gid_to_tricodes(str(date_str)) or {}
     for gid in gid_map.keys():
         gid = str(gid).strip()
