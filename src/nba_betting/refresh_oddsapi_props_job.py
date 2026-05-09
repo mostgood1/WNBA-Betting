@@ -599,6 +599,17 @@ def _season_str_from_year(season_year: int) -> str:
     return season_label_from_year(int(season_year))
 
 
+def _player_log_seasons_for_date(date_str: str) -> list[str]:
+    season_year = _season_year_for_date(date_str)
+    values = [max(1, int(season_year) - 1), int(season_year)]
+    ordered: list[str] = []
+    for value in values:
+        token = _season_str_from_year(value)
+        if token not in ordered:
+            ordered.append(token)
+    return ordered
+
+
 def _ensure_player_logs_for_props_refresh(
     *,
     date_str: str,
@@ -629,11 +640,12 @@ def _ensure_player_logs_for_props_refresh(
     if not allow_fetch_on_miss:
         return False, "player_logs not found; run fetch-player-logs"
 
-    season_str = _season_str_from_year(_season_year_for_date(date_str))
+    season_tokens = _player_log_seasons_for_date(date_str)
+    season_str = ",".join(season_tokens)
     _append_log(log_file, f"Fetching player logs for {season_str}")
     py = _resolve_python()
     env = _worker_env()
-    fetch_cmd = [str(py), "-m", "nba_betting.cli", "fetch-player-logs", "--seasons", season_str]
+    fetch_cmd = [str(py), "-m", "wnba_betting.cli", "fetch-player-logs", "--seasons", season_str]
     rc = _run_to_file(
         fetch_cmd,
         log_file,

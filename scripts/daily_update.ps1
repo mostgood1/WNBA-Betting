@@ -99,6 +99,18 @@ function Resolve-SeasonString {
   return ("{0}" -f $dt.Year)
 }
 
+function Resolve-PlayerLogSeasons {
+  param([string]$DateValue)
+
+  $seasonYear = Resolve-SeasonYear -DateValue $DateValue
+  $values = @()
+  if ($seasonYear -gt 1) {
+    $values += [string]($seasonYear - 1)
+  }
+  $values += [string]$seasonYear
+  return (($values | Select-Object -Unique) -join ',')
+}
+
 function Resolve-SeasonYear {
   param([string]$DateValue)
 
@@ -1574,9 +1586,11 @@ try {
 } catch { }
 
 $seasonStr = $null
+$playerLogSeasons = $null
 $rostersPath = $null
 try {
   $seasonStr = Resolve-SeasonString -DateValue $Date
+  $playerLogSeasons = Resolve-PlayerLogSeasons -DateValue $Date
   $rostersPath = Join-Path $RepoRoot ("data/processed/rosters_{0}.csv" -f $seasonStr)
 } catch {
   Write-Log ("Season resolution failed for date={0}: {1}" -f $Date, $_.Exception.Message)
@@ -1673,15 +1687,15 @@ try {
 } catch {
   Write-Log ("Player logs prerequisite failed: {0}" -f $_.Exception.Message)
   throw
-}
-
+    if ([string]::IsNullOrWhiteSpace($playerLogSeasons)) {
+      throw "player-log seasons unavailable for player logs refresh"
 # 0.55) One-time playoff transition retune after the regular season completes.
 try {
   $playoffRetune = Get-PlayoffRetuneDecision -DateValue $Date -SeasonValue $seasonStr -RepoRootPath $RepoRoot
   Write-Log $playoffRetune.Reason
   if ($playoffRetune.Run) {
-    $playoffRetuneTimeoutSeconds = 1800
-    try {
+      Write-Log ("Fetching player logs for seasons {0}" -f $playerLogSeasons)
+      $rcLogs = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $playerLogSeasons) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_player_logs'
       $prtTo = $env:DAILY_PLAYOFF_RETUNE_TIMEOUT_SEC
       if ($null -ne $prtTo -and $prtTo -ne '') {
         $playoffRetuneTimeoutSeconds = [int]$prtTo
