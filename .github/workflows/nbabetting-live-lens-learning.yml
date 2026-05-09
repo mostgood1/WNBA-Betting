@@ -56,7 +56,7 @@ jobs:
             if [ "$rc" -ne 0 ]; then http="000"; fi
             cat resp.txt || true
             if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
-                  python -c "import json, pathlib; resp = json.loads(pathlib.Path('resp.txt').read_text(encoding='utf-8')); bad = [f'{key}={resp.get(key)}' for key in ('rc_audit', 'rc_roi', 'rc_rollup') if resp.get(key) is not None and int(resp.get(key)) != 0]; raise SystemExit('Render live-lens reports returned nonzero rc: ' + ', '.join(bad)) if bad else None"
+                      python -c "import json, pathlib, sys; resp = json.loads(pathlib.Path('resp.txt').read_text(encoding='utf-8')); bad = [f'{key}={resp.get(key)}' for key in ('rc_audit', 'rc_roi', 'rc_rollup') if resp.get(key) is not None and int(resp.get(key)) != 0]; sys.exit('Render live-lens reports returned nonzero rc: ' + ', '.join(bad) if bad else 0)"
               exit 0
             fi
             echo "Request attempt $i -> HTTP $http" >&2
@@ -111,7 +111,7 @@ jobs:
             if [ "$rc" -ne 0 ]; then http="000"; fi
             cat resp.txt || true
             if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
-                python -c "import json, pathlib; resp = json.loads(pathlib.Path('resp.txt').read_text(encoding='utf-8')); value = resp.get('rc'); raise SystemExit(f'Render live-lens tune returned nonzero rc: rc={value}') if value is not None and int(value) != 0 else None"
+                  python -c "import json, pathlib, sys; resp = json.loads(pathlib.Path('resp.txt').read_text(encoding='utf-8')); value = resp.get('rc'); sys.exit(f'Render live-lens tune returned nonzero rc: rc={value}' if value is not None and int(value) != 0 else 0)"
               exit 0
             fi
             echo "Request attempt $i -> HTTP $http" >&2
