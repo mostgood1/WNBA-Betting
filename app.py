@@ -1738,6 +1738,65 @@ def _live_prop_selected_gap(selected_side: Any, over_gap: Any) -> float:
     return float(gap)
 
 
+def _live_prop_rotation_minutes_adjustment(
+    *,
+    mp: Any,
+    elapsed_min: Any,
+    exp_min_eff: Any,
+    regulation_game_min: Any,
+    starter: Any,
+    rot_on_court: Any,
+    rot_cur_on_sec: Any,
+    rot_cur_off_sec: Any,
+    rot_avg_stint_sec: Any,
+    rot_avg_rest_sec: Any,
+    stints_n: Any,
+    rests_n: Any,
+) -> tuple[float | None, float | None, float | None]:
+    mp_v = _safe_float(mp)
+    elapsed_v = _safe_float(elapsed_min)
+    exp_v = _safe_float(exp_min_eff)
+    regulation_v = _safe_float(regulation_game_min)
+    if mp_v is None or elapsed_v is None or exp_v is None or regulation_v is None or elapsed_v < 6.0:
+        return exp_v, None, None
+
+    base = float(max(float(mp_v), min(float(regulation_v), float(exp_v))))
+    rem_game_min = float(max(0.0, float(regulation_v) - float(elapsed_v)))
+    rem_target_min = float(max(0.0, float(base) - float(mp_v)))
+    if rem_game_min <= 0.0 or rem_target_min <= 0.0:
+        return base, None, None
+
+    try:
+        starter_flag = bool(starter) if starter is not None else None
+    except Exception:
+        starter_flag = None
+    regulation_ratio = float(max(0.5, min(1.25, float(regulation_v) / 48.0)))
+    avg_stint_sec = _safe_float(rot_avg_stint_sec)
+    avg_rest_sec = _safe_float(rot_avg_rest_sec)
+    avg_stint_sec = float(avg_stint_sec) if avg_stint_sec is not None else ((390.0 if starter_flag is True else 330.0) * regulation_ratio)
+    avg_rest_sec = float(avg_rest_sec) if avg_rest_sec is not None else ((240.0 if starter_flag is True else 300.0) * regulation_ratio)
+    avg_stint_sec = float(max(120.0 * regulation_ratio, min(720.0 * regulation_ratio, avg_stint_sec)))
+    avg_rest_sec = float(max(60.0 * regulation_ratio, min(900.0 * regulation_ratio, avg_rest_sec)))
+
+    playable_min = None
+    if bool(rot_on_court):
+        cur_on = float(_safe_float(rot_cur_on_sec) or 0.0)
+        t_left = float(max(0.0, avg_stint_sec - cur_on)) / 60.0
+        rest_after = float(avg_rest_sec) / 60.0
+        playable_min = float(min(rem_target_min, min(rem_game_min, t_left + max(0.0, rem_game_min - t_left - rest_after))))
+    else:
+        cur_off = float(_safe_float(rot_cur_off_sec) or 0.0)
+        wait = float(max(0.0, avg_rest_sec - cur_off)) / 60.0
+        playable_min = float(min(rem_target_min, max(0.0, rem_game_min - wait)))
+
+    exp_min_rot = float(max(float(mp_v), min(float(regulation_v), float(mp_v) + float(max(0.0, playable_min)))))
+    conf = max(0.0, min(1.0, float(max(_safe_int(stints_n) or 0, _safe_int(rests_n) or 0)) / 2.0))
+    w_time = max(0.0, min(0.60, float(elapsed_v - 6.0) / 42.0))
+    rot_w = float(max(0.0, min(0.60, w_time * (0.35 + 0.65 * conf))))
+    exp_min_eff_used = float((1.0 - float(rot_w)) * base + float(rot_w) * float(exp_min_rot))
+    return exp_min_eff_used, rot_w, exp_min_rot
+
+
 def _live_prop_shape_payload(
     *,
     market_key: Any,
@@ -38746,43 +38805,22 @@ def api_live_player_lens():
                         rot_cur_off_sec = _safe_int(rot.get("cur_off_sec"))
                         rot_avg_stint_sec = _safe_float(rot.get("avg_stint_sec"))
                         rot_avg_rest_sec = _safe_float(rot.get("avg_rest_sec"))
-                        stints_n = _safe_int(rot.get("stints_n")) or 0
-                        rests_n = _safe_int(rot.get("rests_n")) or 0
-                        regulation_ratio = float(max(0.5, min(1.25, float(regulation_game_min) / 48.0)))
-
-                        base = float(max(float(mp), min(float(regulation_game_min), float(exp_min_eff))))
-                        rem_game_min = float(max(0.0, regulation_game_min - float(elapsed_min)))
-                        rem_target_min = float(max(0.0, base - float(mp)))
-                        if rem_game_min > 0 and rem_target_min > 0:
-                            st = None
-                            try:
-                                st = bool(starter) if starter is not None else None
-                            except Exception:
-                                st = None
-                            # Fallback priors when we have no completed stint/rest history.
-                            avg_stint_sec = float(rot_avg_stint_sec) if rot_avg_stint_sec is not None else ((390.0 if st is True else 330.0) * regulation_ratio)
-                            avg_rest_sec = float(rot_avg_rest_sec) if rot_avg_rest_sec is not None else ((240.0 if st is True else 300.0) * regulation_ratio)
-                            avg_stint_sec = float(max(120.0 * regulation_ratio, min(720.0 * regulation_ratio, avg_stint_sec)))
-                            avg_rest_sec = float(max(60.0 * regulation_ratio, min(900.0 * regulation_ratio, avg_rest_sec)))
-
-                            playable_min = None
-                            if rot_on_court:
-                                cur_on = float(rot_cur_on_sec or 0)
-                                t_left = float(max(0.0, avg_stint_sec - cur_on)) / 60.0
-                                rest_after = float(avg_rest_sec) / 60.0
-                                playable_min = float(min(rem_target_min, min(rem_game_min, t_left + max(0.0, rem_game_min - t_left - rest_after))))
-                            else:
-                                cur_off = float(rot_cur_off_sec or 0)
-                                wait = float(max(0.0, avg_rest_sec - cur_off)) / 60.0
-                                playable_min = float(min(rem_target_min, max(0.0, rem_game_min - wait)))
-
-                                exp_min_rot = float(max(float(mp), min(float(regulation_game_min), float(mp) + float(max(0.0, playable_min)))))
-
-                            # Confidence: more weight once we observed at least one true stint or rest.
-                            conf = max(0.0, min(1.0, float(max(stints_n, rests_n)) / 2.0))
-                            w_time = max(0.0, min(0.60, float(elapsed_min - 6.0) / 42.0))
-                            rot_w = float(max(0.0, min(0.60, w_time * (0.35 + 0.65 * conf))))
-                            exp_min_eff_used = float((1.0 - float(rot_w)) * base + float(rot_w) * float(exp_min_rot))
+                        stints_n = _safe_int(rot.get("stints_n"))
+                        rests_n = _safe_int(rot.get("rests_n"))
+                        exp_min_eff_used, rot_w, exp_min_rot = _live_prop_rotation_minutes_adjustment(
+                            mp=mp,
+                            elapsed_min=elapsed_min,
+                            exp_min_eff=exp_min_eff,
+                            regulation_game_min=regulation_game_min,
+                            starter=starter,
+                            rot_on_court=rot_on_court,
+                            rot_cur_on_sec=rot_cur_on_sec,
+                            rot_cur_off_sec=rot_cur_off_sec,
+                            rot_avg_stint_sec=rot_avg_stint_sec,
+                            rot_avg_rest_sec=rot_avg_rest_sec,
+                            stints_n=stints_n,
+                            rests_n=rests_n,
+                        )
                 except Exception:
                     pass
 
@@ -43732,6 +43770,148 @@ def api_cron_live_lens_reports():
         ), 200
 
 
+@app.route("/api/cron/live-lens-tune", methods=["POST", "GET"])
+def api_cron_live_lens_tune():
+    """Run the daily Live Lens tuner on the web service persistent disk."""
+    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+        return jsonify({"error": "unauthorized"}), 401
+
+    ds = _parse_date_param(request, default_to_today=False)
+    if not ds:
+        ds = (datetime.utcnow().date() - timedelta(days=1)).isoformat()
+    try:
+        datetime.strptime(ds, "%Y-%m-%d")
+    except Exception:
+        return jsonify({"error": "invalid date"}), 400
+
+    def _arg_int(name: str, default: int, lo: int, hi: int) -> int:
+        try:
+            value = int(float(str(request.args.get(name) or default).strip()))
+        except Exception:
+            value = int(default)
+        return int(max(lo, min(hi, value)))
+
+    def _arg_float(name: str, default: float, lo: float, hi: float) -> float:
+        try:
+            value = float(str(request.args.get(name) or default).strip())
+        except Exception:
+            value = float(default)
+        return float(max(lo, min(hi, value)))
+
+    lookback_days = _arg_int("lookback_days", 7, 1, 60)
+    props_lookback_days = _arg_int("props_lookback_days", 14, 1, 90)
+    min_bets = _arg_int("min_bets", 25, 5, 500)
+    props_min_bets = _arg_int("props_min_bets", 40, 5, 500)
+    sigma_min_bets_per_stat = _arg_int("props_sigma_min_bets_per_stat", 15, 5, 200)
+    bet_threshold = _arg_float("bet_threshold", 6.0, 1.0, 25.0)
+    juice = _arg_float("juice", 110.0, 100.0, 200.0)
+
+    write_override = str(request.args.get("write_override", "1")).lower() in {"1", "true", "yes"}
+    props_sigma = str(request.args.get("props_sigma", "1")).lower() in {"1", "true", "yes"}
+    props_sigma_per_stat = str(request.args.get("props_sigma_per_stat", "1")).lower() in {"1", "true", "yes"}
+    props_require_logged_bets = str(request.args.get("props_require_logged_bets", "0")).lower() in {"1", "true", "yes"}
+    do_push = str(request.args.get("push", "0")).lower() in {"1", "true", "yes"}
+
+    logs_dir = _ensure_logs_dir()
+    stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    log_file = logs_dir / f"cron_live_lens_tune_{ds}_{stamp}.log"
+
+    py = _resolve_python()
+    env = dict(os.environ)
+    env["PYTHONPATH"] = str(SRC_DIR)
+
+    try:
+        cmd = [
+            str(py),
+            str(BASE_DIR / "tools" / "daily_live_lens_tune.py"),
+            "--end",
+            ds,
+            "--lookback-days",
+            str(int(lookback_days)),
+            "--props-lookback-days",
+            str(int(props_lookback_days)),
+            "--bet-threshold",
+            str(float(bet_threshold)),
+            "--juice",
+            str(float(juice)),
+            "--min-bets",
+            str(int(min_bets)),
+            "--props-min-bets",
+            str(int(props_min_bets)),
+            "--props-sigma-min-bets-per-stat",
+            str(int(sigma_min_bets_per_stat)),
+        ]
+        if write_override:
+            cmd.append("--write-override")
+        if props_sigma:
+            cmd.append("--props-sigma")
+        if props_sigma_per_stat:
+            cmd.append("--props-sigma-per-stat")
+        if props_require_logged_bets:
+            cmd.append("--props-require-logged-bets")
+
+        rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
+
+        override_path = _live_lens_artifacts_dir() / "live_lens_tuning_override.json"
+        try:
+            optimized_path = _live_latest_adjustments_optimized_path()
+        except Exception:
+            optimized_path = None
+
+        pushed = None
+        push_detail = None
+        if do_push:
+            ok, detail = _git_commit_and_push(msg=f"live lens tuning {ds}")
+            pushed = bool(ok)
+            push_detail = detail
+
+        try:
+            _cron_meta_update(
+                "live_lens_tune",
+                {
+                    "date": ds,
+                    "lookback_days": int(lookback_days),
+                    "props_lookback_days": int(props_lookback_days),
+                    "min_bets": int(min_bets),
+                    "props_min_bets": int(props_min_bets),
+                    "write_override": bool(write_override),
+                    "props_sigma": bool(props_sigma),
+                    "props_sigma_per_stat": bool(props_sigma_per_stat),
+                    "props_require_logged_bets": bool(props_require_logged_bets),
+                    "override_path": str(override_path),
+                    "override_exists": bool(override_path.exists()),
+                    "optimized_path": (str(optimized_path) if optimized_path else None),
+                    "rc": int(rc),
+                    "log_file": str(log_file),
+                },
+            )
+        except Exception:
+            pass
+
+        return jsonify(
+            {
+                "date": ds,
+                "lookback_days": int(lookback_days),
+                "props_lookback_days": int(props_lookback_days),
+                "min_bets": int(min_bets),
+                "props_min_bets": int(props_min_bets),
+                "write_override": bool(write_override),
+                "props_sigma": bool(props_sigma),
+                "props_sigma_per_stat": bool(props_sigma_per_stat),
+                "props_require_logged_bets": bool(props_require_logged_bets),
+                "override_path": str(override_path),
+                "override_exists": bool(override_path.exists()),
+                "optimized_path": (str(optimized_path) if optimized_path else None),
+                "rc": int(rc),
+                "log_file": str(log_file),
+                "pushed": pushed,
+                "push_detail": push_detail,
+            }
+        ), 200
+    except Exception as e:
+        return jsonify({"date": ds, "error": f"live lens tune failed: {e}", "log_file": str(log_file)}), 200
+
+
 @app.route("/api/cron/config")
 def api_cron_config():
     """Introspection for cron/admin configuration (safe to expose booleans only)."""
@@ -43744,6 +43924,7 @@ def api_cron_config():
                 "/api/cron/daily-update",
                 "/api/cron/live-lens-tick",
                 "/api/cron/live-lens-reports",
+                "/api/cron/live-lens-tune",
                 "/api/cron/refresh-bovada",
                 "/api/cron/refresh-oddsapi-props",
                 "/api/cron/assess-oddsapi",

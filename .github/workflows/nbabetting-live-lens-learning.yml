@@ -1,0 +1,122 @@
+name: WNBA Live Lens Learning
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "20 10 * * *"
+
+concurrency:
+  group: wnbabetting-live-lens-learning
+  cancel-in-progress: false
+
+env:
+  WNBA_BETTING_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL }}
+  WNBA_BETTING_CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN || secrets.CRON_TOKEN }}
+
+jobs:
+  live-lens-reports:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preflight (config + cron ping)
+        run: |
+          set -euo pipefail
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
+          echo "[preflight] GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Preflight attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
+      - name: Build yesterday live-lens reports
+        run: |
+          set -euo pipefail
+          DATE=$(date -u -d yesterday +%F)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/live-lens-reports?date=${DATE}&rollup_days=30&min_denom=20&markets=player_prop,total,half_total,quarter_total,ats"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Request attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
+
+  live-lens-tune:
+    needs: live-lens-reports
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preflight (config + cron ping)
+        run: |
+          set -euo pipefail
+          test -n "${WNBA_BETTING_BASE_URL}" || (echo 'Missing WNBA_BETTING_BASE_URL' && exit 1)
+          test -n "${WNBA_BETTING_CRON_TOKEN}" || (echo 'Missing WNBA_BETTING_CRON_TOKEN (set CRON_TOKEN or WNBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/ping"
+          echo "[preflight] GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Preflight attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
+      - name: Tune live-lens override on Render
+        run: |
+          set -euo pipefail
+          DATE=$(date -u -d yesterday +%F)
+          URL="${WNBA_BETTING_BASE_URL%/}/api/cron/live-lens-tune?date=${DATE}&lookback_days=7&props_lookback_days=14&min_bets=25&props_min_bets=40&props_sigma=1&props_sigma_per_stat=1&write_override=1"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${WNBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Request attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1

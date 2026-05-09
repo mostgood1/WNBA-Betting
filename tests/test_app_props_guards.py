@@ -264,6 +264,52 @@ def test_api_cards_falls_back_to_predictions_when_smart_sim_missing(tmp_path, mo
     assert "Using predictions fallback because SmartSim artifact is missing for this matchup." in (game.get("warnings") or [])
 
 
+def test_live_prop_rotation_minutes_adjustment_handles_on_court_players():
+    exp_min_eff_used, rot_w, exp_min_rot = app_module._live_prop_rotation_minutes_adjustment(
+        mp=24.0,
+        elapsed_min=30.0,
+        exp_min_eff=32.0,
+        regulation_game_min=40.0,
+        starter=True,
+        rot_on_court=True,
+        rot_cur_on_sec=120,
+        rot_cur_off_sec=None,
+        rot_avg_stint_sec=360.0,
+        rot_avg_rest_sec=180.0,
+        stints_n=3,
+        rests_n=2,
+    )
+
+    assert exp_min_rot is not None
+    assert rot_w is not None and rot_w > 0.0
+    assert exp_min_eff_used is not None
+    assert exp_min_eff_used >= 24.0
+    assert exp_min_eff_used <= 32.0
+
+
+def test_live_prop_rotation_minutes_adjustment_handles_off_court_players():
+    exp_min_eff_used, rot_w, exp_min_rot = app_module._live_prop_rotation_minutes_adjustment(
+        mp=18.0,
+        elapsed_min=28.0,
+        exp_min_eff=30.0,
+        regulation_game_min=40.0,
+        starter=False,
+        rot_on_court=False,
+        rot_cur_on_sec=None,
+        rot_cur_off_sec=90,
+        rot_avg_stint_sec=300.0,
+        rot_avg_rest_sec=240.0,
+        stints_n=2,
+        rests_n=2,
+    )
+
+    assert exp_min_rot is not None
+    assert rot_w is not None and rot_w > 0.0
+    assert exp_min_eff_used is not None
+    assert exp_min_eff_used >= 18.0
+    assert exp_min_eff_used <= 30.0
+
+
 def test_load_smart_sim_files_for_date_prefers_repo_copy_over_active_data_root(tmp_path, monkeypatch):
     repo_processed = tmp_path / "repo" / "data" / "processed"
     active_processed = tmp_path / "active" / "data" / "processed"

@@ -2,13 +2,16 @@ name: WNBA Live Lens Tick
 
 on:
   workflow_dispatch: {}
+  schedule:
+    - cron: "*/5 15-23 * * *"
+    - cron: "*/5 0-4 * * *"
 
 concurrency:
   group: wnbabetting-live-lens-tick
   cancel-in-progress: true
 
 env:
-  WNBA_BETTING_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL || secrets.RENDER_URL }}
+  WNBA_BETTING_BASE_URL: ${{ secrets.WNBA_BETTING_BASE_URL }}
   WNBA_BETTING_CRON_TOKEN: ${{ secrets.WNBA_BETTING_CRON_TOKEN || secrets.CRON_TOKEN }}
 
 jobs:
