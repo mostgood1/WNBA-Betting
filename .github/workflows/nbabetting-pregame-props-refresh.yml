@@ -204,7 +204,11 @@ jobs:
               python3 -c 'import json, os; print(json.dumps({"date_str": os.environ["EXPECTED_DATE"], "regions": "us", "bookmakers": "fanduel,draftkings,betmgm,bet365", "markets": "", "do_edges": True, "do_export": True, "do_push": False, "log_file": os.environ["LOCAL_LOG_FILE"], "started_at": os.environ["STARTED_AT"]}))'
           )"
 
-          python3 -m nba_betting.refresh_oddsapi_props_job
+          set +e
+          python3 -m wnba_betting.refresh_oddsapi_props_job
+          LOCAL_REFRESH_WORKER_RC=$?
+          set -e
+          echo "Local refresh worker exit code: ${LOCAL_REFRESH_WORKER_RC}"
 
           python3 - <<'PY'
           import json
