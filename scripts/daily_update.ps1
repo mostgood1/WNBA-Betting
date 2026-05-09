@@ -1656,8 +1656,8 @@ try {
 }
 # 0.5) Fetch current-season player logs (used for roster sanity checks and calibration)
 try {
-  if ([string]::IsNullOrWhiteSpace($seasonStr)) {
-    throw "season string unavailable for player logs"
+  if ([string]::IsNullOrWhiteSpace($playerLogSeasons)) {
+    throw "player-log seasons unavailable for player logs refresh"
   }
   $plCsv = Join-Path $RepoRoot 'data/processed/player_logs.csv'
   $plParquet = Join-Path $RepoRoot 'data/processed/player_logs.parquet'
@@ -1667,8 +1667,8 @@ try {
   if (Test-FreshFile -Path $plCsv -MaxAgeMinutes $maxAgeMin) {
     Write-Log ("player_logs.csv already fresh (<= {0}h); skipping fetch-player-logs" -f $maxAgeH)
   } else {
-    Write-Log ("Fetching player logs for season {0}" -f $seasonStr)
-    $rcLogs = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_player_logs'
+    Write-Log ("Fetching player logs for seasons {0}" -f $playerLogSeasons)
+    $rcLogs = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $playerLogSeasons) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_player_logs'
     Write-Log ("fetch-player-logs exit code: {0}" -f $rcLogs)
     $playerLogsReady = $false
     if (Test-CsvHasDataRows -Path $plCsv) {
@@ -1687,15 +1687,15 @@ try {
 } catch {
   Write-Log ("Player logs prerequisite failed: {0}" -f $_.Exception.Message)
   throw
-    if ([string]::IsNullOrWhiteSpace($playerLogSeasons)) {
-      throw "player-log seasons unavailable for player logs refresh"
+}
+
 # 0.55) One-time playoff transition retune after the regular season completes.
 try {
   $playoffRetune = Get-PlayoffRetuneDecision -DateValue $Date -SeasonValue $seasonStr -RepoRootPath $RepoRoot
   Write-Log $playoffRetune.Reason
   if ($playoffRetune.Run) {
-      Write-Log ("Fetching player logs for seasons {0}" -f $playerLogSeasons)
-      $rcLogs = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $playerLogSeasons) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_player_logs'
+    $playoffRetuneTimeoutSeconds = 1800
+    try {
       $prtTo = $env:DAILY_PLAYOFF_RETUNE_TIMEOUT_SEC
       if ($null -ne $prtTo -and $prtTo -ne '') {
         $playoffRetuneTimeoutSeconds = [int]$prtTo
