@@ -21146,8 +21146,8 @@ def api_cards():
         prop_recommendations_snapshot = cards_prop_recommendations_index.get((home_tri, away_tri)) if props_source in {"auto", "snapshot"} else None
         use_source_prop_recommendations = (
             props_source == "source"
-            or (game_started and props_source != "runtime")
-            or (props_source == "auto" and not isinstance(prop_recommendations_snapshot, dict))
+            or (game_started and props_source != "runtime" and not isinstance(prop_recommendations_snapshot, dict))
+            or (props_source == "auto" and not game_started and not isinstance(prop_recommendations_snapshot, dict))
         )
         started_source_prop_fallback = None
         if use_source_prop_recommendations:

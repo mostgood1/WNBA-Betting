@@ -833,6 +833,132 @@ def test_api_cards_started_game_uses_source_props_when_snapshot_missing(monkeypa
     assert game["prop_recommendations"]["home"][0]["best"]["line"] == 27.5
 
 
+def test_api_cards_started_game_prefers_snapshot_when_available(monkeypatch):
+    now_local = app_module.datetime(2026, 3, 28, 19, 30, 0)
+
+    monkeypatch.setattr(app_module, "_best_bets_local_now_naive", lambda: now_local)
+    monkeypatch.setattr(
+        app_module,
+        "_live_build_scoreboard_games",
+        lambda _date: (
+            "espn",
+            [
+                {
+                    "home": "PHX",
+                    "away": "UTA",
+                    "in_progress": True,
+                    "final": False,
+                    "status": "Q1 08:12",
+                }
+            ],
+        ),
+    )
+    monkeypatch.setattr(app_module, "_load_smart_sim_files_for_authoritative_slate", lambda _date: [])
+    monkeypatch.setattr(app_module, "_find_next_available_smart_sim_date", lambda *_args, **_kwargs: (None, []))
+    monkeypatch.setattr(
+        app_module,
+        "_load_game_odds_map",
+        lambda _date: {
+            ("PHX", "UTA"): {
+                "home_team": "Phoenix Suns",
+                "visitor_team": "Utah Jazz",
+                "home_spread": -5.5,
+                "total": 229.5,
+                "commence_time": "2026-03-28T22:00:00Z",
+            }
+        },
+    )
+    monkeypatch.setattr(
+        app_module,
+        "_load_predictions_rows_map",
+        lambda _date: {
+            ("PHX", "UTA"): {
+                "date": "2026-03-28",
+                "home_team": "PHOENIX SUNS",
+                "visitor_team": "UTAH JAZZ",
+                "commence_time": "2026-03-28T22:00:00Z",
+            }
+        },
+    )
+    monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
+    monkeypatch.setattr(
+        app_module,
+        "_load_props_recommendations_by_team",
+        lambda _date: {
+            "PHX": [
+                {
+                    "player": "Source Player",
+                    "top_play": {
+                        "market": "pts",
+                        "side": "OVER",
+                        "line": 27.5,
+                        "price": -110,
+                    },
+                    "plays": [
+                        {
+                            "market": "pts",
+                            "side": "OVER",
+                            "line": 27.5,
+                            "price": -110,
+                        }
+                    ],
+                }
+            ]
+        },
+    )
+    monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_game_context", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_props_prediction_lookup", lambda _date: {})
+    monkeypatch.setattr(app_module, "_best_bets_load_injury_snapshot", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_game_recommendations_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_prop_snapshot_index", lambda _date: {})
+    monkeypatch.setattr(
+        app_module,
+        "_load_cards_prop_recommendations_index",
+        lambda _date: {
+            ("PHX", "UTA"): {
+                "home": [
+                    {
+                        "player": "Snapshot Player",
+                        "card_bucket": "official",
+                        "card_rank": 1,
+                        "best": {
+                            "market": "pts",
+                            "side": "OVER",
+                            "line": 30.5,
+                            "price": -110,
+                        },
+                        "picks": [],
+                    }
+                ],
+                "away": [],
+            }
+        },
+    )
+    monkeypatch.setattr(app_module, "_load_cards_sim_detail_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_build_cards_game_market_recommendations", lambda **kwargs: [])
+    monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
+
+    def _unexpected_runtime(*args, **kwargs):
+        raise AssertionError("runtime prop recompute should not run for started games when a snapshot exists")
+
+    monkeypatch.setattr(app_module, "_sim_vs_line_prop_recommendations", _unexpected_runtime)
+
+    with app_module.app.test_request_context("/api/cards?date=2026-03-28"):
+        response = app_module.api_cards()
+
+    payload = response.get_json()
+    game = payload["games"][0]
+
+    assert game["plays_locked"] is True
+    assert len(game["prop_recommendations"]["home"]) == 1
+    assert game["prop_recommendations"]["home"][0]["player"] == "Snapshot Player"
+    assert game["prop_recommendations"]["home"][0]["best"]["line"] == 30.5
+
+
 def test_api_cards_started_game_preserves_source_props_when_buckets_drop_everything(monkeypatch):
     now_local = app_module.datetime(2026, 3, 28, 19, 30, 0)
 
