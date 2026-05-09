@@ -517,15 +517,18 @@
     });
   }
 
-  async function ensureSimDetail(cardTarget) {
+  async function ensureSimDetail(cardTarget, options = {}) {
     const target = String(cardTarget || '').trim();
+    const renderOnUpdate = options?.renderOnUpdate !== false;
     if (!target) {
       return;
     }
     const cached = state.simDetailCache.get(target);
     if (cached) {
       mergeSimDetail(target, cached);
-      renderGameCardByTarget(target);
+      if (renderOnUpdate) {
+        renderGameCardByTarget(target);
+      }
       return;
     }
     const game = findGameByCardId(target);
@@ -539,7 +542,9 @@
       return;
     }
     state.simDetailLoading.add(target);
-    renderGameCardByTarget(target);
+    if (renderOnUpdate) {
+      renderGameCardByTarget(target);
+    }
     try {
       const params = new URLSearchParams({
         date: dateValue,
@@ -556,7 +561,26 @@
     } catch (_error) {
     } finally {
       state.simDetailLoading.delete(target);
-      renderGameCardByTarget(target);
+      if (renderOnUpdate) {
+        renderGameCardByTarget(target);
+      }
+    }
+  }
+
+  async function prefetchSlateSimDetails(games, options = {}) {
+    const epoch = Number(options?.epoch || 0);
+    const dateValue = String(options?.dateValue || state.payload?.date || state.date || '').trim();
+    const targets = sortGamesForDisplay(games)
+      .map((game) => cardId(game))
+      .filter(Boolean);
+    for (const target of targets) {
+      if (epoch && epoch !== state.refreshEpoch) {
+        return;
+      }
+      if (dateValue && String(state.payload?.date || state.date || '').trim() !== dateValue) {
+        return;
+      }
+      await ensureSimDetail(target, { renderOnUpdate: false });
     }
   }
 
@@ -4697,9 +4721,9 @@
         <div class="cards-panel-card cards-box-panel">
           <div class="cards-box-head">
             <div class="cards-table-title"><strong>Sim box score</strong></div>
-            <span class="cards-chip">${escapeHtml(totalRows ? `${totalRows} projected rows` : 'On demand')}</span>
+            <span class="cards-chip">${escapeHtml(totalRows ? `${totalRows} projected rows` : 'Loading')}</span>
           </div>
-          <div class="cards-callout-copy">${escapeHtml(detailLoading ? 'Loading per-player sim rows for this matchup.' : 'Per-player SmartSim rows load only when you open a game detail tab, so the main betting card stays fast.')}</div>
+          <div class="cards-callout-copy">${escapeHtml(detailLoading ? 'Loading per-player sim rows for this matchup.' : 'Per-player SmartSim rows are preloading in the background for this slate.')}</div>
         </div>
       `;
     }
@@ -5497,7 +5521,10 @@
         }
       });
 
-        void loadPropsStrip(resolvedDate, { silent, games: payload.games || [], epoch });
+      void loadPropsStrip(resolvedDate, { silent, games: payload.games || [], epoch });
+      if (!slateUnchanged || !state.boardInitialized || !silent) {
+        void prefetchSlateSimDetails(payload.games || [], { epoch, dateValue: resolvedDate });
+      }
 
     } catch (error) {
       if (epoch !== state.refreshEpoch) {
