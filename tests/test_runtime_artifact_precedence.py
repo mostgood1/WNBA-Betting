@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+from nba_betting import config as config_module
 from nba_betting import prob_calibration
 from nba_betting.sim import quarters
 
@@ -68,3 +69,69 @@ def test_quarters_blend_weights_prefer_repo_copy_over_active_data_root(tmp_path,
 
     assert total_w == 0.55
     assert margin_w == 0.85
+
+
+def test_data_root_prefers_render_mount_when_env_missing(tmp_path, monkeypatch):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True)
+    render_root = tmp_path / "render-data"
+    render_root.mkdir(parents=True)
+
+    monkeypatch.delenv(config_module.LEAGUE.data_root_env, raising=False)
+    monkeypatch.delenv(config_module.LEAGUE.legacy_data_root_env, raising=False)
+    monkeypatch.setattr(config_module, "_RENDER_DEFAULT_DATA_ROOT", render_root)
+
+    assert config_module._data_root(repo_root) == render_root
+
+
+def test_reconcile_repo_data_to_active_detects_non_repo_root_without_env(tmp_path, monkeypatch):
+    repo_data_root = tmp_path / "repo" / "data"
+    active_data_root = tmp_path / "active" / "data"
+    repo_processed = repo_data_root / "processed"
+    active_processed = active_data_root / "processed"
+    repo_raw = repo_data_root / "raw"
+    active_raw = active_data_root / "raw"
+    repo_overrides = repo_data_root / "overrides"
+    active_overrides = active_data_root / "overrides"
+
+    repo_processed.mkdir(parents=True)
+    active_processed.mkdir(parents=True)
+    repo_raw.mkdir(parents=True)
+    active_raw.mkdir(parents=True)
+    repo_overrides.mkdir(parents=True)
+    active_overrides.mkdir(parents=True)
+
+    source_file = repo_processed / "live_lens_projections_2026-05-09.jsonl"
+    source_file.write_text('{"ok": true}\n', encoding="utf-8")
+
+    old_values = {
+        "repo_data_root": config_module.paths.repo_data_root,
+        "data_root": config_module.paths.data_root,
+        "repo_data_raw": config_module.paths.repo_data_raw,
+        "data_raw": config_module.paths.data_raw,
+        "repo_data_processed": config_module.paths.repo_data_processed,
+        "data_processed": config_module.paths.data_processed,
+        "repo_data_overrides": config_module.paths.repo_data_overrides,
+        "data_overrides": config_module.paths.data_overrides,
+    }
+    object.__setattr__(config_module.paths, "repo_data_root", repo_data_root)
+    object.__setattr__(config_module.paths, "data_root", active_data_root)
+    object.__setattr__(config_module.paths, "repo_data_raw", repo_raw)
+    object.__setattr__(config_module.paths, "data_raw", active_raw)
+    object.__setattr__(config_module.paths, "repo_data_processed", repo_processed)
+    object.__setattr__(config_module.paths, "data_processed", active_processed)
+    object.__setattr__(config_module.paths, "repo_data_overrides", repo_overrides)
+    object.__setattr__(config_module.paths, "data_overrides", active_overrides)
+    monkeypatch.delenv(config_module.LEAGUE.data_root_env, raising=False)
+    monkeypatch.delenv(config_module.LEAGUE.legacy_data_root_env, raising=False)
+
+    try:
+        result = config_module.reconcile_repo_data_to_active()
+    finally:
+        for name, value in old_values.items():
+            object.__setattr__(config_module.paths, name, value)
+
+    assert result["ok"] is True
+    assert result["skipped"] is False
+    assert result["files_copied"] == 1
+    assert (active_processed / source_file.name).exists()

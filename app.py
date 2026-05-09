@@ -39433,6 +39433,11 @@ def api_live_player_lens():
                                     pace_proj = float(w * pace_raw + (1.0 - w) * prior_total)
                                 else:
                                     pace_proj = pace_raw
+
+                                # Live player props are cumulative stats, so the projection should never
+                                # drop below the current realized total already on the scoreboard.
+                                if pace_proj is not None and actual is not None:
+                                    pace_proj = float(max(float(actual), float(pace_proj)))
                             except Exception:
                                 pace_proj = None
 

@@ -6,12 +6,24 @@ from pathlib import Path
 from .league import LEAGUE
 
 
+_RENDER_DEFAULT_DATA_ROOT = Path("/opt/render/project/data")
+
+
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
 def _repo_data_root(repo_root: Path) -> Path:
     return repo_root / "data"
+
+
+def _render_data_root() -> Path | None:
+    try:
+        if _RENDER_DEFAULT_DATA_ROOT.exists() and _RENDER_DEFAULT_DATA_ROOT.is_dir():
+            return _RENDER_DEFAULT_DATA_ROOT
+    except Exception:
+        return None
+    return None
 
 
 def _data_root(repo_root: Path) -> Path:
@@ -32,6 +44,9 @@ def _data_root(repo_root: Path) -> Path:
         except Exception:
             # Fall back to repo-local data dir
             return repo_root / "data"
+    render_root = _render_data_root()
+    if render_root is not None:
+        return render_root
     return repo_root / "data"
 
 
@@ -93,13 +108,18 @@ def reconcile_repo_data_to_active() -> dict[str, object]:
     - Defaults to enabled when WNBA_BETTING_DATA_ROOT is set.
     """
     try:
-        override_set = bool(
+        env_override_set = bool(
             (
                 os.environ.get(LEAGUE.data_root_env)
                 or os.environ.get(LEAGUE.legacy_data_root_env)
                 or ""
             ).strip()
         )
+        try:
+            active_override_set = paths.repo_data_root.resolve() != paths.data_root.resolve()
+        except Exception:
+            active_override_set = str(paths.repo_data_root) != str(paths.data_root)
+        override_set = bool(env_override_set or active_override_set)
         if _falsy_env("WNBA_BETTING_RECONCILE_REPO_DATA", default=False) or _falsy_env("NBA_BETTING_RECONCILE_REPO_DATA", default=False):
             return {"ok": True, "skipped": True, "reason": "disabled"}
         if not override_set and not (
