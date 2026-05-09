@@ -4,6 +4,7 @@ import io
 import json
 
 import pandas as pd
+import requests
 
 import app as app_module
 
@@ -327,6 +328,51 @@ def test_load_smart_sim_files_for_date_prefers_repo_copy_over_active_data_root(t
     files = app_module._load_smart_sim_files_for_date("2026-04-01")
 
     assert files == [repo_file]
+
+
+def test_finals_from_espn_all_filters_nonfinal_games(monkeypatch):
+    class _FakeResponse:
+        status_code = 200
+
+        def json(self):
+            return {
+                "events": [
+                    {
+                        "status": {"type": {"completed": True, "state": "post", "shortDetail": "Final"}},
+                        "competitions": [
+                            {
+                                "competitors": [
+                                    {"homeAway": "home", "team": {"abbreviation": "IND"}, "score": "104"},
+                                    {"homeAway": "away", "team": {"abbreviation": "DAL"}, "score": "107"},
+                                ]
+                            }
+                        ],
+                    },
+                    {
+                        "status": {"type": {"completed": False, "state": "in", "shortDetail": "Q2 05:12"}},
+                        "competitions": [
+                            {
+                                "competitors": [
+                                    {"homeAway": "home", "team": {"abbreviation": "POR"}, "score": "0"},
+                                    {"homeAway": "away", "team": {"abbreviation": "CHI"}, "score": "0"},
+                                ]
+                            }
+                        ],
+                    },
+                ]
+            }
+
+    monkeypatch.setattr(requests, "get", lambda *args, **kwargs: _FakeResponse())
+
+    df = app_module._finals_from_espn_all("2026-05-09")
+
+    assert len(df.index) == 1
+    assert df.iloc[0].to_dict() == {
+        "home_tri": "IND",
+        "away_tri": "DAL",
+        "home_pts": 104,
+        "visitor_pts": 107,
+    }
 
 
 def test_load_cards_sim_detail_snapshot_prefers_repo_copy_over_active_data_root(tmp_path, monkeypatch):

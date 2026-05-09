@@ -10004,6 +10004,13 @@ def _finals_from_espn_all(date_str_local: str) -> pd.DataFrame:
         rows: list[dict[str, object]] = []
         for e in evs:
             try:
+                status = e.get('status', {}) if isinstance(e, dict) else {}
+                st_type = status.get('type', {}) if isinstance(status, dict) else {}
+                completed = bool(st_type.get('completed'))
+                state = str(st_type.get('state') or '').strip().lower()
+                short = str(st_type.get('shortDetail') or st_type.get('detail') or '').strip().lower()
+                if not (completed or state == 'post' or short.startswith('final')):
+                    continue
                 comps = e.get('competitions', [])
                 if not comps: continue
                 c = comps[0]
@@ -42572,6 +42579,8 @@ def api_cron_refresh_bovada():
         out_periods = DATA_PROCESSED_DIR / f"period_lines_{d}.csv"
         used_fallback = False
         fallback_path = None
+        finals_rows = 0
+        finals_path = None
         # For props: we'll attempt to fetch Bovada player props and compute edges if present
         props_raw_rows = 0
         props_raw_path = None
@@ -42603,6 +42612,12 @@ def api_cron_refresh_bovada():
                         fallback_path = str(fb)
                 except Exception:
                     pass
+        # Best-effort: keep same-day finals in sync on any recurring odds refresh.
+        try:
+            finals_path, finals_rows = _write_finals_csv_for_date(d)
+        except Exception:
+            finals_path = None
+            finals_rows = 0
         # Attempt Bovada player props for this date and run props-edges if any lines found
         try:
             if _fetch_bovada_player_props_current is not None:  # type: ignore[name-defined]
@@ -42656,6 +42671,8 @@ def api_cron_refresh_bovada():
             }
             if used_fallback:
                 meta.update({"used_fallback": True, "fallback_path": fallback_path})
+            if finals_path:
+                meta.update({"finals_rows": int(finals_rows), "finals_path": finals_path})
             if props_raw_path:
                 meta.update({"props_raw_rows": int(props_raw_rows), "props_raw_path": props_raw_path})
             if props_edges_path:
@@ -42671,6 +42688,7 @@ def api_cron_refresh_bovada():
         return jsonify({
             "date": d, "rows": int(rows), "output": str(out),
             "used_fallback": used_fallback, "fallback_path": fallback_path,
+            "finals_rows": int(finals_rows), "finals_path": finals_path,
             "props_raw_rows": int(props_raw_rows), "props_raw_path": props_raw_path,
             "props_edges_rows": int(props_edges_rows), "props_edges_path": props_edges_path,
             "pushed": pushed, "push_detail": push_detail,
