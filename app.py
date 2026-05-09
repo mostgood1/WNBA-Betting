@@ -22,6 +22,7 @@ import requests
 from urllib.parse import urlencode
 from pathlib import Path
 import traceback
+import shutil
 
 # Ensure local package in src/ is importable (for odds, schedule, CLI)
 from pathlib import Path as _PathEarly
@@ -11971,10 +11972,16 @@ def api_cron_upload_props_refresh_artifacts():
     }
 
     def _write_upload(file_obj, target: Path) -> int:
-        raw = file_obj.read() or b""
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(raw)
-        return int(len(raw))
+        try:
+            file_obj.stream.seek(0)
+        except Exception:
+            pass
+        file_obj.save(str(target))
+        try:
+            return int(target.stat().st_size)
+        except Exception:
+            return 0
 
     try:
         upload_bytes = {"snapshot": _write_upload(snapshot_file, snapshot_path)}
@@ -11986,7 +11993,7 @@ def api_cron_upload_props_refresh_artifacts():
             upload_bytes["recommendations"] = _write_upload(recommendations_file, recommendations_path)
         try:
             snapshot_alias_path.parent.mkdir(parents=True, exist_ok=True)
-            snapshot_alias_path.write_bytes(snapshot_path.read_bytes())
+            shutil.copyfile(snapshot_path, snapshot_alias_path)
             snapshot_alias_rows = int(_count_csv_rows_quick(snapshot_alias_path))
             snapshot_alias_error = None
             if snapshot_alias_error:

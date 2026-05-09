@@ -498,9 +498,9 @@ def build_league_status(date_str: str) -> pd.DataFrame:
     except Exception:
         rost = pd.DataFrame()
     if rost is None or rost.empty:
-        rost = _resolve_league_via_cpi(date_str)
-    if rost is None or rost.empty:
         rost = _fetch_league_rosters_via_nba(date_str)
+    if rost is None or rost.empty:
+        rost = _resolve_league_via_cpi(date_str)
     rost['team'] = rost['team'].astype(str).map(lambda x: (to_tricode(str(x)) or str(x).strip().upper()))
     # Apply manual roster overrides if present (authoritative corrections)
     try:

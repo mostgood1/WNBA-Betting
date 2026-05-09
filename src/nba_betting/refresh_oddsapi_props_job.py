@@ -621,7 +621,11 @@ def _ensure_player_logs_for_props_refresh(
     if any(_player_logs_artifact_exists_with_rows(path) for path in _active_player_logs_paths()):
         return True, None
 
-    allow_fetch_on_miss = (os.environ.get("REFRESH_PLAYER_LOGS_FETCH_ON_MISS") or "0").strip().lower() in {"1", "true", "yes"}
+    raw_fetch_on_miss = (os.environ.get("REFRESH_PLAYER_LOGS_FETCH_ON_MISS") or "").strip().lower()
+    if raw_fetch_on_miss:
+        allow_fetch_on_miss = raw_fetch_on_miss in {"1", "true", "yes"}
+    else:
+        allow_fetch_on_miss = (os.environ.get("GITHUB_ACTIONS") or "").strip().lower() == "true"
     if not allow_fetch_on_miss:
         return False, "player_logs not found; run fetch-player-logs"
 
