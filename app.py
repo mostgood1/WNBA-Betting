@@ -2785,8 +2785,8 @@ def _live_sim_matchups_for_date(date_str: str) -> list[dict[str, Any]]:
             continue
         if not isinstance(obj, dict):
             continue
-        home = str(obj.get("home") or "").strip().upper()
-        away = str(obj.get("away") or "").strip().upper()
+        home = _canonical_team_tri(obj.get("home"))
+        away = _canonical_team_tri(obj.get("away"))
         if not home or not away:
             continue
         # Prefer the numeric NBA game id used by SmartSim (/api/cards uses this).
@@ -9571,6 +9571,11 @@ def _get_tricode(team: str | None) -> str | None:
     abbr = m.get(str(team).strip().lower())
     return (abbr or str(team).strip().upper() or None)
 
+
+def _canonical_team_tri(team: Any) -> str:
+    tri = str(_get_tricode(str(team or "")) or team or "").strip().upper()
+    return _espn_to_tri(tri) if tri else ""
+
 def _get_team_id(team: str | None) -> Optional[int]:
     if not team:
         return None
@@ -15057,8 +15062,8 @@ def _load_best_bets_smart_sim_player_lookup(date_str: str) -> dict[tuple[str, st
         if not isinstance(obj, dict):
             continue
         players = obj.get("players") if isinstance(obj.get("players"), dict) else {}
-        home_tri = str(obj.get("home") or "").strip().upper()
-        away_tri = str(obj.get("away") or "").strip().upper()
+        home_tri = _canonical_team_tri(obj.get("home"))
+        away_tri = _canonical_team_tri(obj.get("away"))
         for side, team_key in (("home", home_tri), ("away", away_tri)):
             if not team_key:
                 continue
@@ -18679,8 +18684,8 @@ def _cards_started_matchups_index(date_str: str, now_local: datetime | None = No
     for game in (games or []):
         if not isinstance(game, dict):
             continue
-        home_tri = str(_get_tricode(str(game.get("home") or "")) or game.get("home") or "").strip().upper()
-        away_tri = str(_get_tricode(str(game.get("away") or "")) or game.get("away") or "").strip().upper()
+        home_tri = _canonical_team_tri(game.get("home"))
+        away_tri = _canonical_team_tri(game.get("away"))
         if not home_tri or not away_tri:
             continue
         out[(home_tri, away_tri)] = {
@@ -20643,8 +20648,8 @@ def api_cards():
 
         sim_error = obj.get("error")
 
-        home_tri = str(_get_tricode(str(obj.get("home") or "")) or obj.get("home") or home_tri or "").strip().upper()
-        away_tri = str(_get_tricode(str(obj.get("away") or "")) or obj.get("away") or away_tri or "").strip().upper()
+        home_tri = _canonical_team_tri(obj.get("home") or home_tri)
+        away_tri = _canonical_team_tri(obj.get("away") or away_tri)
         if not home_tri or not away_tri:
             continue
 
@@ -25160,8 +25165,8 @@ def _ll_score_day(ds: str, *, allowed_markets: set[str], assume_price: float) ->
             market = str(obj.get("market") or "").strip().lower()
             horizon = str(obj.get("horizon") or "").strip().lower() or None
             gid = str(obj.get("_gid") or "").strip() or None
-            home = str(obj.get("home") or "").strip().upper() or None
-            away = str(obj.get("away") or "").strip().upper() or None
+            home = _canonical_team_tri(obj.get("home")) or None
+            away = _canonical_team_tri(obj.get("away")) or None
             klass = str(obj.get("klass") or "").strip().upper() or None
             elapsed = _number(obj.get("elapsed"))
             remaining = _number(obj.get("remaining"))
@@ -36753,7 +36758,7 @@ def _espn_to_tri(abbr: str) -> str:
         fix = {
             'GS': 'GSV',
             'GSW': 'GSV',
-            'LAS': 'LVA',
+            'LAS': 'LA',
             'LV': 'LVA',
             'NY': 'NYL',
             'NYK': 'NYL',
