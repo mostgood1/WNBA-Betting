@@ -4662,9 +4662,31 @@
   function renderBoxScorePanel(game) {
     const detailLoaded = hasLoadedSimDetail(game);
     const detailLoading = state.simDetailLoading.has(cardId(game));
+    const liveState = getLiveState(game);
+    const liveBoxscore = getLivePlayerBoxscore(game) || { away: [], home: [] };
+    const hasLiveActualRows = safeArray(liveBoxscore.away).length || safeArray(liveBoxscore.home).length;
     if (!detailLoaded) {
       const counts = game?.sim?.players_summary || {};
       const totalRows = Number(counts.away || 0) + Number(counts.home || 0);
+      if (hasLiveActualRows || liveState?.in_progress || liveState?.final) {
+        return `
+          <div class="cards-box-grid">
+            <div class="cards-box-column cards-box-column--actual">
+              ${renderActualBoxSection(game.away_tri, game.away_name, liveBoxscore.away, liveState, game.away_logo)}
+              ${renderActualBoxSection(game.home_tri, game.home_name, liveBoxscore.home, liveState, game.home_logo)}
+            </div>
+            <div class="cards-box-column cards-box-column--sim">
+              <div class="cards-panel-card cards-box-panel">
+                <div class="cards-box-head">
+                  <div class="cards-table-title"><strong>Sim box score</strong></div>
+                  <span class="cards-chip">${escapeHtml(totalRows ? `${totalRows} projected rows` : 'Loading')}</span>
+                </div>
+                <div class="cards-callout-copy">${escapeHtml(detailLoading ? 'Loading per-player sim rows for this matchup.' : 'Per-player SmartSim rows are preloading in the background for this slate.')}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
       return `
         <div class="cards-panel-card cards-box-panel">
           <div class="cards-box-head">
@@ -4675,8 +4697,6 @@
         </div>
       `;
     }
-    const liveState = getLiveState(game);
-    const liveBoxscore = getLivePlayerBoxscore(game) || { away: [], home: [] };
     return `
       <div class="cards-box-grid">
         <div class="cards-box-column cards-box-column--actual">
