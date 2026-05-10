@@ -128,35 +128,67 @@ function Resolve-RegularSeasonEndDate {
     return $null
   }
 
-  $seasonBits = $SeasonValue.Split('-', 2)
-  if ($seasonBits.Length -lt 1 -or [string]::IsNullOrWhiteSpace($seasonBits[0])) {
+  $dates = @(Get-RegularSeasonScheduleDates -SeasonValue $SeasonValue -RepoRootPath $RepoRootPath)
+  if ($dates.Count -le 0) {
+    return $null
+  }
+  return (($dates | Sort-Object | Select-Object -Last 1).ToString('yyyy-MM-dd'))
+}
+
+function Resolve-RegularSeasonStartDate {
+  param(
+    [string]$SeasonValue,
+    [string]$RepoRootPath
+  )
+
+  if ([string]::IsNullOrWhiteSpace($SeasonValue) -or [string]::IsNullOrWhiteSpace($RepoRootPath)) {
     return $null
   }
 
-  $startYear = $seasonBits[0].Trim()
-  if ($startYear.Length -lt 2) {
+  $dates = @(Get-RegularSeasonScheduleDates -SeasonValue $SeasonValue -RepoRootPath $RepoRootPath)
+  if ($dates.Count -le 0) {
     return $null
+  }
+  return (($dates | Sort-Object | Select-Object -First 1).ToString('yyyy-MM-dd'))
+}
+
+function Get-RegularSeasonScheduleDates {
+  param(
+    [string]$SeasonValue,
+    [string]$RepoRootPath
+  )
+
+  if ([string]::IsNullOrWhiteSpace($SeasonValue) -or [string]::IsNullOrWhiteSpace($RepoRootPath)) {
+    return @()
   }
 
   $seasonTag = $SeasonValue.Replace('-', '_')
   $candidates = @(
+    (Join-Path $RepoRootPath ("data/processed/schedule_{0}.json" -f $seasonTag)),
+    (Join-Path $RepoRootPath ("data/raw/schedule_{0}.json" -f $seasonTag)),
     (Join-Path $RepoRootPath ("data/processed/schedule_{0}.csv" -f $seasonTag)),
     (Join-Path $RepoRootPath ("data/raw/schedule_{0}.csv" -f $seasonTag))
   )
 
   $schedulePath = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
   if ([string]::IsNullOrWhiteSpace($schedulePath)) {
-    return $null
+    return @()
   }
 
   try {
-    $rows = Import-Csv -Path $schedulePath
-    $dates = @(
+    if ($schedulePath.ToLower().EndsWith('.json')) {
+      $rows = @(Get-Content -Path $schedulePath -Raw | ConvertFrom-Json)
+    } else {
+      $rows = @(Import-Csv -Path $schedulePath)
+    }
+
+    return @(
       $rows |
         Where-Object {
           $seasonTypeSlug = [string]$_.season_type_slug
           if (-not [string]::IsNullOrWhiteSpace($seasonTypeSlug)) {
-            return ($seasonTypeSlug.Trim().ToLower() -eq 'regular')
+            $normalizedSlug = $seasonTypeSlug.Trim().ToLower()
+            return ($normalizedSlug -eq 'regular' -or $normalizedSlug -eq 'regular-season')
           }
           $gameLabel = [string]$_.game_label
           if (-not [string]::IsNullOrWhiteSpace($gameLabel)) {
@@ -165,20 +197,30 @@ function Resolve-RegularSeasonEndDate {
           return $false
         } |
         ForEach-Object {
+          $rawDate = [string]$_.date_est
+          if ([string]::IsNullOrWhiteSpace($rawDate)) {
+            $rawDate = [string]$_.date
+          }
+          if ([string]::IsNullOrWhiteSpace($rawDate) -and -not [string]::IsNullOrWhiteSpace([string]$_.date_utc)) {
+            $rawDate = [string]$_.date_utc
+          }
+          if ([string]::IsNullOrWhiteSpace($rawDate)) {
+            return $null
+          }
+          $dateToken = $rawDate.Trim()
+          if ($dateToken.Length -ge 10) {
+            $dateToken = $dateToken.Substring(0, 10)
+          }
           try {
-            [datetime]::ParseExact([string]$_.date_est, 'yyyy-MM-dd', $null)
+            [datetime]::ParseExact($dateToken, 'yyyy-MM-dd', $null)
           } catch {
             $null
           }
         } |
         Where-Object { $null -ne $_ }
     )
-    if ($dates.Count -le 0) {
-      return $null
-    }
-    return (($dates | Sort-Object | Select-Object -Last 1).ToString('yyyy-MM-dd'))
   } catch {
-    return $null
+    return @()
   }
 }
 
@@ -1094,13 +1136,22 @@ function Normalize-PyModuleArgs {
   }
 
   $normalized = @()
+  $cliModulePrefix = [string]$CliModule
+  if ([string]::IsNullOrWhiteSpace($cliModulePrefix)) {
+    $cliModulePrefix = 'wnba_betting.cli'
+  }
+  $cliPackagePrefix = $cliModulePrefix
+  if ($cliPackagePrefix.EndsWith('.cli')) {
+    $cliPackagePrefix = $cliPackagePrefix.Substring(0, $cliPackagePrefix.Length - 4)
+  }
   for ($i = 0; $i -lt $plist.Count; $i++) {
     $item = [string]$plist[$i]
     if ($item -eq '-m' -and ($i + 1) -lt $plist.Count) {
       $normalized += $item
       $moduleName = [string]$plist[$i + 1]
       if ($moduleName -like 'nba_betting.*') {
-        $moduleName = 'wnba_betting.' + $moduleName.Substring('nba_betting.'.Length)
+        $moduleSuffix = $moduleName.Substring('nba_betting'.Length)
+        $moduleName = $cliPackagePrefix + $moduleSuffix
       }
       $normalized += $moduleName
       $i += 1
@@ -2347,7 +2398,11 @@ print('MISSING_GIDS:' + ','.join(missing))
 
 # 2.5) Backfill missing recon files for the season to date (idempotent)
 try {
-  $seasonStart = '2025-10-21'
+  $seasonStart = Resolve-RegularSeasonStartDate -SeasonValue $seasonStr -RepoRootPath $RepoRoot
+  if ([string]::IsNullOrWhiteSpace($seasonStart)) {
+    $seasonStart = $yesterday
+    Write-Log ("Recon backfill start could not be resolved from the WNBA schedule; limiting scan to {0}" -f $seasonStart)
+  }
   Write-Log ("Recon backfill scan from {0} to {1}" -f $seasonStart, $yesterday)
   $d0 = [datetime]::ParseExact($seasonStart, 'yyyy-MM-dd', $null)
   $d1 = [datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null)

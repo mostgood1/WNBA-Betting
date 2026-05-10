@@ -1,0 +1,5 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-05-10,2026-05-10T19:00:00Z,Washington Mystics,New York Liberty,204.0740067718005,-204.0740067718005,5.5,-5.5,,,165.0,-103.55355864227302,103.55355864227303,11,11,7,5,oddsapi_consensus
+2026-05-10,2026-05-11T00:30:00Z,Golden State Valkyries,Phoenix Mercury,-119.29012337594915,119.29012337594911,-2.0,2.0,,,157.5,-101.09083557931797,101.09083557931797,11,11,7,6,oddsapi_consensus
+2026-05-10,2026-05-10T17:00:00Z,Connecticut Sun,Seattle Storm,-106.4159214185793,106.4159214185793,-1.0,1.0,,,165.5,100.72490032620514,-100.72490032620514,11,11,7,6,oddsapi_consensus
+2026-05-10,2026-05-10T22:00:00Z,Los Angeles Sparks,Las Vegas Aces,131.73374569688892,-131.73374569688892,2.5,-2.5,,,176.0,-100.80805827361876,100.80805827361877,11,11,6,7,oddsapi_consensus

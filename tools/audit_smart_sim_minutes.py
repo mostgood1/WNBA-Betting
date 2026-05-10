@@ -2,7 +2,7 @@
 
 Purpose:
 - Catch pathological minutes allocations (e.g., >44 regulation cap) and missing min_mean exports.
-- Verify minutes totals per team sum to ~240 for pregame sims.
+- Verify minutes totals per team sum to ~200 for WNBA pregame sims.
 
 Designed to run in local/CI daily pipelines.
 """
@@ -55,7 +55,7 @@ def main() -> int:
         "--sum-tol",
         type=float,
         default=0.75,
-        help="Allowed deviation from 240 minutes team sum (default 0.75)",
+        help="Allowed deviation from 200 minutes team sum (default 0.75)",
     )
     ap.add_argument(
         "--fail-on-error-json",
@@ -104,7 +104,7 @@ def main() -> int:
 
             s = sum(mins)
             mx = max(mins)
-            if abs(s - 240.0) > sum_tol:
+            if abs(s - 200.0) > sum_tol:
                 bad.append((fp.name, side, f"sum_minutes={s:.3f}"))
             if mx > cap + 1e-6:
                 bad.append((fp.name, side, f"max_min_mean={mx:.3f} > cap={cap:.1f}"))

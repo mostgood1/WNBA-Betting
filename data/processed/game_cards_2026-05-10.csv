@@ -1,0 +1,5 @@
+date,game_id,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,bookmaker,home_tri,away_tri,prob_home_tip,early_threes_expected,early_threes_prob_ge_1
+2026-05-10,0401856897,Washington Mystics,New York Liberty,2026-05-10T19:00:00Z,204.0740067718005,-204.0740067718005,5.5,-5.5,,,165.0,-103.55355864227302,103.55355864227305,11,oddsapi_consensus,WSH,NYL,0.5,0.0,0.0
+2026-05-10,0401856900,Golden State Valkyries,Phoenix Mercury,2026-05-11T00:30:00Z,-119.29012337594916,119.29012337594912,-2.0,2.0,,,157.5,-101.09083557931795,101.09083557931795,11,oddsapi_consensus,GSV,PHX,0.5,0.0,0.0
+2026-05-10,0401856896,Connecticut Sun,Seattle Storm,2026-05-10T17:00:00Z,-106.4159214185793,106.4159214185793,-1.0,1.0,,,165.5,100.72490032620514,-100.72490032620514,11,oddsapi_consensus,CON,SEA,0.5,0.0,0.0
+2026-05-10,0401856898,Los Angeles Sparks,Las Vegas Aces,2026-05-10T22:00:00Z,131.73374569688892,-131.73374569688892,2.5,-2.5,,,176.0,-100.80805827361876,100.80805827361876,11,oddsapi_consensus,LAS,LVA,0.5,0.0,0.0
