@@ -21745,8 +21745,16 @@ def api_cards_props_strip():
                         "klass": str(row.get("klass") or "").strip().upper() or None,
                         "line_source": line_source,
                         "status_label": status_label,
+                        "actual": _safe_float(row.get("actual")),
+                        "pace_proj": _safe_float(row.get("pace_proj")),
+                        "pace_vs_line": _safe_float(row.get("pace_vs_line")),
                         "sim_mu": _safe_float(row.get("sim_mu")),
+                        "sim_mu_adjusted": _safe_float(row.get("sim_mu_adjusted")),
+                        "sim_vs_line": _safe_float(row.get("sim_vs_line")),
+                        "sim_vs_line_adjusted": _safe_float(row.get("sim_vs_line_adjusted")),
                         "score_adj": _safe_float(row.get("bettable_score") or row.get("strength") or ev_val),
+                        "first_seen_at": row.get("first_seen_at"),
+                        "last_seen_at": row.get("last_seen_at"),
                     }
                 )
             game_items.sort(
@@ -21803,10 +21811,9 @@ def api_cards_props_strip():
                 "snapshot_rows": snapshot_rows,
             }
 
-    if not selected:
-        live_payload = _build_live_fallback_payload()
-        if live_payload:
-            return jsonify(_to_jsonable(live_payload))
+    live_payload = _build_live_fallback_payload()
+    if live_payload:
+        return jsonify(_to_jsonable(live_payload))
 
     return jsonify(
         _to_jsonable(
