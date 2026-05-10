@@ -3040,6 +3040,7 @@
       let liveStatePayload = null;
       let liveGames = [];
       let eventIds = [];
+      let nextPropsStripPayload = null;
       try {
         liveStatePayload = await fetchApiJson(
           `/api/live_state?date=${encodeURIComponent(dateValue)}`,
@@ -3072,25 +3073,31 @@
       }
 
       if (eventIds.length) {
-        const lensQuery = `/api/live_player_lens?date=${encodeURIComponent(dateValue)}&event_ids=${encodeURIComponent(eventIds.join(','))}`;
-        const payload = await fetchApiJson(lensQuery, 'Failed to load live player props.', { retries: silent ? 2 : 1 });
-        let transformed = transformLiveStripPayload(payload, dateValue);
+        try {
+          const lensQuery = `/api/live_player_lens?date=${encodeURIComponent(dateValue)}&event_ids=${encodeURIComponent(eventIds.join(','))}`;
+          const payload = await fetchApiJson(lensQuery, 'Failed to load live player props.', { retries: silent ? 2 : 1 });
+          let transformed = transformLiveStripPayload(payload, dateValue);
 
-        if ((!safeArray(transformed?.items).length) && games.length && liveStatePayload) {
-          const boxscorePayload = await fetchApiJson(
-            `/api/live_player_boxscore?event_ids=${encodeURIComponent(eventIds.join(','))}`,
-            'Failed to load live player boxscore.',
-            { retries: silent ? 2 : 1 }
-          );
-          transformed = buildLiveBoxscoreSimFallback(boxscorePayload, games, liveStatePayload, dateValue);
-        }
+          if ((!safeArray(transformed?.items).length) && games.length && liveStatePayload) {
+            const boxscorePayload = await fetchApiJson(
+              `/api/live_player_boxscore?event_ids=${encodeURIComponent(eventIds.join(','))}`,
+              'Failed to load live player boxscore.',
+              { retries: silent ? 2 : 1 }
+            );
+            transformed = buildLiveBoxscoreSimFallback(boxscorePayload, games, liveStatePayload, dateValue);
+          }
 
-        if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
-          return;
+          if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
+            return;
+          }
+          nextPropsStripPayload = transformed;
+          state.propsStripVisibleCount = Number(state.propsStripDefaultCount) || 18;
+        } catch (_error) {
+          nextPropsStripPayload = null;
         }
-        state.propsStripPayload = transformed;
-        state.propsStripVisibleCount = Number(state.propsStripDefaultCount) || 18;
-      } else {
+      }
+
+      if (!nextPropsStripPayload) {
         const payload = await fetchApiJson(
           `/api/cards/props-strip?date=${encodeURIComponent(dateValue)}`,
           'Failed to load prop strip.',
@@ -3099,8 +3106,9 @@
         if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
           return;
         }
-        state.propsStripPayload = payload;
+        nextPropsStripPayload = payload;
       }
+      state.propsStripPayload = nextPropsStripPayload;
       renderPropsStrip();
       if (state.payload && (state.payload.date || state.date) === dateValue) {
         renderBoard();
