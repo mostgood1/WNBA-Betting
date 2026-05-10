@@ -4404,6 +4404,54 @@ if (-not $GitPush) {
         }
       }
 
+      # Sweep up any remaining managed date-scoped artifacts that were written locally
+      # but skipped by the date-specific commit script, such as partial look-ahead outputs.
+      try {
+        $residualDates = @(Get-DailyManagedSyncDates -BaseDate $Date -FutureDays $LookAheadDays)
+        $residualFiles = @()
+        foreach ($residualDate in $residualDates) {
+          $residualFiles += @(Get-DateScopedManagedLocalArtifacts -TargetDate $residualDate)
+        }
+        $residualFiles = @($residualFiles | Sort-Object FullName -Unique)
+        if ($residualFiles.Count -gt 0) {
+          foreach ($residualFile in $residualFiles) {
+            try {
+              $relResidual = Resolve-Path -Relative $residualFile.FullName
+              & git add -f -- $relResidual 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+            } catch {
+              Write-Log ("Git: residual add failed for {0}: {1}" -f $residualFile.FullName, $_.Exception.Message)
+            }
+          }
+
+          $residualStaged = @(& git diff --cached --name-only)
+          if ($residualStaged.Count -gt 0) {
+            $residualNames = @(
+              $residualStaged |
+                Where-Object { $_ -match '^data/processed/' } |
+                ForEach-Object { [System.IO.Path]::GetFileName($_) } |
+                Sort-Object -Unique
+            )
+            if ($residualNames.Count -gt 0) {
+              $preview = $residualNames | Select-Object -First 4
+              $remaining = $residualNames.Count - $preview.Count
+              $msgResidual = "data(processed): residual managed artifacts"
+              if ($remaining -gt 0) {
+                $msgResidual = "{0}: {1}, +{2} more" -f $msgResidual, ($preview -join ', '), $remaining
+              } else {
+                $msgResidual = "{0}: {1}" -f $msgResidual, ($preview -join ', ')
+              }
+              Remove-StaleGitLock
+              & git commit -m $msgResidual 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+              Write-Log 'Git: committed residual managed artifacts'
+            }
+          } else {
+            Write-Log 'Git: no residual managed artifacts to commit'
+          }
+        }
+      } catch {
+        Write-Log ("Git: residual managed artifact sweep failed: {0}" -f $_.Exception.Message)
+      }
+
       # Additionally stage yearly PBP metrics CSV if present/changed.
       try {
         $metricsYear = ($yesterday.Substring(0,4))
