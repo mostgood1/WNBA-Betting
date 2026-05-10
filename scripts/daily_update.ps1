@@ -1533,6 +1533,25 @@ function Invoke-LookAheadDailyUpdateJob {
     if ($null -eq $TargetDate -or $TargetDate -eq '') { return $false }
     Write-Log ("Look-ahead: building future-safe artifacts for {0}" -f $TargetDate)
 
+    $cleanupLookAheadArtifacts = {
+      param([string]$CleanupDate)
+      try {
+        $staleFiles = @(Get-DateScopedManagedLocalArtifacts -TargetDate $CleanupDate)
+        foreach ($staleFile in $staleFiles) {
+          try {
+            Remove-Item -Path $staleFile.FullName -Force -ErrorAction Stop
+          } catch {
+            Write-Log ("Look-ahead cleanup failed for {0}: {1}" -f $staleFile.FullName, $_.Exception.Message)
+          }
+        }
+        if ($staleFiles.Count -gt 0) {
+          Write-Log ("Look-ahead cleanup removed {0} managed artifact(s) for {1}" -f $staleFiles.Count, $CleanupDate)
+        }
+      } catch {
+        Write-Log ("Look-ahead cleanup failed for {0}: {1}" -f $CleanupDate, $_.Exception.Message)
+      }
+    }
+
     $tmpPyLookAhead = Join-Path $LogPath ("lookahead_daily_update_{0}_{1}.py" -f $TargetDate, $Stamp)
     $pyLookAhead = @"
 import sys
@@ -1560,7 +1579,10 @@ raise SystemExit(0 if ok else 1)
     $null = & $Python $tmpPyLookAhead 2>&1 | Tee-Object -FilePath $LogFile -Append
     $rcLookAhead = $LASTEXITCODE
     Write-Log ("Look-ahead pipeline exit code ({0}): {1}" -f $TargetDate, $rcLookAhead)
-    if ($rcLookAhead -ne 0) { return $false }
+    if ($rcLookAhead -ne 0) {
+      & $cleanupLookAheadArtifacts $TargetDate
+      return $false
+    }
 
     $required = @(
       (Join-Path $RepoRoot ("data/processed/predictions_{0}.csv" -f $TargetDate)),
@@ -1575,10 +1597,12 @@ raise SystemExit(0 if ok else 1)
 
     if ($missing.Count -gt 0) {
       Write-Log ("Look-ahead artifacts incomplete for {0}; missing: {1}" -f $TargetDate, ($missing -join ', '))
+      & $cleanupLookAheadArtifacts $TargetDate
       return $false
     }
     if ($smartSimCount -le 0) {
       Write-Log ("Look-ahead artifacts incomplete for {0}; no smart_sim files found" -f $TargetDate)
+      & $cleanupLookAheadArtifacts $TargetDate
       return $false
     }
 
@@ -1586,6 +1610,7 @@ raise SystemExit(0 if ok else 1)
     return $true
   } catch {
     Write-Log ("Look-ahead pipeline failed for {0}: {1}" -f $TargetDate, $_.Exception.Message)
+    try { & $cleanupLookAheadArtifacts $TargetDate } catch { }
     return $false
   }
 }
@@ -4402,54 +4427,6 @@ if (-not $GitPush) {
         } catch {
           Write-Log ("Git: look-ahead commit failed for {0}: {1}" -f $futureDate, $_.Exception.Message)
         }
-      }
-
-      # Sweep up any remaining managed date-scoped artifacts that were written locally
-      # but skipped by the date-specific commit script, such as partial look-ahead outputs.
-      try {
-        $residualDates = @(Get-DailyManagedSyncDates -BaseDate $Date -FutureDays $LookAheadDays)
-        $residualFiles = @()
-        foreach ($residualDate in $residualDates) {
-          $residualFiles += @(Get-DateScopedManagedLocalArtifacts -TargetDate $residualDate)
-        }
-        $residualFiles = @($residualFiles | Sort-Object FullName -Unique)
-        if ($residualFiles.Count -gt 0) {
-          foreach ($residualFile in $residualFiles) {
-            try {
-              $relResidual = Resolve-Path -Relative $residualFile.FullName
-              & git add -f -- $relResidual 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-            } catch {
-              Write-Log ("Git: residual add failed for {0}: {1}" -f $residualFile.FullName, $_.Exception.Message)
-            }
-          }
-
-          $residualStaged = @(& git diff --cached --name-only)
-          if ($residualStaged.Count -gt 0) {
-            $residualNames = @(
-              $residualStaged |
-                Where-Object { $_ -match '^data/processed/' } |
-                ForEach-Object { [System.IO.Path]::GetFileName($_) } |
-                Sort-Object -Unique
-            )
-            if ($residualNames.Count -gt 0) {
-              $preview = $residualNames | Select-Object -First 4
-              $remaining = $residualNames.Count - $preview.Count
-              $msgResidual = "data(processed): residual managed artifacts"
-              if ($remaining -gt 0) {
-                $msgResidual = "{0}: {1}, +{2} more" -f $msgResidual, ($preview -join ', '), $remaining
-              } else {
-                $msgResidual = "{0}: {1}" -f $msgResidual, ($preview -join ', ')
-              }
-              Remove-StaleGitLock
-              & git commit -m $msgResidual 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-              Write-Log 'Git: committed residual managed artifacts'
-            }
-          } else {
-            Write-Log 'Git: no residual managed artifacts to commit'
-          }
-        }
-      } catch {
-        Write-Log ("Git: residual managed artifact sweep failed: {0}" -f $_.Exception.Message)
       }
 
       # Additionally stage yearly PBP metrics CSV if present/changed.
