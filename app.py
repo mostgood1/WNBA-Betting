@@ -470,8 +470,8 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
         if not api_key:
             return {}
 
-        h = str(home_tri or "").upper().strip()
-        a = str(away_tri or "").upper().strip()
+        h = _canonical_team_tri(home_tri)
+        a = _canonical_team_tri(away_tri)
         if not h or not a:
             return {}
 
@@ -518,8 +518,8 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
             try:
                 if not isinstance(ev, dict):
                     continue
-                eh = _get_tricode(str(ev.get("home_team") or ""))
-                ea = _get_tricode(str(ev.get("away_team") or ""))
+                eh = _canonical_team_tri(ev.get("home_team"))
+                ea = _canonical_team_tri(ev.get("away_team"))
                 if not ((eh == h and ea == a) or (eh == a and ea == h)):
                     continue
 
@@ -682,7 +682,7 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                                 if not isinstance(oc, dict):
                                     continue
                                 nm = str(oc.get("name") or "")
-                                tri = _get_tricode(nm)
+                                tri = _canonical_team_tri(nm)
                                 pt = oc.get("point")
                                 try:
                                     v = float(pt)
@@ -711,7 +711,7 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                                 if not isinstance(oc, dict):
                                     continue
                                 nm = str(oc.get("name") or "")
-                                tri = _get_tricode(nm)
+                                tri = _canonical_team_tri(nm)
                                 pt = oc.get("point")
                                 try:
                                     v = float(pt)
@@ -729,7 +729,7 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                                 if not isinstance(oc, dict):
                                     continue
                                 nm = str(oc.get("name") or "")
-                                tri = _get_tricode(nm)
+                                tri = _canonical_team_tri(nm)
                                 pr = oc.get("price")
                                 try:
                                     v = float(pr)
@@ -20655,7 +20655,7 @@ def api_cards():
 
         sim_detail_snapshot = cards_sim_detail_index.get((home_tri, away_tri)) if isinstance(cards_sim_detail_index, dict) else None
 
-        odds = odds_map.get((home_tri, away_tri)) or {}
+        odds = dict(odds_map.get((home_tri, away_tri)) or {})
         home_name = str(odds.get("home_team") or home_tri)
         away_name = str(odds.get("visitor_team") or away_tri)
         game_started = _cards_matchup_has_started(
@@ -20666,6 +20666,22 @@ def api_cards():
             started_matchups=started_matchups,
             now_local=now_local,
         )
+
+        matchup_live = (started_matchups or {}).get((home_tri, away_tri)) if isinstance(started_matchups, dict) else None
+        try:
+            if isinstance(matchup_live, dict) and bool(matchup_live.get("in_progress")):
+                live_odds = _live_oddsapi_period_totals_for_game(d, home_tri, away_tri)
+                game_lines = live_odds.get("game_lines") if isinstance(live_odds, dict) else None
+                if isinstance(game_lines, dict) and game_lines:
+                    for key in ("total", "home_spread", "away_spread", "home_ml", "away_ml"):
+                        value = _safe_float(game_lines.get(key))
+                        if value is not None:
+                            odds[key] = value
+                    if live_odds.get("source"):
+                        odds["source"] = live_odds.get("source")
+                    odds["updated_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+        except Exception:
+            pass
 
         # Attach injury/status context onto sim player rows via props_predictions
         players = obj.get("players") if isinstance(obj.get("players"), dict) else {"home": [], "away": []}
@@ -21312,7 +21328,6 @@ def api_cards():
         except Exception:
             missing_bits = []
 
-        matchup_live = (started_matchups or {}).get((home_tri, away_tri)) if isinstance(started_matchups, dict) else None
         live_status = None
         live_state = None
         if isinstance(matchup_live, dict):
