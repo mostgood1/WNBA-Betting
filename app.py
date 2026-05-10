@@ -21706,6 +21706,122 @@ def api_cards_props_strip():
             )
         return items
 
+    live_props_price_lookup_exact: dict[tuple[str, str, str, str, float], dict[str, Any]] | None = None
+    live_props_price_lookup_loose: dict[tuple[str, str, str, str], dict[str, Any]] | None = None
+
+    def _price_lookup_key(team_tri: Any, player_name: Any, market: Any, side: Any) -> tuple[str, str, str, str] | None:
+        team_key = str(team_tri or "").strip().upper()
+        player_key = _norm_player_name(player_name)
+        market_key = str(market or "").strip().lower()
+        side_key = str(side or "").strip().upper()
+        if not team_key or not player_key or not market_key or side_key not in {"OVER", "UNDER"}:
+            return None
+        return (team_key, player_key, market_key, side_key)
+
+    def _price_lookup_key_exact(team_tri: Any, player_name: Any, market: Any, side: Any, line: Any) -> tuple[str, str, str, str, float] | None:
+        base_key = _price_lookup_key(team_tri, player_name, market, side)
+        line_val = _safe_float(line)
+        if base_key is None or line_val is None:
+            return None
+        return (*base_key, round(float(line_val), 4))
+
+    def _register_live_prop_price(
+        exact_lookup: dict[tuple[str, str, str, str, float], dict[str, Any]],
+        loose_lookup: dict[tuple[str, str, str, str], dict[str, Any]],
+        *,
+        team_tri: Any,
+        player_name: Any,
+        market: Any,
+        side: Any,
+        line: Any,
+        price: Any,
+        book: Any,
+    ) -> None:
+        loose_key = _price_lookup_key(team_tri, player_name, market, side)
+        if loose_key is None:
+            return
+        entry = {"price": _safe_float(price), "book": _canonical_bookmaker_key(book) or None}
+        if entry["price"] is None and not entry["book"]:
+            return
+        exact_key = _price_lookup_key_exact(team_tri, player_name, market, side, line)
+        if exact_key is not None:
+            prev_exact = exact_lookup.get(exact_key) or {}
+            exact_lookup[exact_key] = {
+                "price": entry["price"] if entry["price"] is not None else prev_exact.get("price"),
+                "book": entry["book"] or prev_exact.get("book"),
+            }
+        prev_loose = loose_lookup.get(loose_key) or {}
+        loose_lookup[loose_key] = {
+            "price": entry["price"] if entry["price"] is not None else prev_loose.get("price"),
+            "book": entry["book"] or prev_loose.get("book"),
+        }
+
+    def _get_live_prop_price_lookups() -> tuple[dict[tuple[str, str, str, str, float], dict[str, Any]], dict[tuple[str, str, str, str], dict[str, Any]]]:
+        nonlocal live_props_price_lookup_exact, live_props_price_lookup_loose
+        if live_props_price_lookup_exact is not None and live_props_price_lookup_loose is not None:
+            return live_props_price_lookup_exact, live_props_price_lookup_loose
+
+        exact_lookup: dict[tuple[str, str, str, str, float], dict[str, Any]] = {}
+        loose_lookup: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+
+        snapshot_items_all, _ = _build_snapshot_items()
+        for item in snapshot_items_all:
+            if not isinstance(item, dict):
+                continue
+            _register_live_prop_price(
+                exact_lookup,
+                loose_lookup,
+                team_tri=item.get("team_tri"),
+                player_name=item.get("player"),
+                market=item.get("market"),
+                side=item.get("side"),
+                line=item.get("line"),
+                price=item.get("price"),
+                book=item.get("book"),
+            )
+
+        try:
+            with app.test_request_context(f"/api/props?date={d}"):
+                payload_obj, status_code = _response_json_value(api_props())
+        except Exception:
+            payload_obj, status_code = None, None
+        if not status_code or status_code < 400:
+            rows = payload_obj.get("rows") if isinstance(payload_obj, dict) and isinstance(payload_obj.get("rows"), list) else []
+            if not rows and isinstance(payload_obj, dict) and isinstance(payload_obj.get("data"), list):
+                rows = payload_obj.get("data")
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                _register_live_prop_price(
+                    exact_lookup,
+                    loose_lookup,
+                    team_tri=row.get("team_tricode") or row.get("team"),
+                    player_name=row.get("player") or row.get("player_name"),
+                    market=row.get("market") or row.get("stat"),
+                    side=row.get("side"),
+                    line=row.get("line"),
+                    price=row.get("price"),
+                    book=row.get("bookmaker") or row.get("book") or row.get("bookmaker_title"),
+                )
+
+        live_props_price_lookup_exact = exact_lookup
+        live_props_price_lookup_loose = loose_lookup
+        return exact_lookup, loose_lookup
+
+    def _lookup_live_prop_price(team_tri: Any, player_name: Any, market: Any, side: Any, line: Any) -> dict[str, Any]:
+        exact_lookup, loose_lookup = _get_live_prop_price_lookups()
+        exact_key = _price_lookup_key_exact(team_tri, player_name, market, side, line)
+        if exact_key is not None:
+            exact_entry = exact_lookup.get(exact_key)
+            if isinstance(exact_entry, dict) and (exact_entry.get("price") is not None or exact_entry.get("book")):
+                return exact_entry
+        loose_key = _price_lookup_key(team_tri, player_name, market, side)
+        if loose_key is not None:
+            loose_entry = loose_lookup.get(loose_key)
+            if isinstance(loose_entry, dict) and (loose_entry.get("price") is not None or loose_entry.get("book")):
+                return loose_entry
+        return {}
+
     def _build_live_fallback_payload() -> dict[str, Any] | None:
         try:
             with app.test_request_context(f"/api/live_player_lens?date={d}"):
@@ -21735,7 +21851,21 @@ def api_cards_props_strip():
                     continue
                 ev_val = _safe_float(row.get("ev"))
                 ev_pct = (float(ev_val) * 100.0) if ev_val is not None else None
+                line_value = _safe_float(row.get("line_live") if row.get("line_live") is not None else row.get("line"))
                 price = _safe_float(row.get("price_under")) if side == "UNDER" else _safe_float(row.get("price_over"))
+                book = _canonical_bookmaker_key(row.get("book")) or None
+                if price is None or not book:
+                    fallback_price = _lookup_live_prop_price(
+                        row.get("team_tri"),
+                        row.get("player"),
+                        row.get("stat"),
+                        side,
+                        line_value,
+                    )
+                    if price is None:
+                        price = _safe_float(fallback_price.get("price"))
+                    if not book:
+                        book = _canonical_bookmaker_key(fallback_price.get("book")) or None
                 period = _safe_int(status.get("period"))
                 clock = str(status.get("clock") or "").strip()
                 if bool(status.get("final")):
@@ -21756,8 +21886,9 @@ def api_cards_props_strip():
                         "photo": _best_player_headshot_url(photo=row.get("player_photo"), nba_player_id=row.get("player_id"), source_player_id=row.get("player_id")),
                         "market": str(row.get("stat") or "").strip().lower(),
                         "side": side,
-                        "line": _safe_float(row.get("line_live") if row.get("line_live") is not None else row.get("line")),
+                        "line": line_value,
                         "price": price,
+                        "book": book,
                         "edge": ev_val,
                         "ev": ev_val,
                         "ev_pct": ev_pct,
