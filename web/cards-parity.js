@@ -3031,84 +3031,20 @@
   async function loadPropsStrip(dateValue, options = {}) {
     const silent = Boolean(options?.silent);
     const epoch = Number(options?.epoch) || 0;
-    const games = safeArray(options?.games || state.payload?.games);
     const previousPropsStripPayload = state.propsStripPayload;
     if (propsStripEl && (!silent || !state.propsStripPayload)) {
       setPropsStripLoading();
     }
     try {
-      let liveStatePayload = null;
-      let liveGames = [];
-      let eventIds = [];
-      let nextPropsStripPayload = null;
-      try {
-        liveStatePayload = await fetchApiJson(
-          `/api/live_state?date=${encodeURIComponent(dateValue)}`,
-          'Failed to load live state for player props.',
-          { retries: silent ? 2 : 1 }
-        );
-        const mergedLiveStates = new Map(state.liveStates);
-        safeArray(liveStatePayload?.games).forEach((item) => {
-          const key = matchupKey(item?.away, item?.home);
-          if (key) {
-            mergedLiveStates.set(key, item);
-          }
-        });
-        if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
-          return;
-        }
-        state.liveStates = mergedLiveStates;
-        renderHeaderMeta();
-        renderFilters();
-        liveGames = safeArray(liveStatePayload?.games)
-          .filter((game) => Boolean(game?.in_progress) && !Boolean(game?.final));
-        eventIds = liveGames
-          .filter((game) => Boolean(game?.event_id))
-          .map((game) => String(game?.event_id || '').trim())
-          .filter(Boolean);
-      } catch (error) {
-        liveStatePayload = null;
-        liveGames = [];
-        eventIds = [];
+      const payload = await fetchApiJson(
+        `/api/cards/props-strip?date=${encodeURIComponent(dateValue)}`,
+        'Failed to load prop strip.',
+        { retries: silent ? 2 : 1 }
+      );
+      if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
+        return;
       }
-
-      if (eventIds.length) {
-        try {
-          const lensQuery = `/api/live_player_lens?date=${encodeURIComponent(dateValue)}&event_ids=${encodeURIComponent(eventIds.join(','))}`;
-          const payload = await fetchApiJson(lensQuery, 'Failed to load live player props.', { retries: silent ? 2 : 1 });
-          let transformed = transformLiveStripPayload(payload, dateValue);
-
-          if ((!safeArray(transformed?.items).length) && games.length && liveStatePayload) {
-            const boxscorePayload = await fetchApiJson(
-              `/api/live_player_boxscore?event_ids=${encodeURIComponent(eventIds.join(','))}`,
-              'Failed to load live player boxscore.',
-              { retries: silent ? 2 : 1 }
-            );
-            transformed = buildLiveBoxscoreSimFallback(boxscorePayload, games, liveStatePayload, dateValue);
-          }
-
-          if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
-            return;
-          }
-          nextPropsStripPayload = transformed;
-          state.propsStripVisibleCount = Number(state.propsStripDefaultCount) || 18;
-        } catch (_error) {
-          nextPropsStripPayload = null;
-        }
-      }
-
-      if (!nextPropsStripPayload) {
-        const payload = await fetchApiJson(
-          `/api/cards/props-strip?date=${encodeURIComponent(dateValue)}`,
-          'Failed to load prop strip.',
-          { retries: silent ? 2 : 1 }
-        );
-        if (epoch !== state.refreshEpoch || (state.payload?.date || state.date) !== dateValue) {
-          return;
-        }
-        nextPropsStripPayload = payload;
-      }
-      state.propsStripPayload = nextPropsStripPayload;
+      state.propsStripPayload = payload;
       renderPropsStrip();
       if (state.payload && (state.payload.date || state.date) === dateValue) {
         renderBoard();
