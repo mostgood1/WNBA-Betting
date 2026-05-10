@@ -5489,13 +5489,14 @@
       const nextDate = String(payload?.date || state.date || '');
       const nextGames = safeArray(payload?.games);
       const slateUnchanged = previousDate === nextDate && sameSlate(nextGames, previousGames);
-      if (slateUnchanged) {
-        reapplyCachedSimDetails();
-      } else {
+      if (!slateUnchanged) {
         state.simDetailCache.clear();
         state.simDetailLoading.clear();
       }
       state.payload = payload;
+      if (slateUnchanged) {
+        reapplyCachedSimDetails();
+      }
       const resolvedDate = payload.date || state.date;
       state.liveDataLoading = true;
       updateDateControls();
