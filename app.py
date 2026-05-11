@@ -38452,6 +38452,147 @@ def api_live_player_lens():
                         return float(v)
         return None
 
+    def _snapshot_prop_stat_key(market: Any) -> str | None:
+        market_key = str(market or "").strip().lower()
+        return {
+            "player_points": "pts",
+            "player_points_alternate": "pts",
+            "player_rebounds": "reb",
+            "player_rebounds_alternate": "reb",
+            "player_assists": "ast",
+            "player_assists_alternate": "ast",
+            "player_threes": "threes",
+            "player_threes_alternate": "threes",
+            "player_points_rebounds_assists": "pra",
+            "player_points_rebounds_assists_alternate": "pra",
+            "player_points_assists": "pa",
+            "player_points_assists_alternate": "pa",
+            "player_points_rebounds": "pr",
+            "player_points_rebounds_alternate": "pr",
+            "player_rebounds_assists": "ra",
+            "player_rebounds_assists_alternate": "ra",
+            "player_steals": "stl",
+            "player_steals_alternate": "stl",
+            "player_blocks": "blk",
+            "player_blocks_alternate": "blk",
+            "player_turnovers": "tov",
+            "player_turnovers_alternate": "tov",
+        }.get(market_key)
+
+    def _snapshot_prop_side(side: Any) -> str | None:
+        side_key = str(side or "").strip().lower()
+        if side_key in {"over", "o"}:
+            return "over"
+        if side_key in {"under", "u"}:
+            return "under"
+        return None
+
+    def _snapshot_prop_line_token(line_val: Any) -> str | None:
+        line_num = _safe_float(line_val)
+        if line_num is None:
+            return None
+        return f"{float(line_num):.3f}"
+
+    def _load_snapshot_props_for_game(date_str: str, home_tri: str, away_tri: str, player_team_by_nk: dict[str, str]) -> dict[str, dict[str, Any]]:
+        out: dict[str, dict[str, Any]] = {"lines": {}, "prices": {}, "books": {}}
+        if not date_str or not home_tri or not away_tri:
+            return out
+        try:
+            snapshot_path = _live_find_processed_csv("oddsapi_player_props", date_str)
+        except Exception:
+            snapshot_path = None
+        if not snapshot_path:
+            return out
+        try:
+            df = pd.read_csv(snapshot_path)
+        except Exception:
+            return out
+        if df is None or df.empty:
+            return out
+
+        cols = {str(c).strip().lower(): str(c) for c in df.columns}
+        market_col = cols.get("market")
+        name_col = cols.get("player_name")
+        line_col = cols.get("point")
+        side_col = cols.get("outcome_name")
+        price_col = cols.get("price")
+        book_col = cols.get("bookmaker")
+        home_col = cols.get("home_team")
+        away_col = cols.get("away_team")
+        if not (market_col and name_col and line_col and side_col and price_col and book_col and home_col and away_col):
+            return out
+
+        points_by_key: dict[tuple[str, str, str], list[float]] = {}
+        prices_by_line_side: dict[tuple[str, str, str, str, str], list[float]] = {}
+        book_counts_by_line_side: dict[tuple[str, str, str, str, str], dict[str, int]] = {}
+        home_tri = _canonical_team_tri(home_tri)
+        away_tri = _canonical_team_tri(away_tri)
+
+        for _, row in df.iterrows():
+            try:
+                row_home = _canonical_team_tri(_get_tricode(str(row.get(home_col) or "")))
+                row_away = _canonical_team_tri(_get_tricode(str(row.get(away_col) or "")))
+                if {row_home, row_away} != {home_tri, away_tri}:
+                    continue
+                nk0 = _norm_player_name(row.get(name_col))
+                stat_key = _snapshot_prop_stat_key(row.get(market_col))
+                side_key = _snapshot_prop_side(row.get(side_col))
+                line_num = _safe_float(row.get(line_col))
+                price_num = _safe_float(row.get(price_col))
+                if not nk0 or not stat_key or not side_key or line_num is None or price_num is None:
+                    continue
+                team_tri = _canonical_team_tri(player_team_by_nk.get(nk0))
+                if not team_tri:
+                    home_match = (home_tri, nk0) in roster_pid_by_team_nk if isinstance(roster_pid_by_team_nk, dict) else False
+                    away_match = (away_tri, nk0) in roster_pid_by_team_nk if isinstance(roster_pid_by_team_nk, dict) else False
+                    if home_match and not away_match:
+                        team_tri = home_tri
+                    elif away_match and not home_match:
+                        team_tri = away_tri
+                if team_tri not in {home_tri, away_tri}:
+                    continue
+                player_key = (team_tri, nk0, stat_key)
+                line_token = _snapshot_prop_line_token(line_num)
+                if not line_token:
+                    continue
+                points_by_key.setdefault(player_key, []).append(float(line_num))
+                price_key = (team_tri, nk0, stat_key, line_token, side_key)
+                prices_by_line_side.setdefault(price_key, []).append(float(price_num))
+                book_key = _canonical_bookmaker_key(row.get(book_col)) or None
+                if book_key:
+                    book_counts_by_line_side.setdefault(price_key, {})[book_key] = int(book_counts_by_line_side.setdefault(price_key, {}).get(book_key, 0)) + 1
+            except Exception:
+                continue
+
+        for (team_tri, nk0, stat_key), points in points_by_key.items():
+            try:
+                if not points:
+                    continue
+                consensus_line = float(np.median(np.asarray(points, dtype=float)))
+                line_token = _snapshot_prop_line_token(consensus_line)
+                if not line_token:
+                    continue
+                base_key = f"{team_tri}|{nk0}|{stat_key}"
+                out["lines"][base_key] = consensus_line
+                price_entry: dict[str, Any] = {}
+                book_entry: dict[str, Any] = {}
+                for side_key in ("over", "under"):
+                    price_key = (team_tri, nk0, stat_key, line_token, side_key)
+                    prices = prices_by_line_side.get(price_key) or []
+                    if prices:
+                        price_entry[side_key] = float(np.median(np.asarray(prices, dtype=float)))
+                    book_counts = book_counts_by_line_side.get(price_key) or {}
+                    if book_counts:
+                        best_book = min(book_counts.items(), key=lambda item: (-int(item[1]), str(item[0])))[0]
+                        book_entry[side_key] = best_book
+                if price_entry:
+                    out["prices"][f"{base_key}|{line_token}"] = price_entry
+                if book_entry:
+                    out["books"][f"{base_key}|{line_token}"] = book_entry
+            except Exception:
+                continue
+        return out
+
     def _compact_live_player_lens_row(row: dict[str, Any]) -> dict[str, Any]:
         compact: dict[str, Any] = {
             "team_tri": row.get("team_tri"),
@@ -38468,6 +38609,9 @@ def api_live_player_lens():
             "line_source": row.get("line_source"),
             "price_over": row.get("price_over"),
             "price_under": row.get("price_under"),
+            "book": row.get("book"),
+            "book_over": row.get("book_over"),
+            "book_under": row.get("book_under"),
             "ev_side": row.get("ev_side"),
             "win_prob": row.get("win_prob"),
             "ev": row.get("ev"),
@@ -38532,6 +38676,18 @@ def api_live_player_lens():
                 starters_by_team.setdefault(tri0, set()).add(nk0)
         except Exception:
             starters_by_team = {}
+
+        player_team_by_nk: dict[str, str] = {}
+        try:
+            for p0 in players or []:
+                if not isinstance(p0, dict):
+                    continue
+                tri0 = str(p0.get("team_tri") or "").strip().upper()
+                nk0 = _norm_player_name(p0.get("player"))
+                if tri0 and nk0:
+                    player_team_by_nk[nk0] = tri0
+        except Exception:
+            player_team_by_nk = {}
 
         g = games_map.get(str(eid)) if games_map else None
         gid = (g.get("game_id") if isinstance(g, dict) else None)
@@ -38686,6 +38842,16 @@ def api_live_player_lens():
             live_prop_last_update_max = None
             live_prop_points_span_by_key = {}
             live_prop_points_n_by_key = {}
+
+        snapshot_prop_meta: dict[str, dict[str, Any]] = {"lines": {}, "prices": {}, "books": {}}
+        try:
+            if d and home and away:
+                snapshot_prop_meta = _load_snapshot_props_for_game(str(d), str(home), str(away), player_team_by_nk)
+        except Exception:
+            snapshot_prop_meta = {"lines": {}, "prices": {}, "books": {}}
+        snapshot_prop_lines = snapshot_prop_meta.get("lines") if isinstance(snapshot_prop_meta.get("lines"), dict) else {}
+        snapshot_prop_prices = snapshot_prop_meta.get("prices") if isinstance(snapshot_prop_meta.get("prices"), dict) else {}
+        snapshot_prop_books = snapshot_prop_meta.get("books") if isinstance(snapshot_prop_meta.get("books"), dict) else {}
 
         # Best-effort SmartSim per-player mean/sd (pregame uncertainty proxy) for EV calcs.
         smartsim_player_stats: dict[tuple[str, str], dict[str, float]] = {}
@@ -39148,8 +39314,9 @@ def api_live_player_lens():
                 }
                 for stat_key, actual in stat_actuals.items():
                     try:
-                        line_pregame = None
-                        if edges_idx:
+                        snapshot_base_key = f"{team}|{nk}|{stat_key}"
+                        line_pregame = _safe_float(snapshot_prop_lines.get(snapshot_base_key)) if snapshot_prop_lines else None
+                        if line_pregame is None and edges_idx:
                             line_pregame = edges_idx.get((team, nk, stat_key))
                         if line_pregame is None and rec_lines_idx:
                             line_pregame = rec_lines_idx.get((team, nk, stat_key))
@@ -39370,6 +39537,8 @@ def api_live_player_lens():
                         # Live Over/Under prices (OddsAPI) when available.
                         price_over = None
                         price_under = None
+                        book_over = None
+                        book_under = None
                         try:
                             if live_prop_prices:
                                 pr_obj = live_prop_prices.get(f"{nk}|{stat_key}")
@@ -39384,6 +39553,26 @@ def api_live_player_lens():
                         except Exception:
                             price_over = None
                             price_under = None
+                            book_over = None
+                            book_under = None
+
+                        try:
+                            snapshot_line_token = _snapshot_prop_line_token(line_live if line_live is not None else line_pregame)
+                            snapshot_price_obj = None
+                            snapshot_book_obj = None
+                            if snapshot_line_token:
+                                snapshot_price_obj = snapshot_prop_prices.get(f"{snapshot_base_key}|{snapshot_line_token}") if snapshot_prop_prices else None
+                                snapshot_book_obj = snapshot_prop_books.get(f"{snapshot_base_key}|{snapshot_line_token}") if snapshot_prop_books else None
+                            if isinstance(snapshot_price_obj, dict):
+                                if price_over is None:
+                                    price_over = _safe_float(snapshot_price_obj.get("over"))
+                                if price_under is None:
+                                    price_under = _safe_float(snapshot_price_obj.get("under"))
+                            if isinstance(snapshot_book_obj, dict):
+                                book_over = _canonical_bookmaker_key(snapshot_book_obj.get("over")) or None
+                                book_under = _canonical_bookmaker_key(snapshot_book_obj.get("under")) or None
+                        except Exception:
+                            pass
 
                         # Best-effort SD for probability/EV.
                         sim_sd = None
@@ -40108,6 +40297,13 @@ def api_live_player_lens():
                         if klass not in {"BET", "WATCH"}:
                             recommendation_priority_score = None
 
+                        selected_side = str(ev_side or lean or "").strip().upper()
+                        selected_book = None
+                        if selected_side == "OVER":
+                            selected_book = book_over
+                        elif selected_side == "UNDER":
+                            selected_book = book_under
+
                         rows.append({
                             "team_tri": team,
                             "player": player,
@@ -40146,6 +40342,9 @@ def api_live_player_lens():
                             "line_source": line_source,
                             "price_over": price_over,
                             "price_under": price_under,
+                            "book": selected_book,
+                            "book_over": book_over,
+                            "book_under": book_under,
                             "win_prob_over": win_prob_over,
                             "win_prob_under": win_prob_under,
                             "implied_prob_over": implied_prob_over,
