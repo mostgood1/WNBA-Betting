@@ -1,0 +1,5 @@
+date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
+2026-05-10,Connecticut Sun,Seattle Storm,CON,SEA,82.0,89.0,-10.984809306263925,165.93020629882812,-7.0,171.0,-3.9848093062639247,-5.069793701171875
+2026-05-10,Golden State Valkyries,Phoenix Mercury,GSV,PHX,,,-3.654217866063119,157.45306396484375,,0.0,,157.45306396484375
+2026-05-10,Los Angeles Sparks,Las Vegas Aces,LAS,LVA,,,-7.044614222645761,161.6544647216797,,0.0,,161.6544647216797
+2026-05-10,Washington Mystics,New York Liberty,WSH,NYL,,,-4.040344145894052,163.5568084716797,,0.0,,163.5568084716797
