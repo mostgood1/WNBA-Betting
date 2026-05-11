@@ -43,7 +43,16 @@ def _git_head_info() -> tuple[str | None, str | None]:
 
 
 APP_RUNTIME_STARTED_AT = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-APP_RUNTIME_GIT_SHA, APP_RUNTIME_GIT_BRANCH = _git_head_info()
+APP_RUNTIME_GIT_SHA = (
+    os.environ.get("RENDER_GIT_COMMIT")
+    or os.environ.get("GIT_COMMIT")
+    or None
+)
+APP_RUNTIME_GIT_BRANCH = (
+    os.environ.get("RENDER_GIT_BRANCH")
+    or os.environ.get("GIT_BRANCH")
+    or None
+)
 
 import sys as _sys_early
 if str(SRC_DIR) not in _sys_early.path:
@@ -9442,8 +9451,8 @@ def health():
 def api_version():
     """Return app version info (git SHA, branch) to verify deploy state."""
     repo_sha, repo_branch = _git_head_info()
-    runtime_sha = APP_RUNTIME_GIT_SHA
-    runtime_branch = APP_RUNTIME_GIT_BRANCH
+    runtime_sha = APP_RUNTIME_GIT_SHA or repo_sha
+    runtime_branch = APP_RUNTIME_GIT_BRANCH or repo_branch
     return jsonify(_to_jsonable({
         "sha": runtime_sha,
         "branch": runtime_branch,
