@@ -3037,7 +3037,7 @@
     }
     try {
       const payload = await fetchApiJson(
-        `/api/cards/props-strip?date=${encodeURIComponent(dateValue)}`,
+        `/api/cards/props-strip?date=${encodeURIComponent(dateValue)}&per_game_limit=8&limit=24`,
         'Failed to load prop strip.',
         { retries: silent ? 2 : 1 }
       );
@@ -4853,7 +4853,7 @@
     });
   }
 
-        `/api/cards/props-strip?date=${encodeURIComponent(dateValue)}&per_game_limit=8&limit=24`,
+  function splitFilteredPropRows(game) {
     const rows = filteredPropRows(game);
     return {
       live: filteredLivePropRows(game),
