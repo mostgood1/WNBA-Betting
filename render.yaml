@@ -67,6 +67,8 @@ services:
       # Persist data/raw + data/processed (OddsAPI/Bovada snapshots, props edges, recommendations)
       - key: WNBA_BETTING_DATA_ROOT
         value: /opt/render/project/data
+      - key: WNBA_BETTING_RECONCILE_REPO_DATA
+        value: "0"
       - key: ODDSAPI_PROPS_BACKGROUND_MODE
         value: "process"
       - key: REFRESH_PREDICT_PROPS_USE_SMART_SIM
