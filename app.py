@@ -16843,14 +16843,9 @@ def _cards_select_prop_buckets(rows: list[dict[str, Any]]) -> tuple[list[dict[st
     ranked = [_cards_locked_policy_annotate(row) for row in rows if isinstance(row, dict)]
     ranked.sort(key=_cards_locked_policy_sort_key, reverse=True)
 
-    policy = _NBA_CARDS_LOCKED_POLICY
-    official_cap_total = int(policy.get("prop_official_cap_per_game") or 0)
-    playable_cap_total = int(policy.get("prop_cap_per_game") or 0)
     official: list[dict[str, Any]] = []
     playable: list[dict[str, Any]] = []
-    official_by_sleeve: dict[str, int] = {}
     official_players: set[tuple[str, str]] = set()
-    playable_by_sleeve: dict[str, int] = {}
     playable_players: set[tuple[str, str]] = set()
     for row in ranked:
         sleeve_policy = _cards_prop_sleeve_policy(row)
@@ -16858,39 +16853,26 @@ def _cards_select_prop_buckets(rows: list[dict[str, Any]]) -> tuple[list[dict[st
         player_key = _cards_prop_row_player_key(row)
 
         if _cards_prop_official_via_sleeve_policy(row):
-            if official_cap_total <= 0 or len(official) < official_cap_total:
-                if player_key is not None and player_key in official_players:
-                    continue
-                if sleeve_key:
-                    official_cap = int((sleeve_policy or {}).get("official_max_per_game") or policy.get("prop_official_cap_per_game") or 0)
-                    if official_cap > 0 and int(official_by_sleeve.get(sleeve_key, 0)) >= official_cap:
-                        continue
-                selected = dict(row, card_bucket="official")
-                if sleeve_key:
-                    selected["playable_sleeve"] = sleeve_key
-                    official_by_sleeve[sleeve_key] = int(official_by_sleeve.get(sleeve_key, 0) + 1)
-                if player_key is not None:
-                    official_players.add(player_key)
-                official.append(selected)
+            if player_key is not None and player_key in official_players:
                 continue
+            selected = dict(row, card_bucket="official")
+            if sleeve_key:
+                selected["playable_sleeve"] = sleeve_key
+            if player_key is not None:
+                official_players.add(player_key)
+            official.append(selected)
+            continue
 
         if not _cards_prop_playable_via_sleeve_policy(row):
-            continue
-        if playable_cap_total > 0 and len(playable) >= playable_cap_total:
             continue
         if player_key is not None and player_key in official_players:
             continue
         if player_key is not None and player_key in playable_players:
             continue
-        if sleeve_key:
-            max_per_game = int((sleeve_policy or {}).get("max_per_game") or 0)
-            if max_per_game > 0 and int(playable_by_sleeve.get(sleeve_key, 0)) >= max_per_game:
-                continue
 
         selected = dict(row, card_bucket="playable")
         if sleeve_key:
             selected["playable_sleeve"] = sleeve_key
-            playable_by_sleeve[sleeve_key] = int(playable_by_sleeve.get(sleeve_key, 0) + 1)
         if player_key is not None:
             playable_players.add(player_key)
         playable.append(selected)
@@ -19064,7 +19046,7 @@ def _sim_vs_line_prop_recommendations(
     props_recs_by_team: dict[str, list[dict[str, Any]]],
     home_tri: str,
     away_tri: str,
-    topn_per_side: int = 6,
+    topn_per_side: int | None = None,
     allowed_markets: set[str] | None = None,
     allowed_books: set[str] | None = None,
     min_ev_pct: float | None = None,
@@ -19671,6 +19653,8 @@ def _sim_vs_line_prop_recommendations(
                 continue
 
         scored.sort(key=lambda x: _safe_float(((x.get("best") or {}) if isinstance(x.get("best"), dict) else {}).get("ev")) or float("-inf"), reverse=True)
+        if topn_per_side is None:
+            return scored
         return scored[: max(0, int(topn_per_side))]
 
     return {
@@ -21266,7 +21250,6 @@ def api_cards():
                     props_recs_by_team,
                     home_tri=home_tri,
                     away_tri=away_tri,
-                    topn_per_side=6,
                     allowed_markets=allowed_markets,
                     allowed_books=allowed_books,
                     min_ev_pct=min_ev_pct,
@@ -21283,7 +21266,6 @@ def api_cards():
                 props_recs_by_team,
                 home_tri=home_tri,
                 away_tri=away_tri,
-                topn_per_side=6,
                 allowed_markets=allowed_markets,
                 allowed_books=allowed_books,
                 min_ev_pct=min_ev_pct,

@@ -785,6 +785,70 @@ def test_recommendations_all_props_preserves_bucketed_why_reasons(tmp_path, monk
     assert any("value" in reason.lower() or "price" in reason.lower() for reason in star["market_reasons"])
 
 
+def test_cards_select_prop_buckets_does_not_cap_qualifying_props(monkeypatch):
+    rows = [
+        {"player": f"Player {idx}", "team": "BOS", "score": 100 - idx}
+        for idx in range(5)
+    ]
+
+    monkeypatch.setattr(app_module, "_cards_locked_policy_annotate", lambda row: dict(row))
+    monkeypatch.setattr(app_module, "_cards_locked_policy_sort_key", lambda row: float(row.get("score") or 0.0))
+    monkeypatch.setattr(app_module, "_cards_prop_sleeve_policy", lambda row: {"sleeve_key": "pts:over", "official_max_per_game": 1, "max_per_game": 1})
+    monkeypatch.setattr(app_module, "_cards_prop_official_via_sleeve_policy", lambda row: True)
+    monkeypatch.setattr(app_module, "_cards_prop_playable_via_sleeve_policy", lambda row: True)
+    monkeypatch.setattr(app_module, "_cards_prop_row_player_key", lambda row: (str(row.get("team") or ""), str(row.get("player") or "")))
+
+    official, playable = app_module._cards_select_prop_buckets(rows)
+
+    assert [row.get("player") for row in official] == [f"Player {idx}" for idx in range(5)]
+    assert playable == []
+
+
+def test_sim_vs_line_prop_recommendations_returns_all_qualifying_rows_without_side_cap():
+    players_out = {
+        "home": [
+            {
+                "player_name": f"Player {idx}",
+                "player_id": idx,
+                "min_mean": 30.0,
+                "pts_mean": 30.0 + idx,
+                "pts_sd": 5.0,
+            }
+            for idx in range(7)
+        ],
+        "away": [],
+    }
+    props_recs_by_team = {
+        "BOS": [
+            {
+                "player": f"Player {idx}",
+                "player_id": idx,
+                "plays": [
+                    {
+                        "market": "pts",
+                        "side": "OVER",
+                        "line": 20.5,
+                        "price": -110,
+                        "book": "draftkings",
+                    }
+                ],
+            }
+            for idx in range(7)
+        ],
+        "NYL": [],
+    }
+
+    result = app_module._sim_vs_line_prop_recommendations(
+        players_out,
+        props_recs_by_team,
+        home_tri="BOS",
+        away_tri="NYL",
+    )
+
+    assert len(result["home"]) == 7
+    assert result["away"] == []
+
+
 def test_best_bets_page_routes_render():
     app_module.app.testing = True
     with app_module.app.test_client() as client:
