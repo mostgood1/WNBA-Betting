@@ -1,0 +1,4 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-05-12,2026-05-13T00:00:00Z,Dallas Wings,Atlanta Dream,131.64099369308823,-131.64099369308826,2.5,-2.5,,,180.0,-104.47246561228091,104.47246561228091,7,7,6,3,oddsapi_consensus
+2026-05-12,2026-05-13T02:00:00Z,Phoenix Mercury,Minnesota Lynx,-154.4175024211217,154.4175024211217,-3.5,3.5,,,169.5,-102.99065833486326,102.99065833486326,9,7,9,5,oddsapi_consensus
+2026-05-12,2026-05-13T02:00:00Z,Portland Fire,New York Liberty,573.2194133553263,-573.2194133553264,13.5,-13.5,,,173.5,-100.0,-100.0,7,7,5,5,oddsapi_consensus
