@@ -4841,7 +4841,7 @@
 
   function filteredLivePropRows(game) {
     const detail = ensurePropDetail(game);
-    const rows = liveOpportunityPropRows(game);
+    const rows = liveStripPropRows(game, { actionableOnly: false });
     return rows.filter((row) => {
       if (detail.side !== 'all' && row.sideKey !== detail.side) {
         return false;
@@ -4853,7 +4853,7 @@
     });
   }
 
-  function splitFilteredPropRows(game) {
+        `/api/cards/props-strip?date=${encodeURIComponent(dateValue)}&per_game_limit=8&limit=24`,
     const rows = filteredPropRows(game);
     return {
       live: filteredLivePropRows(game),
