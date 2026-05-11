@@ -21833,8 +21833,25 @@ def api_cards_props_strip():
         return {}
 
     def _build_live_fallback_payload() -> dict[str, Any] | None:
+        live_event_ids: list[str] = []
         try:
-            with app.test_request_context(f"/api/live_player_lens?date={d}"):
+            _source, scoreboard_games = _live_build_scoreboard_games(d)
+            for game in scoreboard_games or []:
+                if not isinstance(game, dict):
+                    continue
+                if not bool(game.get("in_progress")) or bool(game.get("final")):
+                    continue
+                event_id = str(game.get("espn_event_id") or game.get("game_id") or "").strip()
+                if event_id:
+                    live_event_ids.append(event_id)
+        except Exception:
+            live_event_ids = []
+
+        if not live_event_ids:
+            return None
+
+        try:
+            with app.test_request_context(f"/api/live_player_lens?date={d}&event_ids={','.join(live_event_ids)}"):
                 payload_obj, status_code = _response_json_value(api_live_player_lens())
         except Exception:
             payload_obj, status_code = None, None
@@ -21864,18 +21881,6 @@ def api_cards_props_strip():
                 line_value = _safe_float(row.get("line_live") if row.get("line_live") is not None else row.get("line"))
                 price = _safe_float(row.get("price_under")) if side == "UNDER" else _safe_float(row.get("price_over"))
                 book = _canonical_bookmaker_key(row.get("book")) or None
-                if price is None or not book:
-                    fallback_price = _lookup_live_prop_price(
-                        row.get("team_tri"),
-                        row.get("player"),
-                        row.get("stat"),
-                        side,
-                        line_value,
-                    )
-                    if price is None:
-                        price = _safe_float(fallback_price.get("price"))
-                    if not book:
-                        book = _canonical_bookmaker_key(fallback_price.get("book")) or None
                 period = _safe_int(status.get("period"))
                 clock = str(status.get("clock") or "").strip()
                 if bool(status.get("final")):
@@ -21926,7 +21931,22 @@ def api_cards_props_strip():
                 ),
                 reverse=True,
             )
-            items.extend(game_items[:per_game_limit])
+            selected_game_items = game_items[:per_game_limit]
+            for item in selected_game_items:
+                if item.get("price") is not None and item.get("book"):
+                    continue
+                fallback_price = _lookup_live_prop_price(
+                    item.get("team_tri"),
+                    item.get("player"),
+                    item.get("market"),
+                    item.get("side"),
+                    item.get("line"),
+                )
+                if item.get("price") is None:
+                    item["price"] = _safe_float(fallback_price.get("price"))
+                if not item.get("book"):
+                    item["book"] = _canonical_bookmaker_key(fallback_price.get("book")) or None
+            items.extend(selected_game_items)
 
         selected_items = _select_props_strip_items(items)
         if not selected_items:
@@ -21941,6 +21961,10 @@ def api_cards_props_strip():
             "rows": len(selected_items),
             "source": "live_player_lens",
         }
+
+    live_payload = _build_live_fallback_payload()
+    if live_payload:
+        return jsonify(_to_jsonable(live_payload))
 
     snapshot_items, snapshot_rows = _build_snapshot_items()
     selected = _select_props_strip_items(snapshot_items)
@@ -21971,10 +21995,6 @@ def api_cards_props_strip():
                 "source": "api_props_fallback",
                 "snapshot_rows": snapshot_rows,
             }
-
-    live_payload = _build_live_fallback_payload()
-    if live_payload:
-        return jsonify(_to_jsonable(live_payload))
 
     return jsonify(
         _to_jsonable(
@@ -38230,12 +38250,16 @@ def api_live_player_lens():
             return jsonify({"error": "missing event_ids"}), 400
         try:
             _src, sb_games = _live_build_scoreboard_games(d)
-            inferred = []
+            inferred_live = []
+            inferred_all = []
             for g in sb_games or []:
                 eid = str(g.get("espn_event_id") or g.get("game_id") or "").strip()
-                if eid:
-                    inferred.append(eid)
-            event_ids = inferred
+                if not eid:
+                    continue
+                inferred_all.append(eid)
+                if bool(g.get("in_progress")) and not bool(g.get("final")):
+                    inferred_live.append(eid)
+            event_ids = inferred_live or inferred_all
         except Exception:
             event_ids = []
     else:
