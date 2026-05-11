@@ -19785,7 +19785,7 @@ def api_cards():
     cards_game_recommendations_index = _load_cards_game_recommendations_index(d)
     cards_prop_snapshot_index = _load_cards_prop_snapshot_index(d)
     cards_prop_recommendations_index = _load_cards_prop_recommendations_index(d)
-    cards_sim_detail_index = _load_cards_sim_detail_index(d)
+    cards_sim_detail_index = _load_cards_sim_detail_index(d) if include_players else {}
     finals_lookup = _load_finals_lookup(d)
     now_local = _best_bets_local_now_naive()
     started_matchups = _cards_started_matchups_index(d, now_local)
@@ -20613,7 +20613,7 @@ def api_cards():
             "diff_away": diff_away,
         }
 
-    all_team_boxscore_prop_sources = _build_boxscore_prop_line_sources(d)
+    all_team_boxscore_prop_sources = _build_boxscore_prop_line_sources(d) if include_players else {}
 
     smart_sim_files_by_matchup: dict[tuple[str, str], Path] = {}
     for fp in smart_sim_files:
@@ -20737,7 +20737,7 @@ def api_cards():
         team_boxscore_prop_sources = {
             home_tri: all_team_boxscore_prop_sources.get(home_tri) or {},
             away_tri: all_team_boxscore_prop_sources.get(away_tri) or {},
-        }
+        } if include_players else {home_tri: {}, away_tri: {}}
 
         for side in ("home", "away"):
             arr = players.get(side) if isinstance(players, dict) else []
@@ -20806,16 +20806,17 @@ def api_cards():
                 except Exception:
                     pass
 
-                try:
-                    tri = home_tri if side == "home" else away_tri
-                    tri_key = str(tri or "").strip().upper()
-                    prop_lines, prop_line_options = _build_boxscore_player_prop_payload(tri_key, pr2.get("player_name"), pr2)
-                    if prop_lines:
-                        pr2["prop_lines"] = prop_lines
-                    if prop_line_options:
-                        pr2["prop_line_options"] = prop_line_options
-                except Exception:
-                    pass
+                if include_players:
+                    try:
+                        tri = home_tri if side == "home" else away_tri
+                        tri_key = str(tri or "").strip().upper()
+                        prop_lines, prop_line_options = _build_boxscore_player_prop_payload(tri_key, pr2.get("player_name"), pr2)
+                        if prop_lines:
+                            pr2["prop_lines"] = prop_lines
+                        if prop_line_options:
+                            pr2["prop_line_options"] = prop_line_options
+                    except Exception:
+                        pass
 
                 if _exclude_from_sim_output(pr2):
                     continue
@@ -20871,7 +20872,7 @@ def api_cards():
         missing_prop_players = {
             "home": _missing_prop_players_for_team(home_tri, players.get("home") if isinstance(players, dict) else []),
             "away": _missing_prop_players_for_team(away_tri, players.get("away") if isinstance(players, dict) else []),
-        }
+        } if include_players else {"home": [], "away": []}
 
         try:
             for side_key, team_tri in (("home", home_tri), ("away", away_tri)):
@@ -20922,7 +20923,7 @@ def api_cards():
         }
 
         snapshot_players_summary = None
-        if isinstance(sim_detail_snapshot, dict):
+        if include_players and isinstance(sim_detail_snapshot, dict):
             try:
                 snapshot_players = sim_detail_snapshot.get("players") if isinstance(sim_detail_snapshot.get("players"), dict) else {}
                 snapshot_missing = sim_detail_snapshot.get("missing_prop_players") if isinstance(sim_detail_snapshot.get("missing_prop_players"), dict) else {}
