@@ -19788,7 +19788,7 @@ def api_cards():
     cards_sim_detail_index = _load_cards_sim_detail_index(d) if include_players else {}
     finals_lookup = _load_finals_lookup(d)
     now_local = _best_bets_local_now_naive()
-    started_matchups = _cards_started_matchups_index(d, now_local)
+    started_matchups: dict[tuple[str, str], dict[str, Any]] = {}
 
     props_recs_source_lookup: dict[tuple[str, str], dict[str, Any]] = {}
     try:
