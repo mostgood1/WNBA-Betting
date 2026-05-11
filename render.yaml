@@ -6,7 +6,7 @@ services:
     # plan intentionally omitted to preserve Render dashboard plan (avoid accidental downgrades)
     autoDeployTrigger: commit
     buildCommand: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
-    startCommand: bash start.sh
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --worker-class gthread --threads 1 --max-requests 75 --max-requests-jitter 25 --timeout 120 --log-level info
     healthCheckPath: /health
     envVars:
       - key: FLASK_ENV
