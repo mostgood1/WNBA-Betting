@@ -21,9 +21,9 @@ services:
         value: "1"
       # Reduce long-lived memory growth on small instances
       - key: GUNICORN_MAX_REQUESTS
-        value: "75"
+        value: "0"
       - key: GUNICORN_MAX_REQUESTS_JITTER
-        value: "25"
+        value: "0"
 
       # Cap large in-process caches (avoid Render 512MB OOM)
       - key: LIVE_PROCESSED_CACHE_MAX_ITEMS
