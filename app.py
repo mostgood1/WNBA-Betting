@@ -368,6 +368,57 @@ _live_processed_cache: dict[str, tuple[int, Any]] = _CappedDict(
     lo=0,
     hi=500,
 )
+_cards_api_response_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="CARDS_API_RESPONSE_CACHE_MAX_ITEMS",
+    default_max=24,
+    lo=0,
+    hi=200,
+)
+_props_strip_response_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="PROPS_STRIP_RESPONSE_CACHE_MAX_ITEMS",
+    default_max=24,
+    lo=0,
+    hi=200,
+)
+
+
+def _request_args_cache_key() -> str:
+    try:
+        items: list[tuple[str, list[str]]] = []
+        for key in sorted(request.args.keys()):
+            values = [str(v) for v in request.args.getlist(key)]
+            items.append((str(key), values))
+        return json.dumps(items, separators=(",", ":"), sort_keys=False)
+    except Exception:
+        return request.query_string.decode("utf-8", errors="ignore")
+
+
+def _route_json_cache_get(
+    cache: dict[str, tuple[float, dict[str, Any]]],
+    cache_key: str,
+    ttl_seconds: float,
+) -> dict[str, Any] | None:
+    try:
+        entry = cache.get(cache_key)
+        now = time.time()
+        if entry and (now - float(entry[0]) < float(ttl_seconds)):
+            cached_payload = entry[1]
+            if isinstance(cached_payload, dict):
+                return copy.deepcopy(cached_payload)
+    except Exception:
+        return None
+    return None
+
+
+def _route_json_cache_set(
+    cache: dict[str, tuple[float, dict[str, Any]]],
+    cache_key: str,
+    payload: dict[str, Any],
+) -> None:
+    try:
+        cache[cache_key] = (time.time(), copy.deepcopy(payload))
+    except Exception:
+        pass
 
 try:
     from nba_betting.odds_api import (
@@ -19759,6 +19810,20 @@ def api_cards():
     props_source = str(request.args.get("props_source", request.args.get("propsSource", "auto")) or "auto").strip().lower()
     if props_source not in {"auto", "snapshot", "runtime", "source"}:
         props_source = "auto"
+
+    cards_cache_key = ""
+    cards_cache_ttl = float(_env_int_clamped("CARDS_API_RESPONSE_CACHE_TTL_SEC", 8, 0, 120))
+    should_cache_cards_response = (
+        cards_cache_ttl > 0
+        and not include_players
+        and not include_sim_ladders
+    )
+    if should_cache_cards_response:
+        cards_cache_key = f"cards:{_request_args_cache_key()}"
+        cached_payload = _route_json_cache_get(_cards_api_response_cache, cards_cache_key, cards_cache_ttl)
+        if isinstance(cached_payload, dict):
+            return jsonify(_to_jsonable(cached_payload))
+
     smart_sim_files = _load_smart_sim_files_for_authoritative_slate(d)
     if not smart_sim_files:
         next_date, next_files = _find_next_available_smart_sim_date(d, max_ahead=_app_lookahead_days())
@@ -21460,18 +21525,17 @@ def api_cards():
     except Exception:
         pregame_portfolio = {"enabled": False, "selected": 0, "candidates": 0}
 
-    return jsonify(
-        _to_jsonable(
-            {
-                "date": d,
-                "requested_date": requested_date,
-                "lookahead_applied": bool(d != requested_date),
-                "players_included": bool(include_players),
-                "pregame_portfolio": pregame_portfolio,
-                "games": games,
-            }
-        )
-    )
+    payload = {
+        "date": d,
+        "requested_date": requested_date,
+        "lookahead_applied": bool(d != requested_date),
+        "players_included": bool(include_players),
+        "pregame_portfolio": pregame_portfolio,
+        "games": games,
+    }
+    if should_cache_cards_response and cards_cache_key:
+        _route_json_cache_set(_cards_api_response_cache, cards_cache_key, payload)
+    return jsonify(_to_jsonable(payload))
 
 
 @app.route("/api/cards/sim-detail")
@@ -21540,6 +21604,15 @@ def api_cards_props_strip():
         per_game_limit = 2
     limit = max(1, min(24, limit))
     per_game_limit = max(1, min(4, per_game_limit))
+
+    props_strip_cache_key = ""
+    props_strip_cache_ttl = float(_env_int_clamped("PROPS_STRIP_RESPONSE_CACHE_TTL_SEC", 8, 0, 120))
+    should_cache_props_strip = props_strip_cache_ttl > 0
+    if should_cache_props_strip:
+        props_strip_cache_key = f"props-strip:{_request_args_cache_key()}"
+        cached_payload = _route_json_cache_get(_props_strip_response_cache, props_strip_cache_key, props_strip_cache_ttl)
+        if isinstance(cached_payload, dict):
+            return jsonify(_to_jsonable(cached_payload))
 
     def _select_props_strip_items(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
         candidates.sort(
@@ -23391,6 +23464,8 @@ def _recommendations_recaps():
             "window": {"since": ds.date().isoformat(), "until": de.date().isoformat()},
             "items": items,
         }
+        if should_cache_props_strip and props_strip_cache_key:
+            _route_json_cache_set(_props_strip_response_cache, props_strip_cache_key, payload)
         return jsonify(_to_jsonable(payload))
     except Exception as e:  # noqa: BLE001
         return jsonify({"error": str(e)}), 500
