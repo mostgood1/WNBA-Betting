@@ -46,6 +46,10 @@ if ([string]::IsNullOrWhiteSpace($RemoteBaseUrl)) {
   }
 }
 
+if ([string]::IsNullOrWhiteSpace($RemoteBaseUrl)) {
+  $RemoteBaseUrl = 'https://wnba-betting.onrender.com'
+}
+
 function Resolve-SlateDate {
   param(
     [string]$TimeZoneId = $env:APP_TZ,
@@ -3026,11 +3030,17 @@ try {
 $rc3a = Invoke-PyMod -plist $ppArgs
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)
 if ($rc3a -ne 0) {
-  throw "predict-props failed with exit code $rc3a"
+  if ($NoSlateDay) {
+    Write-Log ("WARNING: predict-props failed on a no-slate day (exit={0}); continuing without requiring props predictions for {1}" -f $rc3a, $Date)
+  } else {
+    throw "predict-props failed with exit code $rc3a"
+  }
 }
 $propsPredictionsPath = Join-Path $RepoRoot ("data/processed/props_predictions_{0}.csv" -f $Date)
-if (-not (Test-CsvHasDataRows -Path $propsPredictionsPath)) {
+if (-not $NoSlateDay -and -not (Test-CsvHasDataRows -Path $propsPredictionsPath)) {
   throw "predict-props completed without writing data rows to $propsPredictionsPath"
+} elseif ($NoSlateDay -and -not (Test-CsvHasDataRows -Path $propsPredictionsPath)) {
+  Write-Log ("No-slate day: props predictions file is absent or empty for {0}; continuing" -f $Date)
 }
 
 # 3.0) Export SmartSim player quarter + scenario distributions for today's slate (non-fatal)
@@ -4118,13 +4128,17 @@ try {
     $env:REQUIRE_ROTATIONS = $reqRot
     if ($null -eq $env:ROTATIONS_MIN_COVERAGE -or $env:ROTATIONS_MIN_COVERAGE -eq '') { $env:ROTATIONS_MIN_COVERAGE = '0.70' }
     Write-Log ("Validating daily artifacts (require_odds={0}, require_smartsim={1}, require_props_lines={2}, require_rotations_espn={3})" -f $reqOdds, $reqSmart, $reqPropsLines, $reqRot)
-    $outV = Invoke-PyMod -plist @(
-    'tools/validate_daily_artifacts.py',
-    '--repo-root', $RepoRoot,
-    '--date', $Date,
-    '--yesterday', $yesterday,
-    '--rotations-min-coverage', $env:ROTATIONS_MIN_COVERAGE
+    $validateArgs = @(
+      'tools/validate_daily_artifacts.py',
+      '--repo-root', $RepoRoot,
+      '--date', $Date,
+      '--yesterday', $yesterday,
+      '--rotations-min-coverage', $env:ROTATIONS_MIN_COVERAGE
     )
+    if ($NoSlateDay) {
+      $validateArgs += '--no-slate-day'
+    }
+    $outV = Invoke-PyMod -plist $validateArgs
   if ($outV -ne 0) {
     Write-Log ("Daily artifact validation failed (exit={0})" -f $outV)
     if ($fail -match '^(1|true|yes)$') { throw "daily artifacts missing" }
@@ -4145,7 +4159,9 @@ try {
     Write-Log ("Running player audits for {0}" -f $Date)
 
     $skipSmartAud = $env:DAILY_SKIP_SMARTSIM
-    if ($null -ne $skipSmartAud -and $skipSmartAud -match '^(1|true|yes)$') {
+    if ($NoSlateDay) {
+      Write-Log ("Skipping SmartSim audits for {0}: no slate day" -f $Date)
+    } elseif ($null -ne $skipSmartAud -and $skipSmartAud -match '^(1|true|yes)$') {
       Write-Log 'Skipping SmartSim audits (DAILY_SKIP_SMARTSIM=1)'
     } else {
       $rcCov = Invoke-PyMod -plist @('tools/audit_smart_sim_player_coverage.py','--date', $Date)

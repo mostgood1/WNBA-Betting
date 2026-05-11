@@ -224,6 +224,12 @@ def main() -> int:
     ap.add_argument("--repo-root", default=os.environ.get("REPO_ROOT", "."), help="Repo root path")
     ap.add_argument("--date", required=True, help="YYYY-MM-DD")
     ap.add_argument("--yesterday", default=None, help="YYYY-MM-DD")
+    ap.add_argument(
+        "--no-slate-day",
+        action="store_true",
+        default=_parse_bool(os.environ.get("NO_SLATE_DAY"), False),
+        help="Explicitly mark the date as a no-slate day so same-day predictions artifacts are not required.",
+    )
 
     ap.add_argument("--fail-on-missing", action="store_true", default=_parse_bool(os.environ.get("FAIL_ON_MISSING"), True))
     ap.add_argument("--require-odds", action="store_true", default=_parse_bool(os.environ.get("REQUIRE_ODDS"), True))
@@ -376,11 +382,17 @@ def main() -> int:
         props_missing_teams
         and not (props_snapshot_rows > 0 and props_edges_rows > 0 and props_recs_rows > 0)
     )
+    has_slate = (not bool(args.no_slate_day)) and (slate_games is None or int(slate_games) > 0)
 
-    if pred_rows <= 0:
+    if pred_rows <= 0 and has_slate:
         missing.append(pred.name)
-    if props_rows <= 0:
+    elif pred_rows <= 0:
+        warnings.append(f"no-slate day: predictions not required: {pred.name}")
+
+    if props_rows <= 0 and has_slate:
         missing.append(props.name)
+    elif props_rows <= 0:
+        warnings.append(f"no-slate day: props predictions not required: {props.name}")
     elif props_team_gap_is_publish_blocking:
         missing.append(f"props_predictions missing slate teams: {', '.join(props_missing_teams)}")
     elif props_missing_teams:
@@ -455,6 +467,7 @@ def main() -> int:
         "props_present_teams": props_present_teams,
         "props_missing_teams": props_missing_teams,
         "slate_games": slate_games,
+        "no_slate_day": bool(args.no_slate_day),
         "smart_sim_count": smart_count,
         "rotations_dir_exists": bool((proc / "rotations_espn").exists()),
         "rotations_expected_games_yesterday": rot_expected,
