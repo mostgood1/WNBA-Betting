@@ -74,7 +74,7 @@ services:
       - key: REFRESH_PREDICT_PROPS_CALIBRATE_PLAYER
         value: "0"
       - key: RENDER_BOOTSTRAP_CURRENT_SLATE
-        value: "1"
+        value: "0"  # keep web boot minimal; bootstrap current slate via cron/manual refresh after the service is up
       - key: RENDER_PRESTART_REFRESH
         value: "0"  # keep boot light; heavy refresh/export jobs can OOM small Render instances
       - key: RENDER_PUSH_ON_DEPLOY
