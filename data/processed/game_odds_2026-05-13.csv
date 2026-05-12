@@ -1,0 +1,5 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-05-13,2026-05-14T02:00:00Z,Golden State Valkyries,Chicago Sky,-164.21354530072475,164.21354530072472,-4.5,4.5,,,165.5,-100.97946055472218,100.97946055472218,8,6,8,8,oddsapi_consensus
+2026-05-13,2026-05-14T00:00:00Z,Connecticut Sun,Las Vegas Aces,632.5194118043283,-632.5194118043285,13.5,-13.5,,,171.5,-100.0,-100.0,7,6,6,7,oddsapi_consensus
+2026-05-13,2026-05-14T02:30:00Z,Los Angeles Sparks,Indiana Fever,129.54374428191326,-129.5437442819132,2.5,-2.5,,,183.5,100.1819174094961,-100.1819174094961,7,6,7,7,oddsapi_consensus
+2026-05-13,2026-05-13T23:00:00Z,Toronto Tempo,Seattle Storm,-148.64193797796054,148.64193797796057,-3.5,3.5,,,166.5,103.27140785813376,-103.27140785813377,6,6,5,5,oddsapi_consensus
