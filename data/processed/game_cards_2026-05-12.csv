@@ -1,0 +1,4 @@
+date,game_id,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,bookmaker,home_tri,away_tri,prob_home_tip,early_threes_expected,early_threes_prob_ge_1
+2026-05-12,0401856901,Dallas Wings,Atlanta Dream,2026-05-13T00:00:00Z,126.280438257995,-126.280438257995,2.5,-2.5,,,181.5,-100.19261884582784,100.19261884582784,10,oddsapi_consensus,DAL,ATL,0.5,0.0,0.0
+2026-05-12,0401856902,Phoenix Mercury,Minnesota Lynx,2026-05-13T02:00:00Z,-167.594130595061,167.59413059506105,-4.5,4.5,,,170.5,102.64208779190332,-102.64208779190328,10,oddsapi_consensus,PHX,MIN,0.5,0.0,0.0
+2026-05-12,0401856903,Portland Fire,New York Liberty,2026-05-13T02:00:00Z,614.1006239750817,-614.1006239750816,12.5,-12.5,,,173.5,-100.92928367651666,100.92928367651666,10,oddsapi_consensus,POR,NYL,0.5,0.0,0.0
