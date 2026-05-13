@@ -25952,7 +25952,7 @@ def _ll_projection_ts(obj: dict[str, Any], idx: int) -> tuple[float, int]:
 
 
 def _ll_projection_latest(objs: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    groups: dict[tuple[Any, ...], tuple[int, dict[str, Any]]] = {}
+    grouped: dict[tuple[Any, ...], list[tuple[int, dict[str, Any]]]] = {}
     for idx, obj in enumerate(objs or []):
         if not isinstance(obj, dict):
             continue
@@ -25967,12 +25967,38 @@ def _ll_projection_latest(objs: list[dict[str, Any]]) -> list[dict[str, Any]]:
             if not name_key or not stat_key:
                 continue
             key = (gid, name_key, stat_key)
-            cur = groups.get(key)
-            if cur is None or _ll_projection_ts(obj, idx) > _ll_projection_ts(cur[1], cur[0]):
-                groups[key] = (idx, obj)
+            grouped.setdefault(key, []).append((idx, obj))
         except Exception:
             continue
-    return [obj for _, obj in sorted(groups.values(), key=lambda item: _ll_projection_ts(item[1], item[0]))]
+
+    selected: list[tuple[int, dict[str, Any]]] = []
+    for items in grouped.values():
+        try:
+            explicit_live = [
+                (idx, obj)
+                for idx, obj in items
+                if obj.get("in_progress") is True and obj.get("final") is not True
+            ]
+            if explicit_live:
+                selected.append(max(explicit_live, key=lambda item: _ll_projection_ts(item[1], item[0])))
+                continue
+
+            explicit_non_final = [
+                (idx, obj)
+                for idx, obj in items
+                if obj.get("final") is False
+            ]
+            if explicit_non_final:
+                selected.append(max(explicit_non_final, key=lambda item: _ll_projection_ts(item[1], item[0])))
+                continue
+
+            # Legacy artifacts do not carry explicit live/final status. In that case,
+            # prefer the earliest snapshot so postgame mirror rows do not collapse
+            # the projection onto the realized final stat.
+            selected.append(min(items, key=lambda item: _ll_projection_ts(item[1], item[0])))
+        except Exception:
+            continue
+    return [obj for _, obj in sorted(selected, key=lambda item: _ll_projection_ts(item[1], item[0]))]
 
 
 def _ll_mae(values: pd.Series) -> float | None:

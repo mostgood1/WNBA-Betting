@@ -1993,6 +1993,82 @@ def test_api_live_player_props_projection_audit_scores_adjusted_rows(tmp_path, m
     assert payload["by_stat"][0]["stat"] == "pts"
 
 
+def test_ll_projection_latest_prefers_earliest_legacy_snapshot_without_status():
+    rows = [
+        {
+            "date": "2026-03-29",
+            "market": "player_prop",
+            "game_id": "0000000001",
+            "player": "Devin Booker",
+            "name_key": "Devin Booker",
+            "stat": "pts",
+            "proj": 31.0,
+            "received_at": "2026-03-29T22:10:00Z",
+        },
+        {
+            "date": "2026-03-29",
+            "market": "player_prop",
+            "game_id": "0000000001",
+            "player": "Devin Booker",
+            "name_key": "Devin Booker",
+            "stat": "pts",
+            "proj": 38.0,
+            "received_at": "2026-03-29T23:55:00Z",
+        },
+    ]
+
+    selected = app_module._ll_projection_latest(rows)
+
+    assert len(selected) == 1
+    assert selected[0]["proj"] == 31.0
+
+
+def test_ll_projection_latest_prefers_latest_explicit_live_snapshot():
+    rows = [
+        {
+            "date": "2026-03-29",
+            "market": "player_prop",
+            "game_id": "0000000001",
+            "player": "Devin Booker",
+            "name_key": "Devin Booker",
+            "stat": "pts",
+            "proj": 31.0,
+            "in_progress": True,
+            "final": False,
+            "received_at": "2026-03-29T22:10:00Z",
+        },
+        {
+            "date": "2026-03-29",
+            "market": "player_prop",
+            "game_id": "0000000001",
+            "player": "Devin Booker",
+            "name_key": "Devin Booker",
+            "stat": "pts",
+            "proj": 34.0,
+            "in_progress": True,
+            "final": False,
+            "received_at": "2026-03-29T22:25:00Z",
+        },
+        {
+            "date": "2026-03-29",
+            "market": "player_prop",
+            "game_id": "0000000001",
+            "player": "Devin Booker",
+            "name_key": "Devin Booker",
+            "stat": "pts",
+            "proj": 38.0,
+            "in_progress": False,
+            "final": True,
+            "received_at": "2026-03-29T23:55:00Z",
+        },
+    ]
+
+    selected = app_module._ll_projection_latest(rows)
+
+    assert len(selected) == 1
+    assert selected[0]["proj"] == 34.0
+
+
 def test_load_props_movement_callouts_exposes_player_id_photo_fallback(tmp_path, monkeypatch):
     processed = tmp_path / "data" / "processed"
     processed.mkdir(parents=True)
