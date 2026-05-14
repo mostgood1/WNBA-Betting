@@ -1,0 +1,4 @@
+date,game_id,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,bookmaker,home_tri,away_tri,prob_home_tip,early_threes_expected,early_threes_prob_ge_1
+2026-05-13,0401856906,Golden State Valkyries,Chicago Sky,2026-05-14T02:02:00Z,-220.0826263706181,220.08262637061816,-6.0,6.0,,,166.5,-100.10879555250538,100.1087955525054,11.0,oddsapi_consensus,GSV,CHI,0.5,0.0,0.0
+2026-05-13,0401856905,Connecticut Sun,Las Vegas Aces,2026-05-14T00:08:00Z,,,32.5,-32.5,,,174.5,-154.8289617732187,154.82896177321877,4.0,oddsapi_consensus,CON,LVA,0.5,0.0,0.0
+2026-05-13,0401856907,Los Angeles Sparks,Indiana Fever,2026-05-14T02:30:00Z,104.20818632799975,-104.20818632799975,1.0,-1.0,,,185.5,-101.04493214246024,101.04493214246024,11.0,oddsapi_consensus,LAS,IND,0.5,0.0,0.0

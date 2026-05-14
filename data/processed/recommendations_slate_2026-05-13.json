@@ -1,0 +1,563 @@
+{
+  "counts": {
+    "games": 1,
+    "markets": 1
+  },
+  "date": "2026-05-13",
+  "meta": {
+    "inputs": {
+      "props_recommendations": "props_recommendations_2026-05-13.csv",
+      "smart_sim_files": 2
+    },
+    "policy": {
+      "allowed_markets": [
+        "pa",
+        "ra"
+      ],
+      "combo_weights": null,
+      "dedupe_player": true,
+      "max_per_player": 1,
+      "max_plus_odds": 125,
+      "min_ev": null,
+      "min_prob": null,
+      "n_game": 3,
+      "n_market": 4,
+      "p_shrink": 1.0,
+      "rank": "sim_ev",
+      "sim_model": "smart_sim_normal_approx",
+      "version": "slate_prob_v2",
+      "view": "slate"
+    }
+  },
+  "per_game": [
+    {
+      "away": "IND",
+      "game_id": "2026-05-13:IND@LAS",
+      "game_key": "2026-05-13:IND@LAS",
+      "home": "LAS",
+      "matchup": "IND @ LAS",
+      "picks": [
+        {
+          "away": "IND",
+          "basketball_priority_score": 66.0,
+          "basketball_reasons": [
+            "Recent form has stayed below this line with a last-five average of 14.2.",
+            "The last-10 sample is holding under this line at 14.8, which supports the lower-volume case.",
+            "The last game landed at 0.0, which stayed under this line.",
+            "A healthy IND rotation keeps touches spread out across the lineup."
+          ],
+          "basketball_summary": "Recent form has stayed below this line with a last-five average of 14.2. The last-10 sample is holding under this line at 14.8, which supports the lower-volume case.",
+          "book": "fanduel",
+          "display_pick": "Aliyah Boston Under 19.5 PA",
+          "ev": 0.9262384444128517,
+          "ev_pct": 92.62,
+          "game_id": null,
+          "game_key": "2026-05-13:IND@LAS",
+          "home": "LAS",
+          "implied_prob": 0.505,
+          "line": 19.5,
+          "market": "pa",
+          "market_reasons": [
+            "Projected value is +92.6% per unit risked.",
+            "The price stays workable at -102.",
+            "Model probability clears the market by 48.0 points."
+          ],
+          "matchup": "LAS @ IND",
+          "model_baseline": 9.921598858222048,
+          "model_reasons": [
+            "The model baseline sits at 9.9 against a 19.5 line.",
+            "That leaves roughly +2.17 standard deviations of cushion.",
+            "Win probability grades at 98.5%."
+          ],
+          "model_sd": 4.415426791375891,
+          "p_win": 0.985,
+          "player": "Aliyah Boston",
+          "price": -102.0,
+          "prob_edge": 0.48,
+          "reasons": [
+            "Recent form has stayed below this line with a last-five average of 14.2.",
+            "The last-10 sample is holding under this line at 14.8, which supports the lower-volume case.",
+            "The last game landed at 0.0, which stayed under this line.",
+            "A healthy IND rotation keeps touches spread out across the lineup.",
+            "The model baseline sits at 9.9 against a 19.5 line.",
+            "That leaves roughly +2.17 standard deviations of cushion.",
+            "Win probability grades at 98.5%.",
+            "Projected value is +92.6% per unit risked.",
+            "The price stays workable at -102.",
+            "Model probability clears the market by 48.0 points."
+          ],
+          "recommendation_priority_score": 81.7,
+          "score": 0.9262384444128517,
+          "sd_rel": 0.22643214314748158,
+          "selection": "UNDER",
+          "side": "UNDER",
+          "sim_mean": 11.0165,
+          "sim_reasons": [
+            "The model baseline sits at 9.9 against a 19.5 line.",
+            "That leaves roughly +2.17 standard deviations of cushion.",
+            "Win probability grades at 98.5%."
+          ],
+          "sim_sd": 4.415426791375891,
+          "sim_support_score": 100.0,
+          "team": "IND",
+          "top_play_reasons": [
+            "Recent form has stayed below this line with a last-five average of 14.2.",
+            "The last-10 sample is holding under this line at 14.8, which supports the lower-volume case.",
+            "The last game landed at 0.0, which stayed under this line.",
+            "A healthy IND rotation keeps touches spread out across the lineup.",
+            "The model baseline sits at 9.9 against a 19.5 line.",
+            "That leaves roughly +2.17 standard deviations of cushion.",
+            "Win probability grades at 98.5%.",
+            "Projected value is +92.6% per unit risked.",
+            "The price stays workable at -102.",
+            "Model probability clears the market by 48.0 points."
+          ],
+          "value_reasons": [
+            "Projected value is +92.6% per unit risked.",
+            "The price stays workable at -102.",
+            "Model probability clears the market by 48.0 points."
+          ],
+          "value_support_score": 85.0,
+          "win_prob": 0.9726550560896577,
+          "win_prob_raw": 0.9726550560896577,
+          "z": 1.9213318215511521
+        },
+        {
+          "away": "IND",
+          "basketball_priority_score": 66.0,
+          "basketball_reasons": [
+            "Recent form has stayed below this line with a last-five average of 19.8.",
+            "The last-10 sample is holding under this line at 20.9, which supports the lower-volume case.",
+            "The last game landed at 17.0, which stayed under this line.",
+            "A healthy LAS rotation keeps touches spread out across the lineup."
+          ],
+          "basketball_summary": "Recent form has stayed below this line with a last-five average of 19.8. The last-10 sample is holding under this line at 20.9, which supports the lower-volume case.",
+          "book": "fanduel",
+          "display_pick": "Kelsey Plum Under 25.5 PA",
+          "ev": 0.8355714531701044,
+          "ev_pct": 83.56,
+          "game_id": null,
+          "game_key": "2026-05-13:IND@LAS",
+          "home": "LAS",
+          "implied_prob": 0.5146,
+          "line": 25.5,
+          "market": "pa",
+          "market_reasons": [
+            "Projected value is +83.6% per unit risked.",
+            "The price stays workable at -106.",
+            "Model probability clears the market by 38.5 points."
+          ],
+          "matchup": "IND @ LAS",
+          "model_baseline": 18.170999712332765,
+          "model_reasons": [
+            "The model baseline sits at 18.2 against a 25.5 line.",
+            "That leaves roughly +1.28 standard deviations of cushion.",
+            "Win probability grades at 90.0%."
+          ],
+          "model_sd": 5.718473725566989,
+          "p_win": 0.9,
+          "player": "Kelsey Plum",
+          "price": -106.0,
+          "prob_edge": 0.3855,
+          "reasons": [
+            "Recent form has stayed below this line with a last-five average of 19.8.",
+            "The last-10 sample is holding under this line at 20.9, which supports the lower-volume case.",
+            "The last game landed at 17.0, which stayed under this line.",
+            "A healthy LAS rotation keeps touches spread out across the lineup.",
+            "The model baseline sits at 18.2 against a 25.5 line.",
+            "That leaves roughly +1.28 standard deviations of cushion.",
+            "Win probability grades at 90.0%.",
+            "Projected value is +83.6% per unit risked.",
+            "The price stays workable at -106.",
+            "Model probability clears the market by 38.5 points."
+          ],
+          "recommendation_priority_score": 81.7,
+          "score": 0.8355714531701044,
+          "sd_rel": 0.22425387159086232,
+          "selection": "UNDER",
+          "side": "UNDER",
+          "sim_mean": 16.3855,
+          "sim_reasons": [
+            "The model baseline sits at 18.2 against a 25.5 line.",
+            "That leaves roughly +1.28 standard deviations of cushion.",
+            "Win probability grades at 90.0%."
+          ],
+          "sim_sd": 5.718473725566989,
+          "sim_support_score": 100.0,
+          "team": "LAS",
+          "top_play_reasons": [
+            "Recent form has stayed below this line with a last-five average of 19.8.",
+            "The last-10 sample is holding under this line at 20.9, which supports the lower-volume case.",
+            "The last game landed at 17.0, which stayed under this line.",
+            "A healthy LAS rotation keeps touches spread out across the lineup.",
+            "The model baseline sits at 18.2 against a 25.5 line.",
+            "That leaves roughly +1.28 standard deviations of cushion.",
+            "Win probability grades at 90.0%.",
+            "Projected value is +83.6% per unit risked.",
+            "The price stays workable at -106.",
+            "Model probability clears the market by 38.5 points."
+          ],
+          "value_reasons": [
+            "Projected value is +83.6% per unit risked.",
+            "The price stays workable at -106.",
+            "Model probability clears the market by 38.5 points."
+          ],
+          "value_support_score": 85.0,
+          "win_prob": 0.9445173496894712,
+          "win_prob_raw": 0.9445173496894712,
+          "z": 1.5938693500067262
+        },
+        {
+          "away": "IND",
+          "basketball_priority_score": 82.0,
+          "basketball_reasons": [
+            "Recent form has stayed below this line with a last-five average of 7.2.",
+            "The last-10 sample is holding under this line at 3.6, which supports the lower-volume case.",
+            "The last game landed at 25.0, which stayed under this line.",
+            "Projected minutes sit in a softer band around 6.6.",
+            "A healthy IND rotation keeps touches spread out across the lineup."
+          ],
+          "basketball_summary": "Recent form has stayed below this line with a last-five average of 7.2. The last-10 sample is holding under this line at 3.6, which supports the lower-volume case.",
+          "book": "fanduel",
+          "display_pick": "Caitlin Clark Under 28.5 PA",
+          "ev": 0.7999999926611192,
+          "ev_pct": 80.0,
+          "game_id": null,
+          "game_key": "2026-05-13:IND@LAS",
+          "home": "LAS",
+          "implied_prob": 0.5556,
+          "line": 28.5,
+          "market": "pa",
+          "market_reasons": [
+            "Projected value is +80.0% per unit risked.",
+            "The price stays workable at -125.",
+            "Model probability clears the market by 43.4 points."
+          ],
+          "matchup": "LAS @ IND",
+          "model_baseline": 8.774881190642397,
+          "model_reasons": [
+            "The model baseline sits at 8.8 against a 28.5 line.",
+            "That leaves roughly +5.22 standard deviations of cushion.",
+            "Win probability grades at 99.0%."
+          ],
+          "model_sd": 3.7820647469338753,
+          "p_win": 0.99,
+          "player": "Caitlin Clark",
+          "price": -125.0,
+          "prob_edge": 0.4344,
+          "reasons": [
+            "Recent form has stayed below this line with a last-five average of 7.2.",
+            "The last-10 sample is holding under this line at 3.6, which supports the lower-volume case.",
+            "The last game landed at 25.0, which stayed under this line.",
+            "Projected minutes sit in a softer band around 6.6.",
+            "A healthy IND rotation keeps touches spread out across the lineup.",
+            "The model baseline sits at 8.8 against a 28.5 line.",
+            "That leaves roughly +5.22 standard deviations of cushion.",
+            "Win probability grades at 99.0%.",
+            "Projected value is +80.0% per unit risked.",
+            "The price stays workable at -125.",
+            "Model probability clears the market by 43.4 points."
+          ],
+          "recommendation_priority_score": 88.9,
+          "score": 0.7999999926611192,
+          "sd_rel": 0.13270402620820615,
+          "selection": "UNDER",
+          "side": "UNDER",
+          "sim_mean": 6.695500000000001,
+          "sim_reasons": [
+            "The model baseline sits at 8.8 against a 28.5 line.",
+            "That leaves roughly +5.22 standard deviations of cushion.",
+            "Win probability grades at 99.0%."
+          ],
+          "sim_sd": 3.7820647469338753,
+          "sim_support_score": 100.0,
+          "team": "IND",
+          "top_play_reasons": [
+            "Recent form has stayed below this line with a last-five average of 7.2.",
+            "The last-10 sample is holding under this line at 3.6, which supports the lower-volume case.",
+            "The last game landed at 25.0, which stayed under this line.",
+            "Projected minutes sit in a softer band around 6.6.",
+            "A healthy IND rotation keeps touches spread out across the lineup.",
+            "The model baseline sits at 8.8 against a 28.5 line.",
+            "That leaves roughly +5.22 standard deviations of cushion.",
+            "Win probability grades at 99.0%.",
+            "Projected value is +80.0% per unit risked.",
+            "The price stays workable at -125.",
+            "Model probability clears the market by 43.4 points."
+          ],
+          "value_reasons": [
+            "Projected value is +80.0% per unit risked.",
+            "The price stays workable at -125.",
+            "Model probability clears the market by 43.4 points."
+          ],
+          "value_support_score": 85.0,
+          "win_prob": 0.9999999959228439,
+          "win_prob_raw": 0.9999999959228439,
+          "z": 5.76523710168551
+        }
+      ]
+    }
+  ],
+  "per_market": {
+    "pa": [
+      {
+        "away": "IND",
+        "basketball_priority_score": 66.0,
+        "basketball_reasons": [
+          "Recent form has stayed below this line with a last-five average of 14.2.",
+          "The last-10 sample is holding under this line at 14.8, which supports the lower-volume case.",
+          "The last game landed at 0.0, which stayed under this line.",
+          "A healthy IND rotation keeps touches spread out across the lineup."
+        ],
+        "basketball_summary": "Recent form has stayed below this line with a last-five average of 14.2. The last-10 sample is holding under this line at 14.8, which supports the lower-volume case.",
+        "book": "fanduel",
+        "display_pick": "Aliyah Boston Under 19.5 PA",
+        "ev": 0.9262384444128517,
+        "ev_pct": 92.62,
+        "game_id": null,
+        "game_key": "2026-05-13:IND@LAS",
+        "home": "LAS",
+        "implied_prob": 0.505,
+        "line": 19.5,
+        "market": "pa",
+        "market_reasons": [
+          "Projected value is +92.6% per unit risked.",
+          "The price stays workable at -102.",
+          "Model probability clears the market by 48.0 points."
+        ],
+        "matchup": "LAS @ IND",
+        "model_baseline": 9.921598858222048,
+        "model_reasons": [
+          "The model baseline sits at 9.9 against a 19.5 line.",
+          "That leaves roughly +2.17 standard deviations of cushion.",
+          "Win probability grades at 98.5%."
+        ],
+        "model_sd": 4.415426791375891,
+        "p_win": 0.985,
+        "player": "Aliyah Boston",
+        "price": -102.0,
+        "prob_edge": 0.48,
+        "reasons": [
+          "Recent form has stayed below this line with a last-five average of 14.2.",
+          "The last-10 sample is holding under this line at 14.8, which supports the lower-volume case.",
+          "The last game landed at 0.0, which stayed under this line.",
+          "A healthy IND rotation keeps touches spread out across the lineup.",
+          "The model baseline sits at 9.9 against a 19.5 line.",
+          "That leaves roughly +2.17 standard deviations of cushion.",
+          "Win probability grades at 98.5%.",
+          "Projected value is +92.6% per unit risked.",
+          "The price stays workable at -102.",
+          "Model probability clears the market by 48.0 points."
+        ],
+        "recommendation_priority_score": 81.7,
+        "score": 0.9262384444128517,
+        "sd_rel": 0.22643214314748158,
+        "selection": "UNDER",
+        "side": "UNDER",
+        "sim_mean": 11.0165,
+        "sim_reasons": [
+          "The model baseline sits at 9.9 against a 19.5 line.",
+          "That leaves roughly +2.17 standard deviations of cushion.",
+          "Win probability grades at 98.5%."
+        ],
+        "sim_sd": 4.415426791375891,
+        "sim_support_score": 100.0,
+        "team": "IND",
+        "top_play_reasons": [
+          "Recent form has stayed below this line with a last-five average of 14.2.",
+          "The last-10 sample is holding under this line at 14.8, which supports the lower-volume case.",
+          "The last game landed at 0.0, which stayed under this line.",
+          "A healthy IND rotation keeps touches spread out across the lineup.",
+          "The model baseline sits at 9.9 against a 19.5 line.",
+          "That leaves roughly +2.17 standard deviations of cushion.",
+          "Win probability grades at 98.5%.",
+          "Projected value is +92.6% per unit risked.",
+          "The price stays workable at -102.",
+          "Model probability clears the market by 48.0 points."
+        ],
+        "value_reasons": [
+          "Projected value is +92.6% per unit risked.",
+          "The price stays workable at -102.",
+          "Model probability clears the market by 48.0 points."
+        ],
+        "value_support_score": 85.0,
+        "win_prob": 0.9726550560896577,
+        "win_prob_raw": 0.9726550560896577,
+        "z": 1.9213318215511521
+      },
+      {
+        "away": "IND",
+        "basketball_priority_score": 66.0,
+        "basketball_reasons": [
+          "Recent form has stayed below this line with a last-five average of 19.8.",
+          "The last-10 sample is holding under this line at 20.9, which supports the lower-volume case.",
+          "The last game landed at 17.0, which stayed under this line.",
+          "A healthy LAS rotation keeps touches spread out across the lineup."
+        ],
+        "basketball_summary": "Recent form has stayed below this line with a last-five average of 19.8. The last-10 sample is holding under this line at 20.9, which supports the lower-volume case.",
+        "book": "fanduel",
+        "display_pick": "Kelsey Plum Under 25.5 PA",
+        "ev": 0.8355714531701044,
+        "ev_pct": 83.56,
+        "game_id": null,
+        "game_key": "2026-05-13:IND@LAS",
+        "home": "LAS",
+        "implied_prob": 0.5146,
+        "line": 25.5,
+        "market": "pa",
+        "market_reasons": [
+          "Projected value is +83.6% per unit risked.",
+          "The price stays workable at -106.",
+          "Model probability clears the market by 38.5 points."
+        ],
+        "matchup": "IND @ LAS",
+        "model_baseline": 18.170999712332765,
+        "model_reasons": [
+          "The model baseline sits at 18.2 against a 25.5 line.",
+          "That leaves roughly +1.28 standard deviations of cushion.",
+          "Win probability grades at 90.0%."
+        ],
+        "model_sd": 5.718473725566989,
+        "p_win": 0.9,
+        "player": "Kelsey Plum",
+        "price": -106.0,
+        "prob_edge": 0.3855,
+        "reasons": [
+          "Recent form has stayed below this line with a last-five average of 19.8.",
+          "The last-10 sample is holding under this line at 20.9, which supports the lower-volume case.",
+          "The last game landed at 17.0, which stayed under this line.",
+          "A healthy LAS rotation keeps touches spread out across the lineup.",
+          "The model baseline sits at 18.2 against a 25.5 line.",
+          "That leaves roughly +1.28 standard deviations of cushion.",
+          "Win probability grades at 90.0%.",
+          "Projected value is +83.6% per unit risked.",
+          "The price stays workable at -106.",
+          "Model probability clears the market by 38.5 points."
+        ],
+        "recommendation_priority_score": 81.7,
+        "score": 0.8355714531701044,
+        "sd_rel": 0.22425387159086232,
+        "selection": "UNDER",
+        "side": "UNDER",
+        "sim_mean": 16.3855,
+        "sim_reasons": [
+          "The model baseline sits at 18.2 against a 25.5 line.",
+          "That leaves roughly +1.28 standard deviations of cushion.",
+          "Win probability grades at 90.0%."
+        ],
+        "sim_sd": 5.718473725566989,
+        "sim_support_score": 100.0,
+        "team": "LAS",
+        "top_play_reasons": [
+          "Recent form has stayed below this line with a last-five average of 19.8.",
+          "The last-10 sample is holding under this line at 20.9, which supports the lower-volume case.",
+          "The last game landed at 17.0, which stayed under this line.",
+          "A healthy LAS rotation keeps touches spread out across the lineup.",
+          "The model baseline sits at 18.2 against a 25.5 line.",
+          "That leaves roughly +1.28 standard deviations of cushion.",
+          "Win probability grades at 90.0%.",
+          "Projected value is +83.6% per unit risked.",
+          "The price stays workable at -106.",
+          "Model probability clears the market by 38.5 points."
+        ],
+        "value_reasons": [
+          "Projected value is +83.6% per unit risked.",
+          "The price stays workable at -106.",
+          "Model probability clears the market by 38.5 points."
+        ],
+        "value_support_score": 85.0,
+        "win_prob": 0.9445173496894712,
+        "win_prob_raw": 0.9445173496894712,
+        "z": 1.5938693500067262
+      },
+      {
+        "away": "IND",
+        "basketball_priority_score": 82.0,
+        "basketball_reasons": [
+          "Recent form has stayed below this line with a last-five average of 7.2.",
+          "The last-10 sample is holding under this line at 3.6, which supports the lower-volume case.",
+          "The last game landed at 25.0, which stayed under this line.",
+          "Projected minutes sit in a softer band around 6.6.",
+          "A healthy IND rotation keeps touches spread out across the lineup."
+        ],
+        "basketball_summary": "Recent form has stayed below this line with a last-five average of 7.2. The last-10 sample is holding under this line at 3.6, which supports the lower-volume case.",
+        "book": "fanduel",
+        "display_pick": "Caitlin Clark Under 28.5 PA",
+        "ev": 0.7999999926611192,
+        "ev_pct": 80.0,
+        "game_id": null,
+        "game_key": "2026-05-13:IND@LAS",
+        "home": "LAS",
+        "implied_prob": 0.5556,
+        "line": 28.5,
+        "market": "pa",
+        "market_reasons": [
+          "Projected value is +80.0% per unit risked.",
+          "The price stays workable at -125.",
+          "Model probability clears the market by 43.4 points."
+        ],
+        "matchup": "LAS @ IND",
+        "model_baseline": 8.774881190642397,
+        "model_reasons": [
+          "The model baseline sits at 8.8 against a 28.5 line.",
+          "That leaves roughly +5.22 standard deviations of cushion.",
+          "Win probability grades at 99.0%."
+        ],
+        "model_sd": 3.7820647469338753,
+        "p_win": 0.99,
+        "player": "Caitlin Clark",
+        "price": -125.0,
+        "prob_edge": 0.4344,
+        "reasons": [
+          "Recent form has stayed below this line with a last-five average of 7.2.",
+          "The last-10 sample is holding under this line at 3.6, which supports the lower-volume case.",
+          "The last game landed at 25.0, which stayed under this line.",
+          "Projected minutes sit in a softer band around 6.6.",
+          "A healthy IND rotation keeps touches spread out across the lineup.",
+          "The model baseline sits at 8.8 against a 28.5 line.",
+          "That leaves roughly +5.22 standard deviations of cushion.",
+          "Win probability grades at 99.0%.",
+          "Projected value is +80.0% per unit risked.",
+          "The price stays workable at -125.",
+          "Model probability clears the market by 43.4 points."
+        ],
+        "recommendation_priority_score": 88.9,
+        "score": 0.7999999926611192,
+        "sd_rel": 0.13270402620820615,
+        "selection": "UNDER",
+        "side": "UNDER",
+        "sim_mean": 6.695500000000001,
+        "sim_reasons": [
+          "The model baseline sits at 8.8 against a 28.5 line.",
+          "That leaves roughly +5.22 standard deviations of cushion.",
+          "Win probability grades at 99.0%."
+        ],
+        "sim_sd": 3.7820647469338753,
+        "sim_support_score": 100.0,
+        "team": "IND",
+        "top_play_reasons": [
+          "Recent form has stayed below this line with a last-five average of 7.2.",
+          "The last-10 sample is holding under this line at 3.6, which supports the lower-volume case.",
+          "The last game landed at 25.0, which stayed under this line.",
+          "Projected minutes sit in a softer band around 6.6.",
+          "A healthy IND rotation keeps touches spread out across the lineup.",
+          "The model baseline sits at 8.8 against a 28.5 line.",
+          "That leaves roughly +5.22 standard deviations of cushion.",
+          "Win probability grades at 99.0%.",
+          "Projected value is +80.0% per unit risked.",
+          "The price stays workable at -125.",
+          "Model probability clears the market by 43.4 points."
+        ],
+        "value_reasons": [
+          "Projected value is +80.0% per unit risked.",
+          "The price stays workable at -125.",
+          "Model probability clears the market by 43.4 points."
+        ],
+        "value_support_score": 85.0,
+        "win_prob": 0.9999999959228439,
+        "win_prob_raw": 0.9999999959228439,
+        "z": 5.76523710168551
+      }
+    ]
+  }
+}
