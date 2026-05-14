@@ -1,0 +1,56 @@
+date,team_tri,player_id,player_name,_baseline_source,exp_min_mean,exp_min_source,exp_asof_ts
+,DAL,4399415,Maddy Siegrist,blend_lag1_roll3_roll5_roll10,25.836666666666666,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,4433730,Paige Bueckers,blend_lag1_roll3_roll5_roll10,25.75,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,2529047,Odyssey Sims,blend_lag1_roll3_roll5_roll10,22.639999999999997,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,4433807,Aziaha James,blend_lag1_roll3_roll5_roll10,20.76333333333333,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,924,Alysha Clark,blend_lag1_roll3_roll5_roll10,19.466666666666665,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,4433790,Azzi Fudd,blend_lag1_roll3_roll5_roll10,19.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,3906949,Jessica Shepard,blend_lag1_roll3_roll5_roll10,18.943333333333335,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,3913881,Alanna Smith,blend_lag1_roll3_roll5_roll10,18.453333333333333,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,4594527,Dulcy Fankam Mendjiadeu,blend_lag1_roll3_roll5_roll10,10.8,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,4434015,JJ Quinerly,blend_lag1_roll3_roll5_roll10,9.366666666666667,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,4336633,Li Yueru,blend_lag1_roll3_roll5_roll10,5.226666666666667,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,5345473,Costanza Verona,blend_lag1_roll3_roll5_roll10,4.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,DAL,3904577,Arike Ogunbowale,blend_lag1_roll3_roll5_roll10,3.2600000000000002,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,2529205,Kayla McBride,blend_lag1_roll3_roll5_roll10,24.836666666666666,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,4433791,Olivia Miles,blend_lag1_roll3_roll5_roll10,23.6,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,2987891,Courtney Williams,blend_lag1_roll3_roll5_roll10,23.556666666666665,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,4873358,Antonia Delaere,blend_lag1_roll3_roll5_roll10,17.4,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,2529130,Natasha Howard,blend_lag1_roll3_roll5_roll10,16.703333333333333,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,5345478,Eliska Hamzova,blend_lag1_roll3_roll5_roll10,16.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,3917450,Napheesa Collier,blend_lag1_roll3_roll5_roll10,15.473333333333334,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,5345322,Emma Cechova,blend_lag1_roll3_roll5_roll10,14.4,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,4280850,Maya Caldwell,blend_lag1_roll3_roll5_roll10,11.916666666666666,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,4596309,Liatu King,blend_lag1_roll3_roll5_roll10,11.203333333333333,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,3054590,Nia Coffey,blend_lag1_roll3_roll5_roll10,10.84,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,5278237,Anastasiia Olairi Kosu,blend_lag1_roll3_roll5_roll10,6.54,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,MIN,4398938,Dorka Juhasz,blend_lag1_roll3_roll5_roll10,0.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,2999101,Jonquel Jones,blend_lag1_roll3_roll5_roll10,23.34333333333333,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,2998928,Breanna Stewart,blend_lag1_roll3_roll5_roll10,23.22666666666667,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,4066533,Sabrina Ionescu,blend_lag1_roll3_roll5_roll10,22.256666666666664,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,4337216,Han Xu,blend_lag1_roll3_roll5_roll10,17.8,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,2327695,Rebekah Gardner,blend_lag1_roll3_roll5_roll10,15.2,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,4038379,Marine Johannes,blend_lag1_roll3_roll5_roll10,15.07,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,5345320,Pauline Astier,blend_lag1_roll3_roll5_roll10,13.200000000000001,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,4683006,Leonie Fiebich,blend_lag1_roll3_roll5_roll10,13.013333333333334,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,3102133,Rebecca Allen,blend_lag1_roll3_roll5_roll10,8.853333333333333,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,4281929,Satou Sabally,blend_lag1_roll3_roll5_roll10,8.65,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,4432844,Aubrey Griffin,blend_lag1_roll3_roll5_roll10,6.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,2593770,Betnijah Laney-Hamilton,blend_lag1_roll3_roll5_roll10,3.2,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,4790258,Raquel Carrera,blend_lag1_roll3_roll5_roll10,0.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,NYL,4790260,Marine Fauthoux,blend_lag1_roll3_roll5_roll10,0.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,4595910,Haley Jones,blend_lag1_roll3_roll5_roll10,24.05666666666667,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,3906972,Bridget Carleton,blend_lag1_roll3_roll5_roll10,23.02,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,5209202,Nyadiew Puoch,blend_lag1_roll3_roll5_roll10,22.200000000000003,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,5108051,Jordan Harrison,blend_lag1_roll3_roll5_roll10,19.2,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,5208982,Carla Leite,blend_lag1_roll3_roll5_roll10,16.693333333333335,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,5108550,Serah Williams,blend_lag1_roll3_roll5_roll10,15.4,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,4682797,Luisa Geiselsoder,blend_lag1_roll3_roll5_roll10,15.120000000000001,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,4703794,Sarah Ashlee Barker,blend_lag1_roll3_roll5_roll10,15.096666666666668,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,5105406,Frieda Bühner,blend_lag1_roll3_roll5_roll10,12.600000000000001,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,4068159,Sug Sutton,blend_lag1_roll3_roll5_roll10,12.219999999999999,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,3934218,Megan Gustafson,blend_lag1_roll3_roll5_roll10,8.846666666666666,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,4398729,Emily Engstler,blend_lag1_roll3_roll5_roll10,7.493333333333333,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,4068346,Kamiah Smalls,blend_lag1_roll3_roll5_roll10,0.24,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,3056730,Karlie Samuelson,blend_lag1_roll3_roll5_roll10,0.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
+,POR,5346554,Teja Oblak,blend_lag1_roll3_roll5_roll10,0.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-14T16:00:00Z
