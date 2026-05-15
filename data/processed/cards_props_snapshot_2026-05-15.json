@@ -1,0 +1,21 @@
+{
+  "date": "2026-05-15",
+  "games": [
+    {
+      "home_tri": "CLE",
+      "away_tri": "DET",
+      "prop_recommendations": {
+        "home": [],
+        "away": []
+      }
+    },
+    {
+      "home_tri": "MIN",
+      "away_tri": "SAS",
+      "prop_recommendations": {
+        "home": [],
+        "away": []
+      }
+    }
+  ]
+}

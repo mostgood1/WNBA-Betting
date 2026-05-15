@@ -1,0 +1,57 @@
+{
+  "date": "2026-05-15",
+  "games": [
+    {
+      "home_tri": "CLE",
+      "away_tri": "DET",
+      "sim": {
+        "players_summary": {
+          "away": 0,
+          "home": 0,
+          "injured_away": 0,
+          "injured_home": 0,
+          "missing_away": 0,
+          "missing_home": 0
+        },
+        "players": {
+          "home": [],
+          "away": []
+        },
+        "missing_prop_players": {
+          "home": [],
+          "away": []
+        },
+        "injuries": {
+          "home": [],
+          "away": []
+        }
+      }
+    },
+    {
+      "home_tri": "MIN",
+      "away_tri": "SAS",
+      "sim": {
+        "players_summary": {
+          "away": 0,
+          "home": 0,
+          "injured_away": 0,
+          "injured_home": 0,
+          "missing_away": 0,
+          "missing_home": 0
+        },
+        "players": {
+          "home": [],
+          "away": []
+        },
+        "missing_prop_players": {
+          "home": [],
+          "away": []
+        },
+        "injuries": {
+          "home": [],
+          "away": []
+        }
+      }
+    }
+  ]
+}
