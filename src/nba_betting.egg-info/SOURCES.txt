@@ -10,12 +10,15 @@ src/nba_betting/cards_settlement_audit.py
 src/nba_betting/cli.py
 src/nba_betting/config.py
 src/nba_betting/elo.py
+src/nba_betting/expected_minutes.py
 src/nba_betting/features.py
 src/nba_betting/features_enhanced.py
 src/nba_betting/finals.py
 src/nba_betting/frontend_sync.py
+src/nba_betting/game_calibration.py
 src/nba_betting/games_npu.py
 src/nba_betting/games_onnx_pure.py
+src/nba_betting/league.py
 src/nba_betting/league_status.py
 src/nba_betting/lineup_context_features.py
 src/nba_betting/odds_api.py
@@ -77,6 +80,10 @@ src/nba_betting/sim/connected_game.py
 src/nba_betting/sim/events.py
 src/nba_betting/sim/quarters.py
 src/nba_betting/sim/smart_sim.py
+src/wnba_betting/__init__.py
+src/wnba_betting/boxscores.py
+src/wnba_betting/cli.py
+src/wnba_betting/refresh_oddsapi_props_job.py
 tests/test_app_props_guards.py
 tests/test_audit_prop_player_aliases.py
 tests/test_best_bets_parlays_routes.py

@@ -10523,6 +10523,39 @@ def _maybe_fetch_remote_processed(fname: str) -> Optional[Path]:
         return None
 
 
+def _active_predictions_league_tricodes() -> set[str]:
+    league_code = str(getattr(LEAGUE, "code", "") or "").strip().lower()
+    if league_code == "wnba":
+        return {str(tri).strip().upper() for tri in _WNBA_OFFICIAL_LOGO_TEAM_IDS}
+    return set()
+
+
+def _predictions_file_matches_active_league(path: Path) -> bool:
+    expected_tris = _active_predictions_league_tricodes()
+    if not expected_tris:
+        return True
+
+    df = _read_csv_if_exists(path)
+    if df is None or not isinstance(df, pd.DataFrame) or df.empty:
+        return False
+
+    observed_tris: set[str] = set()
+    for home_col, away_col in (("home_team", "visitor_team"), ("home_team", "away_team"), ("home", "away")):
+        if home_col not in df.columns or away_col not in df.columns:
+            continue
+        for _, row in df.head(12).iterrows():
+            for value in (row.get(home_col), row.get(away_col)):
+                tri = _canonical_team_tri(value)
+                if tri:
+                    observed_tris.add(tri)
+        if observed_tris:
+            break
+
+    if not observed_tris:
+        return False
+    return observed_tris.issubset(expected_tris)
+
+
 def _number(x):
     try:
         if pd.isna(x):
@@ -12800,11 +12833,11 @@ def _find_predictions_for_date(date_str: str) -> Optional[Path]:
             _maybe_fetch_remote_processed(p.name)
         except Exception:
             pass
-    if p.exists():
+    if p.exists() and _predictions_file_matches_active_league(p):
         return p
     # Legacy root fallback
     legacy = BASE_DIR / f"predictions_{date_str}.csv"
-    if legacy.exists():
+    if legacy.exists() and _predictions_file_matches_active_league(legacy):
         return legacy
     return None
 
@@ -13366,12 +13399,7 @@ def _smart_sim_authoritative_matchups_for_date(date_str: str) -> set[tuple[str, 
     if out:
         return out
 
-    pred_path = DATA_PROCESSED_DIR / f"predictions_{date_str}.csv"
-    if not pred_path.exists():
-        try:
-            _maybe_fetch_remote_processed(pred_path.name)
-        except Exception:
-            pass
+    pred_path = _find_predictions_for_date(date_str)
 
     try:
         df = _read_csv_if_exists(pred_path)
@@ -14563,12 +14591,7 @@ def _best_bets_margin_to_home_win_prob(
 
 
 def _load_best_bets_game_context(date_str: str) -> dict[str, Any]:
-    path = DATA_PROCESSED_DIR / f"predictions_{date_str}.csv"
-    if not path.exists():
-        try:
-            _maybe_fetch_remote_processed(path.name)
-        except Exception:
-            pass
+    path = _find_predictions_for_date(date_str)
     df = _read_csv_if_exists(path)
     by_pair: dict[tuple[str, str], dict[str, Any]] = {}
     by_team: dict[str, dict[str, Any]] = {}
@@ -31747,7 +31770,8 @@ def _load_props_movement_callouts(
         return []
 
     matchup_by_team: dict[str, dict[str, str]] = {}
-    games_df = _load_processed_csv(f"predictions_{date_str}.csv")
+    pred_path = _find_predictions_for_date(date_str)
+    games_df = _read_csv_if_exists(pred_path) if pred_path is not None else pd.DataFrame()
     if isinstance(games_df, pd.DataFrame) and not games_df.empty:
         try:
             for _, rr in games_df.iterrows():
@@ -32129,7 +32153,7 @@ def api_props_recommendations():
                 return jsonify(_to_jsonable(payload))
 
         edges_p = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
-        preds_p = DATA_PROCESSED_DIR / f"predictions_{d}.csv"
+        preds_p = _find_predictions_for_date(d)
         props_preds_p = DATA_PROCESSED_DIR / f"props_predictions_{d}.csv"
         df = _read_csv_if_exists(edges_p)
         if not isinstance(df, pd.DataFrame) or df is None or df.empty:
@@ -32146,11 +32170,6 @@ def api_props_recommendations():
                 if not props_preds_p.exists():
                     try:
                         _maybe_fetch_remote_processed(props_preds_p.name)
-                    except Exception:
-                        pass
-                if not preds_p.exists():
-                    try:
-                        _maybe_fetch_remote_processed(preds_p.name)
                     except Exception:
                         pass
                 pp_f = _read_csv_if_exists(props_preds_p)

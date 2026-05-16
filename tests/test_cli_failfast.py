@@ -138,6 +138,136 @@ def test_predict_props_keeps_league_status_active_players_despite_stale_injuries
     assert written.iloc[0]["team"] == "PHX"
 
 
+def test_predict_props_uses_game_odds_fallback_when_slate_flags_are_blank(tmp_path, monkeypatch):
+    date_str = "2026-03-18"
+    data_root = tmp_path / "data"
+    processed = data_root / "processed"
+    raw = data_root / "raw"
+    processed.mkdir(parents=True)
+    raw.mkdir(parents=True)
+
+    pd.DataFrame(
+        [
+            {
+                "player_id": 1001,
+                "player_name": "Aliyah Boston",
+                "team": "IND",
+                "team_on_slate": True,
+                "playing_today": True,
+            },
+            {
+                "player_id": 1002,
+                "player_name": "Brittney Sykes",
+                "team": "WSH",
+                "team_on_slate": True,
+                "playing_today": True,
+            },
+        ]
+    ).to_csv(processed / f"league_status_{date_str}.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "date": date_str,
+                "home_team": "Indiana Fever",
+                "visitor_team": "Washington Mystics",
+            }
+        ]
+    ).to_csv(processed / f"game_odds_{date_str}.csv", index=False)
+
+    test_paths = config_module.Paths(root=tmp_path, repo_data_root=data_root, data_root=data_root)
+    monkeypatch.setattr(config_module, "paths", test_paths)
+    monkeypatch.setattr(cli_module, "paths", test_paths)
+
+    import nba_betting.props_features_pure as props_features_pure_module
+
+    monkeypatch.setattr(
+        props_features_pure_module,
+        "build_features_for_date_pure",
+        lambda _date_str: pd.DataFrame(
+            [
+                {
+                    "player_id": 1001,
+                    "player_name": "Aliyah Boston",
+                    "team": "IND",
+                },
+                {
+                    "player_id": 1002,
+                    "player_name": "Brittney Sykes",
+                    "team": "WSH",
+                },
+            ]
+        ),
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "build_features_for_date",
+        lambda _date_str: pd.DataFrame(
+            [
+                {
+                    "player_id": 1001,
+                    "player_name": "Aliyah Boston",
+                    "team": "IND",
+                },
+                {
+                    "player_id": 1002,
+                    "player_name": "Brittney Sykes",
+                    "team": "WSH",
+                },
+            ]
+        ),
+    )
+
+    monkeypatch.setattr(
+        props_onnx_pure_module,
+        "predict_props_pure_onnx",
+        lambda feats: pd.DataFrame(
+            [
+                {
+                    "player_id": int(row["player_id"]),
+                    "player_name": row["player_name"],
+                    "team": row["team"],
+                    "asof_date": date_str,
+                    "opponent": "WSH" if str(row["team"]) == "IND" else "IND",
+                    "home": str(row["team"]) == "IND",
+                    "team_on_slate": "",
+                    "playing_today": "",
+                    "pred_pts": 16.0 if str(row["team"]) == "IND" else 14.0,
+                    "pred_reb": 9.0 if str(row["team"]) == "IND" else 5.0,
+                    "pred_ast": 3.0 if str(row["team"]) == "IND" else 4.0,
+                    "pred_pra": 28.0 if str(row["team"]) == "IND" else 23.0,
+                    "sd_pts": 6.0 if str(row["team"]) == "IND" else 5.5,
+                    "sd_reb": 3.0 if str(row["team"]) == "IND" else 2.5,
+                    "sd_ast": 2.0,
+                    "sd_pra": 8.0 if str(row["team"]) == "IND" else 7.0,
+                }
+                for _, row in feats.iterrows()
+            ]
+        ),
+    )
+
+    out_path = processed / f"props_predictions_{date_str}.csv"
+    runner = CliRunner()
+    result = runner.invoke(
+        cli_module.cli,
+        [
+            "predict-props",
+            "--date",
+            date_str,
+            "--out",
+            str(out_path),
+            "--no-calibrate",
+            "--no-use-smart-sim",
+        ],
+    )
+
+    assert result.exit_code == 0
+    written = pd.read_csv(out_path)
+    assert written.shape[0] >= 1
+    assert set(written["team"].astype(str).tolist()).issubset({"IND", "WSH"})
+    assert "IND" in set(written["team"].astype(str).tolist())
+
+
 def test_smart_sim_exclusion_helper_keeps_playing_today_players(tmp_path, monkeypatch):
     date_str = "2026-03-31"
     data_root = tmp_path / "data"

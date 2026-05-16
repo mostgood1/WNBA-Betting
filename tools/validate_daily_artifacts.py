@@ -421,10 +421,14 @@ def main() -> int:
         else:
             warnings.append(f"optional artifact missing: {odds.name}")
 
-    if args.require_smartsim and slate_games is not None and slate_games > 0 and smart_count < max(1, slate_games):
-        missing.append(f"smart_sim_{date_str}_*.json ({smart_count}/{slate_games})")
-    if args.require_smartsim and slate_games is not None and slate_games > 0 and cards_sim_detail_games < max(1, slate_games):
-        missing.append(f"cards_sim_detail_{date_str}.json ({cards_sim_detail_games}/{slate_games})")
+    if args.require_smartsim and slate_games is not None and slate_games > 0:
+        required_games = max(1, slate_games)
+        # cards_sim_detail is the publishable SmartSim artifact; raw smart_sim JSONs are only
+        # required when that aggregate snapshot is also incomplete.
+        if cards_sim_detail_games < required_games:
+            if smart_count < required_games:
+                missing.append(f"smart_sim_{date_str}_*.json ({smart_count}/{slate_games})")
+            missing.append(f"cards_sim_detail_{date_str}.json ({cards_sim_detail_games}/{slate_games})")
     elif smart_count > 0 and cards_sim_detail_games <= 0:
         warnings.append(f"cards sim detail snapshot missing or empty: {cards_sim_detail.name}")
 

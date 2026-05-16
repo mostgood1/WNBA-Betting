@@ -136,6 +136,14 @@ def _falsey_mask(values: pd.Series | Any) -> pd.Series:
     return out.astype(bool)
 
 
+def _has_truthy_signal(values: pd.Series | Any) -> bool:
+    try:
+        mask = _truthy_mask(values)
+    except Exception:
+        return False
+    return bool(mask.any()) if len(mask) > 0 else False
+
+
 def _league_status_player_maps_for_date(
     date_str: str,
     *,
@@ -6238,8 +6246,28 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
     try:
         if slate_only and isinstance(preds, pd.DataFrame) and not preds.empty:
             if "team_on_slate" in preds.columns:
-                on_mask = _truthy_mask(preds["team_on_slate"]).reindex(preds.index, fill_value=False)
-                preds = preds[on_mask].copy()
+                if _has_truthy_signal(preds["team_on_slate"]):
+                    on_mask = _truthy_mask(preds["team_on_slate"]).reindex(preds.index, fill_value=False)
+                    preds = preds[on_mask].copy()
+                elif "team" in preds.columns:
+                    go_path = paths.data_processed / f"game_odds_{date_str}.csv"
+                    if go_path.exists():
+                        go = pd.read_csv(go_path)
+                        if isinstance(go, pd.DataFrame) and not go.empty:
+                            hcol = "home_team" if "home_team" in go.columns else None
+                            acol = "visitor_team" if "visitor_team" in go.columns else ("away_team" if "away_team" in go.columns else None)
+                            if hcol and acol:
+                                slate_teams: set[str] = set()
+                                for _, row in go.iterrows():
+                                    h = to_tricode(str(row.get(hcol) or ""))
+                                    a = to_tricode(str(row.get(acol) or ""))
+                                    if h:
+                                        slate_teams.add(h)
+                                    if a:
+                                        slate_teams.add(a)
+                                if slate_teams:
+                                    team_mask = preds["team"].astype(str).str.upper().str.strip().isin(slate_teams)
+                                    preds = preds[team_mask].copy()
             elif "team" in preds.columns:
                 go_path = paths.data_processed / f"game_odds_{date_str}.csv"
                 if go_path.exists():
@@ -6259,7 +6287,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                             if slate_teams:
                                 team_mask = preds["team"].astype(str).str.upper().str.strip().isin(slate_teams)
                                 preds = preds[team_mask].copy()
-            if "playing_today" in preds.columns:
+            if "playing_today" in preds.columns and _has_truthy_signal(preds["playing_today"]):
                 pt_false = _falsey_mask(preds["playing_today"]).reindex(preds.index, fill_value=False)
                 preds = preds[~pt_false].copy()
     except Exception:
@@ -6626,8 +6654,28 @@ def predict_props_npu_cmd(date_str: str, out_path: str | None, slate_only: bool,
     try:
         if slate_only and isinstance(preds, pd.DataFrame) and not preds.empty:
             if "team_on_slate" in preds.columns:
-                on_mask = _truthy_mask(preds["team_on_slate"]).reindex(preds.index, fill_value=False)
-                preds = preds[on_mask].copy()
+                if _has_truthy_signal(preds["team_on_slate"]):
+                    on_mask = _truthy_mask(preds["team_on_slate"]).reindex(preds.index, fill_value=False)
+                    preds = preds[on_mask].copy()
+                elif "team" in preds.columns:
+                    go_path = paths.data_processed / f"game_odds_{date_str}.csv"
+                    if go_path.exists():
+                        go = pd.read_csv(go_path)
+                        if isinstance(go, pd.DataFrame) and not go.empty:
+                            hcol = "home_team" if "home_team" in go.columns else None
+                            acol = "visitor_team" if "visitor_team" in go.columns else ("away_team" if "away_team" in go.columns else None)
+                            if hcol and acol:
+                                slate_teams: set[str] = set()
+                                for _, row in go.iterrows():
+                                    h = to_tricode(str(row.get(hcol) or ""))
+                                    a = to_tricode(str(row.get(acol) or ""))
+                                    if h:
+                                        slate_teams.add(h)
+                                    if a:
+                                        slate_teams.add(a)
+                                if slate_teams:
+                                    team_mask = preds["team"].astype(str).str.upper().str.strip().isin(slate_teams)
+                                    preds = preds[team_mask].copy()
             elif "team" in preds.columns:
                 go_path = paths.data_processed / f"game_odds_{date_str}.csv"
                 if go_path.exists():
@@ -6647,7 +6695,7 @@ def predict_props_npu_cmd(date_str: str, out_path: str | None, slate_only: bool,
                             if slate_teams:
                                 team_mask = preds["team"].astype(str).str.upper().str.strip().isin(slate_teams)
                                 preds = preds[team_mask].copy()
-            if "playing_today" in preds.columns:
+            if "playing_today" in preds.columns and _has_truthy_signal(preds["playing_today"]):
                 pt_false = _falsey_mask(preds["playing_today"]).reindex(preds.index, fill_value=False)
                 preds = preds[~pt_false].copy()
     except Exception:

@@ -33,3 +33,6 @@ where = ["src"]
 train = [
     "scikit-learn>=1.5",
 ]
+test = [
+    "pytest>=8.3",
+]

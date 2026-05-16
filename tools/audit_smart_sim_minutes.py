@@ -46,6 +46,27 @@ def _team_minutes_from_obj(obj: dict[str, Any], side: str) -> list[float]:
     return mins
 
 
+def _count_cards_sim_detail_games(path: Path) -> int:
+    try:
+        if not path.exists() or path.stat().st_size <= 0:
+            return 0
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        games = payload.get("games") if isinstance(payload, dict) else None
+        if not isinstance(games, list):
+            return 0
+        count = 0
+        for game in games:
+            if not isinstance(game, dict):
+                continue
+            home_tri = str(game.get("home_tri") or "").strip().upper()
+            away_tri = str(game.get("away_tri") or "").strip().upper()
+            if home_tri and away_tri:
+                count += 1
+        return count
+    except Exception:
+        return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", required=True, help="YYYY-MM-DD")
@@ -68,6 +89,14 @@ def main() -> int:
     proc = Path(str(args.processed))
     fps = sorted(proc.glob(f"smart_sim_{date}_*.json"))
     if not fps:
+        cards_sim_detail = proc / f"cards_sim_detail_{date}.json"
+        cards_sim_detail_games = _count_cards_sim_detail_games(cards_sim_detail)
+        if cards_sim_detail_games > 0:
+            print(
+                f"No raw SmartSim files found for {date} in {proc}; "
+                f"cards_sim_detail_{date}.json covers {cards_sim_detail_games} game(s), skipping raw minutes audit"
+            )
+            return 0
         print(f"No SmartSim files found for {date} in {proc}")
         return 2
 

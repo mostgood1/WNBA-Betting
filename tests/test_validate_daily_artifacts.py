@@ -96,10 +96,10 @@ def test_validate_daily_artifacts_flags_missing_props_slate_team(tmp_path, monke
     yesterday = "2026-03-13"
 
     pd.DataFrame(
-        [{"home_team": "Memphis Grizzlies", "visitor_team": "Detroit Pistons"}]
+        [{"home_team": "MEM", "visitor_team": "DET"}]
     ).to_csv(processed / f"predictions_{date_str}.csv", index=False)
     pd.DataFrame(
-        [{"home_team": "Memphis Grizzlies", "visitor_team": "Detroit Pistons"}]
+        [{"home_team": "MEM", "visitor_team": "DET"}]
     ).to_csv(processed / f"game_odds_{date_str}.csv", index=False)
     pd.DataFrame(
         [{"player_name": "Ja Morant", "team": "MEM", "pred_pts": 26.2}]
@@ -208,6 +208,73 @@ def test_validate_daily_artifacts_requires_cards_sim_detail_when_smartsim_requir
             yesterday,
         ],
     )
+    assert validate_module.main() == 0
+
+
+def test_validate_daily_artifacts_accepts_cards_sim_detail_without_raw_smartsim_files(tmp_path, monkeypatch):
+    repo_root = tmp_path
+    processed = repo_root / "data" / "processed"
+    raw = repo_root / "data" / "raw"
+    processed.mkdir(parents=True)
+    raw.mkdir(parents=True)
+
+    date_str = "2026-04-02"
+    yesterday = "2026-04-01"
+
+    pd.DataFrame(
+        [
+            {"home_team": "PHX", "visitor_team": "CHI"},
+            {"home_team": "IND", "visitor_team": "WSH"},
+        ]
+    ).to_csv(processed / f"predictions_{date_str}.csv", index=False)
+    pd.DataFrame(
+        [
+            {"home_team": "PHX", "visitor_team": "CHI"},
+            {"home_team": "IND", "visitor_team": "WSH"},
+        ]
+    ).to_csv(processed / f"game_odds_{date_str}.csv", index=False)
+    pd.DataFrame(
+        [
+            {"player_name": "Kahleah Copper", "team": "PHX", "pred_pts": 23.0},
+            {"player_name": "Ariel Atkins", "team": "CHI", "pred_pts": 15.0},
+            {"player_name": "Caitlin Clark", "team": "IND", "pred_pts": 21.0},
+            {"player_name": "Brittney Sykes", "team": "WSH", "pred_pts": 18.0},
+        ]
+    ).to_csv(processed / f"props_predictions_{date_str}.csv", index=False)
+    (processed / f"cards_sim_detail_{date_str}.json").write_text(
+        json.dumps(
+            {
+                "date": date_str,
+                "games": [
+                    {"home_tri": "PHX", "away_tri": "CHI", "sim": {"players_summary": {"home": 8, "away": 8}}},
+                    {"home_tri": "IND", "away_tri": "WSH", "sim": {"players_summary": {"home": 8, "away": 8}}},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    validate_module = _load_validate_daily_artifacts_module()
+    monkeypatch.setenv("FAIL_ON_MISSING", "1")
+    monkeypatch.setenv("REQUIRE_ODDS", "0")
+    monkeypatch.setenv("REQUIRE_SMARTSIM", "1")
+    monkeypatch.setenv("REQUIRE_PROPS_LINES", "0")
+    monkeypatch.setenv("REQUIRE_ROTATIONS", "0")
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "validate_daily_artifacts.py",
+            "--repo-root",
+            str(repo_root),
+            "--date",
+            date_str,
+            "--yesterday",
+            yesterday,
+        ],
+    )
+
     assert validate_module.main() == 0
 
 

@@ -152,6 +152,46 @@ def test_prune_invalid_props_recommendations_artifact_preserves_line_bearing_car
     assert any("Preserving existing same-day line-bearing props recommendations" in msg for msg in messages)
 
 
+def test_find_predictions_for_date_rejects_stale_nba_predictions_in_wnba_mode(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+
+    pred_path = processed / "predictions_2026-05-15.csv"
+    pd.DataFrame(
+        [
+            {
+                "home_team": "Cleveland Cavaliers",
+                "visitor_team": "Detroit Pistons",
+            }
+        ]
+    ).to_csv(pred_path, index=False)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "BASE_DIR", tmp_path)
+
+    assert app_module._find_predictions_for_date("2026-05-15") is None
+
+
+def test_find_predictions_for_date_accepts_wnba_predictions(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+
+    pred_path = processed / "predictions_2026-05-15.csv"
+    pd.DataFrame(
+        [
+            {
+                "home_team": "Indiana Fever",
+                "visitor_team": "Washington Mystics",
+            }
+        ]
+    ).to_csv(pred_path, index=False)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "BASE_DIR", tmp_path)
+
+    assert app_module._find_predictions_for_date("2026-05-15") == pred_path
+
+
 def test_api_cards_skips_missing_prop_players_warning_when_smartsim_errors(tmp_path, monkeypatch):
     processed = tmp_path / "data" / "processed"
     processed.mkdir(parents=True)

@@ -10,5 +10,8 @@ rich>=13.7
 matplotlib>=3.9
 seaborn>=0.13
 
+[test]
+pytest>=8.3
+
 [train]
 scikit-learn>=1.5

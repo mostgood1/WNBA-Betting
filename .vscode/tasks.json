@@ -12,6 +12,49 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Pytest: collect tests",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"--collect-only",
+				"-q"
+			],
+			"isBackground": false,
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"label": "Pytest: run -k expression",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"-k",
+				"${input:pytestExpr}",
+				"-q"
+			],
+			"isBackground": false,
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"label": "Pytest: run file or node",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"${input:pytestTarget}",
+				"-q"
+			],
+			"isBackground": false,
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
 			"label": "Health: warm caches (today)",
 			"type": "shell",
 			"command": "powershell",
@@ -1327,6 +1370,18 @@
 			"type": "promptString",
 			"description": "Enter date to audit (yyyy-MM-dd)",
 			"default": "$(Get-Date -Format 'yyyy-MM-dd')"
+		},
+		{
+			"id": "pytestExpr",
+			"type": "promptString",
+			"description": "Enter pytest -k expression",
+			"default": "cli_failfast or props"
+		},
+		{
+			"id": "pytestTarget",
+			"type": "promptString",
+			"description": "Enter pytest file, node id, or directory",
+			"default": "tests/test_cli_failfast.py"
 		}
 	]
 }
