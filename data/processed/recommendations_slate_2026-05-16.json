@@ -1,0 +1,34 @@
+{
+  "counts": {
+    "games": 0,
+    "markets": 0
+  },
+  "date": "2026-05-16",
+  "meta": {
+    "inputs": {
+      "props_recommendations": "props_recommendations_2026-05-16.csv",
+      "smart_sim_files": 0
+    },
+    "policy": {
+      "allowed_markets": [
+        "pa",
+        "ra"
+      ],
+      "combo_weights": null,
+      "dedupe_player": true,
+      "max_per_player": 1,
+      "max_plus_odds": 125,
+      "min_ev": null,
+      "min_prob": null,
+      "n_game": 3,
+      "n_market": 4,
+      "p_shrink": 1.0,
+      "rank": "sim_ev",
+      "sim_model": "smart_sim_normal_approx",
+      "version": "slate_prob_v2",
+      "view": "slate"
+    }
+  },
+  "per_game": [],
+  "per_market": {}
+}
