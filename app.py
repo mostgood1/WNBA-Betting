@@ -12826,15 +12826,15 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
 # ---------------- Data APIs (parity with NHL web) ---------------- #
 
 def _find_predictions_for_date(date_str: str) -> Optional[Path]:
-    # Prefer processed path
-    p = DATA_PROCESSED_DIR / f"predictions_{date_str}.csv"
-    if not p.exists():
-        try:
-            _maybe_fetch_remote_processed(p.name)
-        except Exception:
-            pass
-    if p.exists() and _predictions_file_matches_active_league(p):
-        return p
+    fname = f"predictions_{date_str}.csv"
+    for p in _processed_path_candidates(fname, prefer_repo=True):
+        if not p.exists() and p.parent == DATA_PROCESSED_DIR:
+            try:
+                _maybe_fetch_remote_processed(p.name)
+            except Exception:
+                pass
+        if p.exists() and _predictions_file_matches_active_league(p):
+            return p
     # Legacy root fallback
     legacy = BASE_DIR / f"predictions_{date_str}.csv"
     if legacy.exists() and _predictions_file_matches_active_league(legacy):
@@ -12843,29 +12843,29 @@ def _find_predictions_for_date(date_str: str) -> Optional[Path]:
 
 
 def _find_game_odds_for_date(date_str: str) -> Optional[Path]:
-    # Processed standardized game odds
-    p = DATA_PROCESSED_DIR / f"game_odds_{date_str}.csv"
-    if not p.exists():
-        try:
-            _maybe_fetch_remote_processed(p.name)
-        except Exception:
-            pass
-    if p.exists():
-        return p
+    fname = f"game_odds_{date_str}.csv"
+    for p in _processed_path_candidates(fname, prefer_repo=True):
+        if not p.exists() and p.parent == DATA_PROCESSED_DIR:
+            try:
+                _maybe_fetch_remote_processed(p.name)
+            except Exception:
+                pass
+        if p.exists():
+            return p
     # Alternate names we search for
     for name in [
         f"closing_lines_{date_str}.csv",
         f"odds_{date_str}.csv",
         f"market_{date_str}.csv",
     ]:
-        q = DATA_PROCESSED_DIR / name
-        if not q.exists():
-            try:
-                _maybe_fetch_remote_processed(q.name)
-            except Exception:
-                pass
-        if q.exists():
-            return q
+        for q in _processed_path_candidates(name, prefer_repo=True):
+            if not q.exists() and q.parent == DATA_PROCESSED_DIR:
+                try:
+                    _maybe_fetch_remote_processed(q.name)
+                except Exception:
+                    pass
+            if q.exists():
+                return q
     return None
 
 
@@ -13638,28 +13638,46 @@ def _build_fallback_smart_sim_object(
     prediction_row: dict[str, Any] | None,
     odds_row: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
-    if not isinstance(prediction_row, dict):
+    odds = odds_row or {}
+    if not isinstance(prediction_row, dict) and not isinstance(odds_row, dict):
         return None
 
-    pred_margin = _safe_float(
-        prediction_row.get("spread_margin")
-        if prediction_row.get("spread_margin") is not None
-        else prediction_row.get("pred_margin")
-    )
-    total_mean = _safe_float(
-        prediction_row.get("totals")
-        if prediction_row.get("totals") is not None
-        else prediction_row.get("pred_total")
-    )
-    home_win_prob = _safe_float(
-        prediction_row.get("home_win_prob_cal")
-        if prediction_row.get("home_win_prob_cal") is not None
-        else (
-            prediction_row.get("home_win_prob")
-            if prediction_row.get("home_win_prob") is not None
-            else prediction_row.get("home_win_prob_iso")
+    pred_margin = None
+    total_mean = None
+    home_win_prob = None
+    if isinstance(prediction_row, dict):
+        pred_margin = _safe_float(
+            prediction_row.get("spread_margin")
+            if prediction_row.get("spread_margin") is not None
+            else prediction_row.get("pred_margin")
         )
-    )
+        total_mean = _safe_float(
+            prediction_row.get("totals")
+            if prediction_row.get("totals") is not None
+            else prediction_row.get("pred_total")
+        )
+        home_win_prob = _safe_float(
+            prediction_row.get("home_win_prob_cal")
+            if prediction_row.get("home_win_prob_cal") is not None
+            else (
+                prediction_row.get("home_win_prob")
+                if prediction_row.get("home_win_prob") is not None
+                else prediction_row.get("home_win_prob_iso")
+            )
+        )
+
+    market_home_spread = _safe_float(odds.get("home_spread"))
+    market_total = _safe_float(odds.get("total"))
+    market_home_win_prob = _safe_float(odds.get("home_implied_prob"))
+    if market_home_win_prob is None:
+        market_home_win_prob = _american_to_implied_prob(odds.get("home_ml"))
+
+    if pred_margin is None and market_home_spread is not None:
+        pred_margin = float(-market_home_spread)
+    if total_mean is None and market_total is not None:
+        total_mean = float(market_total)
+    if home_win_prob is None and market_home_win_prob is not None:
+        home_win_prob = float(market_home_win_prob)
 
     home_mean = None
     away_mean = None
@@ -13672,33 +13690,35 @@ def _build_fallback_smart_sim_object(
             away_mean = None
 
     periods: dict[str, Any] = {}
-    for src, dst in (("quarters_q1", "q1"), ("quarters_q2", "q2"), ("quarters_q3", "q3"), ("quarters_q4", "q4"), ("halves_h1", "h1"), ("halves_h2", "h2")):
-        win_val = _safe_float(prediction_row.get(f"{src}_win"))
-        margin_val = _safe_float(prediction_row.get(f"{src}_margin"))
-        total_val = _safe_float(prediction_row.get(f"{src}_total"))
-        if win_val is None and margin_val is None and total_val is None:
-            continue
-        periods[dst] = {
-            "p_home_win": win_val,
-            "margin_mean": margin_val,
-            "total_mean": total_val,
-        }
+    if isinstance(prediction_row, dict):
+        for src, dst in (("quarters_q1", "q1"), ("quarters_q2", "q2"), ("quarters_q3", "q3"), ("quarters_q4", "q4"), ("halves_h1", "h1"), ("halves_h2", "h2")):
+            win_val = _safe_float(prediction_row.get(f"{src}_win"))
+            margin_val = _safe_float(prediction_row.get(f"{src}_margin"))
+            total_val = _safe_float(prediction_row.get(f"{src}_total"))
+            if win_val is None and margin_val is None and total_val is None:
+                continue
+            periods[dst] = {
+                "p_home_win": win_val,
+                "margin_mean": margin_val,
+                "total_mean": total_val,
+            }
 
-    odds = odds_row or {}
+    fallback_source = "predictions_csv" if isinstance(prediction_row, dict) else "game_odds_csv"
+    fallback_mode = "prediction_fallback" if isinstance(prediction_row, dict) else "odds_fallback"
 
     return {
         "home": home_tri,
         "away": away_tri,
         "date": date_str,
         "game_id": f"{away_tri}@{home_tri}",
-        "mode": "prediction_fallback",
+        "mode": fallback_mode,
         "context": {
-            "fallback_source": "predictions_csv",
+            "fallback_source": fallback_source,
             "fallback_reason": "missing_smart_sim",
         },
         "market": {
-            "market_home_spread": _safe_float(odds.get("home_spread")),
-            "market_total": _safe_float(odds.get("total")),
+            "market_home_spread": market_home_spread,
+            "market_total": market_total,
         },
         "score": {
             "p_home_win": home_win_prob,
