@@ -8644,17 +8644,28 @@ def _season_betting_card_day_payload_from_cards(
     playable_day_rows: list[dict[str, Any]] = []
     source_games = [game for game in (cards_payload.get("games") or []) if isinstance(game, dict)]
     game_context = _load_best_bets_game_context(date_str) if include_prop_insights else {}
+    schedule_matchups = _schedule_matchups_metadata_for_date(date_str)
 
     for index, game in enumerate(source_games):
-        home_tri = str(game.get("home_tri") or "").strip().upper()
-        away_tri = str(game.get("away_tri") or "").strip().upper()
+        home_tri = str(_get_tricode(str(game.get("home_tri") or "")) or game.get("home_tri") or "").strip().upper()
+        away_tri = str(_get_tricode(str(game.get("away_tri") or "")) or game.get("away_tri") or "").strip().upper()
+        schedule_meta = schedule_matchups.get((home_tri, away_tri), {})
         home_name = str(game.get("home_name") or home_tri or "Home").strip()
         away_name = str(game.get("away_name") or away_tri or "Away").strip()
+        if schedule_meta:
+            home_name = str(schedule_meta.get("home_name") or home_name or home_tri or "Home").strip()
+            away_name = str(schedule_meta.get("away_name") or away_name or away_tri or "Away").strip()
         matchup_ctx = _best_bets_ctx_for_matchup(game_context, home=home_name, away=away_name)
         away = _betting_card_v2_team_meta(away_tri, away_name)
         home = _betting_card_v2_team_meta(home_tri, home_name)
         odds = game.get("odds") if isinstance(game.get("odds"), dict) else {}
-        game_date = str(odds.get("commence_time") or "").strip()
+        game_date = str(
+            odds.get("commence_time")
+            or schedule_meta.get("commence_time")
+            or game.get("datetime_utc")
+            or game.get("datetime_est")
+            or ""
+        ).strip()
         status = _betting_card_v2_status(game)
         official_rows: list[dict[str, Any]] = []
         playable_rows: list[dict[str, Any]] = []
@@ -9594,6 +9605,24 @@ def _load_team_maps() -> dict[str, str]:
             ("Toronto Raptors", "TOR"),
             ("Utah Jazz", "UTA"),
             ("Washington Wizards", "WAS"),
+            ("Atlanta Dream", "ATL"),
+            ("Chicago Sky", "CHI"),
+            ("Connecticut Sun", "CON"),
+            ("Dallas Wings", "DAL"),
+            ("Golden State Valkyries", "GSV"),
+            ("Indiana Fever", "IND"),
+            ("Los Angeles Sparks", "LAS"),
+            ("LA", "LAS"),
+            ("LAS", "LAS"),
+            ("Las Vegas Aces", "LVA"),
+            ("LVA", "LVA"),
+            ("Minnesota Lynx", "MIN"),
+            ("New York Liberty", "NYL"),
+            ("Phoenix Mercury", "PHX"),
+            ("Portland Fire", "POR"),
+            ("Seattle Storm", "SEA"),
+            ("Toronto Tempo", "TOR"),
+            ("Washington Mystics", "WSH"),
         ]
         mapping = {}
         for full, abbr in built_in:
@@ -9627,9 +9656,24 @@ def _load_team_maps() -> dict[str, str]:
 def _get_tricode(team: str | None) -> str | None:
     if not team:
         return None
+    raw = str(team).strip()
+    key = raw.lower()
+    explicit_aliases = {
+        "la": "LAS",
+        "las": "LAS",
+        "los angeles sparks": "LAS",
+        "lva": "LVA",
+        "las vegas aces": "LVA",
+        "gsv": "GSV",
+        "golden state valkyries": "GSV",
+        "toronto tempo": "TOR",
+        "portland fire": "POR",
+    }
+    if key in explicit_aliases:
+        return explicit_aliases[key]
     m = _load_team_maps()
-    abbr = m.get(str(team).strip().lower())
-    return (abbr or str(team).strip().upper() or None)
+    abbr = m.get(key)
+    return (abbr or raw.upper() or None)
 
 
 def _canonical_team_tri(team: Any) -> str:

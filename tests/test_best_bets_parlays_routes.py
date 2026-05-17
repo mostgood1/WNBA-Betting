@@ -1144,6 +1144,54 @@ def test_betting_card_start_time_uses_app_timezone(monkeypatch):
     assert app_module._betting_card_v2_start_time("2026-04-03T23:10:00Z") == "7:10 PM"
 
 
+def test_season_betting_card_day_payload_canonicalizes_las_and_uses_schedule_tipoff(monkeypatch):
+    date_str = "2026-05-17"
+    cards_payload = {
+        "games": [
+            {
+                "home_tri": "LA",
+                "away_tri": "TOR",
+                "home_name": "LA",
+                "away_name": "TOR",
+                "odds": {},
+                "game_market_recommendations": [],
+                "prop_recommendations": {"away": [], "home": []},
+                "live_status": {"status": "Scheduled"},
+            }
+        ]
+    }
+
+    monkeypatch.setattr(
+        app_module,
+        "_schedule_matchups_metadata_for_date",
+        lambda _date: {
+            ("LAS", "TOR"): {
+                "home_name": "Los Angeles Sparks",
+                "away_name": "Toronto Tempo",
+                "commence_time": "2026-05-17T23:00:00Z",
+            }
+        },
+    )
+    monkeypatch.setattr(app_module, "_load_best_bets_game_context", lambda _date: {})
+
+    payload = app_module._season_betting_card_day_payload_from_cards(
+        2026,
+        date_str,
+        "retuned",
+        cards_payload,
+        include_games=True,
+        include_prop_insights=False,
+    )
+
+    game = payload["games"][0]
+    assert game["home"]["abbr"] == "LAS"
+    assert game["home"]["name"] == "Los Angeles Sparks"
+    assert game["away"]["abbr"] == "TOR"
+    assert game["away"]["name"] == "Toronto Tempo"
+    assert game["game_date"] == "2026-05-17T23:00:00Z"
+    assert game["start_time"] == "7:00 PM"
+
+
 def test_duplicate_best_bets_aliases_redirect_to_betting_card():
     app_module.app.testing = True
     with app_module.app.test_client() as client:
