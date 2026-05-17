@@ -13386,6 +13386,39 @@ def _smart_sim_matchup_from_path(date_str: str, path: Path, prefix: str | None =
 def _smart_sim_authoritative_matchups_for_date(date_str: str) -> set[tuple[str, str]]:
     out: set[tuple[str, str]] = set()
 
+    def _schedule_matchups() -> set[tuple[str, str]]:
+        schedule_out: set[tuple[str, str]] = set()
+
+        def _tri(raw: Any) -> str:
+            val = str(raw or "").strip()
+            if not val:
+                return ""
+            tri = _get_tricode(val)
+            return str(tri or val).strip().upper()
+
+        try:
+            sched_path = _processed_schedule_json_path(date_str)
+            schedule_rows = _read_json_if_exists(sched_path)
+            if isinstance(schedule_rows, list):
+                for game in schedule_rows:
+                    if not isinstance(game, dict):
+                        continue
+                    game_date = str(game.get("date_est") or game.get("date_utc") or "")[:10]
+                    if game_date != str(date_str):
+                        continue
+                    home_tri = _tri(game.get("home_tricode") or game.get("home_team") or game.get("home_name"))
+                    away_tri = _tri(game.get("away_tricode") or game.get("away_team") or game.get("away_name"))
+                    if home_tri and away_tri:
+                        schedule_out.add((home_tri, away_tri))
+        except Exception:
+            return set()
+
+        return schedule_out
+
+    out = _schedule_matchups()
+    if out:
+        return out
+
     try:
         odds_map = _load_game_odds_map(date_str)
         out = {
@@ -20713,7 +20746,10 @@ def api_cards():
         if matchup is not None and matchup not in smart_sim_files_by_matchup:
             smart_sim_files_by_matchup[matchup] = fp
 
+    authoritative_matchups = _smart_sim_authoritative_matchups_for_date(d)
     slate_matchups = set(smart_sim_files_by_matchup.keys()) | set(odds_map.keys()) | set(prediction_rows_map.keys())
+    if authoritative_matchups:
+        slate_matchups &= authoritative_matchups
 
     def _matchup_sort_key(matchup: tuple[str, str]) -> tuple[str, str, str]:
         odds_row = odds_map.get(matchup) or {}

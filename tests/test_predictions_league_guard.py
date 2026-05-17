@@ -152,3 +152,68 @@ def test_api_cards_returns_odds_only_fallback_from_repo_game_odds(tmp_path, monk
     assert game["sim"]["mode"] == "odds_fallback"
     assert game["sim"]["score"]["total_mean"] == 170.0
     assert game["sim"]["score"]["margin_mean"] == 8.5
+
+
+def test_api_cards_filters_out_cross_league_odds_when_schedule_has_wnba_slate(tmp_path, monkeypatch):
+        processed = tmp_path / "data" / "processed"
+        processed.mkdir(parents=True)
+
+        pd.DataFrame(
+                [
+                        {
+                                "date": "2026-05-17",
+                                "commence_time": "2026-05-18T00:00:00Z",
+                                "home_team": "Detroit Pistons",
+                                "visitor_team": "Cleveland Cavaliers",
+                                "home_ml": -195,
+                                "away_ml": 165,
+                                "home_spread": -5.0,
+                                "away_spread": 5.0,
+                                "total": 206.5,
+                        }
+                ]
+        ).to_csv(processed / "game_odds_2026-05-17.csv", index=False)
+
+        (processed / "schedule_2026.json").write_text(
+                """
+[
+    {
+        "date_est": "2026-05-17T00:00:00.000",
+        "home_tricode": "ATL",
+        "away_tricode": "LVA"
+    },
+    {
+        "date_est": "2026-05-17T00:00:00.000",
+        "home_tricode": "IND",
+        "away_tricode": "SEA"
+    }
+]
+""".strip(),
+                encoding="utf-8",
+        )
+
+        monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+        monkeypatch.setattr(app_module, "REPO_DATA_PROCESSED_DIR", processed)
+        monkeypatch.setattr(app_module, "BASE_DIR", tmp_path)
+        monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
+        monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+        monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
+        monkeypatch.setattr(app_module, "_load_props_recommendations_by_team", lambda _date: {})
+        monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
+        monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
+        monkeypatch.setattr(app_module, "_load_best_bets_game_context", lambda _date: {"by_pair": {}, "by_team": {}, "slate_total_median": None})
+        monkeypatch.setattr(app_module, "_load_best_bets_props_prediction_lookup", lambda _date: {})
+        monkeypatch.setattr(app_module, "_best_bets_load_injury_snapshot", lambda _date: {})
+        monkeypatch.setattr(app_module, "_load_cards_game_recommendations_index", lambda _date: {})
+        monkeypatch.setattr(app_module, "_load_cards_prop_snapshot_index", lambda _date: {})
+        monkeypatch.setattr(app_module, "_load_cards_prop_recommendations_index", lambda _date: {})
+        monkeypatch.setattr(app_module, "_load_finals_lookup", lambda _date: {})
+        monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
+
+        with app_module.app.test_request_context("/api/cards?date=2026-05-17"):
+                response = app_module.api_cards()
+
+        payload = response.get_json()
+
+        assert payload["date"] == "2026-05-17"
+        assert payload["games"] == []
