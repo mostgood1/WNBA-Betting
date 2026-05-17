@@ -132,6 +132,70 @@ def test_validate_daily_artifacts_flags_missing_props_slate_team(tmp_path, monke
     assert report["props_missing_teams"] == ["DET"]
 
 
+def test_validate_daily_artifacts_allows_partial_props_team_coverage_when_publishable_lines_exist(tmp_path, monkeypatch):
+    repo_root = tmp_path
+    processed = repo_root / "data" / "processed"
+    raw = repo_root / "data" / "raw"
+    processed.mkdir(parents=True)
+    raw.mkdir(parents=True)
+
+    date_str = "2026-03-14"
+    yesterday = "2026-03-13"
+
+    pd.DataFrame(
+        [
+            {"home_team": "MEM", "visitor_team": "DET"},
+        ]
+    ).to_csv(processed / f"predictions_{date_str}.csv", index=False)
+    pd.DataFrame(
+        [
+            {"home_team": "MEM", "visitor_team": "DET"},
+        ]
+    ).to_csv(processed / f"game_odds_{date_str}.csv", index=False)
+    pd.DataFrame(
+        [
+            {"player_name": "Ja Morant", "team": "MEM", "pred_pts": 26.2},
+        ]
+    ).to_csv(processed / f"props_predictions_{date_str}.csv", index=False)
+    pd.DataFrame(
+        [
+            {"player_name": "Ja Morant", "team": "MEM", "stat": "pts", "side": "UNDER", "line": 26.5, "price": -110},
+        ]
+    ).to_csv(processed / f"props_edges_{date_str}.csv", index=False)
+    pd.DataFrame(
+        [
+            {"player": "Ja Morant", "team": "MEM", "plays": "[{'market': 'pts', 'side': 'UNDER', 'line': 26.5, 'price': -110}]"},
+        ]
+    ).to_csv(processed / f"props_recommendations_{date_str}.csv", index=False)
+
+    validate_module = _load_validate_daily_artifacts_module()
+    monkeypatch.setenv("FAIL_ON_MISSING", "1")
+    monkeypatch.setenv("REQUIRE_ODDS", "0")
+    monkeypatch.setenv("REQUIRE_SMARTSIM", "0")
+    monkeypatch.setenv("REQUIRE_PROPS_LINES", "1")
+    monkeypatch.setenv("REQUIRE_ROTATIONS", "0")
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "validate_daily_artifacts.py",
+            "--repo-root",
+            str(repo_root),
+            "--date",
+            date_str,
+            "--yesterday",
+            yesterday,
+        ],
+    )
+
+    assert validate_module.main() == 0
+
+    report = json.loads((processed / f"daily_artifacts_{date_str}.json").read_text(encoding="utf-8"))
+    assert report["props_missing_teams"] == ["DET"]
+    assert any("props_predictions missing slate teams but downstream props artifacts are present" in msg for msg in report["warnings"])
+
+
 def test_validate_daily_artifacts_requires_cards_sim_detail_when_smartsim_required(tmp_path, monkeypatch):
     repo_root = tmp_path
     processed = repo_root / "data" / "processed"

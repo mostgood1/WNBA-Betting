@@ -380,7 +380,7 @@ def main() -> int:
 
     props_team_gap_is_publish_blocking = bool(
         props_missing_teams
-        and not (props_snapshot_rows > 0 and props_edges_rows > 0 and props_recs_rows > 0)
+        and not (props_edges_rows > 0 and props_recs_play_rows > 0)
     )
     has_slate = (not bool(args.no_slate_day)) and (slate_games is None or int(slate_games) > 0)
 

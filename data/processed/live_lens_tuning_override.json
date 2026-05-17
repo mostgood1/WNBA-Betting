@@ -25,7 +25,7 @@
     "under_edge_reversion_cap_points": 2.5,
     "under_edge_reversion_frac": 0.35
   },
-  "generated_at": "2026-05-11T18:52:02Z",
+  "generated_at": "2026-05-16T14:59:46Z",
   "logging": {
     "min_interval_sec": 60,
     "mode": "all"
@@ -36,23 +36,23 @@
       "watch": 2.5
     },
     "player_prop": {
-      "bet": 4.5,
-      "bet_sigma": 0.7,
+      "bet": 5.0,
+      "bet_sigma": 1.0,
       "bettability": {
-        "bets": 47,
+        "bets": 107,
         "gating": true,
         "min_score": 0.55,
-        "roi_u_per_bet": 0.2823,
-        "window_end": "2026-05-10",
-        "window_start": "2026-04-27"
+        "roi_u_per_bet": 0.3096,
+        "window_end": "2026-05-15",
+        "window_start": "2026-05-02"
       },
       "sigma_thresholds": {
         "pra": {
-          "bet": 0.7,
+          "bet": 1.0,
           "watch": 0.45
         },
         "pts": {
-          "bet": 0.7,
+          "bet": 1.15,
           "watch": 0.45
         }
       },
