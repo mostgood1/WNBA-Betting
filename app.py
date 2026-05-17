@@ -13462,6 +13462,50 @@ def _smart_sim_authoritative_matchups_for_date(date_str: str) -> set[tuple[str, 
     return out
 
 
+def _schedule_matchups_metadata_for_date(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
+    out: dict[tuple[str, str], dict[str, Any]] = {}
+
+    def _tri(raw: Any) -> str:
+        val = str(raw or "").strip()
+        if not val:
+            return ""
+        tri = _get_tricode(val)
+        return str(tri or val).strip().upper()
+
+    def _team_name(city: Any, name: Any, tri: str) -> str:
+        city_text = str(city or "").strip()
+        name_text = str(name or "").strip()
+        full = " ".join(part for part in (city_text, name_text) if part).strip()
+        return full or tri
+
+    try:
+        sched_path = _processed_schedule_json_path(date_str)
+        schedule_rows = _read_json_if_exists(sched_path)
+        if not isinstance(schedule_rows, list):
+            return out
+        for game in schedule_rows:
+            if not isinstance(game, dict):
+                continue
+            game_date = str(game.get("date_est") or game.get("date_utc") or game.get("datetime_est") or game.get("datetime_utc") or "")[:10]
+            if game_date != str(date_str):
+                continue
+            home_tri = _tri(game.get("home_tricode") or game.get("home_team") or game.get("home_name"))
+            away_tri = _tri(game.get("away_tricode") or game.get("away_team") or game.get("away_name"))
+            if not home_tri or not away_tri:
+                continue
+            out[(home_tri, away_tri)] = {
+                "home_name": _team_name(game.get("home_city"), game.get("home_name"), home_tri),
+                "away_name": _team_name(game.get("away_city"), game.get("away_name"), away_tri),
+                "commence_time": str(game.get("datetime_utc") or game.get("datetime_est") or "").strip() or None,
+                "game_id": str(game.get("game_id") or "").strip() or f"{away_tri}@{home_tri}",
+                "schedule_row": dict(game),
+            }
+    except Exception:
+        return {}
+
+    return out
+
+
 def _load_smart_sim_files_for_authoritative_slate(date_str: str, prefix: str | None = None) -> list[Path]:
     files = _load_smart_sim_files_for_date(date_str, prefix=prefix)
     allowed_matchups = _smart_sim_authoritative_matchups_for_date(date_str)
@@ -13763,6 +13807,43 @@ def _build_fallback_smart_sim_object(
             "margin_mean": pred_margin,
         },
         "periods": periods,
+        "players": {"home": [], "away": []},
+    }
+
+
+def _build_schedule_only_smart_sim_object(
+    date_str: str,
+    home_tri: str,
+    away_tri: str,
+    schedule_meta: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    if not isinstance(schedule_meta, dict):
+        return None
+    game_id = str(schedule_meta.get("game_id") or "").strip() or f"{away_tri}@{home_tri}"
+    return {
+        "home": home_tri,
+        "away": away_tri,
+        "date": date_str,
+        "game_id": game_id,
+        "mode": "schedule_only_fallback",
+        "context": {
+            "fallback_source": "schedule_json",
+            "fallback_reason": "schedule_only",
+        },
+        "market": {
+            "market_home_spread": None,
+            "market_total": None,
+        },
+        "score": {
+            "p_home_win": None,
+            "p_home_cover": None,
+            "p_total_over": None,
+            "home_mean": None,
+            "away_mean": None,
+            "total_mean": None,
+            "margin_mean": None,
+        },
+        "periods": {},
         "players": {"home": [], "away": []},
     }
 
@@ -19884,13 +19965,15 @@ def api_cards():
         if isinstance(cached_payload, dict):
             return jsonify(_to_jsonable(cached_payload))
 
+    requested_schedule_matchups = _schedule_matchups_metadata_for_date(d)
     smart_sim_files = _load_smart_sim_files_for_authoritative_slate(d)
-    if not smart_sim_files:
+    if not smart_sim_files and not requested_schedule_matchups:
         next_date, next_files = _find_next_available_smart_sim_date(d, max_ahead=_app_lookahead_days())
         if next_date and next_files:
             d = next_date
             smart_sim_files = next_files
 
+    schedule_matchups = _schedule_matchups_metadata_for_date(d)
     odds_map = _load_game_odds_map(d)
     prediction_rows_map = _load_predictions_rows_map(d)
     props_map = _load_props_predictions_map(d)
@@ -20747,7 +20830,7 @@ def api_cards():
             smart_sim_files_by_matchup[matchup] = fp
 
     authoritative_matchups = _smart_sim_authoritative_matchups_for_date(d)
-    slate_matchups = set(smart_sim_files_by_matchup.keys()) | set(odds_map.keys()) | set(prediction_rows_map.keys())
+    slate_matchups = set(smart_sim_files_by_matchup.keys()) | set(odds_map.keys()) | set(prediction_rows_map.keys()) | set(schedule_matchups.keys())
     if authoritative_matchups:
         slate_matchups &= authoritative_matchups
 
@@ -20780,6 +20863,13 @@ def api_cards():
                 odds_map.get((home_tri, away_tri)),
             )
             if not isinstance(obj, dict):
+                obj = _build_schedule_only_smart_sim_object(
+                    d,
+                    home_tri,
+                    away_tri,
+                    schedule_matchups.get((home_tri, away_tri)),
+                )
+            if not isinstance(obj, dict):
                 continue
             fp = DATA_PROCESSED_DIR / f"smart_sim_{d}_{home_tri}_{away_tri}.json"
 
@@ -20792,9 +20882,12 @@ def api_cards():
 
         sim_detail_snapshot = cards_sim_detail_index.get((home_tri, away_tri)) if isinstance(cards_sim_detail_index, dict) else None
 
+        schedule_meta = schedule_matchups.get((home_tri, away_tri)) or {}
         odds = dict(odds_map.get((home_tri, away_tri)) or {})
-        home_name = str(odds.get("home_team") or home_tri)
-        away_name = str(odds.get("visitor_team") or away_tri)
+        if schedule_meta.get("commence_time") and not odds.get("commence_time"):
+            odds["commence_time"] = schedule_meta.get("commence_time")
+        home_name = str(odds.get("home_team") or schedule_meta.get("home_name") or home_tri)
+        away_name = str(odds.get("visitor_team") or schedule_meta.get("away_name") or away_tri)
         game_started = _cards_matchup_has_started(
             d,
             home_tri=home_tri,
@@ -21544,6 +21637,9 @@ def api_cards():
             if str(sim_context.get("fallback_reason") or "").strip().lower() == "missing_smart_sim":
                 game.setdefault("warnings", [])
                 game["warnings"].append("Using predictions fallback because SmartSim artifact is missing for this matchup.")
+            elif str(sim_context.get("fallback_reason") or "").strip().lower() == "schedule_only":
+                game.setdefault("warnings", [])
+                game["warnings"].append("Showing schedule-only matchup because predictions, odds, and SmartSim artifacts are not available yet.")
         except Exception:
             pass
 
