@@ -20919,8 +20919,8 @@ def api_cards():
 
         sim_error = obj.get("error")
 
-        home_tri = _canonical_team_tri(obj.get("home") or home_tri)
-        away_tri = _canonical_team_tri(obj.get("away") or away_tri)
+        home_tri = str(_get_tricode(str(obj.get("home") or home_tri or "")) or obj.get("home") or home_tri or "").strip().upper()
+        away_tri = str(_get_tricode(str(obj.get("away") or away_tri or "")) or obj.get("away") or away_tri or "").strip().upper()
         if not home_tri or not away_tri:
             continue
 

@@ -1192,6 +1192,78 @@ def test_season_betting_card_day_payload_canonicalizes_las_and_uses_schedule_tip
     assert game["start_time"] == "7:00 PM"
 
 
+def test_api_cards_preserves_las_and_schedule_tipoff_for_wnba_matchup(monkeypatch):
+    date_str = "2026-05-17"
+
+    monkeypatch.setattr(app_module, "_load_smart_sim_files_for_authoritative_slate", lambda _date: [])
+    monkeypatch.setattr(app_module, "_find_next_available_smart_sim_date", lambda *_args, **_kwargs: (None, []))
+    monkeypatch.setattr(
+        app_module,
+        "_load_game_odds_map",
+        lambda _date: {
+            ("LAS", "TOR"): {
+                "home_team": "Los Angeles Sparks",
+                "visitor_team": "Toronto Tempo",
+                "commence_time": f"{date_str}T23:00:00Z",
+            }
+        },
+    )
+    monkeypatch.setattr(app_module, "_load_predictions_rows_map", lambda _date: {("LAS", "TOR"): {}})
+    monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_props_recommendations_by_team", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_game_context", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_best_bets_props_prediction_lookup", lambda _date: {})
+    monkeypatch.setattr(app_module, "_best_bets_load_injury_snapshot", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_game_recommendations_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_prop_snapshot_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_cards_prop_recommendations_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_recon_props_lookup", lambda _date: ({}, {}))
+    monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
+    monkeypatch.setattr(
+        app_module,
+        "_build_fallback_smart_sim_object",
+        lambda *_args, **_kwargs: {
+            "home": "LA",
+            "away": "TOR",
+            "game_id": "TOR@LA",
+            "players": {"home": [], "away": []},
+            "score": {"home_mean": 91.0, "away_mean": 83.0, "total_mean": 174.0},
+            "market": {},
+            "periods": {},
+            "context": {},
+        },
+    )
+    monkeypatch.setattr(app_module, "_sim_vs_line_prop_recommendations", lambda *args, **kwargs: {"home": [], "away": []})
+    monkeypatch.setattr(app_module, "_build_cards_game_market_recommendations", lambda *args, **kwargs: [])
+    monkeypatch.setattr(
+        app_module,
+        "_schedule_matchups_metadata_for_date",
+        lambda _date: {
+            ("LAS", "TOR"): {
+                "home_name": "Los Angeles Sparks",
+                "away_name": "Toronto Tempo",
+                "commence_time": f"{date_str}T23:00:00Z",
+            }
+        },
+    )
+
+    app_module.app.testing = True
+    with app_module.app.test_client() as client:
+        resp = client.get(f"/api/cards?date={date_str}")
+
+    assert resp.status_code == 200
+    game = resp.get_json()["games"][0]
+    assert game["home_tri"] == "LAS"
+    assert game["home_name"] == "Los Angeles Sparks"
+    assert game["away_tri"] == "TOR"
+    assert game["away_name"] == "Toronto Tempo"
+    assert game["odds"]["commence_time"] == "2026-05-17T23:00:00Z"
+
+
 def test_duplicate_best_bets_aliases_redirect_to_betting_card():
     app_module.app.testing = True
     with app_module.app.test_client() as client:
