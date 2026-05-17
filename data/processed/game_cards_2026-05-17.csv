@@ -1,0 +1,5 @@
+date,game_id,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,bookmaker,home_tri,away_tri,prob_home_tip,early_threes_expected,early_threes_prob_ge_1
+2026-05-17,0401856915,Atlanta Dream,Las Vegas Aces,2026-05-17T17:44:34Z,1860.6648958746264,-1860.664895874623,9.5,-9.5,,,173.5,101.0064867850292,-101.0064867850292,3,oddsapi_consensus,ATL,LVA,0.5,0.0,0.0
+2026-05-17,0401856914,Minnesota Lynx,Chicago Sky,2026-05-17T23:00:00Z,-189.7064752186204,189.7064752186203,-5.0,5.0,,,167.5,100.9387118343934,-100.9387118343934,11,oddsapi_consensus,MIN,CHI,0.5,0.0,0.0
+2026-05-17,0401856917,Los Angeles Sparks,Toronto Tempo,2026-05-17T23:00:00Z,-278.21556397068343,278.2155639706834,-7.5,7.5,,,173.5,-101.01928233640858,101.01928233640854,11,oddsapi_consensus,LAS,TOR,0.5,0.0,0.0
+2026-05-17,0401856916,Indiana Fever,Seattle Storm,2026-05-17T22:00:00Z,-496.0524077779649,496.0524077779654,-11.5,11.5,,,176.0,100.88456466341898,-100.88456466341898,11,oddsapi_consensus,IND,SEA,0.5,0.0,0.0
