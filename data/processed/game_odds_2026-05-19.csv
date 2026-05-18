@@ -1,0 +1,2 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-05-19,2026-05-20T02:00:00Z,Phoenix Mercury,Toronto Tempo,-265.5771773456094,265.57717734560936,-7.5,7.5,,,170.5,100.48275023843605,-100.48275023843605,8,6,8,8,oddsapi_consensus
