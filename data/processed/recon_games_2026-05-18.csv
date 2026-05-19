@@ -1,0 +1,3 @@
+date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
+2026-05-18,Dallas Wings,Washington Mystics,DAL,WSH,92,69,7.413687890458288,163.3637237548828,23,161,-15.586312109541712,2.3637237548828125
+2026-05-18,Portland Fire,Connecticut Sun,POR,CON,83,82,2.414507417195675,143.32276916503906,1,165,1.4145074171956749,-21.677230834960938
