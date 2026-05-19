@@ -1,0 +1,4 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-05-20,2026-05-20T23:00:00Z,Indiana Fever,Portland Fire,-640.9910062269429,640.9910062269428,-13.5,13.5,,,180.5,-100.1922994416405,100.1922994416405,8,7,8,7,oddsapi_consensus
+2026-05-20,2026-05-21T01:00:00Z,Chicago Sky,Dallas Wings,112.41877129449709,-112.41877129449706,1.5,-1.5,,,170.5,-100.10680337498667,100.10680337498667,8,6,8,8,oddsapi_consensus
+2026-05-20,2026-05-21T02:00:00Z,Seattle Storm,Connecticut Sun,-150.59769032049826,150.5976903204982,-3.5,3.5,,,166.0,-100.0,-100.0,7,7,7,4,oddsapi_consensus
