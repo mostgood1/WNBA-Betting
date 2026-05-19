@@ -1,0 +1,403 @@
+{
+  "counts": {
+    "games": 1,
+    "markets": 1
+  },
+  "date": "2026-05-19",
+  "meta": {
+    "inputs": {
+      "props_recommendations": "props_recommendations_2026-05-19.csv",
+      "smart_sim_files": 1
+    },
+    "policy": {
+      "allowed_markets": [
+        "pa",
+        "ra"
+      ],
+      "combo_weights": null,
+      "dedupe_player": true,
+      "max_per_player": 1,
+      "max_plus_odds": 125,
+      "min_ev": null,
+      "min_prob": null,
+      "n_game": 3,
+      "n_market": 4,
+      "p_shrink": 1.0,
+      "rank": "sim_ev",
+      "sim_model": "smart_sim_normal_approx",
+      "version": "slate_prob_v2",
+      "view": "slate"
+    }
+  },
+  "per_game": [
+    {
+      "away": "TOR",
+      "game_id": "2026-05-19:TOR@PHX",
+      "game_key": "2026-05-19:TOR@PHX",
+      "home": "PHX",
+      "matchup": "TOR @ PHX",
+      "picks": [
+        {
+          "away": "TOR",
+          "basketball_priority_score": 90.0,
+          "basketball_reasons": [
+            "Recent form has stayed below this line with a last-five average of 11.2.",
+            "The last-10 sample is holding under this line at 11.0, which supports the lower-volume case.",
+            "Projected minutes sit in a softer band around 20.4.",
+            "The blowout branch trims his points + assists median to 11.0, which is the cleaner path for this under.",
+            "A healthy TOR rotation keeps touches spread out across the lineup."
+          ],
+          "basketball_summary": "Recent form has stayed below this line with a last-five average of 11.2. The last-10 sample is holding under this line at 11.0, which supports the lower-volume case.",
+          "book": "fanduel",
+          "display_pick": "Brittney Sykes Under 22.5 PA",
+          "ev": 0.8566270166422683,
+          "ev_pct": 85.66,
+          "game_id": null,
+          "game_key": "2026-05-19:TOR@PHX",
+          "home": "PHX",
+          "implied_prob": 0.5283,
+          "line": 22.5,
+          "market": "pa",
+          "market_reasons": [
+            "Projected value is +85.7% per unit risked.",
+            "The price stays workable at -112.",
+            "Model probability clears the market by 39.5 points."
+          ],
+          "matchup": "Toronto Tempo @ Phoenix Mercury",
+          "model_baseline": 15.306086,
+          "model_reasons": [
+            "The model baseline sits at 15.3 against a 22.5 line.",
+            "That leaves roughly +1.42 standard deviations of cushion.",
+            "Win probability grades at 92.3%.",
+            "Scenario split shows a 13.0 close-game median versus 11.0 in blowouts."
+          ],
+          "model_sd": 5.051079389595851,
+          "p_win": 0.9228,
+          "player": "Brittney Sykes",
+          "price": -112.0,
+          "prob_edge": 0.3945,
+          "reasons": [
+            "Recent form has stayed below this line with a last-five average of 11.2.",
+            "The last-10 sample is holding under this line at 11.0, which supports the lower-volume case.",
+            "Projected minutes sit in a softer band around 20.4.",
+            "The blowout branch trims his points + assists median to 11.0, which is the cleaner path for this under.",
+            "A healthy TOR rotation keeps touches spread out across the lineup.",
+            "The model baseline sits at 15.3 against a 22.5 line.",
+            "That leaves roughly +1.42 standard deviations of cushion.",
+            "Win probability grades at 92.3%.",
+            "Scenario split shows a 13.0 close-game median versus 11.0 in blowouts.",
+            "Projected value is +85.7% per unit risked.",
+            "The price stays workable at -112.",
+            "Model probability clears the market by 39.5 points."
+          ],
+          "recommendation_priority_score": 92.5,
+          "score": 0.8566270166422683,
+          "sd_rel": 0.22449241731537117,
+          "selection": "UNDER",
+          "side": "UNDER",
+          "sim_mean": 12.035,
+          "sim_reasons": [
+            "The model baseline sits at 15.3 against a 22.5 line.",
+            "That leaves roughly +1.42 standard deviations of cushion.",
+            "Win probability grades at 92.3%.",
+            "Scenario split shows a 13.0 close-game median versus 11.0 in blowouts."
+          ],
+          "sim_sd": 5.051079389595851,
+          "sim_support_score": 100.0,
+          "team": "TOR",
+          "top_play_reasons": [
+            "Recent form has stayed below this line with a last-five average of 11.2.",
+            "The last-10 sample is holding under this line at 11.0, which supports the lower-volume case.",
+            "Projected minutes sit in a softer band around 20.4.",
+            "The blowout branch trims his points + assists median to 11.0, which is the cleaner path for this under.",
+            "A healthy TOR rotation keeps touches spread out across the lineup.",
+            "The model baseline sits at 15.3 against a 22.5 line.",
+            "That leaves roughly +1.42 standard deviations of cushion.",
+            "Win probability grades at 92.3%.",
+            "Scenario split shows a 13.0 close-game median versus 11.0 in blowouts.",
+            "Projected value is +85.7% per unit risked.",
+            "The price stays workable at -112.",
+            "Model probability clears the market by 39.5 points."
+          ],
+          "value_reasons": [
+            "Projected value is +85.7% per unit risked.",
+            "The price stays workable at -112.",
+            "Model probability clears the market by 39.5 points."
+          ],
+          "value_support_score": 85.0,
+          "win_prob": 0.9808595559619531,
+          "win_prob_raw": 0.9808595559619531,
+          "z": 2.071834392774676
+        },
+        {
+          "away": "TOR",
+          "basketball_priority_score": 48.0,
+          "basketball_reasons": [
+            "Recent form has stayed below this line with a last-five average of 20.0.",
+            "The last game landed at 23.0, which stayed under this line.",
+            "A healthy PHX rotation keeps touches spread out across the lineup."
+          ],
+          "basketball_summary": "Recent form has stayed below this line with a last-five average of 20.0. The last game landed at 23.0, which stayed under this line.",
+          "book": "fanduel",
+          "display_pick": "Alyssa Thomas Under 24.5 PA",
+          "ev": 0.7684750747553846,
+          "ev_pct": 76.85,
+          "game_id": null,
+          "game_key": "2026-05-19:TOR@PHX",
+          "home": "PHX",
+          "implied_prob": 0.5,
+          "line": 24.5,
+          "market": "pa",
+          "market_reasons": [
+            "Projected value is +76.8% per unit risked.",
+            "The price stays workable at +100.",
+            "Model probability clears the market by 14.7 points."
+          ],
+          "matchup": "Toronto Tempo @ Phoenix Mercury",
+          "model_baseline": 22.3896306,
+          "model_reasons": [
+            "The model baseline sits at 22.4 against a 24.5 line.",
+            "That leaves roughly +0.38 standard deviations of cushion.",
+            "Win probability grades at 64.7%.",
+            "Scenario split shows a 16.0 close-game median versus 18.0 in blowouts."
+          ],
+          "model_sd": 5.5861559009751955,
+          "p_win": 0.6472,
+          "player": "Alyssa Thomas",
+          "price": 100.0,
+          "prob_edge": 0.1472,
+          "reasons": [
+            "Recent form has stayed below this line with a last-five average of 20.0.",
+            "The last game landed at 23.0, which stayed under this line.",
+            "A healthy PHX rotation keeps touches spread out across the lineup.",
+            "The model baseline sits at 22.4 against a 24.5 line.",
+            "That leaves roughly +0.38 standard deviations of cushion.",
+            "Win probability grades at 64.7%.",
+            "Scenario split shows a 16.0 close-game median versus 18.0 in blowouts.",
+            "Projected value is +76.8% per unit risked.",
+            "The price stays workable at +100.",
+            "Model probability clears the market by 14.7 points."
+          ],
+          "recommendation_priority_score": 73.6,
+          "score": 0.7684750747553846,
+          "sd_rel": 0.22800636330511,
+          "selection": "UNDER",
+          "side": "UNDER",
+          "sim_mean": 17.816499999999998,
+          "sim_reasons": [
+            "The model baseline sits at 22.4 against a 24.5 line.",
+            "That leaves roughly +0.38 standard deviations of cushion.",
+            "Win probability grades at 64.7%.",
+            "Scenario split shows a 16.0 close-game median versus 18.0 in blowouts."
+          ],
+          "sim_sd": 5.5861559009751955,
+          "sim_support_score": 100.0,
+          "team": "PHX",
+          "top_play_reasons": [
+            "Recent form has stayed below this line with a last-five average of 20.0.",
+            "The last game landed at 23.0, which stayed under this line.",
+            "A healthy PHX rotation keeps touches spread out across the lineup.",
+            "The model baseline sits at 22.4 against a 24.5 line.",
+            "That leaves roughly +0.38 standard deviations of cushion.",
+            "Win probability grades at 64.7%.",
+            "Scenario split shows a 16.0 close-game median versus 18.0 in blowouts.",
+            "Projected value is +76.8% per unit risked.",
+            "The price stays workable at +100.",
+            "Model probability clears the market by 14.7 points."
+          ],
+          "value_reasons": [
+            "Projected value is +76.8% per unit risked.",
+            "The price stays workable at +100.",
+            "Model probability clears the market by 14.7 points."
+          ],
+          "value_support_score": 85.0,
+          "win_prob": 0.8842375373776923,
+          "win_prob_raw": 0.8842375373776923,
+          "z": 1.196439934451747
+        }
+      ]
+    }
+  ],
+  "per_market": {
+    "pa": [
+      {
+        "away": "TOR",
+        "basketball_priority_score": 90.0,
+        "basketball_reasons": [
+          "Recent form has stayed below this line with a last-five average of 11.2.",
+          "The last-10 sample is holding under this line at 11.0, which supports the lower-volume case.",
+          "Projected minutes sit in a softer band around 20.4.",
+          "The blowout branch trims his points + assists median to 11.0, which is the cleaner path for this under.",
+          "A healthy TOR rotation keeps touches spread out across the lineup."
+        ],
+        "basketball_summary": "Recent form has stayed below this line with a last-five average of 11.2. The last-10 sample is holding under this line at 11.0, which supports the lower-volume case.",
+        "book": "fanduel",
+        "display_pick": "Brittney Sykes Under 22.5 PA",
+        "ev": 0.8566270166422683,
+        "ev_pct": 85.66,
+        "game_id": null,
+        "game_key": "2026-05-19:TOR@PHX",
+        "home": "PHX",
+        "implied_prob": 0.5283,
+        "line": 22.5,
+        "market": "pa",
+        "market_reasons": [
+          "Projected value is +85.7% per unit risked.",
+          "The price stays workable at -112.",
+          "Model probability clears the market by 39.5 points."
+        ],
+        "matchup": "Toronto Tempo @ Phoenix Mercury",
+        "model_baseline": 15.306086,
+        "model_reasons": [
+          "The model baseline sits at 15.3 against a 22.5 line.",
+          "That leaves roughly +1.42 standard deviations of cushion.",
+          "Win probability grades at 92.3%.",
+          "Scenario split shows a 13.0 close-game median versus 11.0 in blowouts."
+        ],
+        "model_sd": 5.051079389595851,
+        "p_win": 0.9228,
+        "player": "Brittney Sykes",
+        "price": -112.0,
+        "prob_edge": 0.3945,
+        "reasons": [
+          "Recent form has stayed below this line with a last-five average of 11.2.",
+          "The last-10 sample is holding under this line at 11.0, which supports the lower-volume case.",
+          "Projected minutes sit in a softer band around 20.4.",
+          "The blowout branch trims his points + assists median to 11.0, which is the cleaner path for this under.",
+          "A healthy TOR rotation keeps touches spread out across the lineup.",
+          "The model baseline sits at 15.3 against a 22.5 line.",
+          "That leaves roughly +1.42 standard deviations of cushion.",
+          "Win probability grades at 92.3%.",
+          "Scenario split shows a 13.0 close-game median versus 11.0 in blowouts.",
+          "Projected value is +85.7% per unit risked.",
+          "The price stays workable at -112.",
+          "Model probability clears the market by 39.5 points."
+        ],
+        "recommendation_priority_score": 92.5,
+        "score": 0.8566270166422683,
+        "sd_rel": 0.22449241731537117,
+        "selection": "UNDER",
+        "side": "UNDER",
+        "sim_mean": 12.035,
+        "sim_reasons": [
+          "The model baseline sits at 15.3 against a 22.5 line.",
+          "That leaves roughly +1.42 standard deviations of cushion.",
+          "Win probability grades at 92.3%.",
+          "Scenario split shows a 13.0 close-game median versus 11.0 in blowouts."
+        ],
+        "sim_sd": 5.051079389595851,
+        "sim_support_score": 100.0,
+        "team": "TOR",
+        "top_play_reasons": [
+          "Recent form has stayed below this line with a last-five average of 11.2.",
+          "The last-10 sample is holding under this line at 11.0, which supports the lower-volume case.",
+          "Projected minutes sit in a softer band around 20.4.",
+          "The blowout branch trims his points + assists median to 11.0, which is the cleaner path for this under.",
+          "A healthy TOR rotation keeps touches spread out across the lineup.",
+          "The model baseline sits at 15.3 against a 22.5 line.",
+          "That leaves roughly +1.42 standard deviations of cushion.",
+          "Win probability grades at 92.3%.",
+          "Scenario split shows a 13.0 close-game median versus 11.0 in blowouts.",
+          "Projected value is +85.7% per unit risked.",
+          "The price stays workable at -112.",
+          "Model probability clears the market by 39.5 points."
+        ],
+        "value_reasons": [
+          "Projected value is +85.7% per unit risked.",
+          "The price stays workable at -112.",
+          "Model probability clears the market by 39.5 points."
+        ],
+        "value_support_score": 85.0,
+        "win_prob": 0.9808595559619531,
+        "win_prob_raw": 0.9808595559619531,
+        "z": 2.071834392774676
+      },
+      {
+        "away": "TOR",
+        "basketball_priority_score": 48.0,
+        "basketball_reasons": [
+          "Recent form has stayed below this line with a last-five average of 20.0.",
+          "The last game landed at 23.0, which stayed under this line.",
+          "A healthy PHX rotation keeps touches spread out across the lineup."
+        ],
+        "basketball_summary": "Recent form has stayed below this line with a last-five average of 20.0. The last game landed at 23.0, which stayed under this line.",
+        "book": "fanduel",
+        "display_pick": "Alyssa Thomas Under 24.5 PA",
+        "ev": 0.7684750747553846,
+        "ev_pct": 76.85,
+        "game_id": null,
+        "game_key": "2026-05-19:TOR@PHX",
+        "home": "PHX",
+        "implied_prob": 0.5,
+        "line": 24.5,
+        "market": "pa",
+        "market_reasons": [
+          "Projected value is +76.8% per unit risked.",
+          "The price stays workable at +100.",
+          "Model probability clears the market by 14.7 points."
+        ],
+        "matchup": "Toronto Tempo @ Phoenix Mercury",
+        "model_baseline": 22.3896306,
+        "model_reasons": [
+          "The model baseline sits at 22.4 against a 24.5 line.",
+          "That leaves roughly +0.38 standard deviations of cushion.",
+          "Win probability grades at 64.7%.",
+          "Scenario split shows a 16.0 close-game median versus 18.0 in blowouts."
+        ],
+        "model_sd": 5.5861559009751955,
+        "p_win": 0.6472,
+        "player": "Alyssa Thomas",
+        "price": 100.0,
+        "prob_edge": 0.1472,
+        "reasons": [
+          "Recent form has stayed below this line with a last-five average of 20.0.",
+          "The last game landed at 23.0, which stayed under this line.",
+          "A healthy PHX rotation keeps touches spread out across the lineup.",
+          "The model baseline sits at 22.4 against a 24.5 line.",
+          "That leaves roughly +0.38 standard deviations of cushion.",
+          "Win probability grades at 64.7%.",
+          "Scenario split shows a 16.0 close-game median versus 18.0 in blowouts.",
+          "Projected value is +76.8% per unit risked.",
+          "The price stays workable at +100.",
+          "Model probability clears the market by 14.7 points."
+        ],
+        "recommendation_priority_score": 73.6,
+        "score": 0.7684750747553846,
+        "sd_rel": 0.22800636330511,
+        "selection": "UNDER",
+        "side": "UNDER",
+        "sim_mean": 17.816499999999998,
+        "sim_reasons": [
+          "The model baseline sits at 22.4 against a 24.5 line.",
+          "That leaves roughly +0.38 standard deviations of cushion.",
+          "Win probability grades at 64.7%.",
+          "Scenario split shows a 16.0 close-game median versus 18.0 in blowouts."
+        ],
+        "sim_sd": 5.5861559009751955,
+        "sim_support_score": 100.0,
+        "team": "PHX",
+        "top_play_reasons": [
+          "Recent form has stayed below this line with a last-five average of 20.0.",
+          "The last game landed at 23.0, which stayed under this line.",
+          "A healthy PHX rotation keeps touches spread out across the lineup.",
+          "The model baseline sits at 22.4 against a 24.5 line.",
+          "That leaves roughly +0.38 standard deviations of cushion.",
+          "Win probability grades at 64.7%.",
+          "Scenario split shows a 16.0 close-game median versus 18.0 in blowouts.",
+          "Projected value is +76.8% per unit risked.",
+          "The price stays workable at +100.",
+          "Model probability clears the market by 14.7 points."
+        ],
+        "value_reasons": [
+          "Projected value is +76.8% per unit risked.",
+          "The price stays workable at +100.",
+          "Model probability clears the market by 14.7 points."
+        ],
+        "value_support_score": 85.0,
+        "win_prob": 0.8842375373776923,
+        "win_prob_raw": 0.8842375373776923,
+        "z": 1.196439934451747
+      }
+    ]
+  }
+}

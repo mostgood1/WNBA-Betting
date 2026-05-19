@@ -1,23 +1,27 @@
-date,team_tri,player_id,player_name,starter_prob,is_starter,exp_min_mean,exp_min_sd,exp_min_cap,exp_asof_ts,exp_min_source,lag1_min,roll3_min,roll5_min,roll10_min
-2026-05-19,PHX,2529140,Alyssa Thomas,0.92,True,29.965508008756874,8.0,39.16550800875687,2026-05-18T14:36:56Z,props_features+league_status,33.0,29.0,31.2,34.7
-2026-05-19,PHX,3906769,Jovana Nogic,0.86,True,29.294567905123394,3.0,32.7445679051234,2026-05-18T14:36:56Z,props_features+league_status,31.0,31.0,31.0,31.0
-2026-05-19,PHX,2998938,Kahleah Copper,0.8,True,29.00792213314854,8.0,38.20792213314854,2026-05-18T14:36:56Z,props_features+league_status,34.0,27.666666666666668,30.0,32.4
-2026-05-19,PHX,869,DeWanna Bonner,0.74,True,26.29581213677098,8.0,35.49581213677098,2026-05-18T14:36:56Z,props_features+league_status,33.0,26.666666666666668,26.8,25.9
-2026-05-19,PHX,5274110,Monique Akoa Makani,0.68,True,24.768084670751104,3.06224657434771,28.28966823125097,2026-05-18T14:36:56Z,props_features+league_status,29.0,27.0,25.6,23.5
-2026-05-19,PHX,4068042,Natasha Mack,0.2,False,13.260044414344888,8.0,23.26004441434489,2026-05-18T14:36:56Z,props_features+league_status,30.0,15.0,14.2,14.1
-2026-05-19,PHX,4281930,Anneli Maley,0.2,False,10.886239427968437,8.0,20.886239427968437,2026-05-18T14:36:56Z,props_features+league_status,0.0,18.0,18.0,18.0
-2026-05-19,PHX,4704594,Marta Suarez,0.2,False,10.583843888302647,4.5,16.208843888302646,2026-05-18T14:36:56Z,props_features+league_status,14.0,14.0,14.0,14.0
-2026-05-19,PHX,3919496,Valeriane Ayayi,0.08,False,9.071866189973697,4.5,14.696866189973697,2026-05-18T14:36:56Z,props_features+league_status,12.0,12.0,12.0,12.0
-2026-05-19,PHX,887,Sami Whitcomb,0.08,False,8.550233884050211,8.0,18.55023388405021,2026-05-18T14:36:56Z,props_features+league_status,0.0,10.0,13.8,19.9
-2026-05-19,PHX,5345524,Noemie Brochant,0.08,False,8.315877340809223,4.5,13.940877340809223,2026-05-18T14:36:56Z,props_features+league_status,11.0,11.0,11.0,11.0
-2026-05-19,TOR,5345444,Laura Juskaite,0.92,True,26.928883267371173,4.58257569495584,32.198845316570385,2026-05-18T14:36:56Z,props_features+league_status,25.0,24.0,24.0,24.0
-2026-05-19,TOR,3904576,Marina Mabrey,0.86,True,26.12769335197831,8.0,35.32769335197831,2026-05-18T14:36:56Z,props_features+league_status,21.0,19.0,25.4,28.2
-2026-05-19,TOR,2988756,Brittney Sykes,0.8,True,25.697424693711774,8.0,34.89742469371177,2026-05-18T14:36:56Z,props_features+league_status,35.0,17.333333333333332,20.4,23.1
-2026-05-19,TOR,2569044,Temi Fagbenle,0.74,True,23.40884053724235,8.0,32.60884053724235,2026-05-18T14:36:56Z,props_features+league_status,15.0,18.666666666666668,24.2,24.5
-2026-05-19,TOR,4565505,Kiki Rice,0.68,True,22.774565187556338,3.0550504633038935,26.287873220355813,2026-05-18T14:36:56Z,props_features+league_status,21.0,20.333333333333332,20.333333333333332,20.333333333333332
-2026-05-19,TOR,4001679,Julie Allemand,0.2,False,18.136565788448774,8.0,28.136565788448774,2026-05-18T14:36:56Z,props_features+league_status,21.0,14.333333333333334,21.4,25.5
-2026-05-19,TOR,3142327,Kia Nurse,0.2,False,14.243376273650869,8.0,24.243376273650867,2026-05-18T14:36:56Z,props_features+league_status,9.0,14.0,19.6,19.2
-2026-05-19,TOR,4434020,Teonni Key,0.2,False,13.234470454267262,6.6583281184793925,21.5573806023665,2026-05-18T14:36:56Z,props_features+league_status,9.0,16.333333333333332,16.333333333333332,16.333333333333332
-2026-05-19,TOR,4398768,Nyara Sabally,0.08,False,11.640992733652576,8.0,21.640992733652574,2026-05-18T14:36:56Z,props_features+league_status,28.0,12.666666666666666,9.0,5.8
-2026-05-19,TOR,4399342,Lexi Held,0.08,False,9.498551552490923,8.0,19.498551552490923,2026-05-18T14:36:56Z,props_features+league_status,6.0,17.0,11.6,5.8
-2026-05-19,TOR,3910470,Maria Conde,0.08,False,8.308636159629675,8.0,18.308636159629675,2026-05-18T14:36:56Z,props_features+league_status,20.0,6.666666666666667,6.666666666666667,6.666666666666667
+date,team_tri,player_id,player_name,_baseline_source,exp_min_mean,exp_min_source,exp_asof_ts
+,PHX,2529140,Alyssa Thomas,blend_lag1_roll3_roll5_roll10,31.71,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,3906769,Jovana Nogic,blend_lag1_roll3_roll5_roll10,31.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,2998938,Kahleah Copper,blend_lag1_roll3_roll5_roll10,30.69666666666667,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,869,DeWanna Bonner,blend_lag1_roll3_roll5_roll10,27.826666666666668,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,5274110,Monique Akoa Makani,blend_lag1_roll3_roll5_roll10,26.21,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,4068042,Natasha Mack,blend_lag1_roll3_roll5_roll10,17.54,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,3919496,Valeriane Ayayi,blend_lag1_roll3_roll5_roll10,12.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,887,Sami Whitcomb,blend_lag1_roll3_roll5_roll10,11.31,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,5345524,Noemie Brochant,blend_lag1_roll3_roll5_roll10,11.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,4688629,Shay Ciezki,blend_lag1_roll3_roll5_roll10,8.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,5107404,Sha Carter,blend_lag1_roll3_roll5_roll10,7.6,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,4282168,Kiana Williams,blend_lag1_roll3_roll5_roll10,7.333333333333334,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,PHX,4873359,Kyara Linskens,blend_lag1_roll3_roll5_roll10,3.8600000000000003,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,5345444,Laura Juskaite,blend_lag1_roll3_roll5_roll10,24.2,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,3904576,Marina Mabrey,blend_lag1_roll3_roll5_roll10,23.48,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,2988756,Brittney Sykes,blend_lag1_roll3_roll5_roll10,23.09333333333333,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,2569044,Temi Fagbenle,blend_lag1_roll3_roll5_roll10,21.036666666666665,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,4565505,Kiki Rice,blend_lag1_roll3_roll5_roll10,20.46666666666666,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,4001679,Julie Allemand,blend_lag1_roll3_roll5_roll10,20.37333333333333,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,3142327,Kia Nurse,blend_lag1_roll3_roll5_roll10,16.0,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,4434020,Teonni Key,blend_lag1_roll3_roll5_roll10,14.866666666666667,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,4398768,Nyara Sabally,blend_lag1_roll3_roll5_roll10,13.076666666666668,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,4399342,Lexi Held,blend_lag1_roll3_roll5_roll10,10.669999999999998,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,3910470,Maria Conde,blend_lag1_roll3_roll5_roll10,9.333333333333334,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,2566453,Isabelle Harrison,blend_lag1_roll3_roll5_roll10,3.283333333333333,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
+,TOR,4874475,Nikolina Milic,blend_lag1_roll3_roll5_roll10,2.3333333333333335,baseline:blend_lag1_roll3_roll5_roll10,2026-05-19T16:00:00Z
