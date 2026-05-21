@@ -1,4 +1,4 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-05-21,2026-05-22T02:00:00Z,Phoenix Mercury,Los Angeles Sparks,-118.81064518731324,118.81064518731324,-2.5,2.5,,,175.5,-102.19058050383353,102.19058050383349,7,5,7,6,oddsapi_consensus
-2026-05-21,2026-05-22T00:00:00Z,New York Liberty,Golden State Valkyries,-270.39274615595673,270.39274615595673,-6.5,6.5,,,168.5,-100.0,-100.0,5,5,5,2,oddsapi_consensus
-2026-05-21,2026-05-22T00:00:00Z,Minnesota Lynx,Toronto Tempo,-239.63541926643106,239.63541926643106,-6.5,6.5,,,171.5,-100.7403617899025,100.74036178990252,6,5,6,3,oddsapi_consensus
+2026-05-21,2026-05-22T02:00:00Z,Phoenix Mercury,Los Angeles Sparks,-140.8079869523241,140.8079869523241,-3.5,3.5,,,177.0,-100.14242985329726,100.14242985329726,11,11,7,6,oddsapi_consensus
+2026-05-21,2026-05-22T00:00:00Z,New York Liberty,Golden State Valkyries,-265.8885325610264,265.88853256102647,-7.5,7.5,,,170.5,100.43457436816067,-100.43457436816065,11,11,11,6,oddsapi_consensus
+2026-05-21,2026-05-22T00:00:00Z,Minnesota Lynx,Toronto Tempo,-223.9980299460005,223.99802994600066,-6.5,6.5,,,173.0,101.4758476992232,-101.47584769922315,11,11,10,6,oddsapi_consensus

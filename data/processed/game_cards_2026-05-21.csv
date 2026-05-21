@@ -1,0 +1,4 @@
+date,game_id,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,bookmaker,home_tri,away_tri,prob_home_tip,early_threes_expected,early_threes_prob_ge_1
+2026-05-21,0401856926,Phoenix Mercury,Los Angeles Sparks,2026-05-22T02:00:00Z,-140.8079869523241,140.8079869523241,-3.5,3.5,,,177.0,-100.14242985329726,100.14242985329726,11,oddsapi_consensus,PHX,LAS,0.5,0.0,0.0
+2026-05-21,0401856924,New York Liberty,Golden State Valkyries,2026-05-22T00:00:00Z,-265.8885325610264,265.88853256102647,-7.5,7.5,,,170.5,100.43457436816068,-100.43457436816064,11,oddsapi_consensus,NYL,GSV,0.5,0.0,0.0
+2026-05-21,0401856925,Minnesota Lynx,Toronto Tempo,2026-05-22T00:00:00Z,-223.9980299460005,223.99802994600063,-6.5,6.5,,,173.0,101.4758476992232,-101.47584769922317,11,oddsapi_consensus,MIN,TOR,0.5,0.0,0.0
