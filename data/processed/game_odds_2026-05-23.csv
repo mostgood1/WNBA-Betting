@@ -1,0 +1,4 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-05-23,2026-05-23T17:00:00Z,Chicago Sky,Minnesota Lynx,127.7445115964719,-127.74451159647188,2.5,-2.5,,,166.0,-104.47246561228091,104.47246561228091,5,3,5,3,oddsapi_consensus
+2026-05-23,2026-05-23T22:00:00Z,Toronto Tempo,Portland Fire,-179.4864000991464,179.48640009914632,-5.0,5.0,,,176.0,-100.0,-100.0,3,3,3,3,oddsapi_consensus
+2026-05-23,2026-05-24T00:00:00Z,Las Vegas Aces,Los Angeles Sparks,-319.99999999999994,320.0,-9.5,9.5,,,182.5,-100.0,-100.0,1,1,1,1,oddsapi_consensus
