@@ -1,0 +1,4 @@
+date,game_id,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,bookmaker,home_tri,away_tri,prob_home_tip,early_threes_expected,early_threes_prob_ge_1
+2026-05-22,0401856928,Indiana Fever,Golden State Valkyries,2026-05-22T23:30:00Z,-204.208558627274,204.20855862727404,-6.0,6.0,,,168.0,101.77363485398637,-101.7736348539863,11,oddsapi_consensus,IND,GSV,0.5,0.0,0.0
+2026-05-22,0401856929,Seattle Storm,Connecticut Sun,2026-05-23T02:00:00Z,-111.91768248499224,111.9176824849922,-1.5,1.5,,,165.5,-101.00811507081508,101.00811507081508,11,oddsapi_consensus,SEA,CON,0.5,0.0,0.0
+2026-05-22,0401856927,Atlanta Dream,Dallas Wings,2026-05-22T23:30:00Z,-195.0347376582205,195.0347376582206,-5.5,5.5,,,172.5,-101.63844893500816,101.6384489350082,11,oddsapi_consensus,ATL,DAL,0.5,0.0,0.0
