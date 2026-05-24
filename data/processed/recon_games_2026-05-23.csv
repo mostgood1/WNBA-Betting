@@ -1,0 +1,4 @@
+date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
+2026-05-23,Chicago Sky,Minnesota Lynx,CHI,MIN,75.0,85.0,-5.356643485154231,162.93380737304688,-10.0,160.0,4.643356514845769,2.933807373046875
+2026-05-23,Las Vegas Aces,Los Angeles Sparks,LVA,LAS,,,14.488063577637863,166.19700622558594,,0.0,,166.19700622558594
+2026-05-23,Toronto Tempo,Portland Fire,TOR,POR,80.0,99.0,2.8842799481350285,118.2025146484375,-19.0,179.0,21.884279948135028,-60.7974853515625
