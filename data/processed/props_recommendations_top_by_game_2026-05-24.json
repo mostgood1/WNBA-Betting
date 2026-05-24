@@ -1,0 +1,14 @@
+{
+  "data": [],
+  "date": "2026-05-24",
+  "games": [],
+  "portfolio": [],
+  "portfolio_only": false,
+  "reason": "props_edges missing/empty and props_predictions missing/empty",
+  "regular_only": true,
+  "requested_path": "/workspaces/WNBA-Betting/data/processed/props_edges_2026-05-24.csv",
+  "requested_predictions_path": "/workspaces/WNBA-Betting/data/processed/props_predictions_2026-05-24.csv",
+  "rows": 0,
+  "snapshot_used": false,
+  "source": "props_predictions_fallback"
+}

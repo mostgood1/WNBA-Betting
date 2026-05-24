@@ -1,0 +1,677 @@
+{
+  "date": "2026-05-24",
+  "games": [
+    {
+      "home_tri": "ATL",
+      "away_tri": "PHX",
+      "sim": {
+        "players_summary": {
+          "away": 0,
+          "home": 0,
+          "injured_away": 14,
+          "injured_home": 12,
+          "missing_away": 0,
+          "missing_home": 0
+        },
+        "players": {
+          "home": [],
+          "away": []
+        },
+        "missing_prop_players": {
+          "home": [],
+          "away": []
+        },
+        "injuries": {
+          "home": [
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Aaliyah Nye",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Allisha Gray",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Angel Reese",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Brionna Jones",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Indya Nivar",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Isobel Borlase",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Jordin Canada",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Madina Okot",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Naz Hillmon",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Rhyne Howard",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Sika Kone",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Te-Hina Paopao",
+              "playing_today": false
+            }
+          ],
+          "away": [
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Alyssa Thomas",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "DeWanna Bonner",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Jovana Nogic",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Kahleah Copper",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Kiana Williams",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Kyara Linskens",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Marta Suarez",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Monique Akoa Makani",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Natasha Mack",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Noemie Brochant",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Sami Whitcomb",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Sha Carter",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Shay Ciezki",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Valeriane Ayayi",
+              "playing_today": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "home_tri": "NYL",
+      "away_tri": "DAL",
+      "sim": {
+        "players_summary": {
+          "away": 0,
+          "home": 0,
+          "injured_away": 14,
+          "injured_home": 15,
+          "missing_away": 0,
+          "missing_home": 0
+        },
+        "players": {
+          "home": [],
+          "away": []
+        },
+        "missing_prop_players": {
+          "home": [],
+          "away": []
+        },
+        "injuries": {
+          "home": [
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Anneli Maley",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Aubrey Griffin",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Betnijah Laney-Hamilton",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Breanna Stewart",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Han Xu",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Jonquel Jones",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Leonie Fiebich",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Marine Fauthoux",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Marine Johannes",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Pauline Astier",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Raquel Carrera",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Rebecca Allen",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Rebekah Gardner",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Sabrina Ionescu",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Satou Sabally",
+              "playing_today": false
+            }
+          ],
+          "away": [
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Alanna Smith",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Alysha Clark",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Arike Ogunbowale",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Awak Kuier",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Aziaha James",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Azzi Fudd",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Costanza Verona",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Dulcy Fankam Mendjiadeu",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Jessica Shepard",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "JJ Quinerly",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Li Yueru",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Maddy Siegrist",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Odyssey Sims",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Paige Bueckers",
+              "playing_today": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "home_tri": "SEA",
+      "away_tri": "WSH",
+      "sim": {
+        "players_summary": {
+          "away": 0,
+          "home": 0,
+          "injured_away": 14,
+          "injured_home": 15,
+          "missing_away": 0,
+          "missing_home": 0
+        },
+        "players": {
+          "home": [],
+          "away": []
+        },
+        "missing_prop_players": {
+          "home": [],
+          "away": []
+        },
+        "injuries": {
+          "home": [
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Awa Fam",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Dominique Malonga",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Ezi Magbegor",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Flau'jae Johnson",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Jade Melbourne",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Jordan Horston",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Joyner Holmes",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Katie Lou Samuelson",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Lexie Brown",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Mackenzie Holmes",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Natisha Hiedeman",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Stefanie Dolson",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Taina Mair",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Taylor Thierry",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Zia Cooke",
+              "playing_today": false
+            }
+          ],
+          "away": [
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Alex Wilson",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Alicia Florez Getino",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Angela Dugalic",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Cassandre Prosper",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Cotie McMahon",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Darianna Littlepage-Buggs",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Georgia Amoore",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Kiki Iriafen",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Lauren Betts",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Lucy Olsen",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Michaela Onyenwere",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Rori Harmon",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Shakira Austin",
+              "playing_today": false
+            },
+            {
+              "injury": null,
+              "injury_date": null,
+              "injury_status": "OUT",
+              "player_name": "Sonia Citron",
+              "playing_today": false
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

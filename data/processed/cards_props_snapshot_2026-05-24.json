@@ -1,0 +1,29 @@
+{
+  "date": "2026-05-24",
+  "games": [
+    {
+      "home_tri": "ATL",
+      "away_tri": "PHX",
+      "prop_recommendations": {
+        "home": [],
+        "away": []
+      }
+    },
+    {
+      "home_tri": "NYL",
+      "away_tri": "DAL",
+      "prop_recommendations": {
+        "home": [],
+        "away": []
+      }
+    },
+    {
+      "home_tri": "SEA",
+      "away_tri": "WSH",
+      "prop_recommendations": {
+        "home": [],
+        "away": []
+      }
+    }
+  ]
+}

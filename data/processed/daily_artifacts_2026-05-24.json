@@ -1,0 +1,46 @@
+{
+  "date": "2026-05-24",
+  "yesterday": "2026-05-23",
+  "predictions_ok": false,
+  "props_predictions_ok": true,
+  "game_odds_ok": true,
+  "props_snapshot_ok": false,
+  "props_snapshot_rows": 0,
+  "props_edges_ok": false,
+  "props_edges_rows": 0,
+  "props_recommendations_ok": false,
+  "props_recommendations_rows": 0,
+  "props_recommendations_play_rows": 0,
+  "cards_sim_detail_ok": true,
+  "cards_sim_detail_games": 3,
+  "props_expected_teams": [
+    "OKLAHOMA CITY THUNDER",
+    "SAN ANTONIO SPURS"
+  ],
+  "props_present_teams": [],
+  "props_missing_teams": [
+    "OKLAHOMA CITY THUNDER",
+    "SAN ANTONIO SPURS"
+  ],
+  "slate_games": null,
+  "no_slate_day": true,
+  "smart_sim_count": 0,
+  "rotations_dir_exists": true,
+  "rotations_expected_games_yesterday": 3,
+  "rotations_have_games_yesterday": 3,
+  "rotations_min_coverage": 0.7,
+  "rotations_coverage_yesterday": 1.0,
+  "rotations_missing_game_ids_yesterday": [],
+  "rotations_excused_no_event_game_ids_yesterday": [],
+  "rotations_error": null,
+  "require_odds": false,
+  "require_smartsim": true,
+  "require_props_lines": true,
+  "require_rotations_espn": false,
+  "warnings": [
+    "no-slate day: predictions not required: predictions_2026-05-24.csv",
+    "no-slate day: props predictions not required: props_predictions_2026-05-24.csv"
+  ],
+  "missing": [],
+  "ok": true
+}
