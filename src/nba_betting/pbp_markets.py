@@ -1404,7 +1404,10 @@ def predict_first_basket_for_date(date_str: str) -> pd.DataFrame:
                     "tip_prob_home": float(tip_probs.get(str(gid).zfill(10), np.nan)) if (fb_tip_alpha and fb_tip_alpha > 0) else np.nan,
                     "team_weight": float(team_weights.get(str(t), np.nan)) if (fb_tip_alpha and fb_tip_alpha > 0) else np.nan,
                 })
-    out = pd.DataFrame(rows)
+    out = pd.DataFrame(
+        rows,
+        columns=["game_id", "team", "player_id", "player_name", "prob_first_basket"],
+    )
     out_path = paths.data_processed / f"first_basket_probs_{date_str}.csv"
     out.to_csv(out_path, index=False)
     # Write audit if any

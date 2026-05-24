@@ -11955,11 +11955,31 @@ def first_basket_recs_cmd(date_str: str, topk: int, min_prob: float, cum_target:
         console.print(f"Missing probabilities: {probs_path}", style="red"); return
     try:
         df = pd.read_csv(probs_path)
+    except pd.errors.EmptyDataError:
+        df = pd.DataFrame(columns=["game_id", "team", "player_id", "player_name", "prob_first_basket"])
     except Exception as e:
         console.print(f"Failed to read probabilities: {e}", style="red"); return
     required = {"game_id","team","player_id","player_name","prob_first_basket"}
     if not required.issubset(set(df.columns)):
         console.print(f"Missing required columns in {probs_path.name}: {required - set(df.columns)}", style="red"); return
+    if df.empty:
+        out_path = paths.data_processed / f"first_basket_recs_{date_str}.csv"
+        pd.DataFrame(
+            columns=[
+                "date",
+                "game_id",
+                "team",
+                "player_id",
+                "player_name",
+                "prob_first_basket",
+                "fair_decimal",
+                "fair_american",
+                "rank",
+                "cum_prob",
+            ]
+        ).to_csv(out_path, index=False)
+        console.print({"date": date_str, "games": 0, "rows": 0, "output": str(out_path)})
+        return
     # Normalize gid
     df = df.copy()
     # Normalize game_id robustly: coerce to integer (drops any stray decimals), then zero-pad to 10
