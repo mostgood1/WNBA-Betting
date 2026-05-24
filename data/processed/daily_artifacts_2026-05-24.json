@@ -1,30 +1,38 @@
 {
   "date": "2026-05-24",
   "yesterday": "2026-05-23",
-  "predictions_ok": false,
+  "predictions_ok": true,
   "props_predictions_ok": true,
   "game_odds_ok": true,
   "props_snapshot_ok": false,
   "props_snapshot_rows": 0,
-  "props_edges_ok": false,
-  "props_edges_rows": 0,
-  "props_recommendations_ok": false,
-  "props_recommendations_rows": 0,
-  "props_recommendations_play_rows": 0,
+  "props_edges_ok": true,
+  "props_edges_rows": 254,
+  "props_recommendations_ok": true,
+  "props_recommendations_rows": 25,
+  "props_recommendations_play_rows": 21,
   "cards_sim_detail_ok": true,
   "cards_sim_detail_games": 3,
   "props_expected_teams": [
-    "OKLAHOMA CITY THUNDER",
-    "SAN ANTONIO SPURS"
+    "ATL",
+    "DAL",
+    "NYL",
+    "PHX",
+    "SEA",
+    "WSH"
   ],
-  "props_present_teams": [],
-  "props_missing_teams": [
-    "OKLAHOMA CITY THUNDER",
-    "SAN ANTONIO SPURS"
+  "props_present_teams": [
+    "ATL",
+    "DAL",
+    "NYL",
+    "PHX",
+    "SEA",
+    "WSH"
   ],
-  "slate_games": null,
-  "no_slate_day": true,
-  "smart_sim_count": 0,
+  "props_missing_teams": [],
+  "slate_games": 3,
+  "no_slate_day": false,
+  "smart_sim_count": 3,
   "rotations_dir_exists": true,
   "rotations_expected_games_yesterday": 3,
   "rotations_have_games_yesterday": 3,
@@ -33,13 +41,14 @@
   "rotations_missing_game_ids_yesterday": [],
   "rotations_excused_no_event_game_ids_yesterday": [],
   "rotations_error": null,
-  "require_odds": false,
+  "require_odds": true,
   "require_smartsim": true,
-  "require_props_lines": true,
-  "require_rotations_espn": false,
+  "require_props_lines": false,
+  "require_rotations_espn": true,
   "warnings": [
-    "no-slate day: predictions not required: predictions_2026-05-24.csv",
-    "no-slate day: props predictions not required: props_predictions_2026-05-24.csv"
+    "minutes_sanity: team NYL has <5 players at 20+ min (found 4) using roll10_min",
+    "minutes_sanity: team SEA top10 minutes sum low (146.2) using roll10_min",
+    "minutes_sanity: team SEA has <5 players at 20+ min (found 3) using roll10_min"
   ],
   "missing": [],
   "ok": true

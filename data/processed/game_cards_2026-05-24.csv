@@ -1,2 +1,4 @@
-date,game_id,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,bookmaker,home_tri,away_tri
-2026-05-24,,San Antonio Spurs,Oklahoma City Thunder,2026-05-25T00:10:00+00:00,-125,105,1.5,-1.5,-145,110,219.0,-110,-110,bovada,SAN ANTONIO SPURS,OKLAHOMA CITY THUNDER
+date,game_id,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,bookmaker,home_tri,away_tri,prob_home_tip,early_threes_expected,early_threes_prob_ge_1
+2026-05-24,0401856934,New York Liberty,Dallas Wings,2026-05-24T19:37:00Z,-213.2655194575227,213.26551945752271,-6.0,6.0,,,179.5,100.48048470838552,-100.48048470838552,11,oddsapi_consensus,NYL,DAL,0.5,0.0,0.0
+2026-05-24,0401856935,Seattle Storm,Washington Mystics,2026-05-24T22:00:00Z,170.36594288418337,-170.36594288418345,4.5,-4.5,,,158.5,100.24772096710264,-100.24772096710264,11,oddsapi_consensus,SEA,WSH,0.5,0.0,0.0
+2026-05-24,0401856933,Atlanta Dream,Phoenix Mercury,2026-05-24T19:02:00Z,121.5295876043325,-121.5295876043325,1.5,-1.5,,,161.5,-101.73151757597871,101.73151757597871,8,oddsapi_consensus,ATL,PHX,0.5,0.0,0.0
