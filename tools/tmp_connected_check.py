@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pandas as pd
 
@@ -26,8 +26,8 @@ def main() -> None:
     sub = props[((team_u == away) & (opp_u == home)) | ((team_u == home) & (opp_u == away))].copy()
     print("props rows", len(sub), "players", int(sub["player_name"].nunique()))
 
-    from nba_betting.sim.quarters import GameInputs, TeamContext, simulate_quarters
-    from nba_betting.sim.connected_game import simulate_connected_game
+    from wnba_betting.sim.quarters import GameInputs, TeamContext, simulate_quarters
+    from wnba_betting.sim.connected_game import simulate_connected_game
 
     # Use neutral team contexts for quarters sampling (we only care about boxscore realism guardrails here).
     inp = GameInputs(
@@ -67,3 +67,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

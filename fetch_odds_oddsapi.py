@@ -1,4 +1,4 @@
-"""
+﻿"""
 Fetch game odds from The Odds API and calculate betting edges
 """
 
@@ -10,7 +10,7 @@ from datetime import datetime
 # Add src to path
 sys.path.insert(0, 'src')
 
-from nba_betting.odds_api import fetch_game_odds_current, OddsApiConfig
+from wnba_betting.odds_api import fetch_game_odds_current, OddsApiConfig
 
 # Get API key from environment
 api_key = os.environ.get('ODDS_API_KEY')
@@ -109,3 +109,4 @@ print("\nTo calculate edges, compare:")
 print("  Your predictions: data/processed/predictions_2025-10-17.csv")
 print("  Market odds: data/processed/game_odds_oddsapi_2025-10-17.csv")
 print("\n")
+

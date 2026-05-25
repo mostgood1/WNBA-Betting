@@ -1,11 +1,11 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pandas as pd
 from click.testing import CliRunner
 
-from nba_betting import cli as cli_module
-from nba_betting import config as config_module
-from nba_betting import props_onnx_pure as props_onnx_pure_module
+from wnba_betting import cli as cli_module
+from wnba_betting import config as config_module
+from wnba_betting import props_onnx_pure as props_onnx_pure_module
 
 
 def test_predict_props_exits_nonzero_when_feature_build_fails(monkeypatch):
@@ -14,7 +14,7 @@ def test_predict_props_exits_nonzero_when_feature_build_fails(monkeypatch):
 
     monkeypatch.setattr(cli_module, "build_features_for_date", _boom)
 
-    import nba_betting.props_features_pure as props_features_pure
+    import wnba_betting.props_features_pure as props_features_pure
 
     monkeypatch.setattr(props_features_pure, "build_features_for_date_pure", _boom)
 
@@ -61,7 +61,7 @@ def test_predict_props_keeps_league_status_active_players_despite_stale_injuries
     monkeypatch.setattr(config_module, "paths", test_paths)
     monkeypatch.setattr(cli_module, "paths", test_paths)
 
-    import nba_betting.props_features_pure as props_features_pure_module
+    import wnba_betting.props_features_pure as props_features_pure_module
 
     monkeypatch.setattr(
         props_features_pure_module,
@@ -179,7 +179,7 @@ def test_predict_props_uses_game_odds_fallback_when_slate_flags_are_blank(tmp_pa
     monkeypatch.setattr(config_module, "paths", test_paths)
     monkeypatch.setattr(cli_module, "paths", test_paths)
 
-    import nba_betting.props_features_pure as props_features_pure_module
+    import wnba_betting.props_features_pure as props_features_pure_module
 
     monkeypatch.setattr(
         props_features_pure_module,
@@ -365,8 +365,8 @@ def test_predict_games_npu_uses_odds_events_fallback(tmp_path, monkeypatch):
     monkeypatch.setattr(config_module, "paths", test_paths)
     monkeypatch.setattr(cli_module, "paths", test_paths)
 
-    import nba_betting.features_enhanced as features_enhanced_module
-    import nba_betting.games_npu as games_npu_module
+    import wnba_betting.features_enhanced as features_enhanced_module
+    import wnba_betting.games_npu as games_npu_module
 
     def _fake_build_features(games, include_advanced_stats=True, include_injuries=True, season=2025):
         assert ((games["home_team"] == "Detroit Pistons") & (games["visitor_team"] == "Philadelphia 76ers")).any()
@@ -465,8 +465,8 @@ def test_predict_games_npu_prefers_live_schedule_over_stale_processed_schedule(t
         ),
     )
 
-    import nba_betting.features_enhanced as features_enhanced_module
-    import nba_betting.games_npu as games_npu_module
+    import wnba_betting.features_enhanced as features_enhanced_module
+    import wnba_betting.games_npu as games_npu_module
 
     def _fake_build_features(games, include_advanced_stats=True, include_injuries=True, season=2025):
         day = games[pd.to_datetime(games["date"], errors="coerce").dt.date == pd.to_datetime(date_str).date()].copy()
@@ -580,8 +580,8 @@ def test_predict_games_npu_uses_predictions_fallback(tmp_path, monkeypatch):
     monkeypatch.setattr(config_module, "paths", test_paths)
     monkeypatch.setattr(cli_module, "paths", test_paths)
 
-    import nba_betting.features_enhanced as features_enhanced_module
-    import nba_betting.games_npu as games_npu_module
+    import wnba_betting.features_enhanced as features_enhanced_module
+    import wnba_betting.games_npu as games_npu_module
 
     def _fake_build_features(games, include_advanced_stats=True, include_injuries=True, season=2025):
         assert ((games["home_team"] == "Detroit Pistons") & (games["visitor_team"] == "Philadelphia 76ers")).any()

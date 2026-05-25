@@ -49,6 +49,18 @@ def _write_player_logs(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def _read_parquet_with_fallback(path) -> pd.DataFrame:
+    try:
+        return pd.read_parquet(path)
+    except Exception as parquet_error:
+        try:
+            import polars as pl
+        except Exception:
+            raise parquet_error
+        frame = pl.read_parquet(str(path))
+        return pd.DataFrame(frame.to_dict(as_series=False))
+
+
 def _season_from_game_date(value: object) -> str:
     ts = pd.to_datetime(value, errors="coerce")
     if pd.isna(ts):
@@ -150,7 +162,7 @@ def _fallback_player_logs_from_boxscores_history() -> pd.DataFrame:
     hist_csv = paths.data_processed / "boxscores_history.csv"
     try:
         if hist_parquet.exists():
-            hist = pd.read_parquet(hist_parquet)
+            hist = _read_parquet_with_fallback(hist_parquet)
         elif hist_csv.exists():
             hist = pd.read_csv(hist_csv)
         else:

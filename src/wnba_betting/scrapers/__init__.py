@@ -1,4 +1,4 @@
-"""NBA betting data scrapers."""
+﻿"""WNBA betting data scrapers."""
 
 from .basketball_reference import BasketballReferenceScraper
 from .injuries import ESPNInjuryScraper, NBAInjuryDatabase
@@ -8,3 +8,4 @@ __all__ = [
     'ESPNInjuryScraper',
     'NBAInjuryDatabase',
 ]
+

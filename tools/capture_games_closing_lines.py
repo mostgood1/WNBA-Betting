@@ -1,4 +1,4 @@
-import os
+﻿import os
 from datetime import datetime, date
 from pathlib import Path
 from typing import Optional
@@ -15,7 +15,7 @@ DATA_ROOT = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
 PROC_DIR = DATA_ROOT / "processed"
 
 try:
-    from nba_betting.odds_api import fetch_game_odds_current, OddsApiConfig
+    from wnba_betting.odds_api import fetch_game_odds_current, OddsApiConfig
 except Exception:
     fetch_game_odds_current = None
     OddsApiConfig = None
@@ -182,3 +182,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

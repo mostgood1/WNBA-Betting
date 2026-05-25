@@ -1,4 +1,4 @@
-Param(
+﻿Param(
   [string]$Date = (Get-Date -Format 'yyyy-MM-dd'),
   [switch]$Quiet,
   [string]$LogDir = 'logs'
@@ -95,21 +95,21 @@ try {
   $predPath = Join-Path $RepoRoot ("data\processed\props_predictions_{0}.csv" -f $Date)
   if (-not (Test-Path $predPath)) {
     Write-Log 'props_predictions missing; generating before edges'
-    $rcPred = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date)
+    $rcPred = Invoke-PyMod -plist @('-m','wnba_betting.cli','predict-props','--date', $Date)
     Write-Log ("predict-props exit code: {0}" -f $rcPred)
     if ($rcPred -ne 0) {
       throw "predict-props failed with exit code $rcPred"
     }
   }
 
-  $rcSnap = Invoke-PyMod -plist @('-m','nba_betting.cli','odds-snapshots-props','--date', $Date)
+  $rcSnap = Invoke-PyMod -plist @('-m','wnba_betting.cli','odds-snapshots-props','--date', $Date)
   Write-Log ("odds-snapshots-props exit code: {0}" -f $rcSnap)
   if ($rcSnap -ne 0) {
     throw "odds-snapshots-props failed with exit code $rcSnap"
   }
 
   $rcEdges = Invoke-PyMod -plist @(
-    '-m','nba_betting.cli','props-edges',
+    '-m','wnba_betting.cli','props-edges',
     '--date', $Date,
     '--source','oddsapi',
     '--mode','current',
@@ -122,7 +122,7 @@ try {
     throw "props-edges failed with exit code $rcEdges"
   }
 
-  $rcExport = Invoke-PyMod -plist @('-m','nba_betting.cli','export-props-recommendations','--date', $Date)
+  $rcExport = Invoke-PyMod -plist @('-m','wnba_betting.cli','export-props-recommendations','--date', $Date)
   Write-Log ("export-props-recommendations exit code: {0}" -f $rcExport)
   if ($rcExport -ne 0) {
     throw "export-props-recommendations failed with exit code $rcExport"

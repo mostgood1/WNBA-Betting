@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -11,11 +11,11 @@ from typing import Any, Dict, Iterable, Tuple
 import numpy as np
 import pandas as pd
 
-from nba_betting.config import paths
-from nba_betting.player_priors import PlayerPriorsConfig, compute_player_priors
-from nba_betting.sim.connected_game import simulate_connected_game
-from nba_betting.sim.quarters import GameInputs, TeamContext, simulate_quarters
-from nba_betting.teams import normalize_team, to_tricode
+from wnba_betting.config import paths
+from wnba_betting.player_priors import PlayerPriorsConfig, compute_player_priors
+from wnba_betting.sim.connected_game import simulate_connected_game
+from wnba_betting.sim.quarters import GameInputs, TeamContext, simulate_quarters
+from wnba_betting.teams import normalize_team, to_tricode
 
 
 def _parse_date(s: str) -> date:
@@ -1013,3 +1013,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

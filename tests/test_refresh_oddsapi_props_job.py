@@ -1,16 +1,16 @@
-from pathlib import Path
+﻿from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
 
-import nba_betting.refresh_oddsapi_props_job as refresh_job_module
-from nba_betting.refresh_oddsapi_props_job import (
+import wnba_betting.refresh_oddsapi_props_job as refresh_job_module
+from wnba_betting.refresh_oddsapi_props_job import (
     _collect_snapshot_coverage_gaps,
     _materialize_processed_snapshot_alias,
     _merge_props_prediction_frames,
 )
-from nba_betting.odds_api import resolve_player_prop_bookmakers
-from nba_betting.player_names import normalize_player_name_key
+from wnba_betting.odds_api import resolve_player_prop_bookmakers
+from wnba_betting.player_names import normalize_player_name_key
 
 
 def test_merge_props_prediction_frames_appends_fallback_only_rows():

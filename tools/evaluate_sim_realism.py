@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -10,9 +10,9 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from nba_betting.config import paths
-from nba_betting.league import LEAGUE
-from nba_betting.sim.quarters import GameInputs, TeamContext, sample_quarter_scores, simulate_quarters
+from wnba_betting.config import paths
+from wnba_betting.league import LEAGUE
+from wnba_betting.sim.quarters import GameInputs, TeamContext, sample_quarter_scores, simulate_quarters
 
 
 def _to_float(x: Any) -> float | None:
@@ -371,3 +371,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

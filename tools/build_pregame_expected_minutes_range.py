@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -18,7 +18,7 @@ PROCESSED = ROOT / "data" / "processed"
 def _try_import_norm_key():
     try:
         sys.path.insert(0, str(ROOT / "src"))
-        from nba_betting.sim.connected_game import _norm_player_key  # type: ignore
+        from wnba_betting.sim.connected_game import _norm_player_key  # type: ignore
 
         return _norm_player_key
     except Exception:
@@ -527,3 +527,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

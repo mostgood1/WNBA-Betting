@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -160,7 +160,7 @@ def _logloss_prob(p: float, y: float) -> float:
 
 
 def _sigma_for_quarter_points(mu_points: float) -> float:
-    # Mirrors nba_betting.sim.quarters._sigma_for_quarter (bounded 6-10)
+    # Mirrors wnba_betting.sim.quarters._sigma_for_quarter (bounded 6-10)
     return float(max(6.0, min(10.0, 0.9 * np.sqrt(max(1.0, float(mu_points))))))
 
 
@@ -454,3 +454,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

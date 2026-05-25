@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import subprocess
@@ -17,7 +17,7 @@ from .props_features import build_props_features
 from .props_npu import train_props_models_npu
 from .props_train import train_props_models
 from .schedule import fetch_schedule_2025_26
-from .scrape_nba_api import current_season_end_year, fetch_games_nba_api
+from .scrape_stats_api import current_season_end_year, fetch_games_api
 from .train_enhanced import train_models_enhanced
 
 
@@ -126,7 +126,7 @@ def _refresh_games_for_window(window: RegularSeasonWindow) -> pd.DataFrame:
     target_end_year = _season_end_year(window.season)
     current_end = current_season_end_year(datetime.combine(window.end, datetime.min.time()))
     seasons_to_fetch = max(1, current_end - target_end_year + 1)
-    return fetch_games_nba_api(
+    return fetch_games_api(
         last_n=seasons_to_fetch,
         with_periods=False,
         verbose=True,

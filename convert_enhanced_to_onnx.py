@@ -1,4 +1,4 @@
-"""
+﻿"""
 Convert enhanced sklearn models (45 features) to ONNX format.
 Updates all 26 models with enhanced feature set.
 """
@@ -35,7 +35,7 @@ def convert_enhanced_models():
         print(f"\nError: Missing enhanced model files:")
         for f in missing:
             print(f"   - {f}")
-        print("\nRun training first: python -m nba_betting.train_enhanced")
+        print("\nRun training first: python -m wnba_betting.train_enhanced")
         return
     
     # Load feature count
@@ -148,3 +148,4 @@ def convert_enhanced_models():
 
 if __name__ == "__main__":
     convert_enhanced_models()
+

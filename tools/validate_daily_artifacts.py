@@ -1,4 +1,4 @@
-"""Validate daily produced artifacts.
+﻿"""Validate daily produced artifacts.
 
 This is used by scripts/daily_update.ps1 to ensure key outputs exist. Some
 artifacts, such as game odds and ESPN rotations coverage, are produced via
@@ -25,7 +25,7 @@ def _props_team_coverage(proc: Path, date_str: str) -> tuple[list[str], list[str
 
     try:
         import pandas as pd
-        from nba_betting.teams import to_tricode
+        from wnba_betting.teams import to_tricode
 
         odds = proc / f"game_odds_{date_str}.csv"
         if odds.exists() and odds.stat().st_size > 0:
@@ -178,7 +178,7 @@ def _rotations_status(proc: Path, date_yesterday: str | None) -> tuple[int | Non
         return rot_expected, rot_have, rot_missing_gids, rot_excused_no_event_gids, rot_error
 
     try:
-        from nba_betting.boxscores import _nba_gid_to_tricodes
+        from wnba_betting.boxscores import _nba_gid_to_tricodes
 
         gid_map = _nba_gid_to_tricodes(str(date_yesterday)) or {}
         gids = sorted([str(g).strip() for g in gid_map.keys() if str(g).strip()])
@@ -505,3 +505,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 
@@ -865,7 +865,7 @@ def test_best_bets_page_routes_render():
         season_betting_card_page = client.get("/season/2026/betting-card?date=2026-03-19&profile=retuned")
 
     assert root_page.status_code == 200
-    assert "NBA Betting - Daily Betting Card" in root_page.get_data(as_text=True)
+    assert "WNBA Betting - Daily Betting Card" in root_page.get_data(as_text=True)
 
     assert betting_card.status_code == 302
     assert "/?date=2026-03-19" in betting_card.headers["Location"]
@@ -894,7 +894,7 @@ def test_best_bets_page_routes_render():
     assert "/?date=2026-03-19" in reconciliation_page.headers["Location"]
 
     assert season_betting_card_page.status_code == 200
-    assert "NBA Betting Card" in season_betting_card_page.get_data(as_text=True)
+    assert "WNBA Betting Card" in season_betting_card_page.get_data(as_text=True)
 
 
 def test_api_betting_card_flattens_game_and_prop_plays(monkeypatch):

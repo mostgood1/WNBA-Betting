@@ -1,4 +1,4 @@
-name: WNBA Betting Pregame Props Refresh
+﻿name: WNBA Betting Pregame Props Refresh
 
 on:
   workflow_dispatch: {}
@@ -486,3 +486,4 @@ jobs:
             echo "Local refresh failed after snapshot capture: ${LOCAL_REFRESH_ERROR}" >&2
             exit 1
           fi
+

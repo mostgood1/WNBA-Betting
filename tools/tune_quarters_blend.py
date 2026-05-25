@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 from dataclasses import asdict
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -16,8 +16,8 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from nba_betting.teams import to_tricode  # noqa: E402
-from nba_betting.sim.quarters import TeamContext, GameInputs, simulate_quarters_analytic  # noqa: E402
+from wnba_betting.teams import to_tricode  # noqa: E402
+from wnba_betting.sim.quarters import TeamContext, GameInputs, simulate_quarters_analytic  # noqa: E402
 
 
 def _num(x):
@@ -283,3 +283,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

@@ -1,4 +1,4 @@
-name: Fetch WNBA PBP outcomes via R
+﻿name: Fetch WNBA PBP outcomes via R
 
 on:
   workflow_dispatch:
@@ -40,8 +40,8 @@ jobs:
         run: |
           set -e
           mkdir -p scripts
-          if [ ! -f scripts/pbp_fetch_nbastatr.R ]; then
-            cat > scripts/pbp_fetch_nbastatr.R << 'EOF'
+          if [ ! -f scripts/pbp_fetch_r.R ]; then
+            cat > scripts/pbp_fetch_r.R << 'EOF'
             #!/usr/bin/env Rscript
             suppressPackageStartupMessages({
               library(optparse); library(dplyr); library(lubridate); library(readr)
@@ -107,7 +107,7 @@ jobs:
               }
             }
             EOF
-            chmod +x scripts/pbp_fetch_nbastatr.R
+            chmod +x scripts/pbp_fetch_r.R
           fi
 
       - name: Compute date range
@@ -144,7 +144,7 @@ jobs:
           cur="$START"
           while [ "$(date -u -d "$cur" +%s)" -le "$(date -u -d "$END" +%s)" ]; do
             echo "Fetching $cur"
-            Rscript scripts/pbp_fetch_nbastatr.R --date "$cur" || true
+            Rscript scripts/pbp_fetch_r.R --date "$cur" || true
             cur=$(date -u -d "$cur + 1 day" +%F)
           done
 
@@ -162,3 +162,4 @@ jobs:
           fi
           git commit -m "chore(data): add/update PBP outcomes via GH Action [skip ci]"
           git push
+

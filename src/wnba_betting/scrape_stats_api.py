@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from datetime import datetime
 import time
@@ -121,7 +121,7 @@ def _games_from_espn_scoreboard_date(dt: datetime) -> list[dict]:
     return rows
 
 
-def fetch_games_nba_api(last_n: int = 10, rate_delay: float = 0.6, with_periods: bool = True, verbose: bool = False, max_workers: int = 1) -> pd.DataFrame:
+def fetch_games_api(last_n: int = 10, rate_delay: float = 0.6, with_periods: bool = True, verbose: bool = False, max_workers: int = 1) -> pd.DataFrame:
     if LEAGUE.code != "nba":
         current_end_year = current_season_end_year()
         seasons = list(range(current_end_year - last_n + 1, current_end_year + 1))
@@ -1085,3 +1085,4 @@ def backfill_scoreboard(seasons: list[int], rate_delay: float = 0.8, verbose: bo
             base["home_win"] = (base["home_pts"] > base["visitor_pts"]).astype("Int64")
             base["margin"] = base["home_pts"] - base["visitor_pts"]
     return base
+

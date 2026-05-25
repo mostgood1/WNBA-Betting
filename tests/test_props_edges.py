@@ -1,10 +1,10 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 
-import nba_betting.props_edges as props_edges_module
-from nba_betting.props_edges import SigmaConfig, compute_props_edges
+import wnba_betting.props_edges as props_edges_module
+from wnba_betting.props_edges import SigmaConfig, compute_props_edges
 
 
 def test_compute_props_edges_keeps_unknown_availability_rows(tmp_path, monkeypatch):

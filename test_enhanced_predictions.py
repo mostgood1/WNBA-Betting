@@ -1,4 +1,4 @@
-"""
+﻿"""
 Quick test of enhanced model predictions
 Tests that 45 features are being used correctly
 """
@@ -13,8 +13,8 @@ import pytest
 import sys
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from nba_betting.features_enhanced import build_features_enhanced, get_enhanced_feature_columns
-from nba_betting.games_npu import NPUGamePredictor
+from wnba_betting.features_enhanced import build_features_enhanced, get_enhanced_feature_columns
+from wnba_betting.games_npu import NPUGamePredictor
 
 def test_enhanced_pipeline():
     """Test complete prediction pipeline with 45 features"""
@@ -113,3 +113,4 @@ def test_enhanced_pipeline():
 
 if __name__ == "__main__":
     test_enhanced_pipeline()
+

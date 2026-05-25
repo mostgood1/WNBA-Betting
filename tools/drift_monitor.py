@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 """Drift monitoring for core games features.
 
@@ -24,7 +24,7 @@ import os
 import pandas as pd
 import numpy as np
 try:
-    from nba_betting.features import build_features
+    from wnba_betting.features import build_features
 except Exception:
     build_features = None
 
@@ -184,3 +184,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

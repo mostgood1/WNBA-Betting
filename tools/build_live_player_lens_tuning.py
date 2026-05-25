@@ -1,4 +1,4 @@
-"""Build daily tuning dataset for Player Live Lens (props).
+﻿"""Build daily tuning dataset for Player Live Lens (props).
 
 Output: data/processed/live_player_lens_tuning_<YYYY-MM-DD>.csv
 
@@ -294,7 +294,7 @@ def _load_actuals_long(date_str: str) -> pd.DataFrame:
     # Try to use the repo's schedule mapping (fast + precise)
     game_ids: list[str] = []
     try:
-        from nba_betting.boxscores import _nba_gid_to_tricodes
+        from wnba_betting.boxscores import _nba_gid_to_tricodes
 
         gid_map = _nba_gid_to_tricodes(str(date_str)) or {}
         for gid in gid_map.keys():
@@ -560,3 +560,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

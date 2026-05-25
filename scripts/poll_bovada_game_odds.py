@@ -1,4 +1,4 @@
-import sys
+﻿import sys
 import time
 from pathlib import Path
 from datetime import datetime
@@ -24,8 +24,8 @@ def main():
 
     repo_root = Path(__file__).resolve().parents[1]
     sys.path.insert(0, str(repo_root / "src"))
-    from nba_betting.odds_bovada import fetch_bovada_odds_current
-    from nba_betting.config import paths
+    from wnba_betting.odds_bovada import fetch_bovada_odds_current
+    from wnba_betting.config import paths
 
     out_csv = paths.data_processed / f"game_odds_{date_str}.csv"
 
@@ -49,7 +49,7 @@ def main():
                 if not Path(py).exists():
                     py = "python"
                 import subprocess
-                cmd = [py, "-m", "nba_betting.cli", "predict-date", "--date", date_str, "--merge-odds", str(out_csv), "--out", str(paths.data_processed / f"predictions_{date_str}.csv")]
+                cmd = [py, "-m", "wnba_betting.cli", "predict-date", "--date", date_str, "--merge-odds", str(out_csv), "--out", str(paths.data_processed / f"predictions_{date_str}.csv")]
                 print("Merging odds into predictions:", " ".join(cmd))
                 try:
                     subprocess.run(cmd, cwd=str(repo_root), check=False)
@@ -65,3 +65,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

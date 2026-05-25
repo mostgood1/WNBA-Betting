@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from functools import lru_cache
 from itertools import combinations
@@ -59,7 +59,7 @@ if str(SRC_DIR) not in _sys_early.path:
     _sys_early.path.insert(0, str(SRC_DIR))
 
 try:
-    from nba_betting.league import LEAGUE, season_label_from_date  # type: ignore
+    from wnba_betting.league import LEAGUE, season_label_from_date  # type: ignore
 except Exception:  # pragma: no cover
     LEAGUE = None  # type: ignore
     season_label_from_date = None  # type: ignore
@@ -74,7 +74,7 @@ except Exception:  # pragma: no cover
 
 try:
     # local package for odds fetching (now importable due to early sys.path insert)
-    from nba_betting.odds_bovada import (
+    from wnba_betting.odds_bovada import (
         fetch_bovada_odds_current as _fetch_bovada_odds_current,
         fetch_bovada_player_props_current as _fetch_bovada_player_props_current,
         probe_bovada as _probe_bovada,
@@ -85,7 +85,7 @@ except Exception:  # pragma: no cover
     _probe_bovada = None  # type: ignore
 
 try:
-    from nba_betting.props import build_canonical_prop_candidate as _build_canonical_prop_candidate  # type: ignore
+    from wnba_betting.props import build_canonical_prop_candidate as _build_canonical_prop_candidate  # type: ignore
 except Exception:  # pragma: no cover
     _build_canonical_prop_candidate = None  # type: ignore
 
@@ -127,8 +127,8 @@ except Exception:
 
 # Prefer canonical paths from the package config when importable.
 try:
-    from nba_betting.config import paths as _paths  # type: ignore
-    from nba_betting.config import reconcile_repo_data_to_active as _reconcile_repo_data_to_active  # type: ignore
+    from wnba_betting.config import paths as _paths  # type: ignore
+    from wnba_betting.config import reconcile_repo_data_to_active as _reconcile_repo_data_to_active  # type: ignore
 
     try:
         _reconcile_repo_data_to_active()
@@ -421,7 +421,7 @@ def _route_json_cache_set(
         pass
 
 try:
-    from nba_betting.odds_api import (
+    from wnba_betting.odds_api import (
         OddsApiConfig as _OddsApiConfig,
         list_events_current as _oddsapi_list_events_current,
         discover_event_market_keys as _oddsapi_discover_event_market_keys,
@@ -429,7 +429,7 @@ try:
         normalize_bookmaker_key as _normalize_bookmaker_key,
         resolve_player_prop_bookmakers as _resolve_player_prop_bookmakers,
     )  # type: ignore
-    from nba_betting.teams import to_tricode as _to_tricode  # type: ignore
+    from wnba_betting.teams import to_tricode as _to_tricode  # type: ignore
 except Exception:  # pragma: no cover
     _OddsApiConfig = None  # type: ignore
     _oddsapi_list_events_current = None  # type: ignore
@@ -4400,7 +4400,7 @@ def _enforce_minimal_ui_allowlist():
 # --- Lightweight name normalizers to align across odds/preds/injuries ---
 def _norm_player_name(s: str) -> str:
     try:
-        from nba_betting.player_names import normalize_player_name_key as _normalize_player_name_key  # type: ignore
+        from wnba_betting.player_names import normalize_player_name_key as _normalize_player_name_key  # type: ignore
 
         return _normalize_player_name_key(s, case="upper")
     except Exception:
@@ -4430,7 +4430,7 @@ def _norm_player_name(s: str) -> str:
 
 def _short_player_key(s: str) -> str:
     try:
-        from nba_betting.player_names import short_player_key as _shared_short_player_key  # type: ignore
+        from wnba_betting.player_names import short_player_key as _shared_short_player_key  # type: ignore
 
         return _shared_short_player_key(s, case="upper")
     except Exception:
@@ -4485,7 +4485,7 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
         except Exception:
             pass
         try:
-            from nba_betting.teams import to_tricode as _to_tri  # type: ignore
+            from wnba_betting.teams import to_tricode as _to_tri  # type: ignore
 
             t = _to_tri(s)
             if isinstance(t, str) and t.strip():
@@ -4768,7 +4768,7 @@ def _injury_name_sets_for_teams(date_str: str, team_tris: set[str]) -> tuple[set
         except Exception:
             pass
         try:
-            from nba_betting.teams import to_tricode as _to_tri  # type: ignore
+            from wnba_betting.teams import to_tricode as _to_tri  # type: ignore
 
             t = _to_tri(s)
             if isinstance(t, str) and t.strip():
@@ -5113,7 +5113,7 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
         except Exception:
             pass
         try:
-            from nba_betting.teams import to_tricode as _to_tri  # type: ignore
+            from wnba_betting.teams import to_tricode as _to_tri  # type: ignore
 
             t = _to_tri(s)
             if isinstance(t, str) and t.strip():
@@ -6180,7 +6180,7 @@ def _compute_player_stat_priors(date_str: str, days_back: int = 21) -> dict[tupl
             return _PLAYER_STAT_PRIORS_CACHE[key]
 
         # Lazy import to keep app startup fast.
-        from nba_betting.player_priors import PlayerPriorsConfig, compute_player_priors, write_player_priors_snapshot  # type: ignore
+        from wnba_betting.player_priors import PlayerPriorsConfig, compute_player_priors, write_player_priors_snapshot  # type: ignore
 
         pri = compute_player_priors(
             str(date_str),
@@ -6738,8 +6738,8 @@ def api_sim_smart_sim():
         home_def = _num(row.get("home_def_rating")) or 112.0
         away_def = _num(row.get("away_def_rating")) or 112.0
 
-        from nba_betting.sim.quarters import TeamContext, GameInputs, simulate_quarters  # type: ignore
-        from nba_betting.sim.smart_sim import SmartSimConfig, simulate_smart_game  # type: ignore
+        from wnba_betting.sim.quarters import TeamContext, GameInputs, simulate_quarters  # type: ignore
+        from wnba_betting.sim.smart_sim import SmartSimConfig, simulate_smart_game  # type: ignore
 
         # Best-effort schedule/injury context (pregame-known features)
         prev = None; prev2 = None; prev3 = None
@@ -7124,7 +7124,7 @@ def _redirect_with_request_params(target: str, *, extra_params: dict[str, Any] |
 def _betting_card_v2_team_assets() -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     rows = []
-    for fp in (WEB_DIR / "assets" / "teams_wnba.json", WEB_DIR / "assets" / "teams_nba.json"):
+    for fp in (WEB_DIR / "assets" / "teams_wnba.json",):
         try:
             rows = json.loads(fp.read_text(encoding="utf-8"))
         except Exception:
@@ -7681,7 +7681,7 @@ def _season_betting_card_allowed_rank_value(values: dict[str, Any], market_key: 
 @lru_cache(maxsize=64)
 def _season_betting_card_roster_positions(date_str: str) -> pd.DataFrame:
     try:
-        from nba_betting.sim.smart_sim import _season_roster_positions as _smart_sim_roster_positions  # type: ignore
+        from wnba_betting.sim.smart_sim import _season_roster_positions as _smart_sim_roster_positions  # type: ignore
 
         df = _smart_sim_roster_positions(str(date_str or ""))
         return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
@@ -7692,7 +7692,7 @@ def _season_betting_card_roster_positions(date_str: str) -> pd.DataFrame:
 @lru_cache(maxsize=64)
 def _season_betting_card_opp_position_rates(date_str: str) -> pd.DataFrame:
     try:
-        from nba_betting.sim.smart_sim import _opponent_position_rate_context as _smart_sim_opp_position_rate_context  # type: ignore
+        from wnba_betting.sim.smart_sim import _opponent_position_rate_context as _smart_sim_opp_position_rate_context  # type: ignore
 
         df = _smart_sim_opp_position_rate_context(str(date_str or ""))
         return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
@@ -7703,7 +7703,7 @@ def _season_betting_card_opp_position_rates(date_str: str) -> pd.DataFrame:
 @lru_cache(maxsize=64)
 def _season_betting_card_expected_minutes_frame(date_str: str) -> pd.DataFrame:
     try:
-        from nba_betting.sim.smart_sim import _load_pregame_expected_minutes as _smart_sim_load_pregame_expected_minutes  # type: ignore
+        from wnba_betting.sim.smart_sim import _load_pregame_expected_minutes as _smart_sim_load_pregame_expected_minutes  # type: ignore
 
         df = _smart_sim_load_pregame_expected_minutes(str(date_str or ""))
         return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
@@ -11011,7 +11011,7 @@ def _launch_refresh_oddsapi_props_detached(
             popen_kwargs["stdout"] = out
             launcher = (
                 f"import sys; sys.path.insert(0, {str(SRC_DIR)!r}); "
-                "from nba_betting.refresh_oddsapi_props_job import main; "
+                "from wnba_betting.refresh_oddsapi_props_job import main; "
                 "raise SystemExit(main())"
             )
             subprocess.Popen(
@@ -11055,7 +11055,7 @@ def _launch_refresh_oddsapi_props_background(
 
             def _job() -> None:
                 try:
-                    from nba_betting.refresh_oddsapi_props_job import run_refresh_oddsapi_props_job
+                    from wnba_betting.refresh_oddsapi_props_job import run_refresh_oddsapi_props_job
 
                     run_refresh_oddsapi_props_job(
                         date_str=date_str,
@@ -11175,7 +11175,7 @@ def _ensure_player_logs_for_props_refresh(
 
     season_str = _season_str_from_year(_season_year_for_date(date_str))
     rc_logs = _run_to_file(
-        [str(py), "-m", "nba_betting.cli", "fetch-player-logs", "--seasons", season_str],
+        [str(py), "-m", "wnba_betting.cli", "fetch-player-logs", "--seasons", season_str],
         log_file,
         cwd=BASE_DIR,
         env=env,
@@ -11227,7 +11227,7 @@ def _oddsapi_props_refresh_job(
         run_export = bool(do_export)
 
         try:
-            from nba_betting.config import paths as _paths  # type: ignore
+            from wnba_betting.config import paths as _paths  # type: ignore
 
             raw_fp = _paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
             edges_fp = _paths.data_processed / f"props_edges_{date_str}.csv"
@@ -11288,7 +11288,7 @@ def _oddsapi_props_refresh_job(
         _persist_progress(running=True, ok=None)
 
         # 1) Snapshot player props to data/raw
-        snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", date_str, "--regions", regions]
+        snap_cmd = [str(py), "-m", "wnba_betting.cli", "odds-snapshots-props", "--date", date_str, "--regions", regions]
         if bookmakers:
             snap_cmd += ["--bookmakers", bookmakers]
         if markets:
@@ -11337,7 +11337,7 @@ def _oddsapi_props_refresh_job(
                 _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
                 _persist_progress(running=True, ok=None, error=player_logs_error)
             else:
-                edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", date_str, "--source", "oddsapi", "--mode", "current"]
+                edges_cmd = [str(py), "-m", "wnba_betting.cli", "props-edges", "--date", date_str, "--source", "oddsapi", "--mode", "current"]
                 if bookmakers:
                     edges_cmd += ["--bookmakers", bookmakers]
                 rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=20 * 60, heartbeat_cb=_touch_progress)
@@ -11364,7 +11364,7 @@ def _oddsapi_props_refresh_job(
         # 3) Optionally export props recommendations
         rc_export = None
         if run_export:
-            export_cmd = [str(py), "-m", "nba_betting.cli", "export-props-recommendations", "--date", date_str]
+            export_cmd = [str(py), "-m", "wnba_betting.cli", "export-props-recommendations", "--date", date_str]
             rc_export = _run_to_file(export_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=10 * 60, heartbeat_cb=_touch_progress)
             _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
             _oddsapi_props_job_state["rc_export"] = int(rc_export)
@@ -12287,7 +12287,7 @@ def api_cron_upload_props_refresh_artifacts():
     }
 
     try:
-        from nba_betting.props_movement import persist_props_snapshot_tracking, sync_props_movement_artifacts  # type: ignore
+        from wnba_betting.props_movement import persist_props_snapshot_tracking, sync_props_movement_artifacts  # type: ignore
 
         if edges_file is not None or int(edges_rows or 0) > 0:
             movement_meta = sync_props_movement_artifacts(
@@ -12310,7 +12310,7 @@ def api_cron_upload_props_refresh_artifacts():
         snapshot_rows = int(_count_csv_rows_quick(snapshot_path))
         edges_rows = int(_count_csv_rows_quick(edges_path))
         try:
-            from nba_betting.props_edges import invalidate_opening_props_cache as _invalidate_opening_props_cache  # type: ignore
+            from wnba_betting.props_edges import invalidate_opening_props_cache as _invalidate_opening_props_cache  # type: ignore
 
             _invalidate_opening_props_cache(date_str)
         except Exception:
@@ -12432,8 +12432,8 @@ def _ensure_game_models(log_fp: Path | None = None) -> tuple[bool, dict]:
         feats = DATA_PROCESSED_DIR / "features.parquet"
         rc_build = 0
         if not feats.exists():
-            rc_build = _run_to_file([str(py), "-m", "nba_betting.cli", "build-features"], lf, cwd=BASE_DIR, env=env)
-        rc_train = _run_to_file([str(py), "-m", "nba_betting.cli", "train"], lf, cwd=BASE_DIR, env=env)
+            rc_build = _run_to_file([str(py), "-m", "wnba_betting.cli", "build-features"], lf, cwd=BASE_DIR, env=env)
+        rc_train = _run_to_file([str(py), "-m", "wnba_betting.cli", "train"], lf, cwd=BASE_DIR, env=env)
         ok = (int(rc_build) == 0 and int(rc_train) == 0)
         return ok, {"rc_build": int(rc_build), "rc_train": int(rc_train), "log_file": str(lf)}
     except Exception as e:
@@ -12481,8 +12481,8 @@ def _ensure_props_models(log_fp: Path | None = None) -> tuple[bool, dict]:
         logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
         lf = Path(log_fp) if log_fp else (logs_dir / f"cron_props_train_autofix_{stamp}.log")
         # Build props features first (uses player_logs)
-        rc_build = _run_to_file([str(py), "-m", "nba_betting.cli", "build-props-features"], lf, cwd=BASE_DIR, env=env)
-        rc_train = _run_to_file([str(py), "-m", "nba_betting.cli", "train-props"], lf, cwd=BASE_DIR, env=env)
+        rc_build = _run_to_file([str(py), "-m", "wnba_betting.cli", "build-props-features"], lf, cwd=BASE_DIR, env=env)
+        rc_train = _run_to_file([str(py), "-m", "wnba_betting.cli", "train-props"], lf, cwd=BASE_DIR, env=env)
         ok = (int(rc_build) == 0 and int(rc_train) == 0)
         return ok, {"rc_build": int(rc_build), "rc_train": int(rc_train), "log_file": str(lf)}
     except Exception as e:
@@ -12644,7 +12644,7 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
 
         def _run_shared_props_refresh_step() -> tuple[int, dict[str, Any]]:
             try:
-                from nba_betting.refresh_oddsapi_props_job import run_refresh_oddsapi_props_job as _worker_run_refresh  # type: ignore
+                from wnba_betting.refresh_oddsapi_props_job import run_refresh_oddsapi_props_job as _worker_run_refresh  # type: ignore
             except Exception as exc:
                 _append_log(f"Failed to import refresh_oddsapi_props_job helpers: {exc}")
                 return 1, {"error": str(exc)}
@@ -12702,44 +12702,44 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
         if not is_lookahead:
             steps.append((
                 "fetch-injuries",
-                [str(py), "-m", "nba_betting.cli", "fetch-injuries"],
+                [str(py), "-m", "wnba_betting.cli", "fetch-injuries"],
                 False,
             ))
             steps.append((
                 "fetch-rosters",
-                [str(py), "-m", "nba_betting.cli", "fetch-rosters", "--season", str(season_year)],
+                [str(py), "-m", "wnba_betting.cli", "fetch-rosters", "--season", str(season_year)],
                 False,
             ))
             steps.append((
                 "fetch-player-logs",
-                [str(py), "-m", "nba_betting.cli", "fetch-player-logs", "--seasons", season_str],
+                [str(py), "-m", "wnba_betting.cli", "fetch-player-logs", "--seasons", season_str],
                 False,
             ))
         else:
             _append_log("Look-ahead mode: skipping fetch-injuries, fetch-rosters, and fetch-player-logs (already refreshed by the main daily run).")
         steps.append((
             "build-league-status",
-            [str(py), "-m", "nba_betting.cli", "build-league-status", "--date", date_str],
+            [str(py), "-m", "wnba_betting.cli", "build-league-status", "--date", date_str],
             False,
         ))
         steps.append((
             "check-dressed",
-            [str(py), "-m", "nba_betting.cli", "check-dressed", "--date", date_str],
+            [str(py), "-m", "wnba_betting.cli", "check-dressed", "--date", date_str],
             True,
         ))
         steps.append((
             "predict-date",
-            [str(py), "-m", "nba_betting.cli", "predict-date", "--date", date_str],
+            [str(py), "-m", "wnba_betting.cli", "predict-date", "--date", date_str],
             True,
         ))
         steps.append((
             "odds-snapshots",
-            [str(py), "-m", "nba_betting.cli", "odds-snapshots", "--date", date_str],
+            [str(py), "-m", "wnba_betting.cli", "odds-snapshots", "--date", date_str],
             False,
         ))
         steps.append((
             "simulate-games",
-            [str(py), "-m", "nba_betting.cli", "simulate-games", "--date", date_str],
+            [str(py), "-m", "wnba_betting.cli", "simulate-games", "--date", date_str],
             False,
         ))
 
@@ -12749,18 +12749,18 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
         if (mode in {"full", "pipeline", "props", "lookahead"}) and not skip_smartsim:
             steps.append((
                 "fetch-advanced-stats",
-                [str(py), "-m", "nba_betting.cli", "fetch-advanced-stats", "--season", str(season_end_year), "--as-of", date_str],
+                [str(py), "-m", "wnba_betting.cli", "fetch-advanced-stats", "--season", str(season_end_year), "--as-of", date_str],
                 False,
             ))
             if not is_lookahead:
                 n_sims = str(os.environ.get("DAILY_SMARTSIM_NSIMS") or "2000").strip() or "2000"
-                smartsim_cmd = [str(py), "-m", "nba_betting.cli", "smart-sim-date", "--date", date_str, "--n-sims", n_sims]
+                smartsim_cmd = [str(py), "-m", "wnba_betting.cli", "smart-sim-date", "--date", date_str, "--n-sims", n_sims]
                 max_games = str(os.environ.get("DAILY_SMARTSIM_MAX_GAMES") or "").strip()
                 if max_games:
                     smartsim_cmd += ["--max-games", max_games]
                 steps.append(("smart-sim-date", smartsim_cmd, False))
         if mode in {"full", "pipeline", "props", "lookahead"}:
-            predict_props_cmd = [str(py), "-m", "nba_betting.cli", "predict-props", "--date", date_str]
+            predict_props_cmd = [str(py), "-m", "wnba_betting.cli", "predict-props", "--date", date_str]
             if skip_smartsim:
                 predict_props_cmd.append("--no-use-smart-sim")
             elif is_lookahead:
@@ -12782,7 +12782,7 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
             ))
             steps.append((
                 "export-recommendations",
-                [str(py), "-m", "nba_betting.cli", "export-recommendations", "--date", date_str],
+                [str(py), "-m", "wnba_betting.cli", "export-recommendations", "--date", date_str],
                 False,
             ))
 
@@ -20643,7 +20643,7 @@ def api_cards():
                     raw_p = None
             if raw_p is None:
                 try:
-                    from nba_betting.config import paths as _paths  # type: ignore
+                    from wnba_betting.config import paths as _paths  # type: ignore
 
                     raw_candidate = _paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
                     if raw_candidate.exists() and raw_candidate.stat().st_size > 0:
@@ -28572,7 +28572,7 @@ def _recommendations_all():
                         tmp[c] = None
 
                 try:
-                    from nba_betting.player_names import normalize_player_name_key as _normalize_player_name_key  # type: ignore
+                    from wnba_betting.player_names import normalize_player_name_key as _normalize_player_name_key  # type: ignore
 
                     def _norm_player_name(v: object) -> str:
                         return _normalize_player_name_key(v, case="lower")
@@ -30647,7 +30647,7 @@ def api_props():
                     env = {"PYTHONPATH": str(SRC_DIR)}
                     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                     lf = logs_dir / f"props_predictions_on_demand_{d}_{stamp}.log"
-                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-props", "--date", d, "--slate-only", "--use-pure-onnx"], lf, cwd=BASE_DIR, env=env)
+                    _ = _run_to_file([str(py), "-m", "wnba_betting.cli", "predict-props", "--date", d, "--slate-only", "--use-pure-onnx"], lf, cwd=BASE_DIR, env=env)
                     pdf = _read_csv_if_exists(preds_p)
                 except Exception:
                     pass
@@ -30885,7 +30885,7 @@ def api_props():
                 env = {"PYTHONPATH": str(SRC_DIR)}
                 logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                 lf = logs_dir / f"props_edges_on_demand_{d}_{stamp}.log"
-                _ = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "auto"], lf, cwd=BASE_DIR, env=env)
+                _ = _run_to_file([str(py), "-m", "wnba_betting.cli", "props-edges", "--date", d, "--source", "auto"], lf, cwd=BASE_DIR, env=env)
                 if edges_p.exists():
                     df = _read_csv_if_exists(edges_p)
                     src = "edges" if (isinstance(df, pd.DataFrame) and not (df is None or df.empty)) else src
@@ -30900,7 +30900,7 @@ def api_props():
                     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                     lf = logs_dir / f"props_predictions_on_demand_{d}_{stamp}.log"
                     # Generate props only for the slate (today's games)
-                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-props", "--date", d, "--slate-only", "--use-pure-onnx"], lf, cwd=BASE_DIR, env=env)
+                    _ = _run_to_file([str(py), "-m", "wnba_betting.cli", "predict-props", "--date", d, "--slate-only", "--use-pure-onnx"], lf, cwd=BASE_DIR, env=env)
                     pdf = _read_csv_if_exists(preds_p)
                 except Exception:
                     pass
@@ -32980,7 +32980,7 @@ def api_props_recommendations():
             except Exception:
                 pass
         try:
-            from nba_betting.prop_ladders import build_card_sim_ladders as _build_card_sim_ladders, load_smart_sim_prop_ladder_lookup as _load_smart_sim_prop_ladder_lookup  # type: ignore
+            from wnba_betting.prop_ladders import build_card_sim_ladders as _build_card_sim_ladders, load_smart_sim_prop_ladder_lookup as _load_smart_sim_prop_ladder_lookup  # type: ignore
 
             _sim_ladder_lookup = _load_smart_sim_prop_ladder_lookup(DATA_PROCESSED_DIR, d)
         except Exception:
@@ -33095,7 +33095,7 @@ def api_props_recommendations():
         # Minutes forecaster: estimate minutes per player/team for weighting
         minutes_map: dict[tuple[str,str], float] = {}
         try:
-            from nba_betting.props.minutes_forecaster import MinutesForecaster  # type: ignore
+            from wnba_betting.props.minutes_forecaster import MinutesForecaster  # type: ignore
             roster: list[dict] = []
             _tmp = df.copy()
             pcol = next((c for c in ("player_name", "player") if c in _tmp.columns), None)
@@ -35970,7 +35970,7 @@ def _build_active_prop_ladder_market_from_player_row(
     raw_distribution_payload = raw_distributions.get(market_key) if isinstance(raw_distributions.get(market_key), dict) else None
     if isinstance(raw_distribution_payload, dict):
         try:
-            from nba_betting.prop_ladders import build_exact_ladder_payload_from_distribution as _build_exact_ladder_payload_from_distribution  # type: ignore
+            from wnba_betting.prop_ladders import build_exact_ladder_payload_from_distribution as _build_exact_ladder_payload_from_distribution  # type: ignore
 
             rebuilt_payload = _build_exact_ladder_payload_from_distribution(
                 raw_distribution_payload.get("distribution"),
@@ -36006,7 +36006,7 @@ def _build_active_prop_ladder_market_from_player_row(
 
     estimated_payload = None
     try:
-        from nba_betting.prop_ladders import build_summary_estimated_ladder_payload as _build_summary_estimated_ladder_payload  # type: ignore
+        from wnba_betting.prop_ladders import build_summary_estimated_ladder_payload as _build_summary_estimated_ladder_payload  # type: ignore
 
         estimated_payload = _build_summary_estimated_ladder_payload(
             player_row.get(f"{market_key}_mean"),
@@ -37073,7 +37073,7 @@ def api_odds_coverage():
     try:
         # Import team normalizer (maps aliases/abbreviations to full names)
         try:
-            from nba_betting.teams import normalize_team as _norm_team  # type: ignore
+            from wnba_betting.teams import normalize_team as _norm_team  # type: ignore
         except Exception:  # pragma: no cover
             def _norm_team(x: str) -> str:
                 return str(x or "").strip()
@@ -37157,7 +37157,7 @@ def api_debug_models():
     """
     try:
         try:
-            from nba_betting.config import paths as _paths  # type: ignore
+            from wnba_betting.config import paths as _paths  # type: ignore
         except Exception:
             class _P:
                 class _Paths:
@@ -37210,8 +37210,8 @@ def api_cron_train_games():
         feats = DATA_PROCESSED_DIR / "features.parquet"
         rc_build = 0
         if not feats.exists():
-            rc_build = _run_to_file([str(py), "-m", "nba_betting.cli", "build-features"], log_file, cwd=BASE_DIR, env=env)
-        rc_train = _run_to_file([str(py), "-m", "nba_betting.cli", "train"], log_file, cwd=BASE_DIR, env=env)
+            rc_build = _run_to_file([str(py), "-m", "wnba_betting.cli", "build-features"], log_file, cwd=BASE_DIR, env=env)
+        rc_train = _run_to_file([str(py), "-m", "wnba_betting.cli", "train"], log_file, cwd=BASE_DIR, env=env)
         return jsonify({
             "rc_build": int(rc_build),
             "rc_train": int(rc_train),
@@ -38018,7 +38018,7 @@ def _live_load_period_lines_map(date_str: str) -> dict[tuple[str, str], dict[str
     p = _live_find_processed_csv("period_lines", date_str)
     if not p:
         try:
-            from nba_betting.odds_bovada import fetch_bovada_period_lines_current as _fbplc  # type: ignore
+            from wnba_betting.odds_bovada import fetch_bovada_period_lines_current as _fbplc  # type: ignore
 
             live_df = _fbplc(date_str)
             return _build_map_from_df(live_df if isinstance(live_df, pd.DataFrame) else pd.DataFrame())
@@ -42043,7 +42043,7 @@ def api_sim_quarters():
 
         # Import simulator lazily to avoid hard failures if module missing
         try:
-            from nba_betting.sim.quarters import TeamContext, GameInputs, simulate_quarters  # type: ignore
+            from wnba_betting.sim.quarters import TeamContext, GameInputs, simulate_quarters  # type: ignore
         except Exception as e:
             return jsonify({"error": f"quarters simulator unavailable: {e}"}), 500
 
@@ -42061,7 +42061,7 @@ def api_sim_quarters():
         # Load quarter odds if available
         qodds_df = None
         try:
-            from nba_betting.odds.quarter_odds import load_quarter_odds  # type: ignore
+            from wnba_betting.odds.quarter_odds import load_quarter_odds  # type: ignore
             qodds_df = load_quarter_odds(d, DATA_PROCESSED_DIR)
         except Exception:
             qodds_df = None
@@ -42250,7 +42250,7 @@ def api_sim_quarters():
                             # Optional probability calibration learned from recent smart_sim_quarter_eval.
                             # Applies only when a calibration artifact exists for (date-1).
                             try:
-                                from nba_betting.prob_calibration import calibrate_prob  # type: ignore
+                                from wnba_betting.prob_calibration import calibrate_prob  # type: ignore
 
                                 p_home_cover_q = float(calibrate_prob(str(d), f"q{int(qn)}_cover", float(p_home_cover_q)))
                             except Exception:
@@ -42264,7 +42264,7 @@ def api_sim_quarters():
                             # Optional probability calibration learned from recent smart_sim_quarter_eval.
                             # Applies only when a calibration artifact exists for (date-1).
                             try:
-                                from nba_betting.prob_calibration import calibrate_prob  # type: ignore
+                                from wnba_betting.prob_calibration import calibrate_prob  # type: ignore
 
                                 p_total_over_q = float(calibrate_prob(str(d), f"q{int(qn)}_over", float(p_total_over_q)))
                             except Exception:
@@ -42534,8 +42534,8 @@ def api_sim_game_story():
             props_df = pd.DataFrame()
 
         # Import simulator lazily
-        from nba_betting.sim.quarters import TeamContext, GameInputs, simulate_quarters  # type: ignore
-        from nba_betting.sim.connected_game import simulate_connected_game, write_sportswriter_recap  # type: ignore
+        from wnba_betting.sim.quarters import TeamContext, GameInputs, simulate_quarters  # type: ignore
+        from wnba_betting.sim.connected_game import simulate_connected_game, write_sportswriter_recap  # type: ignore
 
         def _num(x):
             try:
@@ -42666,7 +42666,7 @@ def api_sim_game_story():
                         if ("home_team" in odf.columns) and ("visitor_team" in odf.columns):
                             odf = odf.copy()
                             try:
-                                from nba_betting.teams import to_tricode as _to_tri  # type: ignore
+                                from wnba_betting.teams import to_tricode as _to_tri  # type: ignore
                             except Exception:
                                 _to_tri = None
                             if _to_tri is not None:
@@ -43327,7 +43327,7 @@ def api_cron_refresh_bovada():
             df.to_csv(out, index=False)
             # Best-effort: also save quarter/half lines if Bovada exposes them
             try:
-                from nba_betting.odds_bovada import fetch_bovada_period_lines_current as _fbplc  # type: ignore
+                from wnba_betting.odds_bovada import fetch_bovada_period_lines_current as _fbplc  # type: ignore
                 pl = _fbplc(d)
                 if pl is not None and not pl.empty:
                     out_periods.parent.mkdir(parents=True, exist_ok=True)
@@ -43360,7 +43360,7 @@ def api_cron_refresh_bovada():
                 props_df = _fetch_bovada_player_props_current(d)
             else:
                 try:
-                    from nba_betting.odds_bovada import fetch_bovada_player_props_current as _fbppc  # type: ignore
+                    from wnba_betting.odds_bovada import fetch_bovada_player_props_current as _fbppc  # type: ignore
                     props_df = _fbppc(d)
                 except Exception:
                     props_df = None
@@ -43386,7 +43386,7 @@ def api_cron_refresh_bovada():
                     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                     log_file = logs_dir / f"cron_props_edges_from_bovada_{d}_{stamp}.log"
                     # Compute props edges without running models server-side
-                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "bovada", "--no-use-saved", "--file-only"], log_file, cwd=BASE_DIR, env=env)
+                    _ = _run_to_file([str(py), "-m", "wnba_betting.cli", "props-edges", "--date", d, "--source", "bovada", "--no-use-saved", "--file-only"], log_file, cwd=BASE_DIR, env=env)
                     pe = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
                     if pe.exists():
                         try:
@@ -43627,9 +43627,9 @@ def api_cron_refresh_oddsapi_props():
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
 
-        # Report file locations via nba_betting.config.paths (supports NBA_BETTING_DATA_ROOT)
+        # Report file locations via wnba_betting.config.paths (supports NBA_BETTING_DATA_ROOT)
         try:
-            from nba_betting.config import paths as _paths  # type: ignore
+            from wnba_betting.config import paths as _paths  # type: ignore
             raw_fp = _paths.data_raw / f"odds_nba_player_props_{d}.csv"
             pred_fp = _paths.data_processed / f"props_predictions_{d}.csv"
             edges_fp = _paths.data_processed / f"props_edges_{d}.csv"
@@ -43641,7 +43641,7 @@ def api_cron_refresh_oddsapi_props():
             rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{d}.csv"
 
         # 1) Snapshot player props to data/raw
-        snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", d, "--regions", regions]
+        snap_cmd = [str(py), "-m", "wnba_betting.cli", "odds-snapshots-props", "--date", d, "--regions", regions]
         if bookmakers:
             snap_cmd += ["--bookmakers", bookmakers]
         if markets:
@@ -43655,7 +43655,7 @@ def api_cron_refresh_oddsapi_props():
         rc_export = None
         if do_edges or do_export:
             try:
-                from nba_betting.refresh_oddsapi_props_job import (
+                from wnba_betting.refresh_oddsapi_props_job import (
                     _compute_props_edges_direct as _worker_compute_props_edges_direct,
                     _ensure_props_predictions_for_refresh as _worker_ensure_props_predictions_for_refresh,
                     _export_props_recommendations_direct as _worker_export_props_recommendations_direct,
@@ -43820,7 +43820,7 @@ def api_cron_capture_closing():
     log_file = logs_dir / f"cron_capture_closing_{d}_{stamp}.log"
     try:
         env = {"PYTHONPATH": str(SRC_DIR)}
-        rc = _run_to_file([str(py), "-m", "nba_betting.cli", "export-closing-lines-csv", "--date", d], log_file, cwd=BASE_DIR, env=env)
+        rc = _run_to_file([str(py), "-m", "wnba_betting.cli", "export-closing-lines-csv", "--date", d], log_file, cwd=BASE_DIR, env=env)
         out = DATA_PROCESSED_DIR / f"closing_lines_{d}.csv"
         rows = 0
         if out.exists():
@@ -43884,7 +43884,7 @@ def api_cron_predict_date():
                 try:
                     if missing_models:
                         _ensure_game_models(log_file)
-                    _run_to_file([str(py), "-m", "nba_betting.cli", "predict-date", "--date", d], log_file, cwd=BASE_DIR, env=env)
+                    _run_to_file([str(py), "-m", "wnba_betting.cli", "predict-date", "--date", d], log_file, cwd=BASE_DIR, env=env)
                     if do_push:
                         _git_commit_and_push(msg=f"predict-date {d}")
                 except Exception:
@@ -43904,7 +43904,7 @@ def api_cron_predict_date():
             # Proceed anyway; CLI will fail clearly if models missing
             pass
         # Synchronous mode (original behavior)
-        rc = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-date", "--date", d], log_file, cwd=BASE_DIR, env=env)
+        rc = _run_to_file([str(py), "-m", "wnba_betting.cli", "predict-date", "--date", d], log_file, cwd=BASE_DIR, env=env)
         # Locate predictions from either processed/ or legacy root
         pred_path = _find_predictions_for_date(d)
         pred = pred_path if pred_path is not None else (BASE_DIR / f"predictions_{d}.csv")
@@ -44397,7 +44397,7 @@ def api_cron_live_lens_reports():
     log_file = logs_dir / f"cron_live_lens_reports_{ds}_{stamp}.log"
 
     try:
-        from nba_betting.config import paths as _paths  # type: ignore
+        from wnba_betting.config import paths as _paths  # type: ignore
 
         reports_dir = _paths.data_processed / "reports"
     except Exception:
@@ -44728,7 +44728,7 @@ def api_cron_assess_oddsapi():
 
     # Local imports (avoid import cost on unrelated requests)
     try:
-        from nba_betting.odds_api import (
+        from wnba_betting.odds_api import (
             NBA_SPORT_KEY,
             ODDS_HOST,
             OddsApiConfig,
@@ -44736,7 +44736,7 @@ def api_cron_assess_oddsapi():
             fetch_event_odds_current,
             list_events_current,
         )
-        from nba_betting.config import paths as _paths
+        from wnba_betting.config import paths as _paths
     except Exception as e:
         return jsonify({"error": f"oddsapi modules unavailable: {e}"}), 500
 
@@ -46324,7 +46324,7 @@ def api_cron_props_edges():
                 return False
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
-        cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", source]
+        cmd = [str(py), "-m", "wnba_betting.cli", "props-edges", "--date", d, "--source", source]
         if mode:
             cmd += ["--mode", mode]
         if not use_saved:
@@ -46398,7 +46398,7 @@ def api_cron_fetch_rosters():
     log_file = logs_dir / f"cron_fetch_rosters_{season}_{stamp}.log"
     try:
         env = dict(os.environ); env["PYTHONPATH"] = str(SRC_DIR)
-        cmd = [str(py), "-m", "nba_betting.cli", "fetch-rosters-cmd", "--season", season]
+        cmd = [str(py), "-m", "wnba_betting.cli", "fetch-rosters-cmd", "--season", season]
         rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
         out_csv = DATA_PROCESSED_DIR / f"rosters_{season.replace('/', '-')}.csv"
         rows = 0
@@ -46457,7 +46457,7 @@ def api_cron_props_predictions():
                 return False
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
-        cmd = [str(py), "-m", "nba_betting.cli", "predict-props", "--date", d, "--use-pure-onnx"]
+        cmd = [str(py), "-m", "wnba_betting.cli", "predict-props", "--date", d, "--use-pure-onnx"]
         if slate_only:
             cmd += ["--slate-only"]
         else:
@@ -46518,3 +46518,4 @@ if __name__ == "__main__":
     # Default to 5051 for local runs unless PORT is set
     port = int(os.environ.get("PORT", "5051"))
     app.run(host="0.0.0.0", port=port, debug=False)
+

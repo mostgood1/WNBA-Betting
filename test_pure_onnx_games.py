@@ -1,4 +1,4 @@
-"""
+﻿"""
 Integration test for pure ONNX game predictions
 Tests the complete pipeline: features -> ONNX inference -> predictions
 """
@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 import numpy as np
 import pandas as pd
-from nba_betting.games_onnx_pure import PureONNXGamePredictor
+from wnba_betting.games_onnx_pure import PureONNXGamePredictor
 
 
 def _make_feature_row(feature_columns: list[str], overrides: dict) -> dict:
@@ -148,3 +148,4 @@ def test_pure_onnx_games():
 
 if __name__ == "__main__":
     test_pure_onnx_games()
+

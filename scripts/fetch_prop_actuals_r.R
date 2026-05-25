@@ -1,9 +1,9 @@
-#!/usr/bin/env Rscript
+﻿#!/usr/bin/env Rscript
 
 # Usage:
-# Rscript scripts/nbastatr_fetch_prop_actuals.R --date 2025-01-15 --out data/processed/props_actuals_2025-01-15.csv
+# Rscript scripts/fetch_prop_actuals_r.R --date 2025-01-15 --out data/processed/props_actuals_2025-01-15.csv
 # or
-# Rscript scripts/nbastatr_fetch_prop_actuals.R --start 2024-10-01 --end 2025-06-30 --out data/processed/props_actuals_2024-10-01_2025-06-30.csv
+# Rscript scripts/fetch_prop_actuals_r.R --start 2024-10-01 --end 2025-06-30 --out data/processed/props_actuals_2024-10-01_2025-06-30.csv
 
 suppressPackageStartupMessages({
   library(optparse)
@@ -133,3 +133,4 @@ dir.create(dirname(opt$out), recursive = TRUE, showWarnings = FALSE)
 
 readr::write_csv(logs, opt$out)
 message(paste0("Wrote ", nrow(logs), " rows to ", opt$out))
+

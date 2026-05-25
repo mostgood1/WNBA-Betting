@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 set -euo pipefail
 
 echo "Starting WNBA Betting on Render..."
@@ -38,7 +38,7 @@ ACTIVE_PROCESSED_DIR="${ACTIVE_DATA_ROOT}/processed"
 if [ "${RENDER_BOOTSTRAP_CURRENT_SLATE:-1}" = "1" ]; then
   if ! compgen -G "${ACTIVE_PROCESSED_DIR}/smart_sim_${REFRESH_DATE}_*.json" > /dev/null; then
     echo "[prestart] No smart_sim artifacts for ${REFRESH_DATE}; bootstrapping current slate"
-    python -m nba_betting.cli predict-date --date "${REFRESH_DATE}" || echo "[prestart] predict-date failed (non-fatal)"
+    python -m wnba_betting.cli predict-date --date "${REFRESH_DATE}" || echo "[prestart] predict-date failed (non-fatal)"
   else
     echo "[prestart] Found smart_sim artifacts for ${REFRESH_DATE}; skipping bootstrap"
   fi
@@ -53,9 +53,9 @@ if [ "${RENDER_PRESTART_REFRESH:-0}" = "1" ]; then
   if [ -n "${ODDS_API_KEY:-}" ]; then
     echo "[prestart] Refreshing odds and exporting recs for ${REFRESH_DATE}..."
     # Ignore failures so the web still comes up if the refresh times out
-    python -m nba_betting.cli odds-refresh --date "${REFRESH_DATE}" || echo "[prestart] odds-refresh failed (non-fatal)"
-    python -m nba_betting.cli export-recommendations --date "${REFRESH_DATE}" || echo "[prestart] export-recommendations failed (non-fatal)"
-    python -m nba_betting.cli export-props-recommendations --date "${REFRESH_DATE}" || echo "[prestart] export-props-recommendations failed (non-fatal)"
+    python -m wnba_betting.cli odds-refresh --date "${REFRESH_DATE}" || echo "[prestart] odds-refresh failed (non-fatal)"
+    python -m wnba_betting.cli export-recommendations --date "${REFRESH_DATE}" || echo "[prestart] export-recommendations failed (non-fatal)"
+    python -m wnba_betting.cli export-props-recommendations --date "${REFRESH_DATE}" || echo "[prestart] export-props-recommendations failed (non-fatal)"
 
     # Optionally commit and push refreshed artifacts back to Git for cross-env consistency
     if [ "${RENDER_PUSH_ON_DEPLOY:-0}" = "1" ]; then
@@ -99,3 +99,4 @@ exec gunicorn app:app \
   --max-requests-jitter ${GUNICORN_MAX_REQUESTS_JITTER:-0} \
   --timeout 120 \
   --log-level info
+

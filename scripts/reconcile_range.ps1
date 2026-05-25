@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string]$Start = '2025-10-21',
   [string]$End = '',
   [switch]$GitPush
@@ -59,7 +59,7 @@ $ok = 0; $fail = 0
 foreach ($d in $dates) {
   Write-Host ("-- reconcile {0}" -f $d)
   try {
-    & $Python -m nba_betting.cli reconcile-date --date $d 2>&1 | Out-Host
+    & $Python -m wnba_betting.cli reconcile-date --date $d 2>&1 | Out-Host
     if ($LASTEXITCODE -ne 0) { throw "exit $LASTEXITCODE" }
     $ok++
   } catch {
@@ -92,3 +92,4 @@ if ($GitPush) {
     Write-Host ("Git push failed: {0}" -f $_.Exception.Message) -ForegroundColor Yellow
   }
 }
+

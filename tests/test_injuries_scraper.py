@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pandas as pd
 
-from nba_betting import config as config_module
-from nba_betting.scrapers import injuries as injuries_module
+from wnba_betting import config as config_module
+from wnba_betting.scrapers import injuries as injuries_module
 
 
 def test_update_injuries_remaps_fallback_team_to_roster(tmp_path, monkeypatch):

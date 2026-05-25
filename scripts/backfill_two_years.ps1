@@ -1,4 +1,4 @@
-Param(
+﻿Param(
     [string]$Start = "2023-10-01",
     [string]$End = "2025-10-26",
     [float]$RateDelay = 0.4,
@@ -44,7 +44,7 @@ foreach ($pair in $ranges) {
     $flag = if ($IncludeLive) { "--include-live" } else { "--finals-only" }
 
     # Boxscores
-    & $Python -m nba_betting.cli backfill-boxscores --start $ms --end $me $flag --rate-delay $RateDelay
+    & $Python -m wnba_betting.cli backfill-boxscores --start $ms --end $me $flag --rate-delay $RateDelay
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Boxscores backfill failed for $ms..$me (exit=$LASTEXITCODE)" -ForegroundColor Red
         $hadErrors = $true
@@ -52,7 +52,7 @@ foreach ($pair in $ranges) {
     }
 
     # PBP
-    & $Python -m nba_betting.cli backfill-pbp --start $ms --end $me $flag --rate-delay $RateDelay
+    & $Python -m wnba_betting.cli backfill-pbp --start $ms --end $me $flag --rate-delay $RateDelay
     if ($LASTEXITCODE -ne 0) {
         Write-Host "PBP backfill failed for $ms..$me (exit=$LASTEXITCODE)" -ForegroundColor Red
         $hadErrors = $true
@@ -68,3 +68,4 @@ else {
     Write-Host "\nBackfill complete." -ForegroundColor Green
     exit 0
 }
+

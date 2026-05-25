@@ -1,4 +1,4 @@
-"""Batch rebuild daily recommendation artifacts over a window.
+﻿"""Batch rebuild daily recommendation artifacts over a window.
 
 Primary intent: refresh exported CSVs after logic/scoring fixes.
 
@@ -70,7 +70,7 @@ def main() -> int:
     days = _iter_days(end_d, int(args.days))
     results: list[DayResult] = []
 
-    cli_base = [sys.executable, "-m", "nba_betting.cli"]
+    cli_base = [sys.executable, "-m", "wnba_betting.cli"]
 
     def _run(args_list: list[str]) -> tuple[bool, str]:
         try:
@@ -191,3 +191,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

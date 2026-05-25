@@ -1,4 +1,4 @@
-"""Smoke test for enhanced game predictions.
+﻿"""Smoke test for enhanced game predictions.
 
 Historically this file was used as a runnable script; pytest will import any
 `test_*.py` file, so we keep it import-safe and convert it into a real test.
@@ -16,8 +16,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from nba_betting.features_enhanced import build_features_enhanced
-from nba_betting.games_npu import NPUGamePredictor
+from wnba_betting.features_enhanced import build_features_enhanced
+from wnba_betting.games_npu import NPUGamePredictor
 
 
 def test_enhanced_predictions_smoke() -> None:
@@ -52,3 +52,4 @@ def test_enhanced_predictions_smoke() -> None:
     assert "win_prob" in pred
     assert "spread_margin" in pred
     assert ("totals" in pred) or ("total" in pred)
+

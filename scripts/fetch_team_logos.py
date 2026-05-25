@@ -9,7 +9,7 @@ from typing import Iterable
 import requests
 
 ROOT = Path(__file__).resolve().parents[1]
-TEAMS_JSON = ROOT / 'web' / 'assets' / 'teams_nba.json'
+TEAMS_JSON = ROOT / 'web' / 'assets' / 'teams_wnba.json'
 OUT_DIR = ROOT / 'web' / 'assets' / 'logos'
 
 HEADERS = {

@@ -1,4 +1,4 @@
-param(
+﻿param(
   [int]$Days = 14,
   [switch]$GitPush,
   [switch]$NoSlateOnly
@@ -20,7 +20,7 @@ $start = (Get-Date).AddDays(-$Days).ToString('yyyy-MM-dd')
 Write-Host "Running props calibration compare: $start .. $end" -ForegroundColor Cyan
 
 # Build CLI args
-$opts = @('-m','nba_betting.cli','evaluate-props-calibration-compare','--start', $start,'--end',$end)
+$opts = @('-m','wnba_betting.cli','evaluate-props-calibration-compare','--start', $start,'--end',$end)
 if ($NoSlateOnly) { $opts += '--no-slate-only' }
 
 # Run evaluator (tolerate stderr warnings from native tools like cpuinfo/onnxruntime)
@@ -82,3 +82,4 @@ if ($GitPush) {
     & powershell -NoProfile -ExecutionPolicy Bypass -File $commit -Date $end -Push -IncludeEval 2>&1 | Out-Host
   }
 }
+

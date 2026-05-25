@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
@@ -566,7 +566,7 @@ def _apply_lineup_teammate_effects_to_priors(
 def _load_rotation_first_sub_priors() -> dict[str, dict[str, Any]]:
     """Load team-level first bench sub-in timing priors (seconds elapsed in Q1).
 
-    File is written by nba_betting.rotation_priors.write_rotation_priors().
+    File is written by wnba_betting.rotation_priors.write_rotation_priors().
 
     Returns a dict keyed by team tricode. Values contain:
       - elapsed_sec_mean (float)
@@ -4261,3 +4261,4 @@ def write_sportswriter_recap(
         return " ".join([s for s in lines if s])
     except Exception:
         return ""
+

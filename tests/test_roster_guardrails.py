@@ -1,12 +1,12 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pandas as pd
 
-from nba_betting import config as config_module
-from nba_betting import availability as availability_module
-from nba_betting import roster_checks as roster_checks_module
-from nba_betting import roster_files as roster_files_module
-from nba_betting import rosters as rosters_module
+from wnba_betting import config as config_module
+from wnba_betting import availability as availability_module
+from wnba_betting import roster_checks as roster_checks_module
+from wnba_betting import roster_files as roster_files_module
+from wnba_betting import rosters as rosters_module
 
 
 def test_pick_roster_file_prefers_more_complete_candidate(tmp_path):

@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 from pathlib import Path
 from datetime import datetime, timedelta
 import pandas as pd
@@ -139,7 +139,7 @@ def evaluate_edges(
     """
     actuals = _load_actuals()
     if actuals is None or actuals.empty:
-        raise RuntimeError("No props actuals available. Run `python -m nba_betting.cli fetch-prop-actuals --date YYYY-MM-DD` first.")
+        raise RuntimeError("No props actuals available. Run `python -m wnba_betting.cli fetch-prop-actuals --date YYYY-MM-DD` first.")
 
     need_cols = {"date", "player_id", "player_name", "stat", "side", "line", "price", "model_prob", "implied_prob", "edge"}
     bets: list[pd.DataFrame] = []
@@ -331,3 +331,4 @@ def main():
 
 if __name__ == '__main__':
     raise SystemExit(main())
+

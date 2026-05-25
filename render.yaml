@@ -1,4 +1,4 @@
-services:
+﻿services:
   - type: web
     name: wnba-betting
     runtime: python
@@ -90,7 +90,7 @@ services:
 # Note: Some Render accounts don’t support defining Cron Jobs in Blueprints yet.
 # If you see errors like "field jobs not found" in the Blueprint editor, deploy just the Web Service
 # using this file, then create Cron Jobs via the Render UI (New → Cron Job) with the commands below.
-# Alternatively, use the provided GitHub Actions scheduler in .github/workflows/nbabetting-scheduler.yml.
+# Alternatively, use the provided GitHub Actions scheduler in .github/workflows/wnbabetting-scheduler.yml.
 
 # Suggested Render Cron Jobs (create in Render UI):
 # - Name: live-lens-tick (every 60 seconds, all day; cheap no-op when no games)
@@ -106,3 +106,4 @@ services:
 #   Command: bash scripts/render_cron_call.sh "/api/cron/live-lens-reports?date=$(date -u -d yesterday +%F)&rollup_days=30&min_denom=20"
 # - Name: composite-run-all (optional, daily at 11:00 UTC)
 #   Command: bash scripts/render_cron_call.sh "/api/cron/run-all?push=1"
+

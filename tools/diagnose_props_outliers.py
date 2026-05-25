@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 from pathlib import Path
@@ -46,7 +46,7 @@ def main() -> int:
     print(out[show].to_string(index=False))
 
     # Load features for date
-    from nba_betting.props_features import build_features_for_date
+    from wnba_betting.props_features import build_features_for_date
 
     feats = build_features_for_date(args.date)
     feats = feats.copy()
@@ -82,7 +82,7 @@ def main() -> int:
     # Compare sklearn vs ONNX on the same features row if possible
     try:
         import joblib
-        from nba_betting.config import paths
+        from wnba_betting.config import paths
 
         feat_list = joblib.load(paths.models / "props_feature_columns.joblib")
         models_store = joblib.load(paths.models / "props_models.joblib")
@@ -99,7 +99,7 @@ def main() -> int:
 
     if not args.skip_onnx:
         try:
-            from nba_betting.props_onnx_pure import PureONNXPredictor
+            from wnba_betting.props_onnx_pure import PureONNXPredictor
 
             pr = PureONNXPredictor()
             row = feats.loc[feats["player_id"] == pid].copy()
@@ -165,3 +165,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

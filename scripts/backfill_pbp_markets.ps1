@@ -1,4 +1,4 @@
-Param(
+﻿Param(
   [string]$Start,
   [string]$End,
   [switch]$GitPush
@@ -36,7 +36,7 @@ $fail = @(); $ok = 0
 foreach ($d in $dates) {
   try {
     Write-Host "Predicting PBP markets for $d"
-    & $Python -m nba_betting.cli predict-pbp-markets --date $d
+    & $Python -m wnba_betting.cli predict-pbp-markets --date $d
     if ($LASTEXITCODE -ne 0) { throw "ExitCode=$LASTEXITCODE" }
     $ok++
   } catch {
@@ -66,3 +66,4 @@ if ($GitPush) {
     }
   } catch { Write-Warning ("Git push failed: {0}" -f $_.Exception.Message) }
 }
+

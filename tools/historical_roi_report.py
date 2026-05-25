@@ -1,4 +1,4 @@
-"""Historical ROI report for games + props.
+﻿"""Historical ROI report for games + props.
 
 Computes ROI/accuracy over a date window.
 
@@ -35,7 +35,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
 
-from nba_betting.scoring import GameScoreConfig, PropScoreConfig, score_game_pick_0_100, score_prop_pick_0_100
+from wnba_betting.scoring import GameScoreConfig, PropScoreConfig, score_game_pick_0_100, score_prop_pick_0_100
 
 
 def _parse_date(s: str) -> datetime:
@@ -580,3 +580,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

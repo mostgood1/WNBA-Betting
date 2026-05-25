@@ -1,12 +1,12 @@
-import argparse
+﻿import argparse
 from pathlib import Path
 from datetime import datetime
 import pandas as pd
 import numpy as np
 import math
 
-from nba_betting.sim_games import SimConfig
-from nba_betting.teams import to_tricode
+from wnba_betting.sim_games import SimConfig
+from wnba_betting.teams import to_tricode
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
@@ -466,3 +466,4 @@ def main():
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

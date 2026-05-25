@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import re
 from dataclasses import dataclass
@@ -836,7 +836,7 @@ def _game_ids_for_date(date_str: str) -> List[str]:
         # a) Today's scoreboard (live)
         if target == today:
             u = "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json"
-            r = requests.get(u, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=10)
+            r = requests.get(u, headers={"Accept":"application/json","User-Agent":"wnba-betting/1.0"}, timeout=10)
             if r.ok:
                 j = r.json() or {}
                 games = (j.get("scoreboard") or {}).get("games") or []
@@ -849,7 +849,7 @@ def _game_ids_for_date(date_str: str) -> List[str]:
                     return out
         # b) Full-season schedule (works for any date)
         u = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json"
-        r = requests.get(u, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=15)
+        r = requests.get(u, headers={"Accept":"application/json","User-Agent":"wnba-betting/1.0"}, timeout=15)
         if r.ok:
             j = r.json() or {}
             league = j.get("leagueSchedule") or {}
@@ -900,7 +900,7 @@ def _gid_team_map_for_date(date_str: str) -> Dict[str, tuple[str, str]]:
         out: Dict[str, tuple[str, str]] = {}
         if target == today:
             u = "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json"
-            r = requests.get(u, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=10)
+            r = requests.get(u, headers={"Accept":"application/json","User-Agent":"wnba-betting/1.0"}, timeout=10)
             if r.ok:
                 j = r.json() or {}
                 games = (j.get("scoreboard") or {}).get("games") or []
@@ -912,7 +912,7 @@ def _gid_team_map_for_date(date_str: str) -> Dict[str, tuple[str, str]]:
                         out[gid] = (home, away)
         # Static season schedule (filter by ET calendar day)
         u = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json"
-        r = requests.get(u, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=15)
+        r = requests.get(u, headers={"Accept":"application/json","User-Agent":"wnba-betting/1.0"}, timeout=15)
         if r.ok:
             j = r.json() or {}
             league = j.get("leagueSchedule") or {}
@@ -1511,3 +1511,4 @@ def predict_early_threes_for_date(date_str: str) -> pd.DataFrame:
     out_path = paths.data_processed / f"early_threes_{date_str}.csv"
     out.to_csv(out_path, index=False)
     return out
+

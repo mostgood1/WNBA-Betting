@@ -1,4 +1,4 @@
-param(
+﻿param(
   [string[]]$Dates
 )
 
@@ -17,9 +17,10 @@ if (-not (Test-Path $Python)) { $Python = 'python' }
 foreach($d in $Dates) {
   try {
     Write-Host ("Reconcile games locally for date=" + $d)
-    & $Python -m nba_betting.cli reconcile-date --date $d 2>&1 | Out-Null
+    & $Python -m wnba_betting.cli reconcile-date --date $d 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) { Write-Host ("OK " + $d) } else { Write-Host ("ERR " + $d + " exit=" + $LASTEXITCODE) }
   } catch {
     Write-Host ('ERR ' + $d + ': ' + $_.Exception.Message)
   }
 }
+

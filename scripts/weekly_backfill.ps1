@@ -41,7 +41,7 @@ function Invoke-PyMod {
 }
 
 # 1) PBP backfill for range
-$plist = @('-m','nba_betting.cli','backfill-pbp','--start', $Start, '--end', $End)
+$plist = @('-m','wnba_betting.cli','backfill-pbp','--start', $Start, '--end', $End)
 if ($FinalsOnly) { $plist += '--finals-only' }
 Write-Log ("Run: python {0}" -f ($plist -join ' '))
 $rc1 = Invoke-PyMod -plist $plist
@@ -63,7 +63,7 @@ try {
 }
 
 # 2) recon_quarters for range
-$plist2 = @('-m','nba_betting.cli','reconcile-quarters-range','--start', $Start, '--end', $End)
+$plist2 = @('-m','wnba_betting.cli','reconcile-quarters-range','--start', $Start, '--end', $End)
 Write-Log ("Run: python {0}" -f ($plist2 -join ' '))
 $rc2 = Invoke-PyMod -plist $plist2
 Write-Log ("reconcile-quarters-range exit code: {0}" -f $rc2)
@@ -97,7 +97,7 @@ try {
   } else {
     # Use the same anchor convention as daily_update: anchor = yesterday/end date.
     Write-Log ("Calibrating period probabilities (window=30) anchored at {0}" -f $End)
-    $plistCal = @('-m','nba_betting.cli','calibrate-period-probs','--anchor', $End, '--window', '30', '--bins', '12', '--alpha', '1.0')
+    $plistCal = @('-m','wnba_betting.cli','calibrate-period-probs','--anchor', $End, '--window', '30', '--bins', '12', '--alpha', '1.0')
     Write-Log ("Run: python {0}" -f ($plistCal -join ' '))
     $rcCal = Invoke-PyMod -plist $plistCal
     Write-Log ("calibrate-period-probs exit code: {0}" -f $rcCal)

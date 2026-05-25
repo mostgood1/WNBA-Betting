@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -9,8 +9,8 @@ from typing import Any
 import pandas as pd
 import requests
 
-from nba_betting.config import paths
-from nba_betting.odds_api import (
+from wnba_betting.config import paths
+from wnba_betting.odds_api import (
     NBA_SPORT_KEY,
     ODDS_HOST,
     OddsApiConfig,
@@ -21,7 +21,7 @@ from nba_betting.odds_api import (
 
 
 def _headers() -> dict[str, str]:
-    return {"Accept": "application/json", "User-Agent": "nba-betting/1.0"}
+    return {"Accept": "application/json", "User-Agent": "wnba-betting/1.0"}
 
 
 def _usage_headers(resp: requests.Response) -> dict[str, Any]:
@@ -149,3 +149,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+

@@ -1,11 +1,11 @@
-[build-system]
+﻿[build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nba-betting"
+name = "wnba-betting"
 version = "0.1.0"
-description = "NBA betting predictor pipeline"
+description = "WNBA betting predictor pipeline"
 authors = [{name = "You"}]
 readme = "README.md"
 requires-python = ">=3.10"
@@ -36,3 +36,4 @@ train = [
 test = [
     "pytest>=8.3",
 ]
+

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Debug script to trace win probability predictions and find why we get 0% or 100%
 """
 import pandas as pd
@@ -75,6 +75,7 @@ if hist_file.exists():
 
 else:
     print(f"\n❌ File not found: {hist_file}")
-    print("Run 'python -m nba_betting.cli run-all-improvements' first")
+    print("Run 'python -m wnba_betting.cli run-all-improvements' first")
 
 print("\n" + "=" * 70)
+

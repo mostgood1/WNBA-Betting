@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
-"""End-to-end system verification for NBA Betting"""
+﻿#!/usr/bin/env python3
+"""End-to-end system verification for WNBA Betting"""
 import pandas as pd
 
 print('\n' + '='*70)
-print('NBA BETTING SYSTEM - END-TO-END VERIFICATION')
+print('WNBA BETTING SYSTEM - END-TO-END VERIFICATION')
 print('='*70)
 
 # Step 1: Verify game predictions
@@ -107,3 +107,4 @@ print(f'✅ ONNX Models: {found}/{len(onnx_models)} models on disk')
 print(f'✅ Frontend: Optimized game cards (duplicates removed)')
 print('\n🎯 SYSTEM READY FOR OPENING NIGHT (Oct 21, 2025)')
 print('='*70 + '\n')
+

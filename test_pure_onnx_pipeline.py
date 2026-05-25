@@ -1,4 +1,4 @@
-"""Test the complete Pure ONNX pipeline (features + inference).
+﻿"""Test the complete Pure ONNX pipeline (features + inference).
 
 This is intended as a smoke test. It skips (instead of failing) when
 the local processed data/models required for the chosen date aren't present.
@@ -13,8 +13,8 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from nba_betting.props_features_pure import build_features_for_date_pure
-from nba_betting.props_onnx_pure import PureONNXPredictor
+from wnba_betting.props_features_pure import build_features_for_date_pure
+from wnba_betting.props_onnx_pure import PureONNXPredictor
 
 
 def test_pure_onnx_pipeline_smoke() -> None:
@@ -36,3 +36,4 @@ def test_pure_onnx_pipeline_smoke() -> None:
 
     pred_cols = [c for c in predictions.columns if c.startswith("pred_")]
     assert pred_cols, "Expected at least one prediction column (pred_*)"
+

@@ -1,8 +1,8 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 
-from nba_betting.prop_ladders import build_card_sim_ladders, build_exact_ladder_payload, load_smart_sim_prop_ladder_lookup
+from wnba_betting.prop_ladders import build_card_sim_ladders, build_exact_ladder_payload, load_smart_sim_prop_ladder_lookup
 
 
 def test_build_exact_ladder_payload_includes_distribution_counts() -> None:

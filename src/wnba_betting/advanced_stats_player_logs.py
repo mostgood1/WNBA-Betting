@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
@@ -56,7 +56,7 @@ def compute_team_advanced_stats_from_player_logs(
 
     This is a no-network fallback when per-game boxscore cache files are absent.
 
-    Uses the same output schema as :func:`nba_betting.advanced_stats_boxscores.compute_team_advanced_stats_from_boxscores`.
+    Uses the same output schema as :func:`wnba_betting.advanced_stats_boxscores.compute_team_advanced_stats_from_boxscores`.
     """
 
     if player_logs_path is None:
@@ -311,3 +311,4 @@ def compute_team_advanced_stats_from_player_logs(
     out = out.replace([np.inf, -np.inf], np.nan).dropna(subset=["pace", "off_rtg", "def_rtg"])
     out = out.sort_values("team").reset_index(drop=True)
     return out
+

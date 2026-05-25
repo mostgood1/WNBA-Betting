@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 from pathlib import Path
@@ -18,7 +18,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 try:
-    from nba_betting.teams import to_tricode as _to_tri  # type: ignore
+    from wnba_betting.teams import to_tricode as _to_tri  # type: ignore
 except Exception:
     _to_tri = None  # type: ignore
 
@@ -508,3 +508,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

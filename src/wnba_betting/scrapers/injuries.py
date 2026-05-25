@@ -15,7 +15,10 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-from pypdf import PdfReader
+try:
+    from pypdf import PdfReader
+except ImportError:
+    PdfReader = None
 
 from ..config import paths
 from ..league import season_start_year_from_date
@@ -1050,6 +1053,9 @@ class NBAOfficialInjuryReportScraper:
         This parser is stateful: it carries the current matchup and team forward until the next
         explicit matchup/team token appears.
         """
+
+        if PdfReader is None:
+            return pd.DataFrame()
 
         try:
             reader = PdfReader(io.BytesIO(pdf_bytes))

@@ -1,4 +1,4 @@
-import sys
+﻿import sys
 import os
 from pathlib import Path
 from datetime import datetime
@@ -12,8 +12,8 @@ def main():
     if str(src_dir) not in sys.path:
         sys.path.insert(0, str(src_dir))
 
-    from nba_betting.odds_bovada import fetch_bovada_odds_current
-    from nba_betting.config import paths
+    from wnba_betting.odds_bovada import fetch_bovada_odds_current
+    from wnba_betting.config import paths
 
     if len(sys.argv) < 2:
         print("Usage: python scripts/fetch_bovada_game_odds.py YYYY-MM-DD")
@@ -48,3 +48,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

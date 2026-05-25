@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import datetime as dt
@@ -14,7 +14,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from nba_betting.league_status import build_league_status  # type: ignore
+from wnba_betting.league_status import build_league_status  # type: ignore
 
 
 def _default_date() -> str:
@@ -79,3 +79,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import math
@@ -7,19 +7,19 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-from nba_betting.config import paths
-from nba_betting.pbp_markets import (
+from wnba_betting.config import paths
+from wnba_betting.pbp_markets import (
     _game_ids_for_date as _pbp_game_ids_for_date,
     _first_fg_event as _pbp_first_fg_event,
     _jump_ball_event as _pbp_jump_ball_event,
     _desc_cols as _pbp_desc_cols,
 )
-from nba_betting.cli import predict_tip_for_date, predict_first_basket_for_date, predict_early_threes_for_date
-from nba_betting.pbp import fetch_pbp_for_date
+from wnba_betting.cli import predict_tip_for_date, predict_first_basket_for_date, predict_early_threes_for_date
+from wnba_betting.pbp import fetch_pbp_for_date
 
 
 def _cdn_map_for_date(ds: str) -> dict[str, tuple[str,str]]:
-    from nba_betting.pbp_markets import _gid_team_map_for_date as _map
+    from wnba_betting.pbp_markets import _gid_team_map_for_date as _map
     try:
         m = _map(ds) or {}
         return {str(k): (v[0], v[1]) for k, v in m.items()}
@@ -209,7 +209,7 @@ def run_backtest(start_date: str, end_date: str | None, ensure_preds: bool, ensu
         if not tip.empty and pbp_map:
             gid2ha = _cdn_map_for_date(ds)
             # roster for name->team lookup
-            from nba_betting.pbp_markets import _load_rosters_latest as _load_rost
+            from wnba_betting.pbp_markets import _load_rosters_latest as _load_rost
             rost = _load_rost()
             tri_col = 'TEAM_ABBREVIATION' if 'TEAM_ABBREVIATION' in rost.columns else ('teamTricode' if 'teamTricode' in rost.columns else None)
             for _, r in tip.iterrows():
@@ -264,3 +264,4 @@ if __name__ == '__main__':
     ap.add_argument('--ensure-pbp', action='store_true')
     args = ap.parse_args()
     run_backtest(args.start, args.end, args.ensure_preds, args.ensure_pbp)
+

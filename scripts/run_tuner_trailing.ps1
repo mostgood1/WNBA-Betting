@@ -1,4 +1,4 @@
-param(
+﻿param(
   [int]$Days = 14,
   [switch]$GitPush,
   [switch]$NoSlateOnly,
@@ -27,7 +27,7 @@ try {
 } catch { Write-Host ("Config backup skipped: {0}" -f $_.Exception.Message) -ForegroundColor Yellow }
 
 # Run tuner over trailing days ending yesterday
-$opts = @('-m','nba_betting.cli','tune-props-player-calibration','--days', [string]$Days, '--criterion', $Criterion)
+$opts = @('-m','wnba_betting.cli','tune-props-player-calibration','--days', [string]$Days, '--criterion', $Criterion)
 if ($NoSlateOnly) { $opts += '--no-slate-only' }
 
 Write-Host ("Running tuner: trailing {0} days (criterion={1})" -f $Days, $Criterion) -ForegroundColor Cyan
@@ -43,3 +43,4 @@ if ($GitPush) {
     & powershell -NoProfile -ExecutionPolicy Bypass -File $commit -Date $yday -IncludeCalibConfig -Push 2>&1 | Out-Host
   }
 }
+

@@ -1,10 +1,10 @@
-"""Check feature data types"""
+﻿"""Check feature data types"""
 import pandas as pd
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from nba_betting.features_enhanced import build_features_enhanced, get_enhanced_feature_columns
+from wnba_betting.features_enhanced import build_features_enhanced, get_enhanced_feature_columns
 
 # Load games
 games = pd.read_csv('data/raw/games_nba_api.csv').tail(5)
@@ -18,3 +18,4 @@ for col in cols:
     print(f"  {col}: {dtype}")
     if dtype == 'object':
         print(f"    Sample values: {df[col].head(3).tolist()}")
+

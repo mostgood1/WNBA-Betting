@@ -1,4 +1,4 @@
-"""
+﻿"""
 Enhanced feature engineering with injury data and advanced statistics.
 Extends base features with pace, efficiency, and injury impact.
 """
@@ -141,7 +141,7 @@ def add_injury_features(df: pd.DataFrame) -> pd.DataFrame:
     injury_file = paths.root / "data" / "raw" / "injuries.csv"
     
     if not injury_file.exists():
-        print("No injury data found. Run: python -m nba_betting.cli fetch-injuries")
+        print("No injury data found. Run: python -m wnba_betting.cli fetch-injuries")
         # Add empty columns
         for prefix in ['home', 'visitor']:
             df[f'{prefix}_injuries_out'] = 0
@@ -364,3 +364,4 @@ if __name__ == "__main__":
         
     else:
         print(f"Games file not found: {games_file}")
+

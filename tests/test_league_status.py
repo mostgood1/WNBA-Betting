@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pandas as pd
 
-from nba_betting import config as config_module
-from nba_betting import league_status as league_status_module
+from wnba_betting import config as config_module
+from wnba_betting import league_status as league_status_module
 
 
 def test_today_slate_team_tricodes_ignores_stale_schedule_when_live_sources_exist(tmp_path, monkeypatch):

@@ -1,6 +1,6 @@
-import pandas as pd
+﻿import pandas as pd
 from pathlib import Path
-from nba_betting.pbp_markets import _jump_ball_event as _jb
+from wnba_betting.pbp_markets import _jump_ball_event as _jb
 import re
 
 def norm_gid(x:str)->str:
@@ -64,3 +64,4 @@ for ds in ['2025-10-23','2025-10-24','2025-10-25','2025-10-26']:
         if out is not None:
             ok+=1
     print(ds, 'mapped', ok, 'of', total)
+

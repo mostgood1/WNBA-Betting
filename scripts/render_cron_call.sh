@@ -12,8 +12,8 @@ set -euo pipefail
 #   ./scripts/render_cron_call.sh "/api/cron/refresh-oddsapi-props?date=$(date -u +%F)&regions=us&edges=1&export=1"
 #   ./scripts/render_cron_call.sh "/api/cron/run-all?push=0"
 
-BASE_URL="${WNBA_BETTING_BASE_URL:-${NBA_BETTING_BASE_URL:-${BASE_URL:-${RENDER_EXTERNAL_URL:-}}}}"
-TOKEN="${WNBA_BETTING_CRON_TOKEN:-${NBA_BETTING_CRON_TOKEN:-${CRON_TOKEN:-}}}"
+BASE_URL="${WNBA_BETTING_BASE_URL:-${BASE_URL:-${RENDER_EXTERNAL_URL:-}}}"
+TOKEN="${WNBA_BETTING_CRON_TOKEN:-${CRON_TOKEN:-}}"
 PATH_QS="${1:-/api/cron/ping}"
 
 if [[ -z "${BASE_URL}" ]]; then
@@ -32,8 +32,8 @@ fi
 
 echo "[render-cron] GET ${URL}" >&2
 
-max_attempts="${NBA_BETTING_CRON_MAX_ATTEMPTS:-6}"
-sleep_base_seconds="${NBA_BETTING_CRON_SLEEP_BASE_SECONDS:-5}"
+max_attempts="${WNBA_BETTING_CRON_MAX_ATTEMPTS:-6}"
+sleep_base_seconds="${WNBA_BETTING_CRON_SLEEP_BASE_SECONDS:-5}"
 
 attempt=1
 while true; do

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import subprocess
 import sys
@@ -94,14 +94,14 @@ def ensure_rscript() -> str:
     )
 
 
-def fetch_prop_actuals_via_nbastatr(date: str | None = None, start: str | None = None, end: str | None = None, out: Path | None = None, verbose: bool = True) -> pd.DataFrame:
+def fetch_prop_actuals_via_r(date: str | None = None, start: str | None = None, end: str | None = None, out: Path | None = None, verbose: bool = True) -> pd.DataFrame:
     """Call the R script to fetch player actuals and return a DataFrame.
 
     Either provide date (YYYY-MM-DD) or start/end.
     """
     if (date is None) == (start is None or end is None):
         raise ValueError("Provide either date or both start and end")
-    script = paths.root / "scripts" / "nbastatr_fetch_prop_actuals.R"
+    script = paths.root / "scripts" / "fetch_prop_actuals_r.R"
     if not script.exists():
         raise FileNotFoundError(f"R script not found at {script}")
     exe = ensure_rscript()
@@ -181,3 +181,4 @@ def upsert_props_actuals(df: pd.DataFrame) -> Path:
         # non-fatal
         pass
     return out_parq
+

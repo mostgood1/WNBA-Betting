@@ -1,4 +1,4 @@
-"""Backfill props artifacts (edges -> cards -> best_edges snapshots) for a date range.
+﻿"""Backfill props artifacts (edges -> cards -> best_edges snapshots) for a date range.
 
 Goal: regenerate historical CSVs using the *current* props edge logic while staying
 as offline/deterministic as possible.
@@ -59,9 +59,9 @@ def rebuild_one(
     max_games: int,
     max_props: int,
 ) -> Result:
-    from nba_betting.config import paths
-    from nba_betting.props_edges import SigmaConfig, calibrate_sigma_for_date, compute_props_edges
-    from nba_betting.cli import _export_best_edges_snapshot, _export_props_recommendations_cards
+    from wnba_betting.config import paths
+    from wnba_betting.props_edges import SigmaConfig, calibrate_sigma_for_date, compute_props_edges
+    from wnba_betting.cli import _export_best_edges_snapshot, _export_props_recommendations_cards
 
     raw_odds = paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
     preds_p = paths.data_processed / f"props_predictions_{date_str}.csv"
@@ -187,3 +187,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

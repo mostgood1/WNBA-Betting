@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 from pathlib import Path
@@ -11,7 +11,7 @@ SRC = ROOT / "src"
 if str(SRC) not in __import__("sys").path:
     __import__("sys").path.insert(0, str(SRC))
 
-from nba_betting.player_names import normalize_player_name_key
+from wnba_betting.player_names import normalize_player_name_key
 
 
 def _truthy_mask(series: pd.Series) -> pd.Series:

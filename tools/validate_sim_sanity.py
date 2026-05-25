@@ -1,4 +1,4 @@
-"""Sanity checks for simulated + processed NBA artifacts.
+﻿"""Sanity checks for simulated + processed NBA artifacts.
 
 Validates, for a given date:
 - Quarter/half/game arithmetic and consistency in recon_quarters.
@@ -81,7 +81,7 @@ def _load_smart_sim_players(date_str: str) -> dict[int, dict[str, Any]]:
     try:
         cards_p = PROC / f"game_cards_{date_str}.csv"
         if cards_p.exists():
-            from nba_betting.teams import to_tricode  # type: ignore
+            from wnba_betting.teams import to_tricode  # type: ignore
 
             cdf = _read_csv(cards_p)
             if cdf is not None and not cdf.empty:
@@ -908,3 +908,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

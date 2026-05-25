@@ -1,4 +1,4 @@
-"""Build a calibration artifact for quarter scoring splits/variance.
+﻿"""Build a calibration artifact for quarter scoring splits/variance.
 
 Outputs: data/processed/quarters_calibration.json
 
@@ -58,7 +58,7 @@ def build(workspace: Path) -> QuartersCalibration:
             name = str(r.get("team") or "").strip()
             tri = name
             try:
-                from nba_betting.teams import to_tricode
+                from wnba_betting.teams import to_tricode
 
                 tri = to_tricode(name)
             except Exception:
@@ -161,3 +161,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

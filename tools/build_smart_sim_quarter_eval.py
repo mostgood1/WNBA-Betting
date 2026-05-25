@@ -1,4 +1,4 @@
-"""Build smart_sim_quarter_eval_*.csv with period (quarters/halves) calibration columns.
+﻿"""Build smart_sim_quarter_eval_*.csv with period (quarters/halves) calibration columns.
 
 This script joins:
 - SmartSim outputs: data/processed/smart_sim_<date>_<HOME>_<AWAY>.json
@@ -12,7 +12,7 @@ And produces a wide CSV under data/processed/ with, per period:
 - *_over_p, *_over_y (when market_total exists)
 - *_cover_p, *_cover_y (when market_home_spread exists)
 
-This is designed as the data source for `nba_betting.cli calibrate-period-probs`.
+This is designed as the data source for `wnba_betting.cli calibrate-period-probs`.
 
 Usage:
   python tools/build_smart_sim_quarter_eval.py --start 2026-01-01 --end 2026-01-24
@@ -274,7 +274,7 @@ def _load_actuals_from_raw_nba_api(start: str, end: str) -> pd.DataFrame:
 
     # Map to tricodes
     try:
-        from nba_betting.teams import normalize_team, to_tricode
+        from wnba_betting.teams import normalize_team, to_tricode
 
         df["home_tri"] = df["home_team"].astype(str).map(normalize_team).map(to_tricode)
         df["away_tri"] = df["visitor_team"].astype(str).map(normalize_team).map(to_tricode)
@@ -537,3 +537,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

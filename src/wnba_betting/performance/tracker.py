@@ -1,5 +1,5 @@
-"""
-Performance tracking dashboard for NBA betting models.
+﻿"""
+Performance tracking dashboard for WNBA betting models.
 Tracks accuracy, ROI, calibration, and profit/loss over time.
 """
 
@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Tuple
 from pathlib import Path
 
-from nba_betting.config import paths
+from wnba_betting.config import paths
 
 
 def _resolve_against_data_root(p: str) -> Path:
@@ -269,7 +269,7 @@ class PerformanceTracker:
         """Pretty print performance report."""
         
         print("\n" + "="*60)
-        print("NBA BETTING MODEL - PERFORMANCE REPORT")
+        print("WNBA BETTING MODEL - PERFORMANCE REPORT")
         print("="*60)
         
         if 'date_range' in report:
@@ -307,3 +307,5 @@ if __name__ == "__main__":
     print("\nCalculating seasonal performance...")
     report_season = tracker.generate_performance_report(days_back=365)
     tracker.print_performance_summary(report_season)
+
+

@@ -290,7 +290,7 @@ class NPUPropsPredictor:
         return benchmark_results
 
 
-def integrate_npu_with_nba_betting(date: str, output_csv: bool = True) -> pd.DataFrame:
+def integrate_npu_with_wnba_betting(date: str, output_csv: bool = True) -> pd.DataFrame:
     """
     Main integration function for WNBA-Betting pipeline
     
@@ -341,7 +341,7 @@ def integrate_npu_with_nba_betting(date: str, output_csv: bool = True) -> pd.Dat
         return pd.DataFrame()
 
 
-def benchmark_nba_betting_npu() -> None:
+def benchmark_wnba_betting_npu() -> None:
     """Benchmark NPU performance for WNBA-Betting integration"""
     
     print("🚀 WNBA-Betting NPU Performance Benchmark")
@@ -383,11 +383,11 @@ if __name__ == "__main__":
     print("🏀 WNBA-Betting NPU Integration Demo")
     
     # Run benchmark
-    benchmark_nba_betting_npu()
+    benchmark_wnba_betting_npu()
     
     # Try prediction for today (will work if data available)
     print(f"\n🎯 Attempting prediction for {today}...")
-    results = integrate_npu_with_nba_betting(today)
+    results = integrate_npu_with_wnba_betting(today)
     
     if not results.empty:
         print("✅ NPU integration successful!")

@@ -1,4 +1,4 @@
-name: "WNBA Betting: Daily Update (7AM Central)"
+﻿name: "WNBA Betting: Daily Update (7AM Central)"
 
 on:
   workflow_dispatch: {}
@@ -219,3 +219,5 @@ jobs:
               Write-Host "::warning::Live Lens $($entry.Name) upload status=$($entry.Status) $($entry.Detail)"
             }
           }
+
+

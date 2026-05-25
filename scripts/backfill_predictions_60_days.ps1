@@ -1,4 +1,4 @@
-Param(
+﻿Param(
   [string]$Start = (Get-Date).AddDays(-60).ToString('yyyy-MM-dd'),
   [string]$End = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd')
 )
@@ -29,11 +29,12 @@ $ed = [DateTime]::ParseExact($End, 'yyyy-MM-dd', $null)
 for ($d = $sd; $d -le $ed; $d = $d.AddDays(1)) {
   $ds = $d.ToString('yyyy-MM-dd')
   Write-Host "[Predict] $ds"
-  $rcPred = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-games-npu','--date', $ds)
+  $rcPred = Invoke-PyMod -plist @('-m','wnba_betting.cli','predict-games-npu','--date', $ds)
   Write-Host "  rc=$rcPred"
   Write-Host "[Reconcile] $ds"
-  $rcRec = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-date','--date', $ds)
+  $rcRec = Invoke-PyMod -plist @('-m','wnba_betting.cli','reconcile-date','--date', $ds)
   Write-Host "  rc=$rcRec"
 }
 
 Write-Host 'Done backfill.'
+

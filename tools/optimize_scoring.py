@@ -1,4 +1,4 @@
-import argparse
+﻿import argparse
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
@@ -11,7 +11,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
 
-from nba_betting.scoring import (
+from wnba_betting.scoring import (
     GameScoreConfig,
     PropScoreConfig,
     score_game_pick_0_100,
@@ -671,7 +671,7 @@ def main() -> int:
                 continue
 
         # Inherit all non-weight parameters from current defaults so we can tune
-        # centers/scales in nba_betting.scoring and have optimization reflect it.
+        # centers/scales in wnba_betting.scoring and have optimization reflect it.
         game_cfg = base_game
         if not bool(args.freeze_games):
             game_cfg = GameScoreConfig(
@@ -764,3 +764,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

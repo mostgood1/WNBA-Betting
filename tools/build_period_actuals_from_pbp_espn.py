@@ -1,4 +1,4 @@
-"""Build period (quarters/halves) actuals from ESPN play-by-play.
+﻿"""Build period (quarters/halves) actuals from ESPN play-by-play.
 
 Outputs a CSV under data/processed/ that contains, per game:
 - date, home_tri, away_tri, game_id
@@ -121,7 +121,7 @@ def build_for_date(date_str: str, rate_delay: float = 0.15) -> pd.DataFrame:
 
     # Fetch if missing or unusable
     if dfe is None or dfe.empty or ("home_score" not in dfe.columns) or ("away_score" not in dfe.columns):
-        from nba_betting.pbp_espn import fetch_pbp_espn_for_date
+        from wnba_betting.pbp_espn import fetch_pbp_espn_for_date
 
         dfe, _ = fetch_pbp_espn_for_date(date_str, only_final=True, rate_delay=rate_delay)
 
@@ -191,3 +191,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

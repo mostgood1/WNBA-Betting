@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Fix emoji encoding issues by replacing them with ASCII equivalents"""
 
 import sys
@@ -47,7 +47,8 @@ if __name__ == '__main__':
     else:
         # Fix all key files
         files = [
-            'src/nba_betting/cli.py',
+            'src/wnba_betting/cli.py',
         ]
         for f in files:
             fix_emojis(f)
+

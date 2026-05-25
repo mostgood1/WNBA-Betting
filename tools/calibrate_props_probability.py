@@ -1,4 +1,4 @@
-import json
+﻿import json
 import os
 from pathlib import Path
 from typing import List, Tuple
@@ -61,7 +61,7 @@ def main() -> None:
         preds = np.clip(preds, 0.0, 1.0)
 
     # Guardrail: only emit a calibration curve if it passes the same sanity
-    # checks enforced by the runtime loader in nba_betting.props_edges.
+    # checks enforced by the runtime loader in wnba_betting.props_edges.
     # Otherwise, write an identity mapping so calibration is an explicit no-op
     # (instead of being silently ignored).
     note = None
@@ -103,3 +103,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

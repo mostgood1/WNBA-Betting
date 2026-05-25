@@ -1,8 +1,8 @@
-#!/usr/bin/env Rscript
+﻿#!/usr/bin/env Rscript
 
 # Usage examples:
-# Rscript scripts/pbp_fetch_nbastatr.R --date 2025-10-17
-# Rscript scripts/pbp_fetch_nbastatr.R --start 2025-10-17 --end 2025-10-28
+# Rscript scripts/pbp_fetch_r.R --date 2025-10-17
+# Rscript scripts/pbp_fetch_r.R --start 2025-10-17 --end 2025-10-28
 # Outputs per-game: data/processed/pbp/pbp_<gameId>.csv
 # Outputs per-date: data/processed/pbp_<date>.csv
 
@@ -312,3 +312,4 @@ for (d in dates){
 }
 
 invisible(NULL)
+

@@ -7,8 +7,6 @@ $ErrorActionPreference = 'Stop'
 if ([string]::IsNullOrWhiteSpace($RenderUrl)) {
     if (-not [string]::IsNullOrWhiteSpace($env:WNBA_BETTING_BASE_URL)) {
         $RenderUrl = $env:WNBA_BETTING_BASE_URL
-    } else {
-        $RenderUrl = $env:NBA_BETTING_BASE_URL
     }
 }
 

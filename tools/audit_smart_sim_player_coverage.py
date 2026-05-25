@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import argparse
 import json
@@ -13,7 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from src.nba_betting.teams import to_tricode
+from src.wnba_betting.teams import to_tricode
 
 
 def _norm_player_key(name) -> str:
@@ -249,3 +249,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

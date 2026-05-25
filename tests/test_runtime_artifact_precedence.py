@@ -1,10 +1,10 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 
-from nba_betting import config as config_module
-from nba_betting import prob_calibration
-from nba_betting.sim import quarters
+from wnba_betting import config as config_module
+from wnba_betting import prob_calibration
+from wnba_betting.sim import quarters
 
 
 def test_prob_calibration_prefers_repo_copy_over_active_data_root(tmp_path, monkeypatch):

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from collections import defaultdict
 import argparse
@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from nba_betting.player_priors import _norm_player_key  # type: ignore
-from nba_betting.teams import to_tricode
+from wnba_betting.player_priors import _norm_player_key  # type: ignore
+from wnba_betting.teams import to_tricode
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -125,3 +125,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

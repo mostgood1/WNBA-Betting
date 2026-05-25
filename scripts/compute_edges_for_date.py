@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 import pandas as pd
 
@@ -7,8 +7,8 @@ SRC = os.path.join(ROOT, 'src')
 if SRC not in sys.path:
     sys.path.insert(0, SRC)
 
-from nba_betting.props_edges import compute_props_edges, SigmaConfig
-from nba_betting.config import paths
+from wnba_betting.props_edges import compute_props_edges, SigmaConfig
+from wnba_betting.config import paths
 
 
 def main(date_str: str):
@@ -39,3 +39,4 @@ if __name__ == '__main__':
         print('Usage: python scripts/compute_edges_for_date.py YYYY-MM-DD')
         sys.exit(1)
     sys.exit(main(sys.argv[1]))
+

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Enhanced model training with 45 features (base + advanced + injuries).
 Supports both baseline (17 features) and enhanced (45 features) training.
 """
@@ -372,8 +372,8 @@ if __name__ == "__main__":
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).parent.parent))
     
-    from nba_betting.features_enhanced import build_features_enhanced
-    from nba_betting.config import paths
+    from wnba_betting.features_enhanced import build_features_enhanced
+    from wnba_betting.config import paths
     
     # Load raw games
     games_file = paths.data_raw / "games_nba_api.csv"
@@ -405,3 +405,4 @@ if __name__ == "__main__":
     print("\n" + "="*70)
     print("DONE! Models saved to models/ directory")
     print("="*70)
+

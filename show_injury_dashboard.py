@@ -1,4 +1,4 @@
-"""
+﻿"""
 Visualize injury impact across NBA teams.
 Shows which teams are most affected by injuries.
 """
@@ -10,7 +10,7 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from nba_betting.scrapers import ESPNInjuryScraper
+from wnba_betting.scrapers import ESPNInjuryScraper
 
 def show_injury_dashboard():
     """Display injury impact dashboard."""
@@ -19,7 +19,7 @@ def show_injury_dashboard():
     try:
         df = pd.read_csv('data/raw/injuries.csv')
     except FileNotFoundError:
-        print("❌ No injury data found. Run: python -m nba_betting.cli fetch-injuries")
+        print("❌ No injury data found. Run: python -m wnba_betting.cli fetch-injuries")
         return
     
     print("\n" + "="*70)
@@ -75,3 +75,4 @@ def show_injury_dashboard():
 
 if __name__ == "__main__":
     show_injury_dashboard()
+

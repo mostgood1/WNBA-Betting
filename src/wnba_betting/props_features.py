@@ -36,6 +36,7 @@ NUM_COL_MAP = {
     "PLUS_MINUS": ["PLUS_MINUS", "plus_minus"],
 }
 
+from .player_logs import _read_parquet_with_fallback
 DATE_COLS = ["GAME_DATE", "GAME_DATE_EST", "dateGame", "GAME_DATE_PT"]
 PLAYER_ID_COLS = ["PLAYER_ID", "player_id", "idPlayer"]
 PLAYER_NAME_COLS = ["PLAYER_NAME", "player_name", "namePlayer"]
@@ -115,7 +116,7 @@ def load_player_logs() -> pd.DataFrame:
     c = paths.data_processed / "player_logs.csv"
     if p.exists():
         try:
-            df = pd.read_parquet(p)
+            df = _read_parquet_with_fallback(p)
             if isinstance(df, pd.DataFrame) and not df.empty:
                 return df
         except Exception as e:

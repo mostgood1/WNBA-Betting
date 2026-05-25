@@ -1,4 +1,4 @@
-"""
+﻿"""
 Convert quarters and halves sklearn models to ONNX format for NPU acceleration.
 
 This script converts the period models (halves_models.joblib and quarters_models.joblib)
@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent
 SRC_DIR = BASE_DIR / "src"
 sys.path.insert(0, str(SRC_DIR))
 
-from nba_betting.config import paths
+from wnba_betting.config import paths
 
 def convert_period_models_to_onnx():
     """Convert halves and quarters models to ONNX format"""
@@ -159,7 +159,7 @@ def convert_period_models_to_onnx():
 if __name__ == "__main__":
     print("""
 ╔══════════════════════════════════════════════════════════════╗
-║  NBA Betting - Period Models ONNX Converter                 ║
+║  WNBA Betting - Period Models ONNX Converter                 ║
 ║  Converts halves & quarters models for NPU acceleration     ║
 ╚══════════════════════════════════════════════════════════════╝
 """)
@@ -173,3 +173,5 @@ if __name__ == "__main__":
         print("   3. Run predictions with pure NPU (no sklearn needed!)")
     
     sys.exit(0 if success else 1)
+
+

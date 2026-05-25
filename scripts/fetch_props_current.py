@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 from datetime import datetime
 import pandas as pd
@@ -9,8 +9,8 @@ SRC = os.path.join(ROOT, 'src')
 if SRC not in sys.path:
     sys.path.insert(0, SRC)
 
-from nba_betting.odds_api import OddsApiConfig, fetch_player_props_current
-from nba_betting.config import paths
+from wnba_betting.odds_api import OddsApiConfig, fetch_player_props_current
+from wnba_betting.config import paths
 
 
 def main(date_str: str | None = None):
@@ -36,7 +36,7 @@ def main(date_str: str | None = None):
         return 1
     cfg = OddsApiConfig(api_key=api_key)
     df = fetch_player_props_current(cfg, date=d, markets=None, verbose=True)
-    out_csv = paths.data_raw / f"odds_nba_player_props_{d.date()}.csv"
+    out_csv = paths.data_raw / f"odds_wnba_player_props_{d.date()}.csv"
     out_csv.parent.mkdir(parents=True, exist_ok=True)
     if df is None or df.empty:
         print({'rows': 0, 'output': str(out_csv)})
@@ -50,3 +50,4 @@ if __name__ == '__main__':
     import sys as _sys
     date_arg = _sys.argv[1] if len(_sys.argv) > 1 else None
     _sys.exit(main(date_arg))
+

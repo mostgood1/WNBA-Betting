@@ -1,8 +1,8 @@
-from types import SimpleNamespace
+﻿from types import SimpleNamespace
 
 import pandas as pd
 
-from nba_betting.sim import smart_sim
+from wnba_betting.sim import smart_sim
 
 
 def test_merge_pregame_expected_minutes_handles_missing_player_name_column(monkeypatch):
