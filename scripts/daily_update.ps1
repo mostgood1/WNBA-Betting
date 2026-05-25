@@ -1,4 +1,4 @@
-Param(
+﻿Param(
   [string]$Date = '',
   [switch]$Quiet,
   [string]$LogDir = "logs",
@@ -41,8 +41,6 @@ $PropsRawArtifactStem = 'odds_wnba_player_props'
 if ([string]::IsNullOrWhiteSpace($RemoteBaseUrl)) {
   if (-not [string]::IsNullOrWhiteSpace($env:WNBA_BETTING_BASE_URL)) {
     $RemoteBaseUrl = $env:WNBA_BETTING_BASE_URL
-  } else {
-    $RemoteBaseUrl = $env:NBA_BETTING_BASE_URL
   }
 }
 
@@ -1153,9 +1151,8 @@ function Normalize-PyModuleArgs {
     if ($item -eq '-m' -and ($i + 1) -lt $plist.Count) {
       $normalized += $item
       $moduleName = [string]$plist[$i + 1]
-      if ($moduleName -like 'nba_betting.*') {
-        $moduleSuffix = $moduleName.Substring('nba_betting'.Length)
-        $moduleName = $cliPackagePrefix + $moduleSuffix
+      if ($moduleName.EndsWith('.cli') -and $moduleName -ne $cliModulePrefix) {
+        $moduleName = $cliModulePrefix
       }
       $normalized += $moduleName
       $i += 1
@@ -1328,7 +1325,7 @@ function Invoke-SharedPropsRefreshWorker {
 
   $rawSnapshotCandidates = @(
     (Join-Path $RepoRoot ("data/raw/{0}_{1}.csv" -f $PropsRawArtifactStem, $TargetDate)),
-    (Join-Path $RepoRoot ("data/raw/odds_nba_player_props_{0}.csv" -f $TargetDate))
+    (Join-Path $RepoRoot ("data/raw/odds_wnba_player_props_{0}.csv" -f $TargetDate))
   )
   $rawSnapshotPath = $rawSnapshotCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
   if ([string]::IsNullOrWhiteSpace($rawSnapshotPath)) {
@@ -1458,6 +1455,34 @@ function Test-FreshFile {
   }
 }
 
+function Ensure-GitCommitIdentity {
+  param([string]$RepoPath)
+
+  $name = (& git -C $RepoPath config --get user.name 2>$null)
+  $email = (& git -C $RepoPath config --get user.email 2>$null)
+  if (-not [string]::IsNullOrWhiteSpace($name) -and -not [string]::IsNullOrWhiteSpace($email)) {
+    return
+  }
+
+  $fallbackName = [string]$env:GIT_AUTHOR_NAME
+  $fallbackEmail = [string]$env:GIT_AUTHOR_EMAIL
+  if ([string]::IsNullOrWhiteSpace($fallbackName) -or [string]::IsNullOrWhiteSpace($fallbackEmail)) {
+    $last = (& git -C $RepoPath log -1 --pretty=format:"%an|%ae" 2>$null)
+    if (-not [string]::IsNullOrWhiteSpace($last) -and $last.Contains('|')) {
+      $parts = $last.Split('|', 2)
+      if ([string]::IsNullOrWhiteSpace($fallbackName)) { $fallbackName = $parts[0] }
+      if ([string]::IsNullOrWhiteSpace($fallbackEmail)) { $fallbackEmail = $parts[1] }
+    }
+  }
+
+  if ([string]::IsNullOrWhiteSpace($fallbackName) -or [string]::IsNullOrWhiteSpace($fallbackEmail)) {
+    throw 'Git commit identity is not configured and no fallback author could be resolved.'
+  }
+
+  & git -C $RepoPath config user.name $fallbackName | Out-Null
+  & git -C $RepoPath config user.email $fallbackEmail | Out-Null
+}
+
 function Get-RosterTeamCount {
   param([string]$Path)
 
@@ -1505,7 +1530,7 @@ function Invoke-ConnectedRealismEval {
   if ($null -eq $connGrMax -or $connGrMax -eq '') { $connGrMax = '0.10' }
 
   Write-Log ("Running connected realism (days={0}, topK={1}, skipOT={2})" -f $connDays, $connTopK, $connSkipOt)
-  $plist = @('-m','nba_betting.cli','evaluate-connected-realism','--days', $connDays, '--top-k', $connTopK)
+  $plist = @('-m','wnba_betting.cli','evaluate-connected-realism','--days', $connDays, '--top-k', $connTopK)
   if ($connSkipOt -match '^(1|true|yes)$') { $plist += '--skip-ot' }
   if ($connQS -ne '') { $plist += @('--n-quarter-samples', $connQS) }
   if ($connCS -ne '') { $plist += @('--n-connected-samples', $connCS) }
@@ -1714,7 +1739,7 @@ try {
     Write-Log ("CI preflight: no seeded roster artifact found at {0}; skipping fetch-rosters to avoid a full roster crawl. Set DAILY_FORCE_ROSTER_PREFLIGHT=1 to force a refresh." -f $rostersPath)
   } else {
     Write-Log ("Fetching team rosters for season {0}" -f $seasonStr)
-    $rc0 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_rosters'
+    $rc0 = Invoke-PyModWithTimeout -plist @('-m','wnba_betting.cli','fetch-rosters','--season', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_rosters'
     Write-Log ("fetch-rosters exit code: {0}" -f $rc0)
   }
   $rosterTeamCountAfter = Get-RosterTeamCount -Path $rostersPath
@@ -1729,7 +1754,7 @@ try {
   }
   $scheduleTimeoutSeconds = [int]([Math]::Min(300, [Math]::Max(60, $PreflightTimeoutSeconds)))
   Write-Log ("Refreshing season schedule for {0}" -f $seasonStr)
-  $rcSchedule = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-schedule','--season', $seasonStr) -TimeoutSeconds $scheduleTimeoutSeconds -Label 'fetch_schedule'
+  $rcSchedule = Invoke-PyModWithTimeout -plist @('-m','wnba_betting.cli','fetch-schedule','--season', $seasonStr) -TimeoutSeconds $scheduleTimeoutSeconds -Label 'fetch_schedule'
   Write-Log ("fetch-schedule exit code: {0}" -f $rcSchedule)
 } catch {
   Write-Log ("fetch-schedule error (non-fatal): {0}" -f $_.Exception.Message)
@@ -1744,11 +1769,15 @@ try {
   $maxAgeH = $env:DAILY_PLAYER_LOGS_MAX_AGE_HOURS
   if ($null -eq $maxAgeH -or $maxAgeH -eq '') { $maxAgeH = '12' }
   try { $maxAgeMin = [int]([Math]::Max(0, ([double]$maxAgeH) * 60.0)) } catch { $maxAgeMin = 720 }
-  if (Test-FreshFile -Path $plCsv -MaxAgeMinutes $maxAgeMin) {
+  $playerLogsCsvReady = Test-CsvHasDataRows -Path $plCsv
+  if ((Test-FreshFile -Path $plCsv -MaxAgeMinutes $maxAgeMin) -and $playerLogsCsvReady) {
     Write-Log ("player_logs.csv already fresh (<= {0}h); skipping fetch-player-logs" -f $maxAgeH)
   } else {
+    if ((Test-FreshFile -Path $plCsv -MaxAgeMinutes $maxAgeMin) -and (-not $playerLogsCsvReady)) {
+      Write-Log 'player_logs.csv is fresh but header-only; forcing fetch-player-logs'
+    }
     Write-Log ("Fetching player logs for seasons {0}" -f $playerLogSeasons)
-    $rcLogs = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $playerLogSeasons) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_player_logs'
+    $rcLogs = Invoke-PyModWithTimeout -plist @('-m','wnba_betting.cli','fetch-player-logs','--seasons', $playerLogSeasons) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_player_logs'
     Write-Log ("fetch-player-logs exit code: {0}" -f $rcLogs)
     $playerLogsReady = $false
     if (Test-CsvHasDataRows -Path $plCsv) {
@@ -1784,7 +1813,7 @@ try {
     if ($playoffRetuneTimeoutSeconds -lt 300) { $playoffRetuneTimeoutSeconds = 300 }
     if ($playoffRetuneTimeoutSeconds -gt 7200) { $playoffRetuneTimeoutSeconds = 7200 }
 
-    $retuneArgs = @('-m','nba_betting.cli','playoff-retune','--date', $Date)
+    $retuneArgs = @('-m','wnba_betting.cli','playoff-retune','--date', $Date)
     if (-not [string]::IsNullOrWhiteSpace($seasonStr)) {
       $retuneArgs += @('--season', $seasonStr)
     }
@@ -1816,7 +1845,7 @@ try {
     Write-Log ("injuries.csv already fresh (<= {0}m); skipping fetch-injuries" -f $maxAgeMinInt)
   } else {
     Write-Log "Fetching injuries from the league/ESPN sources (availability gate fallback chain)"
-    $rcInjEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-injuries','--date', $Date) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_injuries'
+    $rcInjEarly = Invoke-PyModWithTimeout -plist @('-m','wnba_betting.cli','fetch-injuries','--date', $Date) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_injuries'
     Write-Log ("fetch-injuries exit code: {0}" -f $rcInjEarly)
   }
 } catch { Write-Log ("fetch-injuries error (non-fatal): {0}" -f $_.Exception.Message) }
@@ -1830,7 +1859,7 @@ try {
     Write-Log ("league_status already fresh (<= {0}m); skipping build-league-status" -f $maxAgeMinInt)
   } else {
     Write-Log "Building league_status for today's slate (availability gate)"
-    $rcLSEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $LeagueStatusTimeoutSeconds -Label 'build_league_status'
+    $rcLSEarly = Invoke-PyModWithTimeout -plist @('-m','wnba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $LeagueStatusTimeoutSeconds -Label 'build_league_status'
     Write-Log ("build-league-status exit code: {0}" -f $rcLSEarly)
   }
 } catch { Write-Log ("build-league-status failed (non-fatal): {0}" -f $_.Exception.Message) }
@@ -1843,7 +1872,7 @@ try {
     Write-Log ("league_status missing after build-league-status: {0}" -f $lsPath)
     $retryTo = [int]([Math]::Min(900, [Math]::Max([Math]::Max($PreflightTimeoutSeconds * 2, $LeagueStatusTimeoutSeconds), 120)))
     Write-Log ("Retrying build-league-status with timeout {0}s" -f $retryTo)
-    $rcLSRetry = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $retryTo -Label 'build_league_status_retry'
+    $rcLSRetry = Invoke-PyModWithTimeout -plist @('-m','wnba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $retryTo -Label 'build_league_status_retry'
     Write-Log ("build-league-status retry exit code: {0}" -f $rcLSRetry)
     if (-not (Test-Path $lsPath)) {
       throw ("build-league-status did not produce league_status file: {0} (exit={1})" -f $lsPath, $rcLSRetry)
@@ -1857,7 +1886,7 @@ try {
 # 0.65) Roster sanity check: validates slate-team roster depth + duplicates + basic team mapping.
 try {
   Write-Log "Roster sanity check (fail-fast)"
-  $rcRS = Invoke-PyMod -plist @('-m','nba_betting.cli','roster-sanity','--date', $Date)
+  $rcRS = Invoke-PyMod -plist @('-m','wnba_betting.cli','roster-sanity','--date', $Date)
   Write-Log ("roster-sanity exit code: {0}" -f $rcRS)
   if ($rcRS -ne 0) { throw "roster-sanity failed (exit=$rcRS)" }
 } catch {
@@ -1870,7 +1899,7 @@ try {
     Write-Log ("Checking expected dressed players skipped: no slate for {0}" -f $Date)
   } else {
     Write-Log "Checking expected dressed players (fail-fast)"
-    $rcDress = Invoke-PyMod -plist @('-m','nba_betting.cli','check-dressed','--date', $Date)
+    $rcDress = Invoke-PyMod -plist @('-m','wnba_betting.cli','check-dressed','--date', $Date)
     Write-Log ("check-dressed exit code: {0}" -f $rcDress)
     if ($rcDress -ne 0) {
       $dressSummaryPath = Join-Path $RepoRoot ("data/processed/dressed_summary_{0}.json" -f $Date)
@@ -1991,7 +2020,7 @@ $predictionsWriteTimeBefore = $null
 if (Test-Path $predictionsPath) {
   try { $predictionsWriteTimeBefore = (Get-Item $predictionsPath).LastWriteTime } catch { $predictionsWriteTimeBefore = $null }
 }
-$rc1 = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-date','--date', $Date)
+$rc1 = Invoke-PyMod -plist @('-m','wnba_betting.cli','predict-date','--date', $Date)
 Write-Log ("predict-date exit code: {0}" -f $rc1)
 
 $predictionsRefreshed = $false
@@ -2009,7 +2038,7 @@ if (Test-Path $predictionsPath) {
 if (-not $NoSlateDay -and -not $predictionsRefreshed) {
   Write-Log ("predict-date did not produce a fresh predictions file; attempting predict-games-npu fallback for {0}" -f $Date)
   try {
-    $rcPredFallback = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-games-npu','--date', $Date)
+    $rcPredFallback = Invoke-PyMod -plist @('-m','wnba_betting.cli','predict-games-npu','--date', $Date)
     Write-Log ("predict-games-npu fallback exit code: {0}" -f $rcPredFallback)
     if (($rcPredFallback -eq 0) -and (Test-Path $gamesPredictionsNpuPath)) {
       Copy-Item -Path $gamesPredictionsNpuPath -Destination $predictionsPath -Force
@@ -2052,7 +2081,7 @@ try {
     try { $toInt = [int]$to } catch { $toInt = 180 }
     if ($toInt -lt 30) { $toInt = 30 }
     if ($toInt -gt 900) { $toInt = 900 }
-    $rcOdds = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','odds-snapshots','--date', $Date) -TimeoutSeconds $toInt -Label 'odds_snapshots'
+    $rcOdds = Invoke-PyModWithTimeout -plist @('-m','wnba_betting.cli','odds-snapshots','--date', $Date) -TimeoutSeconds $toInt -Label 'odds_snapshots'
     Write-Log ("odds-snapshots exit code: {0}" -f $rcOdds)
   }
 } catch { Write-Log ("odds-snapshots block failed: {0}" -f $_.Exception.Message) }
@@ -2063,7 +2092,7 @@ try {
     Write-Log ("Skipping standalone NPU game predictions for {0}; fallback artifact already exists: {1}" -f $Date, $gamesPredictionsNpuPath)
   } else {
     Write-Log ("Running NPU game predictions for {0}" -f $Date)
-    $rcNpu = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-games-npu','--date', $Date)
+    $rcNpu = Invoke-PyMod -plist @('-m','wnba_betting.cli','predict-games-npu','--date', $Date)
     Write-Log ("predict-games-npu exit code: {0}" -f $rcNpu)
   }
 } catch {
@@ -2084,13 +2113,13 @@ if ($NoSlateDay -and $LastSlateDate) {
 }
 
 Write-Log ("Reconcile games for {0} via local CLI" -f $yesterday)
-$rc_recon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-date','--date', $yesterday)
+$rc_recon = Invoke-PyMod -plist @('-m','wnba_betting.cli','reconcile-date','--date', $yesterday)
 Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
 
 # 2.0) Ensure player prop actuals reconciliation exists (writes recon_props_<date>.csv)
 try {
   Write-Log ("Fetching prop actuals for {0} (writes recon_props_{0}.csv when available)" -f $yesterday)
-  $rcProp = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-prop-actuals','--date', $yesterday) -TimeoutSeconds 240 -Label 'fetch_prop_actuals'
+  $rcProp = Invoke-PyModWithTimeout -plist @('-m','wnba_betting.cli','fetch-prop-actuals','--date', $yesterday) -TimeoutSeconds 240 -Label 'fetch_prop_actuals'
   Write-Log ("fetch-prop-actuals exit code: {0}" -f $rcProp)
   try {
     $rp = Join-Path $RepoRoot ("data/processed/recon_props_{0}.csv" -f $yesterday)
@@ -2115,7 +2144,7 @@ try {
 
       Write-Log ("Auditing playable prop provider anomalies through {0} for season {1}" -f $yesterday, $auditSeason)
       $rcPlayableProviderAudit = Invoke-PyModWithTimeout -plist @(
-        '-m','nba_betting.cli','audit-playable-prop-provider-anomalies',
+        '-m','wnba_betting.cli','audit-playable-prop-provider-anomalies',
         '--season', [string]$auditSeason,
         '--date', $yesterday
       ) -TimeoutSeconds $auditTimeoutInt -Label 'audit_playable_prop_provider_anomalies'
@@ -2128,7 +2157,7 @@ try {
 
       Write-Log ("Auditing playable prop coverage gaps through {0} for season {1}" -f $yesterday, $auditSeason)
       $rcPlayableCoverageAudit = Invoke-PyModWithTimeout -plist @(
-        '-m','nba_betting.cli','audit-playable-prop-coverage-gaps',
+        '-m','wnba_betting.cli','audit-playable-prop-coverage-gaps',
         '--season', [string]$auditSeason,
         '--date', $yesterday
       ) -TimeoutSeconds $auditTimeoutInt -Label 'audit_playable_prop_coverage_gaps'
@@ -2194,7 +2223,7 @@ else:
 # 1.7) Analytical simulations for ML/ATS/TOTAL using factor adjustments
 try {
   Write-Log ("Running games simulations for {0}" -f $Date)
-  $rcSim = Invoke-PyMod -plist @('-m','nba_betting.cli','simulate-games','--date', $Date)
+  $rcSim = Invoke-PyMod -plist @('-m','wnba_betting.cli','simulate-games','--date', $Date)
   Write-Log ("simulate-games exit code: {0}" -f $rcSim)
 } catch {
   Write-Log ("simulate-games failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -2221,7 +2250,7 @@ try {
 try {
   $relCsv = Join-Path $RepoRoot 'data/processed/reliability_games.csv'
   Write-Log 'Computing reliability curve (60d)' 
-  $null = Invoke-PyMod -plist @('-m','nba_betting.cli','evaluate-reliability','--days','60')
+  $null = Invoke-PyMod -plist @('-m','wnba_betting.cli','evaluate-reliability','--days','60')
   if (Test-Path $relCsv) {
     Write-Log 'Generating reliability HTML'
     $plotScript = Join-Path $RepoRoot 'tools/plot_reliability.py'
@@ -2286,7 +2315,7 @@ if ($runHistoricalMaintenance) {
 # 2.2) Ensure finals CSV for yesterday (best-effort; helps UI backfill and offline environments)
 try {
   Write-Log ("Export finals CSV for {0}" -f $yesterday)
-  $rc_fin = Invoke-PyMod -plist @('-m','nba_betting.cli','finals-export','--date', $yesterday)
+  $rc_fin = Invoke-PyMod -plist @('-m','wnba_betting.cli','finals-export','--date', $yesterday)
   Write-Log ("finals-export exit code: {0}" -f $rc_fin)
 } catch {
   Write-Log ("finals-export failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -2295,7 +2324,7 @@ try {
 # 2.3) Fetch yesterday's play-by-play logs (finals-only)
 try {
   Write-Log ("Fetching PBP logs for {0} (finals only)" -f $yesterday)
-  $rc_pbp = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-pbp','--date', $yesterday, '--finals-only')
+  $rc_pbp = Invoke-PyMod -plist @('-m','wnba_betting.cli','fetch-pbp','--date', $yesterday, '--finals-only')
   Write-Log ("fetch-pbp exit code: {0}" -f $rc_pbp)
 } catch {
   Write-Log ("fetch-pbp error (non-fatal): {0}" -f $_.Exception.Message)
@@ -2304,7 +2333,7 @@ try {
 # 2.4) Fetch yesterday's boxscores (finals-only)
 try {
   Write-Log ("Fetching boxscores for {0} (finals only)" -f $yesterday)
-  $rc_bs = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-boxscores','--date', $yesterday, '--finals-only')
+  $rc_bs = Invoke-PyMod -plist @('-m','wnba_betting.cli','fetch-boxscores','--date', $yesterday, '--finals-only')
   Write-Log ("fetch-boxscores exit code: {0}" -f $rc_bs)
 } catch {
   Write-Log ("fetch-boxscores error (non-fatal): {0}" -f $_.Exception.Message)
@@ -2313,7 +2342,7 @@ try {
 # 2.4b) Append yesterday's boxscores into durable history (best-effort)
 try {
   Write-Log ("Updating boxscores history for {0}" -f $yesterday)
-  $rc_bsh = Invoke-PyMod -plist @('-m','nba_betting.cli','update-boxscores-history','--date', $yesterday, '--finals-only')
+  $rc_bsh = Invoke-PyMod -plist @('-m','wnba_betting.cli','update-boxscores-history','--date', $yesterday, '--finals-only')
   Write-Log ("update-boxscores-history exit code: {0}" -f $rc_bsh)
 } catch {
   Write-Log ("update-boxscores-history error (non-fatal): {0}" -f $_.Exception.Message)
@@ -2322,7 +2351,7 @@ try {
 # 2.4c) Append yesterday's ESPN PBP into durable history (enables rotation priors)
 try {
   Write-Log ("Updating ESPN PBP history for {0}" -f $yesterday)
-  $rc_pbp_espn = Invoke-PyMod -plist @('-m','nba_betting.cli','update-pbp-espn-history','--date', $yesterday, '--finals-only')
+  $rc_pbp_espn = Invoke-PyMod -plist @('-m','wnba_betting.cli','update-pbp-espn-history','--date', $yesterday, '--finals-only')
   Write-Log ("update-pbp-espn-history exit code: {0}" -f $rc_pbp_espn)
 } catch {
   Write-Log ("update-pbp-espn-history error (non-fatal): {0}" -f $_.Exception.Message)
@@ -2331,7 +2360,7 @@ try {
 # 2.4d) Refresh rotation priors from substitution events (team-level)
 try {
   Write-Log 'Writing rotation priors (first bench sub-in timing)'
-  $rc_rot = Invoke-PyMod -plist @('-m','nba_betting.cli','write-rotation-priors','--lookback-days', '60', '--min-games', '5')
+  $rc_rot = Invoke-PyMod -plist @('-m','wnba_betting.cli','write-rotation-priors','--lookback-days', '60', '--min-games', '5')
   Write-Log ("write-rotation-priors exit code: {0}" -f $rc_rot)
 } catch {
   Write-Log ("write-rotation-priors error (non-fatal): {0}" -f $_.Exception.Message)
@@ -2342,7 +2371,7 @@ try {
   $skipRot = $env:DAILY_SKIP_ROTATIONS_ESPN
   if ($null -eq $skipRot -or $skipRot -notmatch '^(1|true|yes)$') {
     Write-Log ("Updating ESPN rotations history for {0} (stints/pairs/play_context)" -f $yesterday)
-    $rc_rot_hist = Invoke-PyMod -plist @('-m','nba_betting.cli','update-rotations-espn-history','--date', $yesterday, '--rate-delay', '0.25')
+    $rc_rot_hist = Invoke-PyMod -plist @('-m','wnba_betting.cli','update-rotations-espn-history','--date', $yesterday, '--rate-delay', '0.25')
     Write-Log ("update-rotations-espn-history exit code: {0}" -f $rc_rot_hist)
 
     # Gap scan: if any stints are missing for yesterday (ESPN flakiness), retry once or twice.
@@ -2370,8 +2399,8 @@ def _exists_nonempty(p: Path) -> bool:
 
 missing = []
 try:
-    from wnba_betting.boxscores import _nba_gid_to_tricodes
-    gid_map = _nba_gid_to_tricodes(str(date_str)) or {}
+    from wnba_betting.boxscores import _gid_to_tricodes
+    gid_map = _gid_to_tricodes(str(date_str)) or {}
     for gid in gid_map.keys():
         gid = str(gid).strip()
         if not gid:
@@ -2412,7 +2441,7 @@ print('MISSING_GIDS:' + ','.join(missing))
         }
 
         Write-Log ("Rotations gap scan: missing {0} games; retrying update-rotations-espn-history (attempt {1}/{2}) gids={3}" -f $missingCount, ($attempt + 1), $rotRetryMax, $missingGids)
-        $rc_rot_retry = Invoke-PyMod -plist @('-m','nba_betting.cli','update-rotations-espn-history','--date', $yesterday, '--rate-delay', '0.5')
+        $rc_rot_retry = Invoke-PyMod -plist @('-m','wnba_betting.cli','update-rotations-espn-history','--date', $yesterday, '--rate-delay', '0.5')
         Write-Log ("update-rotations-espn-history retry exit code: {0}" -f $rc_rot_retry)
       }
     } catch {
@@ -2449,7 +2478,7 @@ try {
     $built = @()
     foreach ($ds in $toBuild) {
       Write-Log ("Build recon for {0}" -f $ds)
-      $rc_bf = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-date','--date', $ds)
+      $rc_bf = Invoke-PyMod -plist @('-m','wnba_betting.cli','reconcile-date','--date', $ds)
       Write-Log ("reconcile-date ({0}) exit code: {1}" -f $ds, $rc_bf)
       $pp = Join-Path $RepoRoot ("data/processed/recon_games_{0}.csv" -f $ds)
       if ($rc_bf -eq 0 -and (Test-Path $pp)) { $built += $pp }
@@ -2484,7 +2513,7 @@ try {
 # 2.4a) Reconcile PBP-derived markets for yesterday (tip, first-basket, early-threes)
 try {
   Write-Log ("Reconciling PBP markets for {0}" -f $yesterday)
-  $rc_pbp_recon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-pbp-markets','--date', $yesterday)
+  $rc_pbp_recon = Invoke-PyMod -plist @('-m','wnba_betting.cli','reconcile-pbp-markets','--date', $yesterday)
   Write-Log ("reconcile-pbp-markets exit code: {0}" -f $rc_pbp_recon)
 } catch {
   Write-Log ("reconcile-pbp-markets failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -2493,7 +2522,7 @@ try {
 # 2.4b) Update calibration for PBP markets using rolling window
 try {
   Write-Log ("Calibrating PBP markets from reconciliation (window=7) anchored at {0}" -f $yesterday)
-  $rc_pbp_cal = Invoke-PyMod -plist @('-m','nba_betting.cli','calibrate-pbp-markets','--anchor', $yesterday, '--window', '7')
+  $rc_pbp_cal = Invoke-PyMod -plist @('-m','wnba_betting.cli','calibrate-pbp-markets','--anchor', $yesterday, '--window', '7')
   Write-Log ("calibrate-pbp-markets exit code: {0}" -f $rc_pbp_cal)
 } catch {
   Write-Log ("calibrate-pbp-markets failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -2605,7 +2634,7 @@ try {
   $start = (Get-Date ([datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null))).AddDays(-7).ToString('yyyy-MM-dd')
   $end = $yesterday
   Write-Log ("Backfilling PBP for {0}..{1} (finals-only, last 7d) to enable recon_quarters" -f $start, $end)
-  $rc_bfpbp = Invoke-PyMod -plist @('-m','nba_betting.cli','backfill-pbp','--start', $start, '--end', $end, '--finals-only')
+  $rc_bfpbp = Invoke-PyMod -plist @('-m','wnba_betting.cli','backfill-pbp','--start', $start, '--end', $end, '--finals-only')
   Write-Log ("backfill-pbp exit code: {0}" -f $rc_bfpbp)
 } catch {
   Write-Log ("backfill-pbp failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -2614,7 +2643,7 @@ try {
 # 2.4d) Reconcile quarters/halves vs predictions for yesterday
 try {
   Write-Log ("Reconciling quarters for {0}" -f $yesterday)
-  $rc_qrecon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-quarters','--date', $yesterday)
+  $rc_qrecon = Invoke-PyMod -plist @('-m','wnba_betting.cli','reconcile-quarters','--date', $yesterday)
   Write-Log ("reconcile-quarters exit code: {0}" -f $rc_qrecon)
   $reconQuartersYesterdayPath = Join-Path $RepoRoot ("data/processed/recon_quarters_{0}.csv" -f $yesterday)
   if (($rc_qrecon -eq 0) -and (-not (Test-Path $reconQuartersYesterdayPath))) {
@@ -2641,7 +2670,7 @@ try {
     foreach ($ds in $missing) {
       try {
         Write-Log ("Build recon-quarters for {0}" -f $ds)
-        $rc_rq = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-quarters','--date', $ds)
+        $rc_rq = Invoke-PyMod -plist @('-m','wnba_betting.cli','reconcile-quarters','--date', $ds)
         Write-Log ("reconcile-quarters ({0}) exit code: {1}" -f $ds, $rc_rq)
       } catch { Write-Log ("reconcile-quarters ({0}) failed: {1}" -f $ds, $_.Exception.Message) }
     }
@@ -2689,7 +2718,7 @@ try {
 # 2.4e) Calibrate game totals (global + team) using rolling window anchored at yesterday
 try {
   Write-Log ("Calibrating game totals (window=14) anchored at {0}" -f $yesterday)
-  $rc_cal_tot = Invoke-PyMod -plist @('-m','nba_betting.cli','calibrate-totals','--anchor', $yesterday, '--window', '14')
+  $rc_cal_tot = Invoke-PyMod -plist @('-m','wnba_betting.cli','calibrate-totals','--anchor', $yesterday, '--window', '14')
   Write-Log ("calibrate-totals exit code: {0}" -f $rc_cal_tot)
 } catch {
   Write-Log ("calibrate-totals failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -2704,7 +2733,7 @@ try {
     Write-Log 'Skipping smart_sim_quarter_eval build (DAILY_SKIP_SMART_SIM_EVAL_BUILD=1)'
   } else {
     # Build/refresh PBP-derived period actuals so smart_sim_quarter_eval can join actual quarter/half scores
-    # even when games_nba_api.csv is missing recent seasons.
+    # even when the raw games feed is missing recent seasons.
     # Controlled by env DAILY_SKIP_PBP_PERIOD_ACTUALS=1
     try {
       $skipPbpAct = $env:DAILY_SKIP_PBP_PERIOD_ACTUALS
@@ -2741,7 +2770,7 @@ try {
     Write-Log 'Skipping period probability calibration build (DAILY_SKIP_PERIOD_PROBS_CALIB=1)'
   } else {
     Write-Log ("Calibrating period over probabilities (window=30) anchored at {0}" -f $yesterday)
-    $rc_cal_pprob = Invoke-PyMod -plist @('-m','nba_betting.cli','calibrate-period-probs','--anchor', $yesterday, '--window', '30', '--bins', '12', '--alpha', '1.0')
+    $rc_cal_pprob = Invoke-PyMod -plist @('-m','wnba_betting.cli','calibrate-period-probs','--anchor', $yesterday, '--window', '30', '--bins', '12', '--alpha', '1.0')
     Write-Log ("calibrate-period-probs exit code: {0}" -f $rc_cal_pprob)
   }
 } catch {
@@ -2764,7 +2793,7 @@ if (-not $SkipTotalsCalib) {
 
     # Apply into a temporary file first; only replace original if validation passes
     $tmpOut = Join-Path $LogPath ("predictions_calib_tmp_{0}.csv" -f $Stamp)
-    $rc_apply_tot = Invoke-PyMod -plist @('-m','nba_betting.cli','apply-totals-calibration','--date', $Date, '--calib-date', $yesterday, '--in', $predPath, '--out', $tmpOut)
+    $rc_apply_tot = Invoke-PyMod -plist @('-m','wnba_betting.cli','apply-totals-calibration','--date', $Date, '--calib-date', $yesterday, '--in', $predPath, '--out', $tmpOut)
     Write-Log ("apply-totals-calibration exit code: {0}" -f $rc_apply_tot)
 
     # Validate predictions after apply; if invalid, restore backup
@@ -2897,7 +2926,7 @@ try {
     try { $toInt = [int]$to } catch { $toInt = 600 }
     if ($toInt -lt 30) { $toInt = 30 }
     if ($toInt -gt 1800) { $toInt = 1800 }
-    $rc_audit = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','audit-rosters','--date', $yesterday) -TimeoutSeconds $toInt -Label 'audit_rosters'
+    $rc_audit = Invoke-PyModWithTimeout -plist @('-m','wnba_betting.cli','audit-rosters','--date', $yesterday) -TimeoutSeconds $toInt -Label 'audit_rosters'
     Write-Log ("audit-rosters exit code: {0}" -f $rc_audit)
   }
 } catch {
@@ -2987,7 +3016,7 @@ try {
 } catch {}
 
 $ppArgs = @(
-  '-m','nba_betting.cli','predict-props',
+  '-m','wnba_betting.cli','predict-props',
   '--date', $Date,
   '--slate-only',
   '--calibrate','--calib-window','7',
@@ -3004,7 +3033,7 @@ $ppArgs = @(
 if ($null -ne $SkipSmartSim -and $SkipSmartSim -match '^(1|true|yes)$') {
   Write-Log 'Skipping SmartSim inside predict-props (DAILY_SKIP_SMARTSIM=1)'
   $ppArgs = @(
-    '-m','nba_betting.cli','predict-props',
+    '-m','wnba_betting.cli','predict-props',
     '--date', $Date,
     '--slate-only',
     '--calibrate','--calib-window','7',
@@ -3243,7 +3272,7 @@ if ($rc4a -ne 0) {
 # 6) Export recommendations CSVs for site consumption
 # 6a) Game recommendations from predictions + odds
 $maxPlusOdds = $env:DAILY_MAX_PLUS_ODDS
-$exportGamesArgs = @('-m','nba_betting.cli','export-recommendations','--date', $Date)
+$exportGamesArgs = @('-m','wnba_betting.cli','export-recommendations','--date', $Date)
 if ($null -ne $maxPlusOdds -and $maxPlusOdds -ne '') {
   try {
     $mpo = [double]$maxPlusOdds
@@ -3263,7 +3292,7 @@ Write-Log ("export-recommendations exit code: {0}" -f $rc5)
 try {
   Write-Log ("Generating high-confidence picks for {0}" -f $Date)
   $rc5b = Invoke-PyMod -plist @(
-    '-m','nba_betting.cli','recommend-picks',
+    '-m','wnba_betting.cli','recommend-picks',
     '--date', $Date,
     '--topN','10',
     '--minScore','0.15',
@@ -3367,7 +3396,7 @@ print("OK")
 # 6d) Export authoritative best-edges snapshots (games + props) for tracking/UI
 try {
   Write-Log ("Exporting best-edges snapshots for {0}" -f $Date)
-  $rc6d = Invoke-PyMod -plist @('-m','nba_betting.cli','export-best-edges','--date', $Date, '--overwrite')
+  $rc6d = Invoke-PyMod -plist @('-m','wnba_betting.cli','export-best-edges','--date', $Date, '--overwrite')
   Write-Log ("export-best-edges exit code: {0}" -f $rc6d)
 } catch {
   Write-Log ("export-best-edges failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -3790,7 +3819,7 @@ try {
 # 7) PBP-derived markets for today's slate (tip winner, first basket, early threes)
 try {
   Write-Log ("Predicting PBP-derived markets for {0}" -f $Date)
-  $rcPbp = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-pbp-markets','--date', $Date)
+  $rcPbp = Invoke-PyMod -plist @('-m','wnba_betting.cli','predict-pbp-markets','--date', $Date)
   Write-Log ("predict-pbp-markets exit code: {0}" -f $rcPbp)
 } catch {
   Write-Log ("predict-pbp-markets failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -3799,7 +3828,7 @@ try {
 # 7.1a) First-basket recommendations for today's slate
 try {
   Write-Log ("Exporting first-basket recommendations for {0}" -f $Date)
-  $rcFbRecs = Invoke-PyMod -plist @('-m','nba_betting.cli','first-basket-recs','--date', $Date)
+  $rcFbRecs = Invoke-PyMod -plist @('-m','wnba_betting.cli','first-basket-recs','--date', $Date)
   Write-Log ("first-basket-recs exit code: {0}" -f $rcFbRecs)
 } catch {
   Write-Log ("first-basket-recs failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -3808,7 +3837,7 @@ try {
 # 7.1) Export compact game cards for frontend
 try {
   Write-Log ("Exporting game cards for {0}" -f $Date)
-  $rcCards = Invoke-PyMod -plist @('-m','nba_betting.cli','export-game-cards','--date', $Date)
+  $rcCards = Invoke-PyMod -plist @('-m','wnba_betting.cli','export-game-cards','--date', $Date)
   Write-Log ("export-game-cards exit code: {0}" -f $rcCards)
 } catch {
   Write-Log ("export-game-cards failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -3857,7 +3886,7 @@ try {
       $dts = [datetime]::Parse($Date)
       $seasonY = if ($dts.Month -ge 7) { $dts.Year + 1 } else { $dts.Year }
       Write-Log ("Updating team advanced stats priors (season={0}, as_of={1})" -f $seasonY, $Date)
-      $rcAdv = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-advanced-stats','--season', $seasonY, '--as-of', $Date)
+      $rcAdv = Invoke-PyMod -plist @('-m','wnba_betting.cli','fetch-advanced-stats','--season', $seasonY, '--as-of', $Date)
       Write-Log ("fetch-advanced-stats exit code: {0}" -f $rcAdv)
     } catch {
       Write-Log ("fetch-advanced-stats failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -3868,7 +3897,7 @@ try {
     $maxSmart = $env:DAILY_SMARTSIM_MAX_GAMES
     $doOverwrite = $env:DAILY_SMARTSIM_OVERWRITE
     if ($null -eq $doOverwrite -or $doOverwrite -eq '') { $doOverwrite = '0' }
-    $plist = @('-m','nba_betting.cli','smart-sim-date','--date', $Date, '--n-sims', $nSmart, '--roster-mode', $SmartSimRosterMode, '--out-prefix', $SmartSimOutPrefix)
+    $plist = @('-m','wnba_betting.cli','smart-sim-date','--date', $Date, '--n-sims', $nSmart, '--roster-mode', $SmartSimRosterMode, '--out-prefix', $SmartSimOutPrefix)
 
     # Optional: parallelize per-game SmartSim jobs (matches predict-props SmartSim workers behavior)
     try {
@@ -4191,13 +4220,13 @@ try {
 # Optional: Live Lens tuning (optimize adjustments from logged signals + recon actuals)
 # Writes data/processed/live_lens_tuning_override.json when enough signal-backed bets exist.
 try {
-  $LiveLensDir = $env:NBA_LIVE_LENS_DIR
+  $LiveLensDir = $env:WNBA_LIVE_LENS_DIR
   if ($null -eq $LiveLensDir -or $LiveLensDir -eq '') { $LiveLensDir = $env:LIVE_LENS_DIR }
   if ($null -eq $LiveLensDir -or $LiveLensDir -eq '') { $LiveLensDir = (Join-Path $RepoRoot 'data/processed') }
   if (-not (Test-Path $LiveLensDir)) { New-Item -ItemType Directory -Path $LiveLensDir | Out-Null }
 
   # Ensure downstream Python tools read/write Live Lens artifacts in the same place.
-  $env:NBA_LIVE_LENS_DIR = $LiveLensDir
+  $env:WNBA_LIVE_LENS_DIR = $LiveLensDir
 
   # Optional: fetch recent Live Lens logs from a remote server (e.g., Render) before tuning.
   # This is ON by default (safe/no-op when remote is unreachable or artifacts are missing).
@@ -4207,7 +4236,7 @@ try {
   if ($null -ne $fetchRemote -and $fetchRemote -match '^(1|true|yes)$') {
     try {
       # Prefer shared env var used by cron tooling; fall back to script param.
-      $remote = $env:NBA_BETTING_BASE_URL
+      $remote = $env:WNBA_BETTING_BASE_URL
       if ($null -eq $remote -or $remote -eq '') { $remote = $RemoteBaseUrl }
       if ($null -ne $remote -and $remote -ne '') {
         $remote = $remote.TrimEnd('/')
@@ -4454,6 +4483,7 @@ if (-not $GitPush) {
           $mchanged = & git diff --cached --name-only -- $metricsPath
           if ($mchanged) {
             $msg2 = "data(processed): update pbp metrics daily ($yesterday)"
+            Ensure-GitCommitIdentity -RepoPath $RepoRoot
             Remove-StaleGitLock
             & git commit -m $msg2 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
             Write-Log 'Git: committed pbp_metrics_daily update'
@@ -4538,7 +4568,7 @@ try {
   } elseif ($allowNonToday -notmatch '^(1|true|yes)$' -and $Date -ne $todayLocal) {
     Write-Log ("Pregame signals: Date={0} is not today ({1}); skipping (set DAILY_LOG_PREGAME_PROP_SIGNALS_ALLOW_NON_TODAY=1 to override)" -f $Date, $todayLocal)
   } elseif ($null -ne $emitPregame -and $emitPregame -match '^(1|true|yes)$') {
-    $remote2 = $env:NBA_BETTING_BASE_URL
+    $remote2 = $env:WNBA_BETTING_BASE_URL
     if ($null -eq $remote2 -or $remote2 -eq '') { $remote2 = $RemoteBaseUrl }
 
     if ($null -ne $remote2 -and $remote2 -ne '') {
@@ -4626,3 +4656,4 @@ try {
 } catch {
   Write-Log ("Pregame signals failed (non-fatal): {0}" -f $_.Exception.Message)
 }
+

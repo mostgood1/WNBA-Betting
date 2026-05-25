@@ -13,6 +13,34 @@ param(
 $repoRoot = Split-Path -Path $PSScriptRoot -Parent
 Set-Location $repoRoot
 
+function Ensure-GitCommitIdentity {
+    param([string]$RepoPath)
+
+    $name = (& git -C $RepoPath config --get user.name 2>$null)
+    $email = (& git -C $RepoPath config --get user.email 2>$null)
+    if (-not [string]::IsNullOrWhiteSpace($name) -and -not [string]::IsNullOrWhiteSpace($email)) {
+        return
+    }
+
+    $fallbackName = [string]$env:GIT_AUTHOR_NAME
+    $fallbackEmail = [string]$env:GIT_AUTHOR_EMAIL
+    if ([string]::IsNullOrWhiteSpace($fallbackName) -or [string]::IsNullOrWhiteSpace($fallbackEmail)) {
+        $last = (& git -C $RepoPath log -1 --pretty=format:"%an|%ae" 2>$null)
+        if (-not [string]::IsNullOrWhiteSpace($last) -and $last.Contains('|')) {
+            $parts = $last.Split('|', 2)
+            if ([string]::IsNullOrWhiteSpace($fallbackName)) { $fallbackName = $parts[0] }
+            if ([string]::IsNullOrWhiteSpace($fallbackEmail)) { $fallbackEmail = $parts[1] }
+        }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($fallbackName) -or [string]::IsNullOrWhiteSpace($fallbackEmail)) {
+        throw 'Git commit identity is not configured and no fallback author could be resolved.'
+    }
+
+    & git -C $RepoPath config user.name $fallbackName | Out-Null
+    & git -C $RepoPath config user.email $fallbackEmail | Out-Null
+}
+
 $processedDir = Join-Path $repoRoot 'data/processed'
 if (-not (Test-Path $processedDir)) {
     Write-Error "Processed directory not found: $processedDir"
@@ -226,6 +254,8 @@ if ($DryRun) {
     exit 0
 }
 
+Ensure-GitCommitIdentity -RepoPath $repoRoot
+
 # Stage files
 foreach ($f in $files) {
     $rel = Resolve-Path -Relative $f.FullName
@@ -239,6 +269,8 @@ foreach ($f in $files) {
         $f.Name.StartsWith('cards_props_snapshot_') -or
         $f.Name.StartsWith('cards_sim_detail_') -or
         $f.Name.StartsWith('pregame_expected_minutes_') -or
+        $f.Name.StartsWith('recon_players_') -or
+        $f.Name.StartsWith('live_player_lens_tuning_') -or
         $f.Name.StartsWith('smartsim_player_scenarios_') -or
         $f.Name.StartsWith('props_recommendations_top_by_game_') -or
         $f.Name.StartsWith('oddsapi_player_props_') -or
