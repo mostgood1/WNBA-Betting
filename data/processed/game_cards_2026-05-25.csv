@@ -1,0 +1,3 @@
+date,game_id,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,bookmaker,home_tri,away_tri,prob_home_tip,early_threes_expected,early_threes_prob_ge_1
+2026-05-25,0401856936,New York Liberty,Portland Fire,2026-05-26T00:10:00Z,-437.6253071268296,437.62530712683,-11.5,11.5,,,175.0,101.69126287183045,-101.6912628718304,11,oddsapi_consensus,NYL,POR,0.5,0.0,0.0
+2026-05-25,0401856937,Golden State Valkyries,Connecticut Sun,2026-05-26T02:10:00Z,-591.1124412899981,591.1124412899982,-13.0,13.0,,,159.5,-101.7484373888678,101.7484373888678,11,oddsapi_consensus,GSV,CON,0.5,0.0,0.0
