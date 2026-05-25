@@ -67,7 +67,7 @@ def test_validate_daily_artifacts_requires_props_lines_only_when_snapshot_rows_e
                 "outcome_name": "Over",
             }
         ]
-    ).to_csv(raw / f"odds_nba_player_props_{date_str}.csv", index=False)
+    ).to_csv(raw / f"odds_wnba_player_props_{date_str}.csv", index=False)
 
     monkeypatch.setattr(
         sys,

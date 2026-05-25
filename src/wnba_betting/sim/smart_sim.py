@@ -461,7 +461,7 @@ def _load_market_player_names_by_matchup(date_str: str) -> dict[tuple[str, str],
         return {}
 
     candidates = [
-        paths.data_raw / f"odds_nba_player_props_{ds}.csv",
+        paths.data_raw / f"odds_wnba_player_props_{ds}.csv",
         paths.data_processed / f"oddsapi_player_props_{ds}.csv",
     ]
     snapshot_path = next((path for path in candidates if path.exists()), None)
@@ -1954,7 +1954,7 @@ def _clean_id_str(x: Any) -> str:
 
 
 def _infer_game_id(date_str: str, home_tri: str, away_tri: str) -> Optional[str]:
-    """Infer NBA game_id (gid) for matchup using cached ESPN scoreboard helpers."""
+    """Infer a game_id (gid) for a matchup using cached ESPN scoreboard helpers."""
     try:
         from ..boxscores import _nba_gid_to_tricodes  # type: ignore
     except Exception:
@@ -2460,7 +2460,7 @@ def _team_players_from_processed_boxscores(
     team_tri: str,
     game_id: Optional[str] = None,
 ) -> pd.DataFrame:
-    """Fallback roster builder using processed NBA boxscores.
+    """Fallback roster builder using processed boxscores.
 
     This is the most reliable source for historical/completed games and avoids ESPN lookup failures.
     Returns a minimal DataFrame with [player_name, team, opponent, position, playing_today].

@@ -267,7 +267,7 @@ def main() -> int:
     props_edges = proc / f"props_edges_{date_str}.csv"
     props_recs = proc / f"props_recommendations_{date_str}.csv"
     cards_sim_detail = proc / f"cards_sim_detail_{date_str}.json"
-    props_snapshot = repo_root / "data" / "raw" / f"odds_nba_player_props_{date_str}.csv"
+    props_snapshot = repo_root / "data" / "raw" / f"odds_wnba_player_props_{date_str}.csv"
 
     pred_rows = _count_csv_data_rows(pred)
     props_rows = _count_csv_data_rows(props)

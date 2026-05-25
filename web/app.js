@@ -1100,11 +1100,11 @@ function fmtLocalDate(iso){
   }catch(_){ return ''; }
 }
 
-// Return the NBA "slate date" as YYYY-MM-DD (US/Eastern) to match backend artifacts.
+// Return the league "slate date" as YYYY-MM-DD (US/Eastern) to match backend artifacts.
 function localYMD(d){
   try{
     const tz = 'America/New_York';
-    const cutoffHour = 6; // Treat 12:00am–5:59am ET as the prior NBA slate day.
+    const cutoffHour = 6; // Treat 12:00am-5:59am ET as the prior slate day.
     const now = d instanceof Date ? d : new Date();
     const hourStr = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour:'2-digit', hour12:false }).format(now);
     const hour = Number(hourStr);
@@ -1196,13 +1196,9 @@ function svgBadgeDataUrl(tri){
 
 async function loadTeams(){
   try{
-    let arr = [];
-    for (const path of ['/web/assets/teams_wnba.json', '/web/assets/teams_nba.json']) {
-      const res = await fetch(path);
-      if (!res.ok) continue;
-      arr = await res.json();
-      if (Array.isArray(arr) && arr.length) break;
-    }
+    const res = await fetch('/web/assets/teams_wnba.json');
+    if (!res.ok) throw new Error('teams fetch failed');
+    const arr = await res.json();
     if (!Array.isArray(arr) || !arr.length) throw new Error('teams fetch failed');
     const map = {};
     for (const t of arr){ map[String(t.tricode||'').toUpperCase()] = t; }
@@ -2296,7 +2292,7 @@ function renderDateLegacy(dateStr){
       }
       // Spread EV (approximate with normal, sigma assumption)
       if (odds && pred && odds.home_spread!=null && pred.pred_margin!=null){
-        const sigmaMargin = 12.0; // rough NBA full-game margin sigma
+        const sigmaMargin = 12.0; // rough full-game margin sigma
         const spr = Number(odds.home_spread);
         const M = Number(pred.pred_margin);
         // Home covers if (margin + home_spread) > 0  i.e., margin > -home_spread
@@ -2316,7 +2312,7 @@ function renderDateLegacy(dateStr){
       }
       // Total EV (approximate with normal, sigma assumption)
       if (odds && pred && odds.total!=null && pred.pred_total!=null){
-        const sigmaTotal = 20.0; // rough NBA full-game total sigma
+        const sigmaTotal = 20.0; // rough full-game total sigma
         const tot = Number(odds.total);
         const T = Number(pred.pred_total);
         const zOver = (tot - T) / sigmaTotal; // P(Over) = 1 - CDF(z)
@@ -2478,7 +2474,7 @@ function renderDateLegacy(dateStr){
           <div class=\"chip ${clsU} ${isModelUnder?'model-pick':''}\">Under ${underOddsTxt} · ${underProbTxt} ${bookBadge} ${evUBadge} ${isModelUnder?modelBadge:''}</div>
           ${pushProb!=null ? `<div class=\"chip neutral\">Push · ${(pushProb*100).toFixed(1)}%</div>` : ''}
         </div>`;
-      // Spread chips (NBA)
+      // Spread chips
       if (Number.isFinite(Number(odds.home_spread))) {
         const sprH = Number(odds.home_spread);
         const sprA = -sprH;

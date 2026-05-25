@@ -1316,7 +1316,7 @@ def test_api_cards_normalizes_snapshot_names_and_backfills_roster_coverage(tmp_p
                 "away_team": "Philadelphia 76ers",
             },
         ]
-    ).to_csv(raw / "odds_nba_player_props_2026-03-19.csv", index=False)
+    ).to_csv(raw / "odds_wnba_player_props_2026-03-19.csv", index=False)
 
     monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
     monkeypatch.setattr(app_module, "DATA_RAW_DIR", raw)
@@ -1397,7 +1397,7 @@ def test_api_cards_normalizes_claxton_alias_without_missing_prop_warning(tmp_pat
                 "away_team": "Brooklyn Nets",
             }
         ]
-    ).to_csv(raw / "odds_nba_player_props_2026-03-19.csv", index=False)
+    ).to_csv(raw / "odds_wnba_player_props_2026-03-19.csv", index=False)
 
     monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
     monkeypatch.setattr(app_module, "DATA_RAW_DIR", raw)
@@ -1610,7 +1610,7 @@ def test_api_cards_surfaces_snapshot_prop_line_options_and_marks_recommendations
                 "away_team": "Detroit Pistons",
             },
         ]
-    ).to_csv(raw / "odds_nba_player_props_2026-03-13.csv", index=False)
+    ).to_csv(raw / "odds_wnba_player_props_2026-03-13.csv", index=False)
 
     monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
     monkeypatch.setattr(app_module, "DATA_RAW_DIR", raw)
@@ -2294,7 +2294,7 @@ def test_upload_props_refresh_artifacts_accepts_snapshot_only(tmp_path, monkeypa
                         "2026-03-18T10:05:00Z,evt-1,2026-03-18T23:00:00Z,fanduel,player_points,Under,Jayson Tatum,27.5,-110,Boston Celtics,Miami Heat\n"
                     ).encode("utf-8")
                 ),
-                "odds_nba_player_props_2026-03-18.csv",
+                "odds_wnba_player_props_2026-03-18.csv",
             ),
         },
         content_type="multipart/form-data",
@@ -2318,8 +2318,8 @@ def test_upload_props_refresh_artifacts_accepts_snapshot_only(tmp_path, monkeypa
         "recommendations": False,
     }
     assert (processed / "oddsapi_player_props_2026-03-18.csv").exists()
-    assert (raw / "odds_nba_player_props_opening_2026-03-18.csv").exists()
-    assert (raw / "odds_nba_player_props_history_2026-03-18.csv").exists()
+    assert (raw / "odds_wnba_player_props_opening_2026-03-18.csv").exists()
+    assert (raw / "odds_wnba_player_props_history_2026-03-18.csv").exists()
     assert not (processed / "props_edges_2026-03-18.csv").exists()
 
 
@@ -2354,7 +2354,7 @@ def test_upload_props_refresh_artifacts_invalidates_stale_props_snapshots(tmp_pa
                         "2026-03-18T10:05:00Z,evt-1,2026-03-18T23:00:00Z,fanduel,player_points,Under,Jayson Tatum,27.5,-110,Boston Celtics,Miami Heat\n"
                     ).encode("utf-8")
                 ),
-                "odds_nba_player_props_2026-03-18.csv",
+                "odds_wnba_player_props_2026-03-18.csv",
             ),
         },
         content_type="multipart/form-data",
@@ -2394,7 +2394,7 @@ def test_cards_shell_routes_use_single_main_page():
     live_html = live_response.get_data(as_text=True)
 
     assert 'data-page-mode="pregame"' in root_html
-    assert 'NBA Game Cards' in root_html
+    assert 'WNBA Game Cards' in root_html
     assert 'id="cardsPregameLink"' in root_html
     assert 'id="cardsLiveLink"' in root_html
     assert 'data-page-mode="pregame"' in pregame_html

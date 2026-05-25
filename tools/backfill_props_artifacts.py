@@ -4,7 +4,7 @@ Goal: regenerate historical CSVs using the *current* props edge logic while stay
 as offline/deterministic as possible.
 
 It will only process a date if both of these exist:
-  - data/raw/odds_nba_player_props_<date>.csv
+    - data/raw/odds_wnba_player_props_<date>.csv
   - data/processed/props_predictions_<date>.csv
 
 Outputs (per processed date):
@@ -63,7 +63,7 @@ def rebuild_one(
     from wnba_betting.props_edges import SigmaConfig, calibrate_sigma_for_date, compute_props_edges
     from wnba_betting.cli import _export_best_edges_snapshot, _export_props_recommendations_cards
 
-    raw_odds = paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+    raw_odds = paths.data_raw / f"odds_wnba_player_props_{date_str}.csv"
     preds_p = paths.data_processed / f"props_predictions_{date_str}.csv"
 
     if not raw_odds.exists():

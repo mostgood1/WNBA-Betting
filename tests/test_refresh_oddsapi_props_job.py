@@ -189,7 +189,7 @@ def test_collect_snapshot_coverage_gaps_collapses_known_aliases():
 def test_materialize_processed_snapshot_alias_copies_raw_snapshot(tmp_path, monkeypatch):
     data_processed = tmp_path / "data" / "processed"
     data_processed.mkdir(parents=True)
-    snapshot_path = tmp_path / "data" / "raw" / "odds_nba_player_props_2026-03-14.csv"
+    snapshot_path = tmp_path / "data" / "raw" / "odds_wnba_player_props_2026-03-14.csv"
     snapshot_path.parent.mkdir(parents=True)
     pd.DataFrame(
         [

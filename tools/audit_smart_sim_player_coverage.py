@@ -92,7 +92,7 @@ def _load_expected_players(
 
 def _load_market_players_by_matchup(processed: Path, ds: str) -> dict[tuple[str, str], set[str]]:
     candidates = [
-        processed.parent / "raw" / f"odds_nba_player_props_{ds}.csv",
+        processed.parent / "raw" / f"odds_wnba_player_props_{ds}.csv",
         processed / f"oddsapi_player_props_{ds}.csv",
     ]
     snapshot_path = next((path for path in candidates if path.exists()), None)

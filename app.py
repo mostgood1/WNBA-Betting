@@ -117,7 +117,6 @@ except Exception:
 WEB_DIR = BASE_DIR / "web"
 _DATA_ROOT = (
     os.environ.get(getattr(LEAGUE, "data_root_env", "WNBA_BETTING_DATA_ROOT"))
-    or os.environ.get(getattr(LEAGUE, "legacy_data_root_env", "NBA_BETTING_DATA_ROOT"))
     or ""
 ).strip()
 try:
@@ -2079,7 +2078,7 @@ def _live_prop_rank_probability(
         late_under_penalty *= max(0.25, 1.0 - (0.55 * current_support))
 
     # MLB parity: treat live gaps as centered/scaled features instead of letting
-    # raw NBA stat deltas linearly saturate the score.
+    # raw stat deltas linearly saturate the score.
     prob_term = max(-1.5, min(1.5, (float(prob) - 0.5) / 0.18))
     market_edge_term = max(-1.25, min(1.25, float(market_edge) / 0.12))
     pace_term = max(-1.4, min(1.4, float(pace_selected) / 3.5))
@@ -2151,7 +2150,7 @@ def _safe_int(x: Any) -> int | None:
 
 
 def _live_parse_clock_to_sec_left(clock: Any) -> Optional[int]:
-    """Parse NBA clock to seconds left in period.
+    """Parse a scoreboard clock to seconds left in period.
 
     Supports:
       - 'PT11M45.00S'
@@ -2304,7 +2303,7 @@ def _live_cum_p50_series_by_min(intervals: dict[str, Any] | None, *, total_minut
 
 
 def _live_fetch_cdn_scoreboard(date_str: str) -> dict[str, Any]:
-    """Fetch NBA CDN scoreboard for a date and return JSON dict."""
+    """Fetch the scoreboard CDN payload for a date and return a JSON dict."""
     try:
         # Cache for 10 seconds
         now = time.time()
@@ -2434,7 +2433,7 @@ def _live_fetch_espn_summary(event_id: str) -> dict[str, Any]:
 def _live_espn_actions_from_summary(summary: dict[str, Any]) -> list[dict[str, Any]]:
     """Translate ESPN summary plays into the Live Lens action schema.
 
-    The downstream PBP parsers expect NBA-CDN-like fields:
+    The downstream PBP parsers expect scoreboard-CDN-like fields:
       teamTricode, actionType, shotResult, isFieldGoal, shotValue, period, clock, scoreHome, scoreAway
     """
     try:
@@ -2715,7 +2714,7 @@ def _live_extract_espn_games(jd: dict[str, Any]) -> list[dict[str, Any]]:
     """Extract live-ish game objects from ESPN scoreboard.
 
     Output records match the shape used by /api/live/scoreboard as closely as possible.
-    Note: ESPN event ids do not match NBA game ids.
+    Note: ESPN event ids do not match league game ids.
     """
     out: list[dict[str, Any]] = []
     try:
@@ -2849,7 +2848,7 @@ def _live_sim_matchups_for_date(date_str: str) -> list[dict[str, Any]]:
         away = _canonical_team_tri(obj.get("away"))
         if not home or not away:
             continue
-        # Prefer the numeric NBA game id used by SmartSim (/api/cards uses this).
+        # Prefer the numeric league game id used by SmartSim (/api/cards uses this).
         # Fall back to a stable matchup id when missing.
         gid_raw = obj.get("game_id")
         if gid_raw is None:
@@ -2875,10 +2874,10 @@ def _live_player_prop_lens_weights(is_postseason: Any) -> tuple[float, float, st
 def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any]]]:
     """Build the live scoreboard game list.
 
-    Prefers ESPN for status/clock, but keeps NBA game_id stable by matching ESPN
+    Prefers ESPN for status/clock, but keeps the league game_id stable by matching ESPN
     events to SmartSim games via (home,away).
 
-    Falls back to NBA CDN when SmartSim games are unavailable or ESPN fails.
+    Falls back to the scoreboard CDN when SmartSim games are unavailable or ESPN fails.
     """
     def _scoreboard_game_priority(game: dict[str, Any]) -> tuple[int, int, int]:
         if not isinstance(game, dict):
@@ -2993,7 +2992,7 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
             return "espn", merged
 
         # If SmartSim isn't available (common on Render / fresh deploy), still provide
-        # a usable scoreboard from ESPN. NBA CDN's dated scoreboard URLs are no longer
+        # a usable scoreboard from ESPN. The dated scoreboard CDN URLs are no longer
         # reliably accessible (often 403), so ESPN is the safest fallback.
         if (not sim_games) and espn_games:
             out: list[dict[str, Any]] = []
@@ -3039,10 +3038,10 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
                 )
             return "sim_only", merged
 
-        # Fallback to NBA CDN scoreboard (best-effort; dated CDN URLs often 403)
+        # Fallback to the scoreboard CDN (best-effort; dated CDN URLs often 403)
         sb = _live_fetch_cdn_scoreboard(date_str)
         games = _live_extract_scoreboard_games(sb)
-        # Prefer matchup ids for frontend joins; retain NBA numeric id separately when present.
+        # Prefer matchup ids for frontend joins; retain the numeric game id separately when present.
         for g in games:
             try:
                 nba_gid = str(g.get("game_id") or "").strip()
@@ -3968,7 +3967,7 @@ def _live_pbp_recent_player_usage(actions: list[dict[str, Any]], window_sec: int
 
 
 def _live_pbp_rotation_state(actions: list[dict[str, Any]], starters_by_team: dict[str, set[str]] | None = None) -> dict[str, Any]:
-    """Derive a lightweight on/off + stint/rest summary from NBA-CDN play-by-play.
+    """Derive a lightweight on/off + stint/rest summary from scoreboard-CDN play-by-play.
 
     This is best-effort and regulation-only.
 
@@ -5906,7 +5905,7 @@ def _compute_team_offense_stats(date_str: str, days_back: int = 21) -> tuple[dic
 
 
 def _team_advanced_stats_season_for_date(date_str: str) -> int:
-    """Infer end-year NBA season naming used by team advanced stats artifacts.
+    """Infer the end-year season naming used by team advanced stats artifacts.
 
     Example: 2026-03-19 -> 2026 for team_advanced_stats_2026_asof_2026-03-19.csv.
     """
@@ -6438,7 +6437,7 @@ def _team_roster_names_via_nba_api(date_str: str, team_tri: str) -> list[str]:
 
         out: list[str] = []
 
-        # 1) Prefer live NBA API team roster for the season containing date_str.
+        # 1) Prefer the live team roster API for the season containing date_str.
         try:
             from nba_api.stats.endpoints import commonteamroster  # type: ignore
 
@@ -9572,7 +9571,7 @@ def _load_team_maps() -> dict[str, str]:
                 except Exception:
                     pass
     except Exception:
-        # Fallback: built-in NBA full_name -> abbreviation map (no nba_api dependency).
+        # Fallback: built-in full_name -> abbreviation map without the stats API.
         built_in = [
             ("Atlanta Hawks", "ATL"),
             ("Boston Celtics", "BOS"),
@@ -10059,7 +10058,7 @@ def _correct_props_long_with_roster_and_games(long: pd.DataFrame, date_str: str)
     except Exception:
         return long
 
-# Lightweight team validation via NBA API for specific player_ids (cached)
+# Lightweight team validation via the stats API for specific player_ids (cached)
 _pid_team_cache: dict[int, str] = {}
 def _team_for_player_via_nba_api(pid: int) -> Optional[str]:
     try:
@@ -10082,7 +10081,7 @@ def _team_for_player_via_nba_api(pid: int) -> Optional[str]:
 
 # ---- Finals export helpers (module-level) ----
 def _finals_from_cdn_all(date_str_local: str) -> pd.DataFrame:
-    """Fetch all games' finals from NBA CDN scoreboard for a date (no filtering)."""
+    """Fetch all games' finals from the scoreboard CDN for a date (no filtering)."""
     try:
         import requests as _rq  # type: ignore
     except Exception:
@@ -10453,7 +10452,7 @@ def _default_us_slate_date_str() -> str:
         import os
         from datetime import datetime as _dt, timedelta as _td
 
-        cutoff_hour = 6  # Treat 12:00am–5:59am local as the prior NBA slate day.
+        cutoff_hour = 6  # Treat 12:00am-5:59am local as the prior slate day.
         tz_name = (os.environ.get("APP_TZ") or "America/New_York").strip()
         try:
             from zoneinfo import ZoneInfo  # Python 3.9+
@@ -10945,7 +10944,7 @@ def _load_refresh_oddsapi_props_meta(*, persist_stale: bool = False) -> dict[str
 
 
 def _run_detached_refresh_oddsapi_props_from_env() -> None:
-    payload_raw = (os.environ.get("WNBA_BETTING_ODDSAPI_PROPS_JOB") or os.environ.get("NBA_BETTING_ODDSAPI_PROPS_JOB") or "").strip()
+    payload_raw = (os.environ.get("WNBA_BETTING_ODDSAPI_PROPS_JOB") or "").strip()
     if not payload_raw:
         raise RuntimeError("missing WNBA_BETTING_ODDSAPI_PROPS_JOB payload")
     payload = json.loads(payload_raw)
@@ -10992,7 +10991,6 @@ def _launch_refresh_oddsapi_props_detached(
             "started_at": started_at,
         })
         env["WNBA_BETTING_ODDSAPI_PROPS_JOB"] = payload
-        env["NBA_BETTING_ODDSAPI_PROPS_JOB"] = payload
         popen_kwargs: dict[str, Any] = {
             "cwd": str(BASE_DIR),
             "env": env,
@@ -11229,11 +11227,11 @@ def _oddsapi_props_refresh_job(
         try:
             from wnba_betting.config import paths as _paths  # type: ignore
 
-            raw_fp = _paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+            raw_fp = _paths.data_raw / f"odds_wnba_player_props_{date_str}.csv"
             edges_fp = _paths.data_processed / f"props_edges_{date_str}.csv"
             rec_fp = _paths.data_processed / f"props_recommendations_{date_str}.csv"
         except Exception:
-            raw_fp = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
+            raw_fp = DATA_RAW_DIR / f"odds_wnba_player_props_{date_str}.csv"
             edges_fp = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
             rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
 
@@ -11529,7 +11527,7 @@ def _ensure_logs_dir() -> Path:
     except Exception:
         pass
     try:
-        candidates.append(Path("/tmp") / "nba_betting_logs")
+        candidates.append(Path("/tmp") / "wnba_betting_logs")
     except Exception:
         pass
 
@@ -12152,7 +12150,7 @@ def api_cron_upload_props_refresh_artifacts():
     Auth: CRON_TOKEN or ADMIN_KEY.
     Multipart form fields:
       - date: YYYY-MM-DD
-      - snapshot: odds_nba_player_props_<date>.csv
+            - snapshot: odds_wnba_player_props_<date>.csv
     Optional form fields:
             - predictions: props_predictions_<date>.csv
             - edges: props_edges_<date>.csv
@@ -12160,10 +12158,10 @@ def api_cron_upload_props_refresh_artifacts():
       - regions, bookmakers, markets, started_at, ended_at, duration_s
 
         Side effects on the active data root:
-            - append current snapshot rows to odds_nba_player_props_history_<date>.csv
-            - preserve earliest-seen props in odds_nba_player_props_opening_<date>.*
-                        - when edges are present, enrich props_edges_<date>.csv with opening and movement columns
-                        - when edges are present, emit props_movement_signals_<date>.csv for significant moves
+            - append current snapshot rows to odds_wnba_player_props_history_<date>.csv
+            - preserve earliest-seen props in odds_wnba_player_props_opening_<date>.*
+            - when edges are present, enrich props_edges_<date>.csv with opening and movement columns
+            - when edges are present, emit props_movement_signals_<date>.csv for significant moves
     """
     if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
         return jsonify({"error": "unauthorized"}), 401
@@ -12186,7 +12184,7 @@ def api_cron_upload_props_refresh_artifacts():
     if snapshot_file is None:
         return jsonify({"error": "missing upload files", "missing": ["snapshot"]}), 400
 
-    snapshot_path = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
+    snapshot_path = DATA_RAW_DIR / f"odds_wnba_player_props_{date_str}.csv"
     snapshot_alias_path = DATA_PROCESSED_DIR / f"oddsapi_player_props_{date_str}.csv"
     predictions_path = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
     edges_path = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
@@ -12666,7 +12664,7 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
                 started_at=datetime.utcnow().isoformat(),
             ) or {}
 
-            raw_snapshot_fp = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
+            raw_snapshot_fp = DATA_RAW_DIR / f"odds_wnba_player_props_{date_str}.csv"
             alias_snapshot_fp = DATA_PROCESSED_DIR / f"oddsapi_player_props_{date_str}.csv"
             edges_local_fp = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
             rec_local_fp = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
@@ -12789,7 +12787,7 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
         props_preds_fp = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
         edges_fp = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
         rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
-        props_snapshot_fp = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
+        props_snapshot_fp = DATA_RAW_DIR / f"odds_wnba_player_props_{date_str}.csv"
         props_snapshot_alias_fp = DATA_PROCESSED_DIR / f"oddsapi_player_props_{date_str}.csv"
 
         rc_total = 0
@@ -12942,7 +12940,6 @@ def api_runtime_info():
             "repo_data_processed_dir": str(REPO_DATA_PROCESSED_DIR),
             "env": {
                 "WNBA_BETTING_DATA_ROOT": os.environ.get("WNBA_BETTING_DATA_ROOT", ""),
-                "NBA_BETTING_DATA_ROOT": os.environ.get("NBA_BETTING_DATA_ROOT", ""),
                 "RENDER_SERVICE_ID": os.environ.get("RENDER_SERVICE_ID", ""),
                 "RENDER_GIT_COMMIT": os.environ.get("RENDER_GIT_COMMIT", ""),
                 "RENDER_GIT_BRANCH": os.environ.get("RENDER_GIT_BRANCH", ""),
@@ -13093,7 +13090,7 @@ def api_status_props_refresh():
     live_browser_poll_sec = 20
     live_cache_ttl_sec = _env_int_clamped("LIVE_PLAYER_PROPS_ODDS_TTL_SEC", 20, 5, 300)
 
-    raw_snapshot = _artifact_freshness_payload(DATA_RAW_DIR / f"odds_nba_player_props_{d}.csv", now_utc=now_utc)
+    raw_snapshot = _artifact_freshness_payload(DATA_RAW_DIR / f"odds_wnba_player_props_{d}.csv", now_utc=now_utc)
     edges_snapshot = _artifact_freshness_payload(DATA_PROCESSED_DIR / f"props_edges_{d}.csv", now_utc=now_utc)
     recs_snapshot = _artifact_freshness_payload(DATA_PROCESSED_DIR / f"props_recommendations_{d}.csv", now_utc=now_utc)
 
@@ -20636,7 +20633,7 @@ def api_cards():
                 raw_p = None
             if raw_p is None:
                 try:
-                    raw_candidate = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
+                    raw_candidate = DATA_RAW_DIR / f"odds_wnba_player_props_{date_str}.csv"
                     if raw_candidate.exists() and raw_candidate.stat().st_size > 0:
                         raw_p = raw_candidate
                 except Exception:
@@ -20645,7 +20642,7 @@ def api_cards():
                 try:
                     from wnba_betting.config import paths as _paths  # type: ignore
 
-                    raw_candidate = _paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+                    raw_candidate = _paths.data_raw / f"odds_wnba_player_props_{date_str}.csv"
                     if raw_candidate.exists() and raw_candidate.stat().st_size > 0:
                         raw_p = raw_candidate
                 except Exception:
@@ -30815,7 +30812,7 @@ def api_props():
                                     long = long[long["_name_key"].isin(allow)].drop(columns=["_name_key"], errors="ignore")
                 except Exception:
                     pass
-                # Optional precise validation against NBA API for single-team queries
+                # Optional precise validation against the stats API for single-team queries
                 try:
                     validate = (request.args.get("validateTeam", "1") or "1").strip().lower() not in ("0","false","no")
                 except Exception:
@@ -30825,7 +30822,7 @@ def api_props():
                         target = next(iter(want))
                         tmp = long.copy()
                         tmp["player_id"] = pd.to_numeric(tmp["player_id"], errors="coerce")
-                        # Resolve team via NBA API for present player_ids (cached) and filter mismatches
+                        # Resolve team via the stats API for present player_ids (cached) and filter mismatches
                         def _chk(row):
                             pid = row.get("player_id")
                             if pd.isna(pid):
@@ -37246,7 +37243,7 @@ def _espn_to_tri(abbr: str) -> str:
             'BRK': 'BKN',
             'BK': 'BKN',
             'PHO': 'PHX',
-            # ESPN sometimes uses legacy/short abbreviations that don't match NBA tricodes
+            # ESPN sometimes uses legacy or short abbreviations that don't match league tricodes
             'SA': 'SAS',
             'WSH': 'WAS',
             'UTAH': 'UTA',
@@ -41592,7 +41589,7 @@ def api_live_lens_signal():
     except Exception:
         pass
 
-    # Attach canonical NBA game_id when possible (for stable joins vs recon).
+    # Attach the canonical game_id when possible for stable joins vs recon.
     try:
         gid = _resolve_live_lens_canon_gid(body, date_str)
         if gid and "game_id_canon" not in body:
@@ -41611,7 +41608,7 @@ def api_live_lens_signal():
 def api_live_lens_projection():
     """NCAAB-parity endpoint: append a client-computed projection row to JSONL.
 
-    Writes to: <NBA_LIVE_LENS_DIR>/live_lens_projections_<date>.jsonl (defaults to data/processed)
+    Writes to: <LIVE_LENS_DIR>/live_lens_projections_<date>.jsonl (defaults to data/processed)
     """
     try:
         body = request.get_json(silent=True) or {}
@@ -41629,7 +41626,7 @@ def api_live_lens_projection():
     except Exception:
         pass
 
-    # Attach canonical NBA game_id when possible (for stable joins vs recon).
+    # Attach the canonical game_id when possible for stable joins vs recon.
     try:
         gid = _resolve_live_lens_canon_gid(body, date_str)
         if gid and "game_id_canon" not in body:
@@ -43453,7 +43450,7 @@ def api_cron_refresh_oddsapi_props():
 
     Auth: CRON_TOKEN (preferred) or ADMIN_KEY (fallback/manual).
     Writes:
-      - data/raw/odds_nba_player_props_<date>.csv (via CLI odds-snapshots-props)
+            - data/raw/odds_wnba_player_props_<date>.csv (via CLI odds-snapshots-props)
       - data/processed/props_edges_<date>.csv (optional, via CLI)
       - data/processed/props_recommendations_<date>.csv (optional, via CLI)
     """
@@ -43627,15 +43624,15 @@ def api_cron_refresh_oddsapi_props():
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
 
-        # Report file locations via wnba_betting.config.paths (supports NBA_BETTING_DATA_ROOT)
+        # Report file locations via wnba_betting.config.paths.
         try:
             from wnba_betting.config import paths as _paths  # type: ignore
-            raw_fp = _paths.data_raw / f"odds_nba_player_props_{d}.csv"
+            raw_fp = _paths.data_raw / f"odds_wnba_player_props_{d}.csv"
             pred_fp = _paths.data_processed / f"props_predictions_{d}.csv"
             edges_fp = _paths.data_processed / f"props_edges_{d}.csv"
             rec_fp = _paths.data_processed / f"props_recommendations_{d}.csv"
         except Exception:
-            raw_fp = DATA_RAW_DIR / f"odds_nba_player_props_{d}.csv"
+            raw_fp = DATA_RAW_DIR / f"odds_wnba_player_props_{d}.csv"
             pred_fp = DATA_PROCESSED_DIR / f"props_predictions_{d}.csv"
             edges_fp = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
             rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{d}.csv"
@@ -43996,7 +43993,7 @@ def api_cron_reconcile_games():
         preds["home_tri"] = preds.get("home_team").astype(str).str.upper()
         preds["away_tri"] = preds.get("visitor_team").astype(str).str.upper()
 
-    # Helper: finals from NBA CDN (with optional ±1 day) limited to prediction pairs
+    # Helper: finals from the scoreboard CDN (with optional +/-1 day) limited to prediction pairs
     def _finals_from_cdn(date_str_local: str, pred_pairs: set[tuple[str, str]], include_adjacent: bool = False) -> pd.DataFrame:
         try:
             import requests as _rq  # type: ignore
@@ -44704,7 +44701,7 @@ def api_cron_assess_oddsapi():
       - sample_markets (optional): comma-separated markets to sample via /odds
 
     Auth: CRON_TOKEN (preferred) or ADMIN_KEY (fallback/manual).
-    Persists JSON under data/processed/oddsapi_capabilities_<date>.json (respects NBA_BETTING_DATA_ROOT).
+    Persists JSON under data/processed/oddsapi_capabilities_<date>.json.
     """
     if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
         return jsonify({"error": "unauthorized"}), 401
@@ -46383,7 +46380,7 @@ def api_cron_fetch_rosters():
     """Fetch team rosters for a season and persist under data/processed.
 
     Query params:
-      - season: NBA season string (e.g., 2025-26)
+    - season: season label string (e.g., 2025-26)
       - push: 1 to commit/push artifacts
     """
     if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
