@@ -18,7 +18,7 @@ Other: PLUS_MINUS, PF, MIN
 ## Phase 1: Expand Props Models (60-90 min)
 
 ### Step 1.1: Update TARGETS List
-**File**: `src/nba_betting/props_train.py`
+**File**: `src/wnba_betting/props_train.py`
 **Change**:
 ```python
 # OLD
@@ -46,7 +46,7 @@ TARGETS = [
 ```
 
 ### Step 1.2: Update props_features.py
-**File**: `src/nba_betting/props_features.py`
+**File**: `src/wnba_betting/props_features.py`
 **Changes**:
 1. Add NUM_COL_MAP entries for new stats
 2. Update build_props_features() to create rolling features for all stats
@@ -80,15 +80,15 @@ NUM_COL_MAP = {
 ### Step 1.3: Rebuild Props Features
 **Command**:
 ```powershell
-python -m nba_betting.cli build-props-features
+python -m wnba_betting.cli build-props-features
 ```
 **Expected Output**: `props_features.parquet` with 20+ target columns
 
 ### Step 1.4: Train Expanded Props Models (NPU)
-**File**: `src/nba_betting/props_train.py` - Already has train_props_models_npu()
+**File**: `src/wnba_betting/props_train.py` - Already has train_props_models_npu()
 **Command**:
 ```powershell
-python -m nba_betting.cli train-props-npu
+python -m wnba_betting.cli train-props-npu
 ```
 **Expected Output**: 
 - 20+ .onnx files in models/ (t_stl_ridge.onnx, t_blk_ridge.onnx, etc.)
@@ -96,7 +96,7 @@ python -m nba_betting.cli train-props-npu
 - Updated props_models.joblib
 
 ### Step 1.5: Update NPUPropsPredictor
-**File**: `src/nba_betting/props_npu.py`
+**File**: `src/wnba_betting/props_npu.py`
 **Changes**:
 1. Update TARGETS list to match props_train.py
 2. Load all 20+ ONNX models
@@ -105,14 +105,14 @@ python -m nba_betting.cli train-props-npu
 ### Step 1.6: Generate Complete Props Predictions
 **Command**:
 ```powershell
-python -m nba_betting.cli predict-props --date 2025-10-17
+python -m wnba_betting.cli predict-props --date 2025-10-17
 ```
 **Expected Output**: `props_predictions_2025-10-17.csv` with 20+ stat columns per player
 
 ## Phase 2: Team-Level Models (60-90 min)
 
 ### Step 2.1: Create Team Aggregation Module
-**File**: `src/nba_betting/team_props.py` (NEW)
+**File**: `src/wnba_betting/team_props.py` (NEW)
 **Classes**:
 ```python
 class TeamPropsAggregator:
@@ -158,7 +158,7 @@ class TeamPropsAggregator:
 ```
 
 ### Step 2.2: Add Team Props CLI Commands
-**File**: `src/nba_betting/cli.py`
+**File**: `src/wnba_betting/cli.py`
 **New commands**:
 ```python
 @cli.command()
@@ -287,13 +287,13 @@ ls models/t_*.onnx | Measure-Object
 # Should show 20+ files
 
 # Verify NPU acceleration
-python -c "from nba_betting.props_npu import NPUPropsPredictor; p = NPUPropsPredictor(); print(f'Loaded {len(p.models)} models')"
+python -c "from wnba_betting.props_npu import NPUPropsPredictor; p = NPUPropsPredictor(); print(f'Loaded {len(p.models)} models')"
 ```
 
 ### Test 4.2: Verify Predictions Coverage
 ```powershell
 # Generate predictions
-python -m nba_betting.cli predict-props --date 2025-10-17
+python -m wnba_betting.cli predict-props --date 2025-10-17
 
 # Check coverage
 python -c "import pandas as pd; df = pd.read_csv('data/processed/props_predictions_2025-10-17.csv'); print(f'Players: {df.player_name.nunique()}'); pred_cols = [c for c in df.columns if c.startswith('pred_')]; print(f'Stats: {len(pred_cols)}'); print(f'Columns: {pred_cols}')"
@@ -302,7 +302,7 @@ python -c "import pandas as pd; df = pd.read_csv('data/processed/props_predictio
 ### Test 4.3: Verify Team Aggregations
 ```powershell
 # Generate team props
-python -m nba_betting.cli predict-team-props --date 2025-10-17
+python -m wnba_betting.cli predict-team-props --date 2025-10-17
 
 # Verify sums match
 python -c "
@@ -361,3 +361,4 @@ print(f'Match: {abs(lal_players - lal_team) < 1.0}')
 
 ## Next Immediate Step
 Start Phase 1.1: Update TARGETS list in props_train.py
+

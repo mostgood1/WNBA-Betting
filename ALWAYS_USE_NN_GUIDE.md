@@ -48,7 +48,7 @@ cd "C:\Users\mostg\OneDrive\Coding\NBA NPU"
 
 ### Step 2: Create Pure Feature Builder (Already Done ✅)
 
-**File:** `src/nba_betting/props_features_pure.py`
+**File:** `src/wnba_betting/props_features_pure.py`
 
 **What it does:**
 - Builds rolling average features WITHOUT sklearn
@@ -60,7 +60,7 @@ cd "C:\Users\mostg\OneDrive\Coding\NBA NPU"
 
 ### Step 3: Create Pure ONNX Predictor (Already Done ✅)
 
-**File:** `src/nba_betting/props_onnx_pure.py`
+**File:** `src/wnba_betting/props_onnx_pure.py`
 
 **What it does:**
 - Loads ONNX models directly (no sklearn)
@@ -72,7 +72,7 @@ cd "C:\Users\mostg\OneDrive\Coding\NBA NPU"
 
 ### Step 4: Add CLI Command
 
-**File to modify:** `src/nba_betting/cli.py`
+**File to modify:** `src/wnba_betting/cli.py`
 
 **Add these imports at the top:**
 
@@ -164,14 +164,14 @@ def predict_props_pure_onnx_cmd(date_str: str, out_path: str | None, slate_only:
 
 ```powershell
 # BEFORE (old way):
-$rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--slate-only','--calibrate','--calib-window','7')
+$rc3a = Invoke-PyMod -plist @('-m','wnba_betting.cli','predict-props','--date', $Date, '--slate-only','--calibrate','--calib-window','7')
 ```
 
 **Replace with:**
 
 ```powershell
 # AFTER (pure ONNX - always uses neural networks):
-$rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props-pure-onnx','--date', $Date, '--slate-only','--calibrate','--calib-window','7')
+$rc3a = Invoke-PyMod -plist @('-m','wnba_betting.cli','predict-props-pure-onnx','--date', $Date, '--slate-only','--calibrate','--calib-window','7')
 ```
 
 ### Step 6: Test the Pure ONNX System
@@ -179,7 +179,7 @@ $rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props-pure-onnx','
 ```powershell
 cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
 $env:PYTHONPATH = "C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
-& "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -m nba_betting.cli predict-props-pure-onnx --date 2025-10-17 --slate-only
+& "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -m wnba_betting.cli predict-props-pure-onnx --date 2025-10-17 --slate-only
 ```
 
 ## Advantages of This Approach
@@ -208,7 +208,7 @@ $env:PYTHONPATH = "C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 
 ```
 WNBA-Betting/
-├── src/nba_betting/
+├── src/wnba_betting/
 │   ├── props_features_pure.py      ← NEW: Pure feature builder
 │   ├── props_onnx_pure.py          ← NEW: Pure ONNX predictor
 │   ├── cli.py                      ← MODIFIED: Add new command
@@ -243,7 +243,7 @@ WNBA-Betting/
 ```powershell
 cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
 $env:PYTHONPATH = "src"
-& "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -c "from nba_betting.props_features_pure import build_features_for_date_pure; f = build_features_for_date_pure('2025-10-17'); print(f'Features: {len(f)} players, {len(f.columns)} columns')"
+& "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -c "from wnba_betting.props_features_pure import build_features_for_date_pure; f = build_features_for_date_pure('2025-10-17'); print(f'Features: {len(f)} players, {len(f.columns)} columns')"
 ```
 
 ### Test ONNX Predictor
@@ -256,7 +256,7 @@ cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
 ```powershell
 cd "C:\Users\mostg\OneDrive\Coding\WNBA-Betting"
 $env:PYTHONPATH = "src"
-& "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -m nba_betting.cli predict-props-pure-onnx --date 2025-10-17
+& "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -m wnba_betting.cli predict-props-pure-onnx --date 2025-10-17
 ```
 
 ## Troubleshooting
@@ -270,7 +270,7 @@ $env:PYTHONPATH = "src"
 ### Error: "player_logs not found"
 **Solution:** Fetch player logs first
 ```powershell
-& "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -m nba_betting.cli fetch-player-logs
+& "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" -m wnba_betting.cli fetch-player-logs
 ```
 
 ### Error: "Missing feature columns"
@@ -315,3 +315,4 @@ With pure ONNX implementation:
 - ✅ Same prediction quality as before
 
 **Status: Ready to implement and test**
+

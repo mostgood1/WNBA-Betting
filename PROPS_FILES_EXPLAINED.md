@@ -158,7 +158,7 @@ date,player_id,player_name,team,stat,side,line,price,implied_prob,model_prob,edg
 # With scoreboard slate (game day only)
 $env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" `
-  -m nba_betting.cli predict-props `
+  -m wnba_betting.cli predict-props `
   --date 2025-10-21 `
   --slate-only `
   --calibrate `
@@ -169,7 +169,7 @@ $env:PYTHONPATH="C:\Users\mostg\OneDrive\Coding\WNBA-Betting\src"
 ```powershell
 # Combines predictions with odds
 & "C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe" `
-  -m nba_betting.cli props-edges `
+  -m wnba_betting.cli props-edges `
   --date 2025-10-21 `
   --source auto `
   --file-only
@@ -207,3 +207,4 @@ For Oct 17, you have **173 props across 38 players** in this file.
 For Oct 21, it's empty because the scoreboard doesn't have slate data yet (too far in advance). It will populate automatically when you run the daily update on game day.
 
 The file you want to use for analysis/betting decisions is: **`props_edges_YYYY-MM-DD.csv`** ⭐
+

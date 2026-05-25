@@ -1,4 +1,4 @@
-# NBA Betting Model - Improvement Roadmap
+# WNBA Betting Model - Improvement Roadmap
 
 ## Phase 1: High-ROI Data Enhancements ⭐⭐⭐⭐⭐
 
@@ -284,3 +284,4 @@ base_feats = [
 *Roadmap Created: October 17, 2025*  
 *Priority: Maximize ROI with minimal effort*  
 *Goal: Increase accuracy by 2-5% in next 30 days*
+

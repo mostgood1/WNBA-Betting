@@ -198,14 +198,14 @@ Primary current touch points for replacement:
 
 Primary existing data/model modules to reuse:
 
-- [src/nba_betting/props_edges.py](src/nba_betting/props_edges.py)
-- [src/nba_betting/props_backtest.py](src/nba_betting/props_backtest.py)
-- [src/nba_betting/props_calibration.py](src/nba_betting/props_calibration.py)
-- [src/nba_betting/sim/smart_sim.py](src/nba_betting/sim/smart_sim.py)
-- [src/nba_betting/props/minutes_forecaster.py](src/nba_betting/props/minutes_forecaster.py)
+- [src/wnba_betting/props_edges.py](src/wnba_betting/props_edges.py)
+- [src/wnba_betting/props_backtest.py](src/wnba_betting/props_backtest.py)
+- [src/wnba_betting/props_calibration.py](src/wnba_betting/props_calibration.py)
+- [src/wnba_betting/sim/smart_sim.py](src/wnba_betting/sim/smart_sim.py)
+- [src/wnba_betting/props/minutes_forecaster.py](src/wnba_betting/props/minutes_forecaster.py)
 
 ## Immediate Next Tasks
 
-1. Land canonical candidate extraction in `src/nba_betting/props/recommendation_engine.py`.
+1. Land canonical candidate extraction in `src/wnba_betting/props/recommendation_engine.py`.
 2. Add a canonical settled-sleeve evaluation script using that extractor.
 3. Define live sleeve config with allowlist, denylist, and promotion flags.

@@ -29,7 +29,7 @@ Each signal is transformed with a **sigmoid** so:
 
 ## 2) Game score
 
-Implemented in `src/nba_betting/scoring.py::score_game_pick_0_100`.
+Implemented in `src/wnba_betting/scoring.py::score_game_pick_0_100`.
 
 ### Moneyline (ML)
 
@@ -66,7 +66,7 @@ Defaults:
 
 ## 3) Prop score
 
-Implemented in `src/nba_betting/scoring.py::score_prop_pick_0_100`.
+Implemented in `src/wnba_betting/scoring.py::score_prop_pick_0_100`.
 
 We combine:
 - **EV component**: `sigmoid(ev / ev_scale)`
@@ -107,3 +107,4 @@ The score is intentionally weight/scale-driven so you can run an optimizer:
 - constraint = minimum number of bets / days
 
 The optimizer should only use dates where reconciliation files exist.
+
