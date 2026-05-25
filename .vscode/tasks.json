@@ -195,7 +195,7 @@
 				"-ExecutionPolicy",
 				"Bypass",
 				"-Command",
-				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m nba_betting.cli props-edges --date $d --source auto"
+				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m wnba_betting.cli props-edges --date $d --source auto"
 			],
 			"isBackground": false,
 			"problemMatcher": []
@@ -780,7 +780,7 @@
 				"-ExecutionPolicy",
 				"Bypass",
 				"-Command",
-				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m nba_betting.cli evaluate-reliability --days 60 --bins 10"
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m wnba_betting.cli evaluate-reliability --days 60 --bins 10"
 			],
 			"isBackground": false,
 			"problemMatcher": []
@@ -840,7 +840,7 @@
 				"-ExecutionPolicy",
 				"Bypass",
 				"-Command",
-				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m nba_betting.cli train-games-enhanced-onnx"
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m wnba_betting.cli train-games-enhanced-onnx"
 			],
 			"isBackground": false,
 			"problemMatcher": [],
@@ -869,7 +869,7 @@
 				"-ExecutionPolicy",
 				"Bypass",
 				"-Command",
-				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m nba_betting.cli odds-snapshots --date $d"
+				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m wnba_betting.cli odds-snapshots --date $d"
 			],
 			"isBackground": false,
 			"group": "build"
@@ -1105,7 +1105,7 @@
 			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
 			"args": [
 				"-m",
-				"nba_betting.cli",
+				"wnba_betting.cli",
 				"smart-sim-range",
 				"--start",
 				"2026-01-17",
@@ -1195,7 +1195,7 @@
 			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
 			"args": [
 				"-m",
-				"nba_betting.cli",
+				"wnba_betting.cli",
 				"smart-sim-range",
 				"--start",
 				"2026-01-17",
@@ -1251,7 +1251,7 @@
 			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
 			"args": [
 				"-m",
-				"nba_betting.cli",
+				"wnba_betting.cli",
 				"smart-sim-range",
 				"--start",
 				"2026-01-17",
@@ -1307,7 +1307,7 @@
 			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
 			"args": [
 				"-m",
-				"nba_betting.cli",
+				"wnba_betting.cli",
 				"smart-sim-range",
 				"--start",
 				"2026-01-17",

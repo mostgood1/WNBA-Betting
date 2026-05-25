@@ -17,9 +17,9 @@ The workflow already exists and is active in three places:
 
 - `scripts/daily_update.ps1` is the main local/operator script.
 - `daily_update.cmd` is the root-level launcher.
-- `.github/workflows/nbabetting-daily-update.yml` is the scheduled GitHub Actions runner.
+- `.github/workflows/wnbabetting-daily-update.yml` is the scheduled GitHub Actions runner.
 
-The script now uses WNBA wording and resolves schedule gating from the year-based artifacts in `data/processed/schedule_YYYY.json` instead of the old NBA-style `schedule_2025_26.json` path.
+The script now uses WNBA wording and resolves schedule gating from the year-based artifacts in `data/processed/schedule_YYYY.json` instead of the older `schedule_2025_26.json` path.
 
 ## Daily Operating Sequence
 
@@ -120,7 +120,7 @@ That single run covers:
 
 GitHub Actions runs the daily updater from:
 
-- `.github/workflows/nbabetting-daily-update.yml`
+- `.github/workflows/wnbabetting-daily-update.yml`
 
 It is scheduled for 7:00 AM Central and creates a local venv, installs dependencies, runs `scripts/daily_update.ps1`, and pushes resulting artifacts.
 
@@ -140,6 +140,7 @@ Get-Content (Get-ChildItem logs -Filter 'local_daily_update_*.log' | Sort LastWr
 
 ## Notes
 
-- The daily update flow is WNBA-operational, but some legacy filenames and workflow filenames may still use older naming conventions.
+- The daily update flow is WNBA-operational, but some legacy filenames and workflow names may still use older naming conventions.
 - The workflow name and operator-facing wording have been updated to WNBA.
 - The main script should be treated as the authoritative daily operations entrypoint.
+

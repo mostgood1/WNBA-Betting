@@ -1,6 +1,6 @@
-# NBA Betting Predictor
+# WNBA Betting Predictor
 
-End-to-end pipeline to fetch NBA historical games (last 10 seasons) via NBA Stats API, engineer features (Elo + rest), train predictive models for:
+End-to-end pipeline to fetch WNBA historical games, engineer features (Elo + rest), and train predictive models for:
 - Full game: winner, spread (ATS), total points
 - Derivatives: quarters and halves (winner, spread, totals)
 
@@ -19,25 +19,25 @@ pip install -r requirements.txt
 2) Fetch data (NBA Stats API, optionally with period scoring):
 
 ```powershell
-python -m nba_betting.cli fetch --years 10 --with-periods
+python -m wnba_betting.cli fetch --years 10 --with-periods
 ```
 
 3) Build features and train models:
 
 ```powershell
-python -m nba_betting.cli build-features
-python -m nba_betting.cli train
+python -m wnba_betting.cli build-features
+python -m wnba_betting.cli train
 ```
 
 4) Evaluate and backtest:
 
 ```powershell
 # Evaluate on a single holdout season (defaults to latest season if not provided)
-python -m nba_betting.cli evaluate --holdout-season 2024
+python -m wnba_betting.cli evaluate --holdout-season 2024
 
 # Backtest across seasons (choose a range or last N seasons)
-python -m nba_betting.cli backtest --start 2018 --end 2024
-python -m nba_betting.cli backtest --last-n 5
+python -m wnba_betting.cli backtest --start 2018 --end 2024
+python -m wnba_betting.cli backtest --last-n 5
 ```
 
 Per-season metrics are saved to `data/processed/backtest_metrics.csv`.
@@ -45,7 +45,7 @@ Per-season metrics are saved to `data/processed/backtest_metrics.csv`.
 5) Predict upcoming games (uses trained models):
 
 ```powershell
-python -m nba_betting.cli predict --input .\samples\matchups.csv
+python -m wnba_betting.cli predict --input .\samples\matchups.csv
 ```
 
 Outputs:
@@ -71,9 +71,9 @@ ODDS_API_KEY=your_key_here
 ### Backfill historical odds and build closing lines
 
 ```powershell
-python -m nba_betting.cli backfill-odds --api-key $env:ODDS_API_KEY --start 2016-10-01T00:00:00Z --end 2025-06-30T23:59:59Z --step-days 5 --markets h2h,spreads,totals
-python -m nba_betting.cli make-closing-lines
-python -m nba_betting.cli attach-closing-lines
+python -m wnba_betting.cli backfill-odds --api-key $env:ODDS_API_KEY --start 2016-10-01T00:00:00Z --end 2025-06-30T23:59:59Z --step-days 5 --markets h2h,spreads,totals
+python -m wnba_betting.cli make-closing-lines
+python -m wnba_betting.cli attach-closing-lines
 ```
 
 This produces `data/processed/closing_lines.parquet` and merges it into your features as `features_with_market.parquet`.
@@ -93,7 +93,7 @@ Example (PowerShell):
 $env:ODDS_API_KEY = "<your_key>"
 
 # Generate predictions and odds for a given date
-python -m nba_betting.cli predict-date --date 2025-04-13
+python -m wnba_betting.cli predict-date --date 2025-04-13
 
 # Outputs:
 # - predictions_2025-04-13.csv (repo root)
@@ -106,7 +106,7 @@ The frontend `web/app.js` will look for `data/processed/game_odds_YYYY-MM-DD.csv
 
 ```powershell
 # Snapshot for a specific date; tries historical, then falls back to current
-python -m nba_betting.cli backfill-player-props --date 2025-10-24 --mode auto
+python -m wnba_betting.cli backfill-player-props --date 2025-10-24 --mode auto
 ```
 
 Notes: Some snapshots may return 422 if props aren’t available at that timestamp; try `--mode current` on game day.
@@ -248,8 +248,8 @@ $env:RSCRIPT_PATH = "C:\\Program Files\\R\\R-4.4.1\\bin\\Rscript.exe"
 ### Fetch actuals by date or range
 
 ```powershell
-python -m nba_betting.cli fetch-prop-actuals --date 2025-01-15
-python -m nba_betting.cli fetch-prop-actuals --start 2024-10-01 --end 2025-06-30
+python -m wnba_betting.cli fetch-prop-actuals --date 2025-01-15
+python -m wnba_betting.cli fetch-prop-actuals --start 2024-10-01 --end 2025-06-30
 ```
 
 Output is upserted to a consolidated Parquet store `data/processed/props_actuals.parquet` and immutable per-day CSV snapshots `data/processed/props_actuals_YYYY-MM-DD.csv` with columns:
@@ -263,14 +263,14 @@ Notes:
 
 ```powershell
 # Build features and train Ridge models for props
-python -m nba_betting.cli build-props-features
-python -m nba_betting.cli train-props
+python -m wnba_betting.cli build-props-features
+python -m wnba_betting.cli train-props
 
 # Predict for a given slate date (filters to scoreboard teams by default)
-python -m nba_betting.cli predict-props --date 2025-01-15
+python -m wnba_betting.cli predict-props --date 2025-01-15
 
 # Evaluate model vs actuals over a range (falls back to player_logs if nbastatR not available)
-python -m nba_betting.cli evaluate-props --start 2025-01-15 --end 2025-01-15
+python -m wnba_betting.cli evaluate-props --start 2025-01-15 --end 2025-01-15
 ```
 
 ### Compute props edges (EV)
@@ -280,7 +280,7 @@ Merge your predictions with OddsAPI player props to compute model probabilities,
 ```powershell
 # If you have saved props odds for that date in data/raw, use them; otherwise set ODDS_API_KEY and it will fetch
 $env:ODDS_API_KEY = "<your_key>"
-python -m nba_betting.cli props-edges --date 2025-01-15 --use-saved --mode auto
+python -m wnba_betting.cli props-edges --date 2025-01-15 --use-saved --mode auto
 ```
 
 Outputs `data/processed/props_edges_YYYY-MM-DD.csv` with columns:
@@ -295,14 +295,14 @@ If you can’t access historical player props lines, you can still use the pipel
 
 ```powershell
 $env:ODDS_API_KEY = "<your_key>"
-python -m nba_betting.cli predict-props --date 2025-10-24
-python -m nba_betting.cli props-edges --date 2025-10-24 --no-use-saved --mode current --min-edge 0.03 --min-ev 0 --top 100
+python -m wnba_betting.cli predict-props --date 2025-10-24
+python -m wnba_betting.cli props-edges --date 2025-10-24 --no-use-saved --mode current --min-edge 0.03 --min-ev 0 --top 100
 ```
 
 3) Optionally filter to a specific set of books:
 
 ```powershell
-python -m nba_betting.cli props-edges --date 2025-10-24 --mode current --bookmakers draftkings,fanduel,pinnacle
+python -m wnba_betting.cli props-edges --date 2025-10-24 --mode current --bookmakers draftkings,fanduel,pinnacle
 ```
 
 This produces an edges CSV you can sort by EV or edge for actionable picks without any historical props archive.
@@ -369,7 +369,7 @@ Deploy on Render (Blueprint):
 
 Notes:
 - The cron jobs in `render.yaml` already include Authorization headers and use `async=1` where appropriate to avoid timeouts.
-- If you prefer not to use Render cron jobs, this repo also includes a GitHub Actions scheduler (`.github/workflows/nbabetting-scheduler.yml`). Add two repo secrets to enable it:
+- If you prefer not to use Render cron jobs, this repo also includes a GitHub Actions scheduler (`.github/workflows/wnbabetting-scheduler.yml`). Add two repo secrets to enable it:
 	- `WNBA_BETTING_BASE_URL` → your Render service URL
 	- `WNBA_BETTING_CRON_TOKEN` → the same `CRON_TOKEN` value
   The workflow will call the same cron endpoints on an overnight + midday cadence.
@@ -481,7 +481,7 @@ Invoke-RestMethod -Method Post -Uri "$base/api/cron/reconcile-games?date=$y" -He
 
 Scheduling on Render:
 - Use Render Cron Jobs to hit these endpoints on your cadence. Include the Bearer header.
-- If you attach a Render Disk, ensure `data/` points to that disk path (default here is repo-relative). Update paths in `src/nba_betting/config.py` if needed.
+- If you attach a Render Disk, ensure `data/` points to that disk path (default here is repo-relative). Update paths in `src/wnba_betting/config.py` if needed.
 
 ## Period calibration (quarters/halves)
 
@@ -492,10 +492,13 @@ Quarter and half totals are calibrated using a blend of model outputs and team/l
 - Backtest calibration and baselines over a date range:
 
 ```powershell
-python -m nba_betting.cli backtest-period-calibration --start 2024-11-01 --end 2024-12-01
+python -m wnba_betting.cli backtest-period-calibration --start 2024-11-01 --end 2024-12-01
 ```
 
 This writes a CSV summary to `data/processed/backtest_period_calibration_<start>_to_<end>.csv` with:
 - method: calibrated or baselines (baseline_equal, baseline_league)
 - weight (for calibrated rows)
 - MAE for quarter totals, half totals, game totals, and quarter margins
+
+
+

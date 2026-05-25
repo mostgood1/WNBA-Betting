@@ -4,7 +4,7 @@ This is a lightweight static UI that renders the processed WNBA schedule by date
 
 ## Data sources
 - Schedule JSON: `../data/processed/schedule_YYYY.json`
-- Predictions CSV (optional): `../predictions_YYYY-MM-DD.csv` (generated via `python -m nba_betting.cli predict-date --date YYYY-MM-DD [--merge-odds odds.csv]`)
+- Predictions CSV (optional): `../predictions_YYYY-MM-DD.csv` (generated via `python -m wnba_betting.cli predict-date --date YYYY-MM-DD [--merge-odds odds.csv]`)
 
 ## Run locally
 Run the Flask app which serves both the UI and APIs:
@@ -29,7 +29,7 @@ https://cdn.wnba.com/logos/wnba/<TEAM_ID>/primary/L/logo.svg
 ## Predictions CSV format (minimal)
 Columns expected (case-sensitive) for basic badges:
 - `date` (YYYY-MM-DD)
-- `home_team` (Full name, e.g., "Los Angeles Lakers")
+- `home_team` (Full name, e.g., "New York Liberty")
 - `visitor_team` (Full name)
 - `home_win_prob` (0–1)
 - `pred_margin` (home margin, points)
@@ -46,3 +46,4 @@ Optional edge columns (if merging odds):
 - Styles: `web/styles.css`
 - Team colors/names: `web/assets/teams_wnba.json`
 - Card rendering logic: `web/app.js`
+
