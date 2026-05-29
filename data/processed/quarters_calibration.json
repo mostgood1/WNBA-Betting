@@ -15,7 +15,7 @@
     "recon_dates": [],
     "recon_quarters_files": 0,
     "recon_quarters_glob": "data/processed/recon_quarters_*.csv",
-    "team_period_shares": "C:\\Users\\mostg\\OneDrive\\Coding\\WNBA-Betting\\data\\processed\\team_period_shares.csv"
+    "team_period_shares": "C:\\Users\\tempadmin\\OneDrive\\Coding\\WNBA-Betting\\data\\processed\\team_period_shares.csv"
   },
   "team_split_by_tri": {
     "ATL": [
