@@ -158,8 +158,9 @@ def test_team_prior_does_not_stack_on_a_target_but_still_applies_without_one():
     assert stacked > unstacked + 4.0           # off != on
     assert abs(unstacked - 85.0) < 2.5
     # No target: the prior is the only efficiency signal and must still apply.
-    plain = _run(n=60)["pts"]
-    boosted = _run(n=60, home_team_adj=adj, away_team_adj=adj)["pts"]
+    # 200 draws: at 60 the +4 bound sat ~2 SE from the true ~+7 lift and flaked.
+    plain = _run(n=200)["pts"]
+    boosted = _run(n=200, home_team_adj=adj, away_team_adj=adj)["pts"]
     assert boosted > plain + 4.0
 
 
@@ -205,3 +206,34 @@ def test_reachability_per_attempt_tov_lands_on_the_prior():
     assert off > prior * 1.04  # the per-possession rate over-realizes by the OREB continuation
     assert abs(on - prior) / prior < 0.06
     assert on < off
+
+
+def test_rebound_credit_rates_reproduce_the_fitted_player_rebound_shares():
+    assert events.OREB_PLAYER_CREDIT * 0.24 == pytest.approx(0.227)
+    assert events.DREB_PLAYER_CREDIT * 0.76 == pytest.approx(0.663)
+    assert 0 < events.DREB_PLAYER_CREDIT < events.OREB_PLAYER_CREDIT <= 1
+
+
+def _reb_per_miss(flag: bool, n: int = 60) -> tuple[float, float]:
+    saved = events.PLAYER_REBOUND_CREDIT
+    events.PLAYER_REBOUND_CREDIT = flag
+    try:
+        rng = np.random.default_rng(9)
+        reb = miss = pts = 0.0
+        for _ in range(n):
+            hb, ab, _hq, _aq = events.simulate_pbp_game_boxscore(rng, _tov_team(0.06), _tov_team(0.06), target_home_points=82.0, target_away_points=82.0)
+            for b in (hb, ab):
+                reb += sum(p["reb"] for p in b["players"])
+                miss += sum(p["fga"] - p["fgm"] for p in b["players"])
+                pts += sum(p["pts"] for p in b["players"]) / (2 * n)
+        return reb / miss, pts
+    finally:
+        events.PLAYER_REBOUND_CREDIT = saved
+
+
+def test_reachability_player_rebounds_per_miss_fall_to_the_real_rate():
+    off, pts_off = _reb_per_miss(False)
+    on, pts_on = _reb_per_miss(True)
+    assert off > 0.98                       # every miss credited to a player
+    assert 0.85 < on < 0.93                 # real 2026: 0.889
+    assert pts_on == pytest.approx(pts_off, abs=2.0)  # possession flow untouched
