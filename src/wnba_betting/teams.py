@@ -88,6 +88,17 @@ _NAME_TO_TRI = {
 
 TEAM_TRICODES = tuple(sorted(set(_NAME_TO_TRI.values())))
 
+
+def is_wnba_team(name: str) -> bool:
+    """True only for a WNBA franchise NAME (after alias normalisation).
+
+    Deliberately by name, not tricode: tricodes collide across leagues
+    ("Toronto Tempo" and the NBA's Toronto Raptors are both TOR), and
+    `to_tricode` returns ANY 3-letter input upper-cased. Used to keep non-WNBA
+    events (e.g. NBA preseason) out of WNBA game odds.
+    """
+    return normalize_team(str(name or "")) in _NAME_TO_TRI
+
 def to_tricode(name: str) -> str:
     """Best-effort conversion of a team string to a WNBA tricode.
 
