@@ -371,6 +371,54 @@ OREB_PLAYER_CREDIT = 0.227 / 0.24
 DREB_PLAYER_CREDIT = 0.663 / 0.76
 
 
+# Blocks happen on MISSED two-point attempts. The loop drew a block on a flat 5% of all
+# 2PAs, after and independent of the make, so ~half of sim blocks were on made shots and
+# team blocks ran 0.65x actual (real 2026: 0.094 per opponent 2PA, 0.192 per opponent
+# MISSED 2PA, May-June). Modes (lane `wnba-sim-blocks`):
+#   "team_prior" -- block only a missed 2PA, at the defense's prior blocks per game over
+#                   the missed 2PAs the loop will produce for the offense;
+#   "legacy"     -- the old draw, exactly.
+# Backtest Jul-Sep 2026 (146 both-rosters-matched games): team BLK 0.619x -> 1.064x,
+# player BLK Poisson deviance -0.139 [CI -0.188, -0.096], tier bias ~0. A flat league rate
+# on misses was tested and lost (1.318x; -0.061 worse than team_prior on deviance).
+BLOCK_MODE = "team_prior"
+# Fallback only, when a team carries no block priors (May-June 2026 league rate).
+LEAGUE_BLOCKS_PER_MISSED_2PA = 0.192
+
+
+def _team_block_rate_on_missed_2pa(def_players: pd.DataFrame, def_mins: np.ndarray, off_players: pd.DataFrame, off_mins: np.ndarray, off_rates: Dict[str, float], off_fg_pct: np.ndarray, off_eff: float, possessions: float, oreb: float, ft_mult: Optional[np.ndarray] = None) -> float:
+    """Defense's prior blocks per game / the missed 2PAs the LOOP will produce for the offense.
+
+    The denominator is the loop's own expectation (possessions x shot iterations x 2PA share x
+    miss rate at the solved efficiency), not the priors' FGA: OREB continuation and the target
+    solver change how many twos are missed, and a prior-FGA denominator over-blocked by ~20%.
+    """
+    try:
+        dm = np.maximum(0.0, np.where(np.isfinite(def_mins), def_mins, 0.0))
+        om = np.maximum(0.0, np.where(np.isfinite(off_mins), off_mins, 0.0))
+        blk = float(np.sum(np.maximum(0.0, _safe_series(def_players, "_prior_blk_pm").to_numpy(dtype=float)) * dm))
+        share = _loop_shot_share(off_players, om, "_prior_fga_pm")
+        fg2 = float(np.clip(float(np.sum(np.asarray(off_fg_pct, dtype=float) * share)) * float(off_eff), 0.05, 0.95))
+        t = float(off_rates["p_tov"])
+        p3 = float(np.clip(off_rates["p3"], 0.0, 0.9))
+        foul = float(off_rates["foul_per_fga"]) * (float(np.sum(share * np.asarray(ft_mult, dtype=float))) if ft_mult is not None else 1.0)
+        iters = _iterations_per_possession(p_tov=t, p3=p3, fg2=fg2, fg3=0.34 * float(off_eff), foul=foul, oreb=oreb)
+        missed2 = float(possessions) * iters * (1.0 - t) * (1.0 - p3) * (1.0 - fg2)
+        if blk <= 0.0 or missed2 <= 1.0:
+            return LEAGUE_BLOCKS_PER_MISSED_2PA
+        return float(np.clip(blk / missed2, 0.05, 0.40))
+    except Exception:
+        return LEAGUE_BLOCKS_PER_MISSED_2PA
+
+
+def _block_drawn(rng: np.random.Generator, shot_is_3: bool, made: bool, legacy_rate: float, rate_on_missed_2pa: float) -> bool:
+    if BLOCK_MODE == "legacy":
+        return bool((not shot_is_3) and (rng.random() < legacy_rate))
+    if shot_is_3 or made:
+        return False
+    return bool(rng.random() < float(np.clip(rate_on_missed_2pa, 0.0, 0.9)))
+
+
 def _player_rebound_credited(rng: np.random.Generator, offensive: bool) -> bool:
     if not PLAYER_REBOUND_CREDIT:
         return True
@@ -474,6 +522,15 @@ def _ft_rate_multipliers(players: pd.DataFrame, minutes: np.ndarray) -> np.ndarr
     return mult
 
 
+# Blocks go to the five on court in proportion to their RAW block rates. The general blend
+# below (log1p-compressed rates, 25% minutes floor, 20% pred_pts) suits points but flattens
+# a concentrated stat: live GSV-DAL 2026-10-02, Stokes' block prior 1.35 became 1.03 in the
+# sim while a 0.03-rate guard got 0.30 (lane `wnba-sim-blocks`). The floor keeps a player
+# with no prior able to block. False restores the general blend for blocks.
+BLOCK_ALLOC_BY_RATE = True
+BLOCK_ALLOC_FLOOR_PM = 0.002
+
+
 def _player_usage_weights(players: pd.DataFrame, col_pm: str, lineup_idx: List[int]) -> np.ndarray:
     """Return selection weights for the current on-court lineup.
 
@@ -488,6 +545,16 @@ def _player_usage_weights(players: pd.DataFrame, col_pm: str, lineup_idx: List[i
 
     pm = _safe_series(players, col_pm).to_numpy(dtype=float)
     pm = np.maximum(0.0, np.where(np.isfinite(pm), pm, 0.0))
+    if BLOCK_ALLOC_BY_RATE and col_pm == "_prior_blk_pm":
+        w = np.zeros(n, dtype=float)
+        idx = [int(i) for i in (lineup_idx or []) if 0 <= int(i) < n]
+        if not idx:
+            return w
+        line = np.maximum(pm[idx], BLOCK_ALLOC_FLOOR_PM)
+        line = line / float(line.sum())
+        for j, i in enumerate(idx):
+            w[int(i)] = float(line[j])
+        return w
     # Compress outliers (robust even if a bad prior slips through).
     pm = np.log1p(pm)
 
@@ -1400,6 +1467,12 @@ def simulate_pbp_game_boxscore(
     except Exception:
         pass
 
+    # Home DEFENSE blocks away shots, and vice versa (at the final efficiencies).
+    h_blk_rate = _team_block_rate_on_missed_2pa(home_players, h_mins, away_players, a_mins, a_rates, a_fg_pct, eff_mult_a, poss,
+                                                float(np.clip(float(cfg.base_oreb_rate) * float(oreb_mult_a), 0.05, 0.55)), a_ft_mult if SHOOTER_FT_RATE else None)
+    a_blk_rate = _team_block_rate_on_missed_2pa(away_players, a_mins, home_players, h_mins, h_rates, h_fg_pct, eff_mult_h, poss,
+                                                float(np.clip(float(cfg.base_oreb_rate) * float(oreb_mult_h), 0.05, 0.55)), h_ft_mult if SHOOTER_FT_RATE else None)
+
     # Aggregation arrays
     def blank(players: pd.DataFrame) -> Dict[str, np.ndarray]:
         n = int(len(players))
@@ -1759,7 +1832,7 @@ def simulate_pbp_game_boxscore(
                     made = bool(rng.random() < make_p)
 
                     blk = False
-                    if (not shot_is_3) and (rng.random() < cfg.base_block_rate_on_2pa):
+                    if _block_drawn(rng, shot_is_3, made, cfg.base_block_rate_on_2pa, a_blk_rate):
                         blk = True
                         blk_w = _player_usage_weights(away_players, "_prior_blk_pm", a_line)
                         bidx = int(_pick_weighted(rng, list(range(len(away_players))), blk_w) or 0)
@@ -1883,7 +1956,7 @@ def simulate_pbp_game_boxscore(
                     made = bool(rng.random() < make_p)
 
                     blk = False
-                    if (not shot_is_3) and (rng.random() < cfg.base_block_rate_on_2pa):
+                    if _block_drawn(rng, shot_is_3, made, cfg.base_block_rate_on_2pa, h_blk_rate):
                         blk = True
                         blk_w = _player_usage_weights(home_players, "_prior_blk_pm", h_line)
                         bidx = int(_pick_weighted(rng, list(range(len(home_players))), blk_w) or 0)
