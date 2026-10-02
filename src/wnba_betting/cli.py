@@ -50,7 +50,7 @@ from .roster_checks import roster_sanity_check
 from .roster_files import pick_rosters_file
 from .player_logs import fetch_player_logs
 from .player_names import normalize_player_name_key
-from .teams import normalize_team, to_tricode
+from .teams import is_wnba_team, normalize_team, to_tricode
 from .scrape_stats_api import fetch_games_api, enrich_periods_existing, backfill_scoreboard
 from .odds_api import backfill_historical_odds, OddsApiConfig, consensus_lines_at_close, backfill_player_props, fetch_player_props_current
 from .odds_api import filter_player_prop_bookmakers_df, resolve_player_prop_bookmakers, player_prop_bookmakers_csv
@@ -13597,12 +13597,17 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
                         odds_out_df["bookmaker"] = "oddsapi_consensus"
             except Exception as e:
                 console.print(f"OddsAPI current odds failed: {e}", style="yellow")
-        # Fallback to Bovada if still empty
-        if odds_out_df is None or odds_out_df.empty:
-            try:
-                odds_out_df = fetch_bovada_odds_current(pd.to_datetime(target_date))
-            except Exception as e:
-                console.print(f"Bovada odds fetch failed: {e}", style="yellow")
+        # NO Bovada fallback here. OddsAPI is the game-odds source; when it has no
+        # WNBA game for the date, the correct game-odds file is no file. The old
+        # fallback (`fetch_bovada_odds_current`, then pointed at NBA categories)
+        # turned an empty WNBA day into an NBA preseason game written as a WNBA
+        # one (MIA@TOR, 2026-10-03).
+        # Keep WNBA games only, whatever the source.
+        if odds_out_df is not None and not odds_out_df.empty and {"home_team", "visitor_team"} <= set(odds_out_df.columns):
+            _wnba_mask = odds_out_df["home_team"].map(is_wnba_team) & odds_out_df["visitor_team"].map(is_wnba_team)
+            if not bool(_wnba_mask.all()):
+                console.print({"dropped_non_wnba_game_rows": int((~_wnba_mask).sum())}, style="yellow")
+            odds_out_df = odds_out_df[_wnba_mask].reset_index(drop=True)
         # Save standardized odds and merge
         if odds_out_df is not None and not odds_out_df.empty:
             try:

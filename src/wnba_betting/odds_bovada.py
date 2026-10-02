@@ -9,19 +9,17 @@ except Exception:  # pragma: no cover
     ZoneInfo = None  # type: ignore
 from typing import Any
 
-from .teams import normalize_team
+from .teams import is_wnba_team, normalize_team
 
 
 _BOVADA_REGIONS = ["A", "B", "C"]  # A: Americas, others as fallback
+# WNBA ONLY. These used to be the NBA repo's categories (basketball/nba,
+# usa/nba and three nba-pre-season slugs), so every fetcher here returned NBA
+# games; in October an empty WNBA day made `predict-date` fall back to Bovada
+# and write an NBA preseason game (MIA@TOR) as a WNBA game. Probed 2026-10-02:
+# `basketball/wnba` -> 200 with the WNBA slate; `basketball/usa/wnba` -> 404.
 _BOVADA_BASES = [
-    # Regular season categories
-    "https://www.bovada.lv/services/sports/event/v2/events/{region}/description/basketball/nba",
-    "https://www.bovada.lv/services/sports/event/v2/events/{region}/description/basketball/usa/nba",
-    # Preseason categories (correct slug is 'nba-pre-season')
-    "https://www.bovada.lv/services/sports/event/v2/events/{region}/description/basketball/nba-pre-season",
-    "https://www.bovada.lv/services/sports/event/v2/events/{region}/description/basketball/usa/nba-pre-season",
-    # Some deployments have used 'nba-preseason' historically; keep as fallback
-    "https://www.bovada.lv/services/sports/event/v2/events/{region}/description/basketball/nba-preseason",
+    "https://www.bovada.lv/services/sports/event/v2/events/{region}/description/basketball/wnba",
 ]
 _BOVADA_PARAMS = [
     "",
@@ -41,8 +39,7 @@ HEADERS = {
     "Accept": "application/json, text/plain, */*",
     "Accept-Language": "en-US,en;q=0.9",
     "Origin": "https://www.bovada.lv",
-    # Use preseason referer which is valid for both preseason and regular pages
-    "Referer": "https://www.bovada.lv/sports/basketball/nba-pre-season",
+    "Referer": "https://www.bovada.lv/sports/basketball/wnba",
     "Connection": "keep-alive",
 }
 
@@ -686,6 +683,11 @@ def fetch_bovada_odds_current(date: datetime | str, verbose: bool = False) -> pd
         except Exception:
             continue
     df = pd.DataFrame(rows)
+    if df.empty:
+        return df
+    # Belt and braces with the WNBA-only categories above: a non-WNBA event
+    # must never become a WNBA game row.
+    df = df[df["home_team"].map(is_wnba_team) & df["visitor_team"].map(is_wnba_team)].reset_index(drop=True)
     if df.empty:
         return df
     # Sanity filters
