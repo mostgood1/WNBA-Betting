@@ -350,6 +350,24 @@ EXACT_TARGET_CALIBRATION = True
 # True restores the old stacking exactly.
 TEAM_PRIOR_STACKS_ON_TARGET = False
 
+# The turnover check runs on every shot ITERATION of a possession (offensive rebounds
+# continue it), but p_tov is per-game turnovers / possessions. With 1 + c iterations
+# per possession the sim realized ~(1 + c) x its turnover prior. p_tov is divided by
+# the expected iterations so the TEAM's turnovers match the prior. Measured 2026-10-01
+# (lane `wnba-sim-tov-priors`): 1.10 iterations per possession; with correct priors the
+# sim produced 1.17x actual turnovers. False restores the old per-possession rate.
+TOV_PER_ATTEMPT = True
+
+
+def _iterations_per_possession(p_tov: float, p3: float, fg2: float, fg3: float, foul: float, oreb: float) -> float:
+    """1 + c: the loop's expected shot iterations per possession (see _loop_points_per_possession)."""
+    t = float(np.clip(p_tov, 0.0, 0.6))
+    s3 = float(np.clip(p3, 0.0, 1.0))
+    made = (1.0 - s3) * float(np.clip(fg2, 0.05, 0.95)) + s3 * float(np.clip(fg3, 0.05, 0.95))
+    f = float(np.clip(foul, 0.0, 0.95))
+    o = float(np.clip(oreb, 0.05, 0.55))
+    return 1.0 + (1.0 - t) * (1.0 - made) * (1.0 - 0.70 * f) * o
+
 
 def _loop_points_per_possession(p_tov: float, p3: float, fg2: float, fg3: float, foul: float, ft: float, oreb: float, eff: float) -> float:
     """Expected points per team possession under the PBP loop's own rules at multiplier `eff`."""
@@ -1246,6 +1264,27 @@ def simulate_pbp_game_boxscore(
     a_starter_scores = _starter_like_scores(away_players, a_mins)
     h_scorer_scores = _scoring_like_scores(home_players)
     a_scorer_scores = _scoring_like_scores(away_players)
+
+    if TOV_PER_ATTEMPT:
+        try:
+            for rates, players, mins, fg_v, fg3_v, ftm_v, oreb_m in (
+                (h_rates, home_players, h_mins, h_fg_pct, h_3p_pct, h_ft_mult, oreb_mult_h),
+                (a_rates, away_players, a_mins, a_fg_pct, a_3p_pct, a_ft_mult, oreb_mult_a),
+            ):
+                share = _loop_shot_share(players, mins, "_prior_fga_pm")
+                share3 = _loop_shot_share(players, mins, "_prior_threes_att_pm")
+                foul_share = share * (np.asarray(ftm_v, dtype=float) if SHOOTER_FT_RATE else 1.0)
+                iters = _iterations_per_possession(
+                    p_tov=float(rates["p_tov"]),
+                    p3=float(rates["p3"]),
+                    fg2=float(np.sum(np.asarray(fg_v, dtype=float) * share)),
+                    fg3=float(np.sum(np.asarray(fg3_v, dtype=float) * share3)),
+                    foul=float(rates["foul_per_fga"]) * float(np.sum(foul_share)),
+                    oreb=float(cfg.base_oreb_rate) * float(oreb_m),
+                )
+                rates["p_tov"] = float(rates["p_tov"]) / max(1.0, iters)
+        except Exception:
+            pass
 
     def _team_avg(arr: np.ndarray, w: np.ndarray, default: float) -> float:
         try:
