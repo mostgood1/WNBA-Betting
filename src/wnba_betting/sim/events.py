@@ -358,6 +358,25 @@ TEAM_PRIOR_STACKS_ON_TARGET = False
 # sim produced 1.17x actual turnovers. False restores the old per-possession rate.
 TOV_PER_ATTEMPT = True
 
+# Not every missed shot produces a PLAYER rebound: team rebounds (out of bounds off
+# the defense, end-of-period misses, deflections) are in no player's box line. The loop
+# credited a player on every miss -- ~1.05 player rebounds per missed FG against a real
+# 0.889, so sim rebounds ran ~1.2x actual. Possession flow is unchanged (OREB
+# continuation still at the team's rate); only the player CREDIT is thinned. Fitted on
+# May-June 2026 box scores (142 games): player OREB 0.227 per own miss vs the 0.24 base
+# continuation, player DREB 0.663 per opponent miss vs the 0.76 the loop assigns.
+# False restores a player credit on every miss.
+PLAYER_REBOUND_CREDIT = True
+OREB_PLAYER_CREDIT = 0.227 / 0.24
+DREB_PLAYER_CREDIT = 0.663 / 0.76
+
+
+def _player_rebound_credited(rng: np.random.Generator, offensive: bool) -> bool:
+    if not PLAYER_REBOUND_CREDIT:
+        return True
+    p = OREB_PLAYER_CREDIT if offensive else DREB_PLAYER_CREDIT
+    return bool(rng.random() < min(1.0, max(0.0, p)))
+
 
 def _iterations_per_possession(p_tov: float, p3: float, fg2: float, fg3: float, foul: float, oreb: float) -> float:
     """1 + c: the loop's expected shot iterations per possession (see _loop_points_per_possession)."""
@@ -1825,13 +1844,13 @@ def simulate_pbp_game_boxscore(
                     if oreb:
                         reb_w = _player_usage_weights(home_players, "_prior_reb_pm", h_line)
                         ridx = _pick_weighted(rng, list(range(len(home_players))), reb_w)
-                        if ridx is not None:
+                        if ridx is not None and _player_rebound_credited(rng, bool(oreb)):
                             h["reb"][int(ridx)] += 1
                             _add_q_stat(hq["reb"], q, int(ridx), 1)
                     else:
                         reb_w = _player_usage_weights(away_players, "_prior_reb_pm", a_line)
                         ridx = _pick_weighted(rng, list(range(len(away_players))), reb_w)
-                        if ridx is not None:
+                        if ridx is not None and _player_rebound_credited(rng, bool(oreb)):
                             a["reb"][int(ridx)] += 1
                             _add_q_stat(aq["reb"], q, int(ridx), 1)
                     if record_events:
@@ -1949,13 +1968,13 @@ def simulate_pbp_game_boxscore(
                     if oreb:
                         reb_w = _player_usage_weights(away_players, "_prior_reb_pm", a_line)
                         ridx = _pick_weighted(rng, list(range(len(away_players))), reb_w)
-                        if ridx is not None:
+                        if ridx is not None and _player_rebound_credited(rng, bool(oreb)):
                             a["reb"][int(ridx)] += 1
                             _add_q_stat(aq["reb"], q, int(ridx), 1)
                     else:
                         reb_w = _player_usage_weights(home_players, "_prior_reb_pm", h_line)
                         ridx = _pick_weighted(rng, list(range(len(home_players))), reb_w)
-                        if ridx is not None:
+                        if ridx is not None and _player_rebound_credited(rng, bool(oreb)):
                             h["reb"][int(ridx)] += 1
                             _add_q_stat(hq["reb"], q, int(ridx), 1)
                     if record_events:
