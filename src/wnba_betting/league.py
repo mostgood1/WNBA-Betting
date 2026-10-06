@@ -14,6 +14,9 @@ class LeagueConfig:
     legacy_live_lens_env: str
     odds_api_sport_key: str
     espn_sport_path: str
+    # nba_api stats LeagueID. Its endpoints DEFAULT to "00" (NBA), so a
+    # ScoreboardV2 call without it returns the NBA slate.
+    stats_league_id: str
     user_agent_product: str
     season_start_month: int
     season_games: int
@@ -37,6 +40,7 @@ LEAGUE = LeagueConfig(
     legacy_live_lens_env="NBA_LIVE_LENS_DIR",
     odds_api_sport_key="basketball_wnba",
     espn_sport_path="sports/basketball/wnba",
+    stats_league_id="10",
     user_agent_product="wnba-betting/1.0",
     season_start_month=5,
     season_games=44,

@@ -50,7 +50,7 @@ from .roster_checks import roster_sanity_check
 from .roster_files import pick_rosters_file
 from .player_logs import fetch_player_logs
 from .player_names import normalize_player_name_key
-from .teams import is_wnba_team, normalize_team, to_tricode
+from .teams import from_tricode, is_wnba_team, normalize_team, to_tricode
 from .scrape_stats_api import fetch_games_api, enrich_periods_existing, backfill_scoreboard
 from .odds_api import backfill_historical_odds, OddsApiConfig, consensus_lines_at_close, backfill_player_props, fetch_player_props_current
 from .odds_api import filter_player_prop_bookmakers_df, resolve_player_prop_bookmakers, player_prop_bookmakers_csv
@@ -77,7 +77,6 @@ from .props_edges_backtest import BacktestConfig as PropsEdgesBacktestConfig, ba
 from nba_api.stats.endpoints import scoreboardv2
 from nba_api.stats.endpoints import boxscoretraditionalv3
 from nba_api.stats.library import http as nba_http
-from nba_api.stats.static import teams as static_teams
 import subprocess
 from pathlib import Path
 import sys
@@ -7492,7 +7491,7 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
     # Optional slate filter
     if slate_only:
         try:
-            sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
+            sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, league_id=LEAGUE.stats_league_id, timeout=30)
             nd = sb.get_normalized_dict(); ls = pd.DataFrame(nd.get("LineScore", []))
             teams = []
             if not ls.empty:
@@ -13414,7 +13413,6 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
             day = _load_schedule_day(date_str_local)
             if day.empty:
                 return None
-            abbr_to_full = {str(t["abbreviation"] or "").upper(): str(t["full_name"] or "") for t in static_teams.get_teams()}
             # Build full team names from City + Name to feed normalize_team
             def full_name(city, name):
                 city_s = str(city or "").strip()
@@ -13422,8 +13420,8 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
                 return f"{city_s} {name_s}".strip()
             rows = []
             for _, g in day.iterrows():
-                home_full = full_name(g.get("home_city"), g.get("home_name")) or abbr_to_full.get(str(g.get("home_tricode") or "").strip().upper(), str(g.get("home_tricode") or "").strip())
-                away_full = full_name(g.get("away_city"), g.get("away_name")) or abbr_to_full.get(str(g.get("away_tricode") or "").strip().upper(), str(g.get("away_tricode") or "").strip())
+                home_full = full_name(g.get("home_city"), g.get("home_name")) or from_tricode(str(g.get("home_tricode") or ""))  # WNBA map; static_teams is the NBA list
+                away_full = full_name(g.get("away_city"), g.get("away_name")) or from_tricode(str(g.get("away_tricode") or ""))  # WNBA map; static_teams is the NBA list
                 home = normalize_team(home_full)
                 away = normalize_team(away_full)
                 rows.append({
@@ -13437,7 +13435,7 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
             return None
     try:
         # Fetch slate from ScoreboardV2
-        sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
+        sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, league_id=LEAGUE.stats_league_id, timeout=30)
         nd = sb.get_normalized_dict()
         gh = pd.DataFrame(nd.get("GameHeader", []))
         ls = pd.DataFrame(nd.get("LineScore", []))
@@ -13459,7 +13457,6 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
             except Exception:
                 continue
         # Build matchups
-        team_list = static_teams.get_teams(); abbr_to_full = {t['abbreviation']: t['full_name'] for t in team_list}
         rows = []
         for _, g in gh.iterrows():
             try:
@@ -13467,8 +13464,11 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
                 habbr = team_abbr_map.get(home_id); vabbr = team_abbr_map.get(vis_id)
                 if not habbr or not vabbr:
                     continue
-                home = normalize_team(abbr_to_full.get(habbr, habbr))
-                away = normalize_team(abbr_to_full.get(vabbr, vabbr))
+                # from_tricode, not static_teams.get_teams(): that is the NBA list (ATL -> Atlanta Hawks).
+                home = normalize_team(from_tricode(habbr))
+                away = normalize_team(from_tricode(vabbr))
+                if not home or not away:
+                    continue
                 rows.append({
                     "date": pd.to_datetime(g[gh_cols["GAME_DATE_EST"]]).date(),
                     "home_team": home,
@@ -13486,6 +13486,13 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
         if slate is None or slate.empty:
             slate = _build_slate_from_schedule(date_str)
 
+    # Whatever built the slate (scoreboard, features history, ESPN/schedule
+    # fallback), only WNBA-vs-WNBA matchups are predicted.
+    if slate is not None and not slate.empty:
+        _wnba_rows = slate["home_team"].map(is_wnba_team) & slate["visitor_team"].map(is_wnba_team)
+        if not bool(_wnba_rows.all()):
+            console.print(f"Dropping {int((~_wnba_rows).sum())} non-WNBA matchup(s) from the {date_str} slate.", style="yellow")
+        slate = slate[_wnba_rows].copy()
     if slate is None or slate.empty:
         console.print(f"No games found on {date_str} (API down and no history/schedule fallback).", style="yellow"); return
 
