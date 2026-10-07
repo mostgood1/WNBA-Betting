@@ -445,7 +445,8 @@ def _cdn_games_for_date(date_str: str) -> List[dict[str, Any]]:
 def _scoreboard_games(date_str: str) -> pd.DataFrame:
     try:
         from nba_api.stats.endpoints import scoreboardv2
-        sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
+        # league_id is load-bearing: the default "00" returns the NBA slate.
+        sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, league_id=LEAGUE.stats_league_id, timeout=30)
         nd = sb.get_normalized_dict()
         gh = pd.DataFrame(nd.get("GameHeader", []))
         return gh

@@ -5,6 +5,7 @@ import pandas as pd
 from typing import List, Tuple
 
 from .config import paths
+from .league import LEAGUE
 import requests
 from datetime import datetime as _dt, date as _date
 
@@ -12,7 +13,9 @@ from datetime import datetime as _dt, date as _date
 def _scoreboard_games(date_str: str) -> pd.DataFrame:
     try:
         from nba_api.stats.endpoints import scoreboardv2
-        sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
+        # league_id is load-bearing: the default "00" returns the NBA slate, whose game ids this module would then
+        # fetch play-by-play for and write under the WNBA data root.
+        sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, league_id=LEAGUE.stats_league_id, timeout=30)
         nd = sb.get_normalized_dict()
         gh = pd.DataFrame(nd.get("GameHeader", []))
         return gh

@@ -13,6 +13,8 @@ except Exception:
     _nba_http = None
 
 from .config import paths
+from .league import LEAGUE
+from .teams import stats_tricode
 
 
 def _finals_from_stats(date_str: str) -> pd.DataFrame:
@@ -32,7 +34,8 @@ def _finals_from_stats(date_str: str) -> pd.DataFrame:
                 })
             except Exception:
                 pass
-        sb = _scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=10)
+        # league_id is load-bearing: the default "00" returns the NBA slate (NBA finals written as WNBA ones).
+        sb = _scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, league_id=LEAGUE.stats_league_id, timeout=10)
         nd = sb.get_normalized_dict()
         gh = pd.DataFrame(nd.get("GameHeader", []))
         ls = pd.DataFrame(nd.get("LineScore", []))
@@ -59,7 +62,9 @@ def _finals_from_stats(date_str: str) -> pd.DataFrame:
             try:
                 hid = int(g[cgh["HOME_TEAM_ID"]]); vid = int(g[cgh["VISITOR_TEAM_ID"]])
                 h = team_rows.get(hid, {}); v = team_rows.get(vid, {})
-                htri = str(h.get("tri") or "").upper(); vtri = str(v.get("tri") or "").upper()
+                htri = stats_tricode(h.get("tri")); vtri = stats_tricode(v.get("tri"))
+                if not htri or not vtri:
+                    continue  # not a WNBA game
                 hpts = h.get("pts"); vpts = v.get("pts")
                 out_rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
             except Exception:
@@ -71,6 +76,10 @@ def _finals_from_stats(date_str: str) -> pd.DataFrame:
 
 def _finals_from_cdn(date_str: str) -> pd.DataFrame:
     """Fetch finals via NBA public CDN (scoreboard.json)."""
+    # data.nba.com is the NBA's scoreboard and carries no WNBA game, so for the WNBA it can only return NBA finals --
+    # and tricodes collide (ATL, MIN, IND, ...), so filtering its rows cannot make it safe. ESPN is the WNBA fallback.
+    if LEAGUE.code != "nba":
+        return pd.DataFrame()
     try:
         import requests as _rq  # type: ignore
     except Exception:

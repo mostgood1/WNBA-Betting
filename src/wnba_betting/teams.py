@@ -103,6 +103,14 @@ def from_tricode(tri: str) -> str:
     return _TRI_TO_NAME.get(_STATS_TRI_ALIASES.get(key, key), "")
 
 
+def stats_tricode(tri: str) -> str:
+    """This package's tricode for a stats-API (nba_api, league_id "10") team abbreviation, or "" when it is not a
+    WNBA team. The stats API spells PHX/WSH as PHO/WAS."""
+    key = str(tri or "").strip().upper()
+    key = _STATS_TRI_ALIASES.get(key, key)
+    return key if key in _TRI_TO_NAME else ""
+
+
 def is_wnba_team(name: str) -> bool:
     """True only for a WNBA franchise NAME (after alias normalisation).
 
