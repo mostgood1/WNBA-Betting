@@ -24,7 +24,7 @@ import joblib
 from .elo import Elo
 from .league import LEAGUE, season_label_from_date, season_year_from_date
 from .schedule import _scoreboard_for_date, compute_rest_for_matchups, fetch_schedule_2025_26
-from .rosters import fetch_rosters
+from .rosters import current_roster_season, fetch_rosters
 from .league_status import build_league_status
 from .availability import build_and_check_dressed_players
 from .roster_audit import audit_roster_for_date
@@ -2537,13 +2537,13 @@ def recommend_picks_cmd(
 
 
 @cli.command()
-@click.option("--season", type=str, default="2025-26", show_default=True, help="NBA season string, e.g., 2025-26")
-def fetch_rosters_cmd(season: str):
+@click.option("--season", type=str, default=None, help="WNBA season label, e.g. 2026 (default: the current season). ESPN serves only the current roster, so any other value is normalised to the current season.")
+def fetch_rosters_cmd(season: str | None):
     """Fetch all team rosters for a season and save under data/processed/rosters_*.{csv,parquet}."""
     console.rule("Fetch Rosters")
     try:
         df = fetch_rosters(season=season)
-        console.print({"rows": 0 if df is None else int(len(df)), "season": season})
+        console.print({"rows": 0 if df is None else int(len(df)), "season": current_roster_season()})
     except Exception as e:
         console.print(f"Failed to fetch rosters: {e}", style="red")
 
@@ -2644,8 +2644,8 @@ def fetch_schedule_cmd(season: str):
 
 
 @cli.command("fetch-rosters")
-@click.option("--season", type=str, default="2025-26", show_default=True, help="Season string like 2025-26")
-def fetch_rosters_cmd(season: str):
+@click.option("--season", type=str, default=None, help="WNBA season label, e.g. 2026 (default: the current season). ESPN serves only the current roster, so any other value is normalised to the current season.")
+def fetch_rosters_cmd(season: str | None):
     """Fetch team rosters for the given season and save processed CSV/Parquet."""
     console.rule("Fetch Rosters")
     try:
@@ -2654,7 +2654,7 @@ def fetch_rosters_cmd(season: str):
         console.print(f"Failed to fetch rosters: {e}", style="red"); return
     if df.empty:
         console.print("No roster data returned.", style="yellow"); return
-    console.print({"rows": int(len(df)), "teams": int(df['TEAM_ID'].nunique())})
+    console.print({"rows": int(len(df)), "teams": int(df['TEAM_ID'].nunique()), "season": current_roster_season()})
 
 
 @cli.command("fetch-player-logs")
