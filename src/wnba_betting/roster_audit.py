@@ -2,7 +2,8 @@ from __future__ import annotations
 import pandas as pd
 from typing import Tuple
 from .config import paths
-from .teams import to_tricode
+from .league import LEAGUE
+from .teams import stats_tricode, to_tricode
 from .boxscores import fetch_boxscores_for_date
 from .league_status import build_league_status
 import re as _re
@@ -37,14 +38,15 @@ def audit_roster_for_date(date_str: str) -> Tuple[pd.DataFrame, dict]:
     if "team_on_slate" not in ls.columns or (ls.get("team_on_slate").isna().all() if "team_on_slate" in ls.columns else True):
         try:
             from nba_api.stats.endpoints import scoreboardv2
-            sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
+            # league_id is load-bearing: the default "00" returns the NBA slate (NBA ATL/MIN/... read as on slate).
+            sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, league_id=LEAGUE.stats_league_id, timeout=30)
             nd = sb.get_normalized_dict()
             ls_df = pd.DataFrame(nd.get("LineScore", []))
             teams_on = set()
             if not ls_df.empty:
                 cu2 = {c.upper(): c for c in ls_df.columns}
                 if "TEAM_ABBREVIATION" in cu2:
-                    teams_on = set(str(x).strip().upper() for x in ls_df[cu2["TEAM_ABBREVIATION"]].dropna().astype(str))
+                    teams_on = {stats_tricode(x) for x in ls_df[cu2["TEAM_ABBREVIATION"]].dropna().astype(str)} - {""}
             if teams_on:
                 ls["team_on_slate"] = ls["team_ls"].astype(str).str.upper().isin(teams_on)
         except Exception:

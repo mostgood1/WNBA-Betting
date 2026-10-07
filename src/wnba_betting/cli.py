@@ -4995,7 +4995,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
         try:
             games = []
             if str(LEAGUE.code).strip().lower() == "nba":
-                sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
+                sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, league_id=LEAGUE.stats_league_id, timeout=30)
                 nd = sb.get_normalized_dict()
                 gh = pd.DataFrame(nd.get("GameHeader", []))
                 ls = pd.DataFrame(nd.get("LineScore", []))

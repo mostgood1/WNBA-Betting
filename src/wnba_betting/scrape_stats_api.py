@@ -155,7 +155,7 @@ def fetch_games_api(last_n: int = 10, rate_delay: float = 0.6, with_periods: boo
     )
     def _scoreboard_for_date(dt: datetime):
         # NBA expects YYYY-MM-DD
-        return scoreboardv2.ScoreboardV2(game_date=dt.strftime("%Y-%m-%d"), day_offset=0, timeout=30)
+        return scoreboardv2.ScoreboardV2(game_date=dt.strftime("%Y-%m-%d"), day_offset=0, league_id=LEAGUE.stats_league_id, timeout=30)
 
     def _fetch_season_via_scoreboard(season_end_year: int) -> list[dict]:
         """Fallback: iterate dates in the season window and use ScoreboardV2 to get games.
@@ -739,7 +739,7 @@ def _scoreboard_iterate_dates_for_season(season_end_year: int, rate_delay: float
         reraise=True,
     )
     def _scoreboard_for_date(dt: datetime):
-        return scoreboardv2.ScoreboardV2(game_date=dt.strftime("%Y-%m-%d"), day_offset=0, timeout=30)
+        return scoreboardv2.ScoreboardV2(game_date=dt.strftime("%Y-%m-%d"), day_offset=0, league_id=LEAGUE.stats_league_id, timeout=30)
 
     start = datetime(season_end_year - 1, 10, 1)
     end = datetime(season_end_year, 10, 15)
@@ -938,7 +938,7 @@ def backfill_scoreboard(seasons: list[int], rate_delay: float = 0.8, verbose: bo
         reraise=True,
     )
     def _scoreboard_for_date(dt: datetime):
-        return scoreboardv2.ScoreboardV2(game_date=dt.strftime("%Y-%m-%d"), day_offset=0, timeout=30)
+        return scoreboardv2.ScoreboardV2(game_date=dt.strftime("%Y-%m-%d"), day_offset=0, league_id=LEAGUE.stats_league_id, timeout=30)
     for s in seasons:
         # Figure dates to iterate based on resume
         start = datetime(s - 1, 10, 1)
