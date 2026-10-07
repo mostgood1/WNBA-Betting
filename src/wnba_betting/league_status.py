@@ -4,11 +4,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Dict, List
 from .config import paths
-from .league import season_label_from_date
-from .odds_api import player_props_raw_path
-from .teams import to_tricode
+from .league import LEAGUE, season_label_from_date, season_year_from_date
+from .teams import TEAM_TRICODES, to_tricode
 import datetime as _dt
-import time as _time
 import re as _re
 
 @dataclass
@@ -44,14 +42,16 @@ def _today_slate_team_tricodes(date_str: str) -> set[str]:
     sb_tris: set[str] = set()
     try:
         from nba_api.stats.endpoints import scoreboardv2
-        sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=20)
+        # league_id is load-bearing: without it the stats API returns the NBA slate, and NBA ATL/GSW/IND/... were
+        # flagged "on slate" (measured 2026-10-06).
+        sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, league_id=_WNBA_STATS_LEAGUE_ID, timeout=20)
         nd = sb.get_normalized_dict()
         ls = pd.DataFrame(nd.get('LineScore', []))
         if not ls.empty:
             c = {c.upper(): c for c in ls.columns}
             if 'TEAM_ABBREVIATION' in c:
                 for _, r in ls.iterrows():
-                    tri = str(r[c['TEAM_ABBREVIATION']]).strip().upper()
+                    tri = _wnba_tricode(r[c['TEAM_ABBREVIATION']])
                     if tri:
                         sb_tris.add(tri)
     except Exception:
@@ -193,46 +193,58 @@ def _pick_processed_roster_file(date_str: str | None) -> Path | None:
     return files[0]
 
 
-def _fetch_league_rosters_via_nba(date_str: str) -> pd.DataFrame:
-    # Use nba_api teams -> CommonTeamRoster per team
+# The stats API's WNBA league id. Without it ScoreboardV2 defaults to "00", the NBA. (PR #9 adds the same value as
+# LeagueConfig.stats_league_id; read it from there when present so the two cannot drift.)
+_WNBA_STATS_LEAGUE_ID = getattr(LEAGUE, "stats_league_id", "10")
+# The stats API spells two franchises differently from this package's tricodes.
+_STATS_TRI_ALIASES = {"PHO": "PHX", "WAS": "WSH"}
+
+
+def _wnba_tricode(value: object) -> str:
+    """The WNBA tricode for a team string, or "" when it is not a WNBA team.
+
+    Stricter than `to_tricode`, which upper-cases ANY 3-letter input (so NBA "BKN" or an exhibition "NIGER" row
+    would pass through)."""
+    tri = to_tricode(str(value or '').strip())
+    tri = _STATS_TRI_ALIASES.get(tri, tri)
+    return tri if tri in TEAM_TRICODES else ''
+
+
+def _roster_from_player_logs(date_str: str) -> pd.DataFrame:
+    """WNBA roster as of `date_str`: every player who logged a game this season on or before the date, on the team
+    of their latest such game. Local and WNBA-native.
+
+    Replaces `_fetch_league_rosters_via_nba`, which iterated nba_api's `static_teams.get_teams()` -- the NBA list --
+    so with no processed rosters file every league_status_<date>.csv was the NBA roster (measured on the production
+    data root 2026-10-06: 09-30..10-08 files ~600 rows, 30 NBA teams, no WNBA player).
+    """
+    empty = pd.DataFrame(columns=['player_id', 'player_name', 'team'])
+    logs_p = paths.data_processed / 'player_logs.csv'
+    if not logs_p.exists():
+        return empty
     try:
-        from nba_api.stats.static import teams as static_teams
-        from nba_api.stats.endpoints import commonteamroster
-        teams = static_teams.get_teams()
-        season = _season_for_date(date_str)
-        out: List[pd.DataFrame] = []
-        for t in teams:
-            try:
-                tid = int(t.get('id'))
-                tri = str(t.get('abbreviation') or '').strip().upper()
-                if not tid or not tri:
-                    continue
-                # Explicit season to avoid cross-season leakage
-                resp = commonteamroster.CommonTeamRoster(team_id=tid, season=season, timeout=20)
-                nd = resp.get_normalized_dict()
-                ply = pd.DataFrame(nd.get('CommonTeamRoster', []))
-                if not ply.empty:
-                    # Expected columns: PLAYER, PLAYER_ID
-                    c = {c.upper(): c for c in ply.columns}
-                    if 'PLAYER' in c and 'PLAYER_ID' in c:
-                        part = ply[[c['PLAYER'], c['PLAYER_ID']]].copy()
-                        part.rename(columns={c['PLAYER']: 'player_name', c['PLAYER_ID']: 'player_id'}, inplace=True)
-                        part['team'] = tri
-                        out.append(part)
-            except Exception:
-                continue
-        if out:
-            df = pd.concat(out, ignore_index=True)
-            # Deduplicate by player_id+team (some endpoints duplicate two-way/waived entries)
-            try:
-                if {'player_id','team'}.issubset(df.columns):
-                    df = df.drop_duplicates(subset=['player_id','team'])
-            except Exception:
-                pass
-            return df
+        logs = pd.read_csv(logs_p, usecols=lambda col: str(col).upper() in {'GAME_DATE', 'PLAYER_NAME', 'PLAYER_ID', 'TEAM_ABBREVIATION'})
     except Exception:
-        pass
-    return pd.DataFrame(columns=['player_id','player_name','team'])
+        return empty
+    c = {str(col).upper(): col for col in logs.columns}
+    if not {'GAME_DATE', 'PLAYER_NAME', 'PLAYER_ID', 'TEAM_ABBREVIATION'}.issubset(c.keys()) or logs.empty:
+        return empty
+    cutoff = pd.to_datetime(date_str, errors='coerce')
+    if pd.isna(cutoff):
+        return empty
+    season_start = pd.Timestamp(year=int(season_year_from_date(cutoff.date())), month=1, day=1)
+    logs = logs.rename(columns={c['GAME_DATE']: 'game_date', c['PLAYER_NAME']: 'player_name', c['PLAYER_ID']: 'player_id', c['TEAM_ABBREVIATION']: 'team'})
+    logs['game_date'] = pd.to_datetime(logs['game_date'], errors='coerce')
+    logs['player_id'] = pd.to_numeric(logs['player_id'], errors='coerce')
+    logs['team'] = logs['team'].map(_wnba_tricode)
+    logs = logs[logs['game_date'].notna() & (logs['game_date'] >= season_start) & (logs['game_date'] <= cutoff)]
+    logs = logs[logs['player_id'].notna() & (logs['team'].astype(str).str.len() > 0)]
+    if logs.empty:
+        return empty
+    latest = logs.sort_values(['player_id', 'game_date']).groupby('player_id', as_index=False).tail(1)
+    out = latest[['player_id', 'player_name', 'team']].copy()
+    out['player_id'] = out['player_id'].astype(int)
+    return out.reset_index(drop=True)
 
 
 def _load_injuries_latest_upto(date_str: str) -> pd.DataFrame:
@@ -247,34 +259,28 @@ def _load_injuries_latest_upto(date_str: str) -> pd.DataFrame:
                 df = df[df['date'].notna()]
                 df = df[df['date'] <= cutoff].copy()
                 if not df.empty:
-                    df = df.sort_values(['date'])
-                    grp_cols = [c for c in ['player','team'] if c in df.columns]
-                    if not grp_cols:
-                        grp_cols = ['player']
-                    latest = df.groupby(grp_cols, as_index=False).tail(1)
-                    # Drop stale exclusion statuses (fixes RTP/feed-staleness issues).
-                    try:
-                        EXCL = {'OUT','DOUBTFUL','SUSPENDED','INACTIVE','REST'}
-                        tmp = latest.copy()
-                        tmp['status_norm'] = tmp['status'].astype(str).str.upper().str.strip()
-                        tmp['date'] = pd.to_datetime(tmp['date'], errors='coerce').dt.date
-                        is_excl = tmp['status_norm'].isin(EXCL)
+                    # The feed is a stack of DAILY SNAPSHOTS of the injury report and a returned player simply drops
+                    # off the next one, so status comes from the LATEST SNAPSHOT on or before the date -- never a
+                    # player's latest row, which kept returned players OUT (measured 2026-10-06: Jewell Loyd and
+                    # Stephanie Talbot on the 10-05 snapshot, absent from 10-06).
+                    counts = df['date'].value_counts().sort_index()
+                    snapshot_day = counts.index[-1]
+                    # A partial fetch would clear almost every exclusion: a latest snapshot under half the previous
+                    # one's rows is not trusted.
+                    if len(counts) >= 2 and counts.iloc[-1] < 0.5 * counts.iloc[-2]:
+                        print(f"LEAGUE_STATUS_INJURY_SNAPSHOT_PARTIAL date={date_str} latest={snapshot_day} rows={int(counts.iloc[-1])} "
+                              f"previous={counts.index[-2]} rows={int(counts.iloc[-2])} -- using the previous snapshot", flush=True)
+                        snapshot_day = counts.index[-2]
+                    out = df[df['date'] == snapshot_day].copy()
+                    # A snapshot more than 3 days old counts only for its season-ending rows.
+                    if (cutoff - snapshot_day).days > 3:
+                        status_norm = out['status'].astype(str).str.upper().str.strip()
                         is_season = (
-                            tmp['status_norm'].astype(str).str.contains('SEASON', na=False)
-                            | tmp['status_norm'].astype(str).str.contains('INDEFINITE', na=False)
-                            | tmp['status_norm'].astype(str).str.contains('SEASON-ENDING', na=False)
+                            (status_norm.str.contains('SEASON', na=False) & status_norm.str.contains('OUT', na=False))
+                            | status_norm.str.contains('INDEFINITE', na=False)
+                            | status_norm.str.contains('SEASON-ENDING', na=False)
                         )
-                        days_old = None
-                        try:
-                            days_old = tmp['date'].map(lambda d: (cutoff - d).days if d is not None else 9999)
-                        except Exception:
-                            days_old = None
-                        if days_old is not None:
-                            stale_excl = is_excl & (~is_season) & (days_old > 3)
-                            tmp = tmp[~stale_excl].copy()
-                        out = tmp.drop(columns=['status_norm'], errors='ignore')
-                    except Exception:
-                        out = latest
+                        out = out[is_season].copy()
         except Exception:
             pass
     # Merge in per-day overrides if any
@@ -290,198 +296,6 @@ def _load_injuries_latest_upto(date_str: str) -> pd.DataFrame:
 
 
 def build_league_status(date_str: str) -> pd.DataFrame:
-    # 0) Resolve league-wide teams via CommonPlayerInfo with caching (authoritative per-player)
-    def _players_index_df() -> pd.DataFrame:
-        try:
-            from nba_api.stats.static import players as static_players
-            plist = static_players.get_players()
-            if plist:
-                df = pd.DataFrame(plist)
-                # expected columns: id, full_name, is_active
-                c = {c.lower(): c for c in df.columns}
-                need = {c.get('id'), c.get('full_name')}
-                if all(need):
-                    return df.rename(columns={c['id']: 'player_id', c['full_name']: 'player_name'})
-        except Exception:
-            pass
-        return pd.DataFrame(columns=['player_id','player_name','is_active'])
-
-    def _norm_name(s: str) -> str:
-        s = (s or '').strip().lower()
-        s = _re.sub(r"[^a-z0-9\s]", "", s)
-        s = _re.sub(r"\s+", " ", s).strip()
-        toks = [t for t in s.split(' ') if t not in {'jr','sr','ii','iii','iv','v'}]
-        return ' '.join(toks)
-
-    def _resolve_league_via_cpi(date_str: str) -> pd.DataFrame:
-        idx = _players_index_df()
-        if idx.empty:
-            return pd.DataFrame(columns=['player_id','player_name','team'])
-        # Candidate ids: prioritize active
-        if 'is_active' in idx.columns:
-            cand = idx[idx['is_active'] == True].copy()
-        else:
-            cand = idx.copy()
-        # Add participants from odds snapshot for the day to ensure rookies/ten-days get covered
-        try:
-            from .config import paths as _paths
-            raw_odds = player_props_raw_path(date_str=date_str, ext="csv")
-            if raw_odds.exists():
-                od = pd.read_csv(raw_odds)
-                name_col = next((c for c in od.columns if c.lower() in ('player','player_name','name')), None)
-                if name_col:
-                    od['_key'] = od[name_col].astype(str).map(_norm_name)
-                    idx['_key'] = idx['player_name'].astype(str).map(_norm_name)
-                    known = set(idx['_key'])
-                    new_rows = od[~od['_key'].isin(known)][['_key']].drop_duplicates().copy()
-                    if not new_rows.empty:
-                        # Can't resolve id; skip adding unknowns to CPI list. We'll still rely on roster fallback for these.
-                        pass
-        except Exception:
-            pass
-        # Prefer last-known team from player_logs (deterministic, local, and robust).
-        logs_pid_to_tri: dict[int, str] = {}
-        try:
-            from .config import paths as _paths
-            logs_csv = _paths.data_processed / 'player_logs.csv'
-            logs_pq = _paths.data_processed / 'player_logs.parquet'
-            logs = None
-            if logs_csv.exists():
-                logs = pd.read_csv(logs_csv)
-            elif logs_pq.exists():
-                try:
-                    logs = pd.read_parquet(logs_pq)
-                except Exception:
-                    logs = None
-            if isinstance(logs, pd.DataFrame) and not logs.empty:
-                cols = {c.upper(): c for c in logs.columns}
-                pid_c = cols.get('PLAYER_ID')
-                tri_c = cols.get('TEAM_ABBREVIATION')
-                date_c = cols.get('GAME_DATE') or cols.get('DATE')
-                if pid_c and tri_c and date_c:
-                    tmp = logs[[pid_c, tri_c, date_c]].copy()
-                    tmp[pid_c] = pd.to_numeric(tmp[pid_c], errors='coerce')
-                    tmp[tri_c] = tmp[tri_c].astype(str).map(lambda x: (to_tricode(str(x)) or str(x).strip().upper()))
-                    tmp[date_c] = pd.to_datetime(tmp[date_c], errors='coerce')
-                    cut = pd.to_datetime(date_str, errors='coerce')
-                    if pd.notna(cut):
-                        tmp = tmp[tmp[date_c].notna() & (tmp[date_c] <= cut)]
-                    tmp = tmp.dropna(subset=[pid_c])
-                    tmp = tmp[tmp[tri_c].astype(str).str.len() > 0]
-                    if not tmp.empty:
-                        tmp = tmp.sort_values(date_c)
-                        last = tmp.groupby(pid_c, as_index=False).tail(1)
-                        for _, rr in last.iterrows():
-                            try:
-                                pid = int(rr[pid_c])
-                                tri = str(rr[tri_c]).strip().upper()
-                                if pid and tri:
-                                    logs_pid_to_tri[pid] = tri
-                            except Exception:
-                                continue
-        except Exception:
-            logs_pid_to_tri = {}
-
-        # Prepare a season-appropriate roster map (used to invalidate stale cache entries)
-        roster_pid_to_tri: dict[int, str] = {}
-        try:
-            roster_file = _pick_processed_roster_file(date_str)
-            if roster_file is not None and roster_file.exists():
-                rdf = pd.read_csv(roster_file)
-                if rdf is not None and not rdf.empty:
-                    c = {c.upper(): c for c in rdf.columns}
-                    if {'PLAYER_ID','TEAM_ABBREVIATION'}.issubset(c.keys()):
-                        tmp = rdf[[c['PLAYER_ID'], c['TEAM_ABBREVIATION']]].copy()
-                        tmp[c['PLAYER_ID']] = pd.to_numeric(tmp[c['PLAYER_ID']], errors='coerce')
-                        tmp[c['TEAM_ABBREVIATION']] = tmp[c['TEAM_ABBREVIATION']].astype(str).map(lambda x: (to_tricode(str(x)) or str(x).strip().upper()))
-                        for _, rr in tmp.dropna().iterrows():
-                            try:
-                                pid = int(rr[c['PLAYER_ID']])
-                                tri = str(rr[c['TEAM_ABBREVIATION']] or '').strip().upper()
-                                if pid and tri:
-                                    roster_pid_to_tri[pid] = tri
-                            except Exception:
-                                continue
-        except Exception:
-            roster_pid_to_tri = {}
-
-        # Prepare cache and resolver
-        cache_p = paths.data_processed / 'player_team_cache.csv'
-        cache = {}
-        if cache_p.exists():
-            try:
-                cdf = pd.read_csv(cache_p)
-                if cdf is not None and not cdf.empty and {'player_id','team'}.issubset(set(cdf.columns)):
-                    for _, r in cdf.iterrows():
-                        try:
-                            cache[int(pd.to_numeric(r['player_id'], errors='coerce'))] = str(r['team']).strip().upper()
-                        except Exception:
-                            continue
-            except Exception:
-                pass
-        def _resolve(pid: int) -> str | None:
-            try:
-                rtri = roster_pid_to_tri.get(int(pid))
-                if rtri:
-                    cache[pid] = rtri
-                    return rtri
-            except Exception:
-                pass
-            # Fall back to last-known team from logs at/before date when roster data is unavailable.
-            try:
-                ltri = logs_pid_to_tri.get(int(pid))
-                if ltri:
-                    cache[pid] = ltri
-                    return ltri
-            except Exception:
-                pass
-            if pid in cache:
-                # If roster disagrees, treat roster as authoritative for this date.
-                try:
-                    rtri = roster_pid_to_tri.get(int(pid))
-                    if rtri and rtri != cache.get(pid):
-                        cache[pid] = rtri
-                        return rtri
-                except Exception:
-                    pass
-                return cache[pid]
-            try:
-                from nba_api.stats.endpoints import commonplayerinfo as _cpi
-                resp = _cpi.CommonPlayerInfo(player_id=int(pid), timeout=10)
-                nd = resp.get_normalized_dict()
-                rows = nd.get('CommonPlayerInfo', [])
-                if rows:
-                    tri = str(rows[0].get('TEAM_ABBREVIATION') or '').strip().upper()
-                    if tri:
-                        cache[pid] = tri
-                        # Backoff a touch between calls
-                        _time.sleep(0.2)
-                        return tri
-            except Exception:
-                # small backoff on error to be polite
-                _time.sleep(0.15)
-                return None
-            return None
-        out_rows = []
-        for _, r in cand.iterrows():
-            try:
-                pid = int(pd.to_numeric(r['player_id'], errors='coerce'))
-                if not pid:
-                    continue
-                team = _resolve(pid) or ''
-                name = str(r['player_name'])
-                out_rows.append({'player_id': pid, 'player_name': name, 'team': team})
-            except Exception:
-                continue
-        out = pd.DataFrame(out_rows)
-        # Persist cache
-        try:
-            if cache:
-                pd.DataFrame([(k, v) for k, v in cache.items()], columns=['player_id','team']).to_csv(cache_p, index=False)
-        except Exception:
-            pass
-        return out
-
     # 1) Primary roster: season-appropriate processed roster file.
     # This is authoritative for WNBA and avoids cross-league contamination from CPI/NBA fallbacks.
     rost = pd.DataFrame()
@@ -497,10 +311,13 @@ def build_league_status(date_str: str) -> pd.DataFrame:
                 rost = df[[c['PLAYER'], c['PLAYER_ID'], c['TEAM_ABBREVIATION']]].rename(columns={c['PLAYER']: 'player_name', c['PLAYER_ID']: 'player_id', c['TEAM_ABBREVIATION']: 'team'})
     except Exception:
         rost = pd.DataFrame()
+    # 1b) No processed roster file: the season's WNBA player logs. NEVER nba_api's static team/player lists -- they
+    # are the NBA's, and falling through to them wrote the whole NBA roster into every WNBA league_status file.
     if rost is None or rost.empty:
-        rost = _fetch_league_rosters_via_nba(date_str)
+        rost = _roster_from_player_logs(date_str)
     if rost is None or rost.empty:
-        rost = _resolve_league_via_cpi(date_str)
+        print(f"LEAGUE_STATUS_NO_WNBA_ROSTER date={date_str}: no processed rosters file and no player_logs rows this season", flush=True)
+        rost = pd.DataFrame(columns=['player_id', 'player_name', 'team'])
     rost['team'] = rost['team'].astype(str).map(lambda x: (to_tricode(str(x)) or str(x).strip().upper()))
     # Apply manual roster overrides if present (authoritative corrections)
     try:
