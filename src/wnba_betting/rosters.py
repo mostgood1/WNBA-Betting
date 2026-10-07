@@ -8,7 +8,9 @@ import pandas as pd
 import requests
 
 from .config import paths
-from .league import LEAGUE
+from datetime import date as _date
+
+from .league import LEAGUE, season_label_from_date
 from .roster_files import pick_rosters_file
 from .teams import to_tricode
 
@@ -18,6 +20,11 @@ ESPN_SITE_ROOT = "https://site.web.api.espn.com/apis/site/v2"
 
 def _headers() -> dict[str, str]:
     return {"Accept": "application/json", "User-Agent": LEAGUE.user_agent_product}
+
+
+def current_roster_season() -> str:
+    """The season label for a roster fetched today (the league's season convention, e.g. "2026")."""
+    return str(season_label_from_date(_date.today()))
 
 
 def _season_year(season: str) -> int:
@@ -234,6 +241,18 @@ def fetch_rosters(
             persist_every = max(1, int(env_persist))
     except Exception:
         pass
+
+    # ESPN's roster endpoint serves only the CURRENT roster (no season parameter); `season` only labels the output.
+    # A different label would file today's roster under another season -- e.g. the NBA-style default "2025-26" wrote
+    # rosters_2025-26.csv, which pick_rosters_file then matches for 2025 dates (today's roster read as-of 2025).
+    requested = str(season or "").strip()
+    season = current_roster_season()
+    if requested and requested != season:
+        print(
+            f"[fetch_rosters] ROSTER_SEASON_NORMALISED requested={requested} writing={season}: "
+            "ESPN serves only the current roster",
+            flush=True,
+        )
 
     team_list = _fetch_espn_teams()
     out_csv, out_parq = _rosters_output_paths(season)
