@@ -88,6 +88,20 @@ _NAME_TO_TRI = {
 
 TEAM_TRICODES = tuple(sorted(set(_NAME_TO_TRI.values())))
 
+# The stats API (nba_api, league_id "10") spells two franchises differently.
+_STATS_TRI_ALIASES = {"PHO": "PHX", "WAS": "WSH"}
+_TRI_TO_NAME = {tri: name for name, tri in _NAME_TO_TRI.items()}
+
+
+def from_tricode(tri: str) -> str:
+    """WNBA franchise name for a tricode, or "" when it is not a WNBA tricode.
+
+    Replaces nba_api's `static_teams.get_teams()` lookup, which is the NBA list
+    (ATL -> Atlanta Hawks) and whose WNBA list has no POR/TOR.
+    """
+    key = str(tri or "").strip().upper()
+    return _TRI_TO_NAME.get(_STATS_TRI_ALIASES.get(key, key), "")
+
 
 def is_wnba_team(name: str) -> bool:
     """True only for a WNBA franchise NAME (after alias normalisation).
