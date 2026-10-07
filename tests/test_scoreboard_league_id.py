@@ -16,15 +16,11 @@ import nba_api.stats.endpoints.scoreboardv2 as scoreboard_module
 from wnba_betting import boxscores, finals, pbp
 
 PKG = Path(boxscores.__file__).resolve().parent
-# league_status.py's call is fixed in #10 (league_status: WNBA roster and slate only); drop this once it merges.
-_PENDING = {"league_status.py"}
 
 
 def test_no_scoreboard_call_in_the_package_omits_league_id():
     missing = []
     for path in sorted(PKG.rglob("*.py")):
-        if path.name in _PENDING:
-            continue
         tree = ast.parse(path.read_text(encoding="utf-8-sig"), filename=str(path))
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
